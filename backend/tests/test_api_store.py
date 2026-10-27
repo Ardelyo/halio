@@ -1,17 +1,8 @@
-import os
-import tempfile
-
 import pytest
+from fastapi.testclient import TestClient
 
-os.environ["HALIO_DB"] = os.path.join(tempfile.mkdtemp(), "test.db")
-os.environ.pop("GOOGLE_FACTCHECK_API_KEY", None)
-os.environ.pop("HALIO_LLM", None)
-os.environ.pop("RADAR_TOKEN", None)
-
-from fastapi.testclient import TestClient  # noqa: E402
-
-from halio.api import app  # noqa: E402
-from halio.store import Store  # noqa: E402
+from halio.api import app
+from halio.store import Store
 
 client = TestClient(app)
 
