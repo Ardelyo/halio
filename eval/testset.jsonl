@@ -1,0 +1,32 @@
+{"text": "Bapak ibu, ada video Pak Prabowo bagi-bagi uang tunai buat rakyat, langsung chat nomor WA ini untuk daftar ya, bayar admin 150rb", "expect": "terbukti_salah", "debunk": "bansos-deepfake-presiden", "note": "paraphrase"}
+{"text": "Daftar bantuan langsung tunai dari Presiden, cukup kirim KTP ke WhatsApp dan transfer biaya administrasi", "expect": "terbukti_salah", "debunk": "bansos-deepfake-presiden", "note": "paraphrase"}
+{"text": "INFO VALID!! Menteri keuangan umumkan bansos tunai, pendaftaran lewat wa, buruan sebelum ditutup", "expect": "terbukti_salah", "debunk": "bansos-deepfake-presiden", "note": "paraphrase+caps"}
+{"text": "Ada kenalan di kodam bisa bantu anak ibu lulus tes tamtama TNI AD, dijamin lulus asal siapkan uang 80 juta", "expect": "terbukti_salah", "debunk": "rekrutmen-tni-ad-berbayar", "note": "paraphrase"}
+{"text": "Jalur khusus masuk tentara, pasti lulus, bayar ke orang dalam", "expect": "terbukti_salah", "debunk": "rekrutmen-tni-ad-berbayar", "note": "short paraphrase"}
+{"text": "Penerimaan bintara TNI AD tahun ini ada jalur titipan, hubungi saya, biaya bisa dicicil", "expect": "terbukti_salah", "debunk": "rekrutmen-tni-ad-berbayar", "note": "paraphrase"}
+{"text": "Menurut BMKG akan terjadi gempa magnitudo 8,9 disertai tsunami tanggal 15 bulan depan, segera siapkan tas siaga", "expect": "terbukti_salah", "debunk": "bmkg-prediksi-gempa-tanggal", "note": "paraphrase"}
+{"text": "WASPADA!!! gempa besar diprediksi terjadi minggu depan di pulau jawa, sebarkan ke keluarga", "expect": "terbukti_salah", "debunk": "bmkg-prediksi-gempa-tanggal", "note": "paraphrase+caps"}
+{"text": "Prediksi gempa susulan lebih besar M9 akan datang dalam 3 hari", "expect": "terbukti_salah", "debunk": "bmkg-prediksi-gempa-tanggal", "note": "paraphrase"}
+{"text": "Obat covid paling ampuh: air kelapa muda campur garam dan perasan jeruk nipis, diminum pagi hari langsung sembuh", "expect": "terbukti_salah", "debunk": "air-kelapa-garam-obat", "note": "paraphrase"}
+{"text": "air klapa + garem + jeruk nipis bs nyembuhin corona, udh dibuktiin", "expect": "terbukti_salah", "debunk": "air-kelapa-garam-obat", "note": "slang+typo"}
+{"text": "Selamat! Telkomsel XL Indosat bagi kuota gratis 50GB dalam rangka HUT RI, klik link ini dan isi nomor HP kamu", "expect": "terbukti_salah", "debunk": "kuota-gratis-operator", "note": "paraphrase"}
+{"text": "Kominfo bagikan subsidi kuota internet gratis, daftar di tautan lalu bagikan ke 10 grup WA", "expect": "terbukti_salah", "debunk": "kuota-gratis-operator", "note": "paraphrase"}
+{"text": "Jasa Marga kasih saldo e-toll gratis 100 ribu buat pengguna tol, klaim di link berikut", "expect": "terbukti_salah", "debunk": "saldo-etoll-gratis", "note": "paraphrase"}
+{"text": "Hati-hati ada komplotan penculik anak naik mobil putih keliling sekolah, anak diculik diambil organ tubuhnya", "expect": "terbukti_salah", "debunk": "penculikan-anak-berantai", "note": "paraphrase"}
+{"text": "Waspada penculikan anak di kampung kita, pelaku menyamar jadi orang gila, tolong share", "expect": "terbukti_salah", "debunk": "penculikan-anak-berantai", "note": "paraphrase"}
+{"text": "Pendaftaran rekrutmen TNI AD 2026 dibuka secara online dan tidak dipungut biaya", "expect": "not_debunked", "note": "TRUE statement on same topic as a debunk: must NOT be labelled hoax"}
+{"text": "BMKG mencatat gempa magnitudo 5,1 di selatan Jawa pagi ini, tidak berpotensi tsunami", "expect": "not_debunked", "note": "TRUE-style official report on same topic"}
+{"text": "Pemerintah menyalurkan bansos beras lewat kantor pos dan bank Himbara, tanpa biaya apa pun", "expect": "not_debunked", "note": "true-style statement, same topic as bansos debunk"}
+{"text": "Air kelapa mengandung elektrolit seperti kalium yang membantu mengganti cairan tubuh", "expect": "not_debunked", "note": "true health fact, same keywords"}
+{"text": "Jasa Marga memberlakukan diskon tarif tol 20 persen saat libur Natal", "expect": "not_debunked", "note": "unknown claim, same entity"}
+{"text": "Polisi menangkap pelaku penculikan anak di Bogor setelah laporan warga", "expect": "not_debunked", "note": "real-news style, same topic"}
+{"text": "Harga cabai di pasar naik dua kali lipat karena musim hujan", "expect": "not_debunked", "note": "unrelated claim"}
+{"text": "Minum air rebusan daun sirsak setiap hari bisa menyembuhkan kanker stadium akhir", "expect": "not_debunked", "note": "likely hoax but NOT in corpus: must abstain, not guess"}
+{"text": "Vaksin terbaru mengandung chip untuk melacak masyarakat, sebarkan sebelum dihapus", "expect": "not_debunked", "note": "hoax NOT in corpus: must abstain"}
+{"text": "Jembatan Suramadu akan ditutup total selama seminggu mulai besok", "expect": "not_debunked", "note": "unknown claim"}
+{"text": "Timnas Indonesia menang 2-0 tadi malam", "expect": "not_debunked", "note": "unrelated"}
+{"text": "Bank akan memblokir semua rekening yang tidak aktif tiga bulan mulai Januari", "expect": "not_debunked", "note": "unknown claim"}
+{"text": "Selamat pagi keluarga, semoga hari ini penuh berkah. Amin", "expect": "opinion", "note": "greeting"}
+{"text": "Menurut saya pemerintah harus lebih memperhatikan petani", "expect": "opinion", "note": "opinion"}
+{"text": "Apa kabar semuanya? Sudah makan belum?", "expect": "opinion", "note": "question"}
+{"text": "Terima kasih atas doanya, mohon maaf lahir batin", "expect": "opinion", "note": "greeting"}

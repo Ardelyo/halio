@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Halio</title>
+  <meta name="description" content="Halio: teman cek pesan keluarga. Teruskan pesan meragukan, dapatkan jawaban jujur bersumber.">
+  <meta name="theme-color" content="#1d4ed8">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header class="top">
+    <img src="icons/icon.svg" alt="">
+    <div>
+      <h1>Halio</h1>
+      <p>Teman cek pesan keluarga</p>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="ask">
+    <label class="big" id="ask" for="msg">Tempel pesan yang meragukan di sini</label>
+    <textarea id="msg" placeholder="Contoh: pesan berantai dari grup keluarga…"></textarea>
+    <div class="row">
+      <label for="sapaan" class="note">Panggil saya:</label>
+      <select id="sapaan">
+        <option>Bapak, Ibu</option><option>Bu</option><option>Pak</option>
+        <option>Mbah</option><option>Oma</option><option>Opa</option><option>Kak</option>
+      </select>
+    </div>
+    <div class="row"><button id="go" class="primary">🔍 Cek pesan ini</button></div>
+    <p class="note" style="margin-bottom:0">Coba contoh:</p>
+    <div class="chips" id="examples"></div>
+  </section>
+
+  <section id="result" class="hidden" aria-live="polite"></section>
+
+  <footer>
+    🔒 Halio menghapus nomor telepon, NIK, email, dan tautan sebelum memeriksa. Halio tidak membuat vonis sendiri:
+    jawaban selalu dari pemeriksa fakta atau sumber resmi, dan bila belum ada, Halio bilang terus terang.
+    <br><a href="radar">Radar Ketahanan Kognitif</a> · <a href="https://github.com/" id="repo">Kode sumber</a> · Prototipe Kartika Cyber Hackathon 2026
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

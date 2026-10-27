@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radar Halio</title>
+  <meta name="description" content="Radar Ketahanan Kognitif: tren hoaks agregat dan anonim dari cek warga.">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wide">
+  <header class="top">
+    <img src="icons/icon.svg" alt="">
+    <div>
+      <h1>Radar Ketahanan Kognitif</h1>
+      <p>Tren agregat dan anonim dari pesan yang dicek warga lewat Halio · <span id="window"></span></p>
+    </div>
+  </header>
+
+  <div id="demo" class="banner hidden"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid2">
+    <section class="card"><h2>Kategori hoaks yang dicek</h2><div class="bars" id="kategori"></div></section>
+    <section class="card"><h2>Trik manipulasi yang paling sering</h2><div class="bars" id="techniques"></div></section>
+  </div>
+
+  <section class="card">
+    <h2>Jumlah cek per hari</h2>
+    <div class="cols" id="daily" role="img" aria-label="Jumlah cek per hari"></div>
+    <div class="note" style="display:flex;justify-content:space-between"><span id="d0"></span><span id="d1"></span></div>
+    <details style="margin-top:12px"><summary>Lihat sebagai tabel</summary><table id="dailytable"></table></details>
+  </section>
+
+  <section class="card">
+    <h2>Kabar baru yang mulai menyebar</h2>
+    <p class="note">Kabar yang belum pernah diperiksa. Isinya baru tampil setelah dikirim oleh minimal <b id="k"></b> orang berbeda pada hari yang sama,
+      sehingga yang tampil adalah kabar publik, bukan pesan pribadi. <span id="belowk"></span></p>
+    <table id="emerging"></table>
+  </section>
+
+  <section class="card">
+    <h2>Hoaks yang paling sering dicek</h2>
+    <table id="top"></table>
+  </section>
+
+  <section class="card note">
+    <h2>🔒 Cara Radar menjaga privasi</h2>
+    <ul>
+      <li>Tidak ada isi pesan, nomor telepon, nama, atau lokasi yang disimpan untuk kabar yang sudah dibantah. Hanya jumlah per kategori.</li>
+      <li>Angka di bawah 3 ditampilkan sebagai “&lt;3” agar tidak bisa ditelusuri ke satu orang.</li>
+      <li>Pelapor dihitung dengan nama samaran yang berganti setiap hari; kunci hari sebelumnya dihapus.</li>
+      <li>Radar adalah alat pemantauan tren untuk pemeriksa fakta dan satuan siber, bukan alat penindakan individu.</li>
+    </ul>
+  </section>
+  <footer><a href="/">← Kembali ke Halio</a></footer>
+</main>
+<script src="radar.js"></script>
+</body>
+</html>

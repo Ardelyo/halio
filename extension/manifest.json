@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Halio: Lapisan Feed",
+  "version": "0.1.0",
+  "description": "Lencana 'Perlu dicek?' dan blur gambar sesuai aturan keluarga. Gambar diperiksa di perangkat; tidak ada gambar yang dikirim.",
+  "permissions": ["storage", "offscreen"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.facebook.com/*", "https://*.instagram.com/*", "https://x.com/*", "https://*.x.com/*",
+        "https://*.twitter.com/*", "https://*.tiktok.com/*", "https://*.youtube.com/*",
+        "http://localhost/*", "http://127.0.0.1/*"
+      ],
+      "js": ["lexicon.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "popup.html", "default_icon": { "128": "icons/icon128.png" } },
+  "icons": { "128": "icons/icon128.png" },
+  "content_security_policy": { "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'" }
+}

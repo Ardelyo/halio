@@ -1,0 +1,6 @@
+# Halio Suara server-side TTS (MP3 voice notes). Needs internet access.
+gTTS>=2.5
+# T2 grounded LLM verdict (HALIO_LLM=1).
+anthropic>=1.0
+# Tests
+pytest>=8

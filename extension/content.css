@@ -1,0 +1,17 @@
+.halio-badge {
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #fffaeb; color: #101828; border: 1px solid #fdb022; border-radius: 10px;
+  padding: 10px 12px; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.halio-why { color: #475467; }
+.halio-btn {
+  font: 600 13px system-ui, sans-serif; background: #1d4ed8; color: #fff; border: 0; border-radius: 8px;
+  padding: 6px 12px; cursor: pointer;
+}
+.halio-result { flex-basis: 100%; border-top: 1px solid #fdb022; padding-top: 8px; }
+.halio-result a { color: #1d4ed8; }
+img.halio-blur { filter: blur(28px) saturate(.4) !important; cursor: pointer; transition: filter .2s; }
+.halio-imgnote {
+  font: 600 12px system-ui, sans-serif; background: #101828; color: #fff; border-radius: 6px;
+  padding: 4px 8px; margin: 4px 0; display: inline-block;
+}

@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - halio-data:/data
+    restart: unless-stopped
+
+  telegram:
+    build: .
+    env_file: .env
+    environment:
+      HALIO_API_URL: http://api:8000
+    command: ["python", "-m", "halio.channels.telegram"]
+    depends_on:
+      - api
+    restart: unless-stopped
+    profiles: ["telegram"]   # docker compose --profile telegram up -d
+
+volumes:
+  halio-data:
