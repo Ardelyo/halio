@@ -11,6 +11,7 @@ Verdict states (never a bare "TRUE/FALSE" from the model):
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import datetime
 
@@ -19,6 +20,7 @@ from .config import Settings
 from .pii import extract_domains
 from .retrieval import Match, get_index
 from .store import WIB
+from .textnorm import tokens
 
 STATUS_LABEL = {
     "terbukti_salah": "Terbukti salah",
@@ -42,15 +44,26 @@ def _link_warnings(domains: list[str]) -> list[str]:
     return warnings
 
 
+def _safe_sources(sumber: list[dict]) -> list[dict]:
+    # Remote ClaimReview data is untrusted: only http(s) links reach the UI.
+    return [s for s in sumber if str(s.get("url", "")).lower().startswith(("https://", "http://"))]
+
+
 def _match_payload(m: Match) -> dict:
     d = m.debunk
     return {
         "debunk_id": d.id, "kategori": d.kategori, "score": m.score,
-        "klaim_dibantah": d.klaim, "fakta": d.fakta, "sederhana": d.sederhana, "sumber": d.sumber,
+        "klaim_dibantah": d.klaim, "fakta": d.fakta, "sederhana": d.sederhana,
+        "sumber": _safe_sources(d.sumber),
     }
 
 
-def _voice(status: str, sapaan: str, match: Match | None, manip: dict) -> str:
+def _voice(status: str, sapaan: str, match: Match | None, manip: dict, reason: str = "") -> str:
+    if reason == "terlalu_pendek":
+        return (
+            f"{sapaan}, pesannya terlalu pendek atau hanya berisi tautan, jadi Halio belum bisa memeriksanya. "
+            f"Jangan klik tautannya dulu. Teruskan pesan lengkapnya, ya."
+        )
     if status == "terbukti_salah" and match:
         src = match.debunk.sumber[0]["nama"].split(":")[0]
         return (
@@ -91,7 +104,12 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
             candidates = sorted(candidates + remote, key=lambda m: m.score, reverse=True)[:3]
 
     best = candidates[0] if candidates else None
-    if not claim.is_factual and (not best or best.score < cfg.match_threshold):
+    # Placeholders like [TAUTAN]/[NOMOR] carry no checkable content.
+    content_tokens = tokens(re.sub(r"\[[A-Z]+\]", " ", claim.text))
+    if len(content_tokens) < 3:
+        status, reason = "tidak_yakin", "terlalu_pendek"
+        best = None
+    elif not claim.is_factual and (not best or best.score < cfg.match_threshold):
         status, reason = "tidak_yakin", "bukan_klaim_faktual"
     elif best and best.score >= cfg.match_threshold and not best.debunk.core_present(text):
         # Same topic, but the core of the false claim is missing or negated.
@@ -116,7 +134,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
                 # LLM could not ground the match: downgrade, never upgrade without a quote.
                 status, reason = "tidak_yakin", "llm_tidak_dapat_membuktikan"
 
-    shown = best if status != "belum_ada_pemeriksaan" and reason != "bukan_klaim_faktual" else None
+    shown = best if status != "belum_ada_pemeriksaan" and reason not in ("bukan_klaim_faktual", "terlalu_pendek") else None
     check_id = uuid.uuid4().hex[:12]
     return {
         "id": check_id,
@@ -130,7 +148,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "llm": llm_note,
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _link_warnings(domains)},
-        "voice_script": _voice(status, sapaan, shown, manip),
+        "voice_script": _voice(status, sapaan, shown, manip, reason),
         "offer_human_review": status != "terbukti_salah",
         "method": "+".join(method),
         "disclaimer": DISCLAIMER,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import re
 import textwrap
 from functools import lru_cache
 from pathlib import Path
@@ -36,7 +37,16 @@ def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default(size=size)
 
 
+_NO_GLYPH = re.compile("[\U00010000-\U0010FFFF☀-➿⬀-⯿️‍⃣]")
+
+
+def _printable(text: str) -> str:
+    """Drop emoji and symbols the card fonts cannot draw (they would render as boxes)."""
+    return re.sub(r"\s{2,}", " ", _NO_GLYPH.sub("", text)).strip()
+
+
 def _wrap(draw: ImageDraw.ImageDraw, text: str, font, width: int, max_lines: int) -> list[str]:
+    text = _printable(text)
     avg = max(1, int(draw.textlength("abcdefghij", font=font) / 10))
     lines = textwrap.wrap(text, width=max(10, int(width * 0.9) // avg))
     if len(lines) > max_lines:
@@ -75,11 +85,12 @@ def render(result: dict) -> bytes:
         domain = src["url"].split("//")[-1].split("/")[0].removeprefix("www.")
         d.text((PAD, y + 4), domain, font=_font(26), fill=MUTED)
     else:
-        msg = (
-            "Belum ada pemeriksa fakta yang memeriksa pesan ini. Halio tidak menebak. Tahan dulu, jangan diteruskan."
-            if result["status"] == "belum_ada_pemeriksaan"
-            else "Ini lebih mirip pendapat atau salam, bukan kabar yang bisa dicek. Halio tidak menilai pendapat."
-        )
+        if result["status"] == "belum_ada_pemeriksaan":
+            msg = "Belum ada pemeriksa fakta yang memeriksa pesan ini. Halio tidak menebak. Tahan dulu, jangan diteruskan."
+        elif result.get("reason") == "terlalu_pendek":
+            msg = "Pesan terlalu pendek atau hanya tautan, jadi belum bisa dicek. Jangan klik tautan yang tidak jelas."
+        else:
+            msg = "Ini lebih mirip pendapat atau salam, bukan kabar yang bisa dicek. Halio tidak menilai pendapat."
         y = _block(d, y, msg, _font(40, bold=True), INK, max_lines=6)
 
     d.line([PAD, SIZE - 130, SIZE - PAD, SIZE - 130], fill="#EAECF0", width=3)

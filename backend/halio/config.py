@@ -39,6 +39,11 @@ class Settings:
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)
     k_anonymity: int = field(default_factory=lambda: int(os.getenv("HALIO_K_ANON", "5")))
 
+    # Abuse protection for the public demo: checks per minute per client.
+    rate_limit_per_min: int = field(default_factory=lambda: int(os.getenv("HALIO_RATE_LIMIT", "30")))
+    # Shared secret for trusted channel workers (Telegram bot) so they are limited per chat, not per IP.
+    channel_key: str | None = field(default_factory=lambda: os.getenv("HALIO_CHANNEL_KEY") or None)
+
     # Channels.
     telegram_token: str | None = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN") or None)
     wa_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_TOKEN") or None)

@@ -21,7 +21,12 @@ log = logging.getLogger("halio.telegram")
 
 API_URL = os.getenv("HALIO_API_URL", "http://localhost:8000").rstrip("/")
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TG = f"https://api.telegram.org/bot{TOKEN}"
+# Overridable so scripts/e2e_telegram.py can run the real bot against a fake Telegram server.
+TG = f"{os.getenv('TELEGRAM_API_BASE', 'https://api.telegram.org').rstrip('/')}/bot{TOKEN}"
+# Lets the API rate-limit per chat instead of treating all bot traffic as one IP.
+CHANNEL_KEY = os.getenv("HALIO_CHANNEL_KEY", "")
+MAX_TEXT = 4000
+SORRY = "Maaf, Halio sedang mengalami gangguan. Coba kirim ulang beberapa saat lagi, ya."
 
 WELCOME = (
     "Halo! Saya <b>Halio</b>, teman cek pesan keluarga.\n\n"
@@ -71,31 +76,53 @@ def send_result(chat_id: int, result: dict) -> None:
            files={"audio": ("halio-suara.mp3", audio.content, "audio/mpeg")})
 
 
+def parse_command(text: str) -> tuple[str | None, str]:
+    """'/sapaan@HalioBot Bu' -> ('sapaan', 'Bu'). Non-commands -> (None, text)."""
+    if not text.startswith("/"):
+        return None, text
+    head, _, rest = text.partition(" ")
+    return head[1:].split("@", 1)[0].lower(), rest.strip()
+
+
 def handle_message(msg: dict) -> None:
     chat_id = msg["chat"]["id"]
     text = msg.get("text") or msg.get("caption") or ""
-    if text.startswith("/start"):
+    command, arg = parse_command(text)
+    if command == "start" or command == "help":
         tg("sendMessage", json={"chat_id": chat_id, "text": WELCOME, "parse_mode": "HTML"})
         return
-    if text.startswith("/privasi"):
+    if command == "privasi":
         tg("sendMessage", json={"chat_id": chat_id, "text": PRIVACY, "parse_mode": "HTML"})
         return
-    if text.startswith("/sapaan"):
-        value = text.removeprefix("/sapaan").strip()[:30] or "Bapak, Ibu"
+    if command == "sapaan":
+        value = arg[:30] or "Bapak, Ibu"
         sapaan_by_chat[chat_id] = value
-        tg("sendMessage", json={"chat_id": chat_id, "text": f"Baik, saya akan memanggil Anda “{html.escape(value)}”."})
+        tg("sendMessage", json={"chat_id": chat_id, "text": f"Baik, saya akan memanggil Anda “{html.escape(value)}”.", "parse_mode": "HTML"})
+        return
+    if command is not None:
+        tg("sendMessage", json={"chat_id": chat_id, "text": "Perintah tidak dikenal. Teruskan saja pesan yang ingin dicek, atau ketik /start."})
         return
     if len(text.strip()) < 3:
         tg("sendMessage", json={"chat_id": chat_id, "text": "Untuk sekarang saya baru bisa membaca teks. Teruskan pesan tulisannya, ya."})
         return
 
     tg("sendChatAction", json={"chat_id": chat_id, "action": "typing"})
-    resp = httpx.post(f"{API_URL}/api/check", timeout=30, json={
-        "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}",
-        "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
-    })
-    resp.raise_for_status()
-    send_result(chat_id, resp.json())
+    try:
+        resp = httpx.post(
+            f"{API_URL}/api/check", timeout=30,
+            headers={"X-Halio-Channel-Key": CHANNEL_KEY} if CHANNEL_KEY else {},
+            json={
+                "text": text[:MAX_TEXT], "channel": "telegram", "reporter": f"tg:{chat_id}",
+                "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
+            },
+        )
+        resp.raise_for_status()
+        result = resp.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        log.warning("Check failed for chat %s: %s", chat_id, exc)
+        tg("sendMessage", json={"chat_id": chat_id, "text": SORRY})
+        return
+    send_result(chat_id, result)
 
 
 def handle_callback(cb: dict) -> None:

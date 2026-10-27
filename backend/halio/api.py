@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import logging
+import threading
+import time
+from collections import defaultdict, deque
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +26,29 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "P
 
 cache = ResultCache()
 store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
+
+
+class RateLimiter:
+    """Sliding one-minute window per key. In-memory; enough for a single-instance demo."""
+
+    def __init__(self, per_minute: int):
+        self.per_minute = per_minute
+        self.hits: dict[str, deque[float]] = defaultdict(deque)
+        self._lock = threading.Lock()
+
+    def allow(self, key: str) -> bool:
+        now = time.monotonic()
+        with self._lock:
+            q = self.hits[key]
+            while q and now - q[0] > 60:
+                q.popleft()
+            if len(q) >= self.per_minute:
+                return False
+            q.append(now)
+            return True
+
+
+limiter = RateLimiter(settings.rate_limit_per_min)
 
 
 class CheckIn(BaseModel):
@@ -66,7 +92,11 @@ def health() -> dict:
 
 
 @app.post("/api/check")
-def api_check(body: CheckIn) -> dict:
+def api_check(body: CheckIn, request: Request, x_halio_channel_key: str | None = Header(default=None)) -> dict:
+    trusted = bool(settings.channel_key) and x_halio_channel_key == settings.channel_key
+    key = f"r:{body.reporter}" if trusted and body.reporter else f"ip:{request.client.host if request.client else '?'}"
+    if not limiter.allow(key):
+        raise HTTPException(429, "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.")
     return run_check(body)
 
 

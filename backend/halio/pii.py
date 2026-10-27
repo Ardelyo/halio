@@ -11,11 +11,11 @@ import re
 MAX_CLAIM_CHARS = 300
 
 _PATTERNS: list[tuple[re.Pattern[str], str]] = [
-    # NIK: 16 digits, optionally grouped.
-    (re.compile(r"\b\d{6}[\s.-]?\d{6}[\s.-]?\d{4}\b"), "[NIK]"),
+    # NIK: 16 digits in any grouping (6-6-4, 4-4-4-4, contiguous).
+    (re.compile(r"\b(?:\d[\s.-]?){15}\d\b"), "[NIK]"),
     (re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"), "[EMAIL]"),
-    # Indonesian phone numbers: +62 / 62 / 08 prefixes.
-    (re.compile(r"(?:\+?62|0)8\d{1,3}[\s.-]?\d{3,4}[\s.-]?\d{3,5}"), "[NOMOR]"),
+    # Indonesian phone numbers: +62 / 62 / 08 prefixes, with or without separators.
+    (re.compile(r"(?:\+?62[\s.-]?|\b0)8\d{1,3}[\s.-]?\d{3,4}[\s.-]?\d{3,5}"), "[NOMOR]"),
     # Bank account style numbers (10-15 digits) left after the above.
     (re.compile(r"\b\d{10,15}\b"), "[REKENING]"),
     # @mentions identify private accounts.
