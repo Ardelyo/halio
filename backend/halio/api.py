@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,16 +14,32 @@ from pydantic import BaseModel, Field
 from . import __version__, card, pipeline, voice
 from .channels import whatsapp
 from .config import settings
+from .ingest import coverage
+from .ingest.fetcher import Poller
+from .ingest.store import SensorStore, utcnow
 from .store import ResultCache, Store
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="Halio API", version=__version__)
-# The extension calls from page origins; only scrubbed claim text is accepted.
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "POST"], allow_headers=["*"])
-
 cache = ResultCache()
 store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
+sensor = SensorStore(settings.db_path)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    poller = None
+    if settings.sensor_enabled:
+        poller = Poller(sensor, settings.sensor_user_agent, settings.sensor_tick_s, settings.sensor_workers)
+        poller.start()
+    yield
+    if poller:
+        poller.stop()
+
+
+app = FastAPI(title="Halio API", version=__version__, lifespan=lifespan)
+# The extension calls from page origins; only scrubbed claim text is accepted.
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "POST"], allow_headers=["*"])
 
 
 class CheckIn(BaseModel):
@@ -107,11 +124,31 @@ def api_escalate(body: EscalateIn) -> dict:
     }
 
 
-@app.get("/api/radar")
-def api_radar(days: int = 14, authorization: str | None = Header(default=None)) -> dict:
+def _require_radar_token(authorization: str | None) -> None:
     if settings.radar_token and authorization != f"Bearer {settings.radar_token}":
         raise HTTPException(401, "Radar memerlukan token")
+
+
+@app.get("/api/radar")
+def api_radar(days: int = 14, authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization)
     return store.radar(days=max(1, min(days, 90)))
+
+
+@app.get("/api/sensor/coverage")
+def api_sensor_coverage(authorization: str | None = Header(default=None)) -> dict:
+    """Which sources the sensor watches, how fresh each is, and the declared blind spots."""
+    _require_radar_token(authorization)
+    report = coverage.build(sensor, utcnow())
+    report["polling"] = settings.sensor_enabled
+    return report
+
+
+@app.get("/api/sensor/items")
+def api_sensor_items(limit: int = 50, source: str | None = None, authorization: str | None = Header(default=None)) -> dict:
+    """Newest headline metadata seen since polling started (public media only)."""
+    _require_radar_token(authorization)
+    return {"items": sensor.recent_items(limit=limit, source_id=source)}
 
 
 # --- WhatsApp Cloud API webhook (see channels/whatsapp.py; access unverified) ---
@@ -136,6 +173,11 @@ async def wa_receive(request: Request) -> dict:
 @app.get("/radar")
 def radar_page() -> FileResponse:
     return FileResponse(settings.web_dir / "radar.html")
+
+
+@app.get("/coverage")
+def coverage_page() -> FileResponse:
+    return FileResponse(settings.web_dir / "coverage.html")
 
 
 if settings.web_dir.exists():
