@@ -1,0 +1,59 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Sub,Inter SemiBold,42,&H00F0F3F8,&H00F0F3F8,&H3326170E,&H3326170E,0,0,0,0,100,100,0,0,3,18,0,2,300,300,58,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:04.86,Sub,,0,0,0,,Setiap pagi, jutaan pesan diteruskan ke grup keluarga.
+Dialogue: 0,0:00:05.11,0:00:07.82,Sub,,0,0,0,,Hampir semuanya dikirim karena sayang.
+Dialogue: 0,0:00:10.22,0:00:13.36,Sub,,0,0,0,,Bayangkan Ibu Sri, enam puluh delapan tahun.
+Dialogue: 0,0:00:13.61,0:00:18.33,Sub,,0,0,0,,Pagi ini ia menerima video Presiden yang membagikan bantuan tunai,
+Dialogue: 0,0:00:18.58,0:00:21.86,Sub,,0,0,0,,lengkap dengan nomor WhatsApp untuk mendaftar.
+Dialogue: 0,0:00:23.66,0:00:27.59,Sub,,0,0,0,,Itu bukan karangan. Awal 2025, penipuan deepfake serupa
+Dialogue: 0,0:00:27.84,0:00:31.13,Sub,,0,0,0,,menjerat seratus korban di dua puluh provinsi.
+Dialogue: 0,0:00:32.93,0:00:34.83,Sub,,0,0,0,,Hoaks tidak hanya menipu.
+Dialogue: 0,0:00:35.08,0:00:39.01,Sub,,0,0,0,,Di Kendal, pada 2018, pesan berantai soal penculik anak
+Dialogue: 0,0:00:39.26,0:00:43.40,Sub,,0,0,0,,berakhir dengan seorang pria tak bersalah dikeroyok massa.
+Dialogue: 0,0:00:45.20,0:00:49.63,Sub,,0,0,0,,Empat dari sepuluh orang Indonesia ragu mampu mengenali hoaks.
+Dialogue: 0,0:00:49.88,0:00:52.31,Sub,,0,0,0,,Ibu Sri tidak bodoh. Ia sendirian.
+Dialogue: 0,0:00:54.11,0:00:56.46,Sub,,0,0,0,,Ruang pikiran kini menjadi medan.
+Dialogue: 0,0:00:56.71,0:01:00.86,Sub,,0,0,0,,Pertahanannya dimulai dari unit sosial terkecil: keluarga.
+Dialogue: 0,0:01:02.66,0:01:04.56,Sub,,0,0,0,,Inilah Halio.
+Dialogue: 0,0:01:04.81,0:01:10.02,Sub,,0,0,0,,Teman cek pesan untuk keluarga, sekaligus sensor dini untuk satuan siber.
+Dialogue: 0,0:01:12.82,0:01:16.03,Sub,,0,0,0,,Ibu Sri cukup menempelkan pesan itu ke Halio.
+Dialogue: 0,0:01:16.28,0:01:20.71,Sub,,0,0,0,,Dalam hitungan detik, ia mendapat jawaban berbahasa sederhana,
+Dialogue: 0,0:01:20.96,0:01:26.11,Sub,,0,0,0,,nama sumber pemeriksa fakta, dan trik manipulasi yang dipakai pesan itu.
+Dialogue: 0,0:01:27.91,0:01:31.69,Sub,,0,0,0,,Halio juga membacakan jawabannya sebagai pesan suara,
+Dialogue: 0,0:01:31.94,0:01:36.51,Sub,,0,0,0,,dan membuat Kartu Halio untuk meluruskan kabar di grup keluarga.
+Dialogue: 0,0:01:38.31,0:01:41.17,Sub,,0,0,0,,Bagaimana jika belum ada yang memeriksa?
+Dialogue: 0,0:01:41.42,0:01:46.85,Sub,,0,0,0,,Halio tidak menebak. Ia bilang terus terang, menyarankan pesan ditahan dulu,
+Dialogue: 0,0:01:47.10,0:01:50.03,Sub,,0,0,0,,dan menawarkan bantuan pemeriksa manusia.
+Dialogue: 0,0:01:51.83,0:01:55.54,Sub,,0,0,0,,Karena itu, setiap jawaban hanya punya tiga keadaan:
+Dialogue: 0,0:01:55.79,0:01:59.79,Sub,,0,0,0,,terbukti salah, tidak yakin, atau belum ada pemeriksaan.
+Dialogue: 0,0:02:02.19,0:02:06.12,Sub,,0,0,0,,Di balik layar, Halio memilih kalimat yang layak dicek,
+Dialogue: 0,0:02:06.37,0:02:09.66,Sub,,0,0,0,,lalu menghapus nomor telepon, NIK, dan tautan.
+Dialogue: 0,0:02:09.91,0:02:13.33,Sub,,0,0,0,,Klaim dicocokkan dengan bantahan yang bersumber,
+Dialogue: 0,0:02:13.58,0:02:18.44,Sub,,0,0,0,,dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks.
+Dialogue: 0,0:02:18.69,0:02:24.69,Sub,,0,0,0,,Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis.
+Dialogue: 0,0:02:27.29,0:02:30.50,Sub,,0,0,0,,Untuk satuan siber, Halio menyediakan sensor.
+Dialogue: 0,0:02:30.75,0:02:36.54,Sub,,0,0,0,,Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime.
+Dialogue: 0,0:02:36.79,0:02:40.50,Sub,,0,0,0,,Halio juga menunjukkan apa yang tidak bisa ia lihat.
+Dialogue: 0,0:02:42.31,0:02:46.16,Sub,,0,0,0,,Radar Ketahanan Kognitif merangkum tren secara anonim:
+Dialogue: 0,0:02:46.41,0:02:51.84,Sub,,0,0,0,,kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD.
+Dialogue: 0,0:02:52.09,0:02:56.38,Sub,,0,0,0,,Kabar baru baru tampil setelah dikirim banyak orang berbeda.
+Dialogue: 0,0:02:58.18,0:03:02.46,Sub,,0,0,0,,Ini alat pertahanan siber, bukan alat untuk mengawasi warga.
+Dialogue: 0,0:03:02.71,0:03:08.85,Sub,,0,0,0,,Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna.
+Dialogue: 0,0:03:10.66,0:03:15.66,Sub,,0,0,0,,Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar,
+Dialogue: 0,0:03:15.91,0:03:18.83,Sub,,0,0,0,,sehingga dapat dipasang di server satuan.
+Dialogue: 0,0:03:20.63,0:03:24.13,Sub,,0,0,0,,Ini masih prototipe. Korpus bantahan masih kecil,
+Dialogue: 0,0:03:24.38,0:03:28.88,Sub,,0,0,0,,dan uji kami masih menemukan kalimat benar yang salah ditandai.
+Dialogue: 0,0:03:29.13,0:03:32.85,Sub,,0,0,0,,Kami menampilkan angkanya, dan terus memperbaikinya.
+Dialogue: 0,0:03:34.65,0:03:37.58,Sub,,0,0,0,,Ketahanan kognitif dimulai dari keluarga.
+Dialogue: 0,0:03:37.83,0:03:40.04,Sub,,0,0,0,,Halio. Cek dulu, baru teruskan.

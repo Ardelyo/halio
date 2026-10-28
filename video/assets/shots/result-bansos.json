@@ -1,0 +1,69 @@
+{
+ "id": "ae13f476a807",
+ "created": "2026-10-28T16:07:38+07:00",
+ "status": "terbukti_salah",
+ "status_label": "Terbukti salah",
+ "reason": "cocok_dengan_bantahan",
+ "claim": "Bapak ibu, ada video Pak Presiden bagi-bagi bantuan tunai! Langsung chat nomor WA [NOMOR] untuk daftar, bayar biaya admin 150rb dulu.",
+ "checkworthiness": 0.6,
+ "match": {
+  "debunk_id": "bansos-deepfake-presiden",
+  "kategori": "penipuan_bansos",
+  "score": 0.532,
+  "klaim_dibantah": "Video Presiden Prabowo dan Menteri Keuangan membagikan bantuan tunai, daftar lewat nomor WhatsApp dan bayar biaya administrasi",
+  "fakta": "Video semacam ini adalah deepfake (wajah dan suara buatan AI). Bareskrim Polri mengungkap penipuan yang memakai deepfake Presiden Prabowo dan Sri Mulyani: korban diarahkan ke WhatsApp lalu diminta membayar biaya administrasi berulang kali. Bantuannya tidak pernah ada.",
+  "sederhana": "Itu video palsu buatan komputer. Bantuan resmi dari pemerintah tidak pernah meminta Ibu atau Bapak membayar biaya apa pun lewat WhatsApp.",
+  "sumber": [
+   {
+    "nama": "Katadata (mengutip Bareskrim Polri)",
+    "url": "https://katadata.co.id/amp/digital/teknologi/67a5dc910647b/penipuan-bansos-pakai-ai-wajah-prabowo-ratusan-korban-rugi-puluhan-juta/",
+    "jenis": "media"
+   }
+  ]
+ },
+ "llm": null,
+ "manipulation": {
+  "techniques": [
+   {
+    "id": "ajakan_sebar",
+    "label": "Desakan untuk menyebarkan",
+    "explain": "Pesan ini menyuruh Anda meneruskannya. Info yang benar tidak perlu memaksa.",
+    "lesson": "Pesan yang berbunyi 'sebarkan!' atau 'jangan berhenti di Anda' sedang memakai Anda sebagai pengantar. Berhenti dulu, cek dulu.",
+    "evidence": [
+     "sebarkan"
+    ]
+   },
+   {
+    "id": "iming_iming",
+    "label": "Iming-iming hadiah",
+    "explain": "Pesan ini menjanjikan uang, hadiah, atau kelulusan dengan mudah.",
+    "lesson": "Kalau terdengar terlalu bagus untuk jadi kenyataan, biasanya memang tidak nyata. Bantuan resmi tidak meminta biaya.",
+    "evidence": [
+     "bantuan tunai"
+    ]
+   },
+   {
+    "id": "minta_data_uang",
+    "label": "Meminta data atau uang",
+    "explain": "Pesan ini meminta data pribadi, kode OTP, atau transfer uang.",
+    "lesson": "Lembaga resmi tidak pernah meminta kode OTP, PIN, atau 'biaya administrasi' lewat chat. Jangan isi tautan yang meminta data.",
+    "evidence": [
+     "biaya admin"
+    ]
+   }
+  ],
+  "shouting": false,
+  "score": 0.75,
+  "needs_check": true
+ },
+ "links": {
+  "domains": [],
+  "warnings": []
+ },
+ "voice_script": "Bu, pesan ini sudah dicek dan ternyata tidak benar. Itu video palsu buatan komputer. Bantuan resmi dari pemerintah tidak pernah meminta Ibu atau Bapak membayar biaya apa pun lewat WhatsApp. Sumbernya dari Katadata (mengutip Bareskrim Polri). Sebaiknya jangan diteruskan, ya.",
+ "offer_human_review": false,
+ "method": "lokal",
+ "disclaimer": "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriksa fakta atau sumber resmi yang disebutkan.",
+ "card_url": "/api/card/ae13f476a807.png",
+ "voice_url": "/api/voice/ae13f476a807.mp3"
+}

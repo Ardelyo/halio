@@ -11,3 +11,7 @@ extension/models/
 *.zip
 .DS_Store
 Thumbs.db
+# video build output (large); keep the subtitle/script sources only
+video/out/*.mp4
+video/out/*.wav
+video/out/segments/

@@ -1,0 +1,183 @@
+1
+00:00:01,000 --> 00:00:04,857
+Setiap pagi, jutaan pesan diteruskan ke grup keluarga.
+
+2
+00:00:05,107 --> 00:00:07,821
+Hampir semuanya dikirim karena sayang.
+
+3
+00:00:10,221 --> 00:00:13,364
+Bayangkan Ibu Sri, enam puluh delapan tahun.
+
+4
+00:00:13,614 --> 00:00:18,328
+Pagi ini ia menerima video Presiden yang membagikan bantuan tunai,
+
+5
+00:00:18,578 --> 00:00:21,864
+lengkap dengan nomor WhatsApp untuk mendaftar.
+
+6
+00:00:23,664 --> 00:00:27,593
+Itu bukan karangan. Awal 2025, penipuan deepfake serupa
+
+7
+00:00:27,843 --> 00:00:31,128
+menjerat seratus korban di dua puluh provinsi.
+
+8
+00:00:32,928 --> 00:00:34,828
+Hoaks tidak hanya menipu.
+
+9
+00:00:35,078 --> 00:00:39,007
+Di Kendal, pada 2018, pesan berantai soal penculik anak
+
+10
+00:00:39,257 --> 00:00:43,399
+berakhir dengan seorang pria tak bersalah dikeroyok massa.
+
+11
+00:00:45,199 --> 00:00:49,628
+Empat dari sepuluh orang Indonesia ragu mampu mengenali hoaks.
+
+12
+00:00:49,878 --> 00:00:52,306
+Ibu Sri tidak bodoh. Ia sendirian.
+
+13
+00:00:54,106 --> 00:00:56,463
+Ruang pikiran kini menjadi medan.
+
+14
+00:00:56,713 --> 00:01:00,856
+Pertahanannya dimulai dari unit sosial terkecil: keluarga.
+
+15
+00:01:02,656 --> 00:01:04,556
+Inilah Halio.
+
+16
+00:01:04,806 --> 00:01:10,020
+Teman cek pesan untuk keluarga, sekaligus sensor dini untuk satuan siber.
+
+17
+00:01:12,820 --> 00:01:16,034
+Ibu Sri cukup menempelkan pesan itu ke Halio.
+
+18
+00:01:16,284 --> 00:01:20,713
+Dalam hitungan detik, ia mendapat jawaban berbahasa sederhana,
+
+19
+00:01:20,963 --> 00:01:26,106
+nama sumber pemeriksa fakta, dan trik manipulasi yang dipakai pesan itu.
+
+20
+00:01:27,906 --> 00:01:31,692
+Halio juga membacakan jawabannya sebagai pesan suara,
+
+21
+00:01:31,942 --> 00:01:36,513
+dan membuat Kartu Halio untuk meluruskan kabar di grup keluarga.
+
+22
+00:01:38,313 --> 00:01:41,170
+Bagaimana jika belum ada yang memeriksa?
+
+23
+00:01:41,420 --> 00:01:46,849
+Halio tidak menebak. Ia bilang terus terang, menyarankan pesan ditahan dulu,
+
+24
+00:01:47,099 --> 00:01:50,027
+dan menawarkan bantuan pemeriksa manusia.
+
+25
+00:01:51,827 --> 00:01:55,541
+Karena itu, setiap jawaban hanya punya tiga keadaan:
+
+26
+00:01:55,791 --> 00:01:59,791
+terbukti salah, tidak yakin, atau belum ada pemeriksaan.
+
+27
+00:02:02,191 --> 00:02:06,120
+Di balik layar, Halio memilih kalimat yang layak dicek,
+
+28
+00:02:06,370 --> 00:02:09,655
+lalu menghapus nomor telepon, NIK, dan tautan.
+
+29
+00:02:09,905 --> 00:02:13,334
+Klaim dicocokkan dengan bantahan yang bersumber,
+
+30
+00:02:13,584 --> 00:02:18,441
+dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks.
+
+31
+00:02:18,691 --> 00:02:24,691
+Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis.
+
+32
+00:02:27,291 --> 00:02:30,505
+Untuk satuan siber, Halio menyediakan sensor.
+
+33
+00:02:30,755 --> 00:02:36,541
+Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime.
+
+34
+00:02:36,791 --> 00:02:40,505
+Halio juga menunjukkan apa yang tidak bisa ia lihat.
+
+35
+00:02:42,305 --> 00:02:46,162
+Radar Ketahanan Kognitif merangkum tren secara anonim:
+
+36
+00:02:46,412 --> 00:02:51,841
+kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD.
+
+37
+00:02:52,091 --> 00:02:56,376
+Kabar baru baru tampil setelah dikirim banyak orang berbeda.
+
+38
+00:02:58,176 --> 00:03:02,462
+Ini alat pertahanan siber, bukan alat untuk mengawasi warga.
+
+39
+00:03:02,712 --> 00:03:08,855
+Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna.
+
+40
+00:03:10,655 --> 00:03:15,655
+Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar,
+
+41
+00:03:15,905 --> 00:03:18,834
+sehingga dapat dipasang di server satuan.
+
+42
+00:03:20,634 --> 00:03:24,134
+Ini masih prototipe. Korpus bantahan masih kecil,
+
+43
+00:03:24,384 --> 00:03:28,884
+dan uji kami masih menemukan kalimat benar yang salah ditandai.
+
+44
+00:03:29,134 --> 00:03:32,848
+Kami menampilkan angkanya, dan terus memperbaikinya.
+
+45
+00:03:34,648 --> 00:03:37,577
+Ketahanan kognitif dimulai dari keluarga.
+
+46
+00:03:37,827 --> 00:03:40,041
+Halio. Cek dulu, baru teruskan.

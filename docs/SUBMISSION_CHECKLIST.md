@@ -15,7 +15,7 @@ Deadline: **15 Nov 2026, 23:59 WIB** (Rulebook §G). Internal target: **14 Nov 2
 | # | Item | Spec | Source in repo | Done |
 |---|---|---|---|---|
 | 1 | Link Karya | Public link judges can try | Hosted web URL + `t.me/<bot>` + GitHub repo link in README | [ ] |
-| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤500 KB | `python scripts/make_thumbnail.py` → `docs/submission/thumbnail.png` | [ ] |
+| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤500 KB | `python scripts/make_thumbnail.py` → `docs/submission/thumbnail.jpg` | [ ] |
 | 3 | Screenshots | Max 5 | 1) bot answer + card 2) web verdict 3) honest abstain 4) extension feed 5) Radar | [ ] |
 | 4 | Video | ≤10 min, YouTube | Follow `docs/DEMO_SCRIPT.md` §B | [ ] |
 | 5 | Slides | Features, architecture, tech, other info | Deck; export PDF too | [ ] |

@@ -1,0 +1,37 @@
+{
+ "id": "f21402e46e2d",
+ "created": "2026-10-28T16:07:41+07:00",
+ "status": "belum_ada_pemeriksaan",
+ "status_label": "Belum ada pemeriksaan",
+ "reason": "tidak_ada_bantahan",
+ "claim": "Jembatan Suramadu akan ditutup total selama seminggu mulai besok karena perbaikan.",
+ "checkworthiness": 0.45,
+ "match": null,
+ "llm": null,
+ "manipulation": {
+  "techniques": [
+   {
+    "id": "ajakan_sebar",
+    "label": "Desakan untuk menyebarkan",
+    "explain": "Pesan ini menyuruh Anda meneruskannya. Info yang benar tidak perlu memaksa.",
+    "lesson": "Pesan yang berbunyi 'sebarkan!' atau 'jangan berhenti di Anda' sedang memakai Anda sebagai pengantar. Berhenti dulu, cek dulu.",
+    "evidence": [
+     "sebarkan"
+    ]
+   }
+  ],
+  "shouting": false,
+  "score": 0.25,
+  "needs_check": false
+ },
+ "links": {
+  "domains": [],
+  "warnings": []
+ },
+ "voice_script": "Bu, belum ada pemeriksa fakta yang memeriksa pesan ini, jadi Halio tidak mau menebak. Tapi hati-hati: Pesan ini menyuruh Anda meneruskannya. Info yang benar tidak perlu memaksa. Sebaiknya jangan diteruskan dulu. Halio bisa tanyakan ke pemeriksa manusia.",
+ "offer_human_review": true,
+ "method": "lokal",
+ "disclaimer": "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriksa fakta atau sumber resmi yang disebutkan.",
+ "card_url": "/api/card/f21402e46e2d.png",
+ "voice_url": "/api/voice/f21402e46e2d.mp3"
+}
