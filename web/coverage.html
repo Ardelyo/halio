@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cakupan Sensor Halio</title>
+  <meta name="description" content="Cakupan sensor Halio: sumber terbuka yang dipantau, kesegarannya, dan titik buta yang kami akui.">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wide">
+  <header class="top">
+    <img src="icons/icon.svg" alt="">
+    <div>
+      <h1>Cakupan Sensor</h1>
+      <p>Sumber terbuka yang dipantau Halio, seberapa segar, dan apa yang <b>tidak</b> kami lihat · <span id="gen"></span></p>
+    </div>
+  </header>
+
+  <div id="off" class="banner hidden">Pemantauan belum aktif di server ini (<code>HALIO_SENSOR=1</code> belum diatur). Angka di bawah belum berisi pengamatan nyata.</div>
+  <div class="tiles" id="tiles"></div>
+
+  <section class="card">
+    <h2>Sumber yang dipantau</h2>
+    <p class="note" id="disclaimer"></p>
+    <div class="scroll"><table id="sources"></table></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>Titik buta yang kami akui</h2>
+      <ul class="plain" id="blind"></ul>
+    </section>
+    <section class="card">
+      <h2>Judul terbaru yang terlihat</h2>
+      <ul class="plain" id="recent"></ul>
+    </section>
+  </div>
+
+  <section class="card note">
+    <h2>Cara membaca halaman ini</h2>
+    <ul>
+      <li><b>Hidup</b>: feed menjawab dan masih ada isi baru. <b>Basi</b>: feed menjawab tetapi tidak ada isi baru terlalu lama. <b>Mati</b>: gagal berulang. <b>Tertunda</b>: pemantauan berhenti. <b>Belum</b>: belum pernah diambil.</li>
+      <li>"Keterlambatan lihat" adalah selisih antara waktu terbit artikel dan saat Halio pertama melihatnya. Feed tanpa waktu terbit tidak dihitung.</li>
+      <li>Yang disimpan hanya judul, tautan, waktu, dan cuplikan 200 karakter dari media publik, selama 30 hari. Tidak ada akun warga.</li>
+    </ul>
+  </section>
+  <footer><a href="/">← Kembali ke Halio</a> · <a href="radar">Radar</a></footer>
+</main>
+<script src="coverage.js"></script>
+</body>
+</html>

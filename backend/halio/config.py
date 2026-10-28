@@ -39,6 +39,14 @@ class Settings:
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)
     k_anonymity: int = field(default_factory=lambda: int(os.getenv("HALIO_K_ANON", "5")))
 
+    # Sensor: polls public news / fact-check feeds (docs/ARCHITECTURE_SENSOR.md). Off by default.
+    sensor_enabled: bool = field(default_factory=lambda: _bool("HALIO_SENSOR"))
+    sensor_workers: int = field(default_factory=lambda: int(os.getenv("HALIO_SENSOR_WORKERS", "8")))
+    sensor_tick_s: float = field(default_factory=lambda: float(os.getenv("HALIO_SENSOR_TICK", "15")))
+    sensor_user_agent: str = field(
+        default_factory=lambda: os.getenv("HALIO_SENSOR_UA", "HalioSensor/0.1 (riset anti-disinformasi; hanya feed publik)")
+    )
+
     # Channels.
     telegram_token: str | None = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN") or None)
     wa_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_TOKEN") or None)

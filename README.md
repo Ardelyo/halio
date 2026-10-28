@@ -22,7 +22,12 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 | Web (bisa dipasang di Android, mendukung menu *Bagikan*) | `https://<isi-setelah-deploy>` |
 | Bot Telegram | `https://t.me/<isi-nama-bot>` |
 | Radar | `https://<isi-setelah-deploy>/radar` |
+| Cakupan sensor | `https://<isi-setelah-deploy>/coverage` |
 | Feed simulasi untuk ekstensi | `https://<isi-setelah-deploy>/demo-feed.html` |
+
+## Sensor: apa yang dipantau, dan apa yang tidak
+
+"Semua berita, realtime" tidak mungkin. Halio memantau **23 feed terbuka** (berita, cek fakta, sumber resmi) hampir realtime, dan halaman **Cakupan** menunjukkan terus terang mana yang hidup, mana yang basi, dan titik buta yang diakui (WhatsApp privat, Meta, TikTok, X, dll.). Aktifkan dengan `HALIO_SENSOR=1`. Rancangan dan bukti riset: [docs/ARCHITECTURE_SENSOR.md](docs/ARCHITECTURE_SENSOR.md). Lapisan deteksi narasi (klaster, sinyal kecepatan, triase) belum dibangun.
 
 ## Tiga keadaan vonis
 
@@ -65,6 +70,7 @@ Ekstensi Chrome: lihat [extension/README.md](extension/README.md).
 
 ```
 backend/halio/      pipeline cek (klaim, PII, retrieval, LLM terkekang, vonis), kartu, suara, Radar, kanal
+backend/halio/ingest/  sensor: polling feed terbuka + laporan cakupan
 data/debunks.json   korpus bantahan bersumber
 eval/               set uji + evaluasi (tingkat salah tuduh hoaks)
 web/                PWA (index), Radar, feed simulasi
@@ -77,6 +83,7 @@ docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 
 - [Rencana proyek](docs/PROJECT_PLAN.md): jadwal, peran, risiko, pemetaan ke kriteria penilaian
 - [Arsitektur teknis](docs/ARCHITECTURE.md)
+- [Arsitektur sensor (pemantauan narasi)](docs/ARCHITECTURE_SENSOR.md)
 - [Privasi & aturan netral](docs/PRIVACY.md)
 - [Naskah demo & video](docs/DEMO_SCRIPT.md)
 - [Checklist pengumpulan](docs/SUBMISSION_CHECKLIST.md)
