@@ -34,3 +34,13 @@ python video/tools/render_all.py         # timeline -> frame -> mp4 (sekitar 5 m
 ## Merek
 Lihat `BRAND.md`. Font (SIL OFL) ada di `fonts/`, latar padang dibuat prosedural (`tools/make_fields.py`),
 musik disintesis sendiri (`tools/make_music.py`). Tidak ada foto, musik, atau logo pihak ketiga.
+
+## Story Instagram 9:16 "Segera hadir" (25 detik)
+```bash
+python video/tools/render_story.py --music path/ke/backsound.mp3   # sekitar 4 menit
+```
+- Sumber animasi: `story/` (1080×1920). Potongan mengikuti ketukan lagu: 1 ketukan = 0,4 dtk, hentakan bar di 0,41 + 1,6k dtk; reveal logo di 22,81 dtk.
+- Efek suara disintesis di `tools/story_sfx.py` dengan waktu yang sama dengan potongan di `story/story.js`.
+- Dirender 60 fps lalu digabung ke 30 fps (motion blur). Audio dinormalkan ke −14 LUFS.
+- Hasil: `out/halio-story-segera-hadir.mp4` (musik + efek) dan `out/halio-story-segera-hadir-sfx.mp4` (efek saja).
+- Lagu latar tidak disimpan di repo karena hak ciptanya milik pihak lain.

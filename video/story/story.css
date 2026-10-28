@@ -1,0 +1,23 @@
+/* Halio story teaser, 1080x1920. Brand: video/BRAND.md */
+:root { --blue: #014BAA; --cream: #F8F3F0; --ink: #0E1726; --sun: #FFC83D; --violet: #8B5CF6; --orange: #FF8A3D; --green: #2FBF71;
+  --salah: #B42318; --ragu: #B54708; --belum: #475467; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #05080f; }
+body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
+#cam { position: absolute; inset: 0; perspective: 1300px; perspective-origin: 50% 50%; overflow: hidden; }
+#world { position: absolute; inset: 0; transform-style: preserve-3d; }
+.shot { position: absolute; inset: 0; transform-style: preserve-3d; visibility: hidden; overflow: hidden; }
+.flat { transform-style: flat; }
+.abs { position: absolute; }
+.obj { position: absolute; transform-style: preserve-3d; }
+.serif { font-family: "Instrument Serif", serif; font-weight: 400; letter-spacing: -0.015em; line-height: 1; }
+.serif em { font-style: italic; color: var(--sun); }
+.grot { font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 122%; text-transform: uppercase; letter-spacing: -0.03em; line-height: .88; }
+.micro { font: 600 26px/1 "Inter"; letter-spacing: .22em; text-transform: uppercase; }
+.w { display: inline-block; white-space: pre; }
+.photo { position: absolute; inset: -60px; background-size: cover; background-position: center; }
+.glitch { text-shadow: -6px 0 rgba(255,40,80,.75), 6px 0 rgba(0,220,255,.75); }
+#leak { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0; }
+#vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 80% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.42) 100%); }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+#grain { position: absolute; inset: 0; pointer-events: none; background-image: url(../assets/grain.png); background-size: 512px 512px; opacity: .05; mix-blend-mode: overlay; }

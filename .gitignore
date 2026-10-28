@@ -15,3 +15,4 @@ Thumbs.db
 video/out/*.mp4
 video/out/*.wav
 video/out/segments/
+video/out/story-segments/
