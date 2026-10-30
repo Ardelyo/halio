@@ -39,9 +39,12 @@ async function check(text) {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, channel: "web", sapaan: $("#sapaan").value, reporter: deviceId() }),
     });
-    if (!r.ok) throw new Error((await r.json()).detail?.[0]?.msg || r.statusText);
+    if (r.status === 429) return toast("Terlalu banyak cek dalam semenit. Tunggu sebentar, lalu coba lagi.");
+    if (r.status === 422) return toast("Pesannya belum bisa dibaca. Pastikan isinya teks, minimal 3 huruf.");
+    if (!r.ok) throw new Error("HTTP " + r.status);
     render(await r.json(), text);
   } catch (e) {
+    // Only a network failure or a server error reaches here.
     toast("Maaf, Halio sedang tidak bisa dihubungi. Coba lagi sebentar lagi.");
     console.error(e);
   } finally {

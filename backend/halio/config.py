@@ -33,10 +33,12 @@ class Settings:
 
     # T2: LLM verdict over retrieved sources. Optional, off by default.
     llm_enabled: bool = field(default_factory=lambda: _bool("HALIO_LLM"))
-    llm_model: str = field(default_factory=lambda: os.getenv("HALIO_LLM_MODEL", "claude-opus-5-5"))
+    llm_model: str = field(default_factory=lambda: os.getenv("HALIO_LLM_MODEL", "claude-haiku-5-5"))
 
     # Radar (aggregate dashboard) privacy knobs.
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)
+    # Without a token the Radar answers only localhost, unless this is set (public demo; data is aggregate).
+    radar_public: bool = field(default_factory=lambda: _bool("HALIO_RADAR_PUBLIC"))
     k_anonymity: int = field(default_factory=lambda: int(os.getenv("HALIO_K_ANON", "5")))
 
     # Sensor: polls public news / fact-check feeds (docs/ARCHITECTURE_SENSOR.md). Off by default.
@@ -47,11 +49,20 @@ class Settings:
         default_factory=lambda: os.getenv("HALIO_SENSOR_UA", "HalioSensor/0.1 (riset anti-disinformasi; hanya feed publik)")
     )
 
+    # Abuse limits (halio/netguard.py).
+    rate_per_minute: int = field(default_factory=lambda: int(os.getenv("HALIO_RATE_PER_MIN", "30")))
+    trust_proxy: bool = field(default_factory=lambda: _bool("HALIO_TRUST_PROXY"))
+    max_input_chars: int = field(default_factory=lambda: int(os.getenv("HALIO_MAX_INPUT", "4000")))
+    # Shared secret our own bots send so their reporter ids are trusted.
+    channel_key: str | None = field(default_factory=lambda: os.getenv("HALIO_CHANNEL_KEY") or None)
+
     # Channels.
     telegram_token: str | None = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN") or None)
     wa_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_TOKEN") or None)
     wa_phone_id: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_PHONE_NUMBER_ID") or None)
     wa_verify_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_VERIFY_TOKEN") or None)
+    # Meta signs each webhook POST with the app secret (X-Hub-Signature-256). Required to accept them.
+    wa_app_secret: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_APP_SECRET") or None)
 
 
 settings = Settings()

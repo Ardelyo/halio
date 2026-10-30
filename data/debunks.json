@@ -27,7 +27,7 @@
         }
       ],
       "syarat": [
-        "daftar|pendaftaran|hubungi|nomor|whatsapp|\\bwa\\b|transfer|biaya|admin|follow|share|bayar|kirim"
+        "(daftar|pendaftaran|hubungi|chat|japri|kontak|kirim)\\W+(\\w+\\W+){0,4}(whatsapp|\\bwa\\b|nomor|admin)|(biaya|bayar|transfer)\\W+(\\w+\\W+){0,2}(admin|administrasi|verifikasi|pendaftaran|pencairan)|\\b(follow|share)\\b"
       ]
     },
     {
@@ -55,7 +55,8 @@
         }
       ],
       "syarat": [
-        "bayar|biaya|uang|transfer|dijamin|pasti lulus|titipan|calo|orang dalam|kenalan|pelicin|juta|dicicil"
+        "\\b(bayar|biaya|uang|transfer|dp|titipan|calo|orang dalam|kenalan|pelicin|dicicil|\\d+ ?(juta|jt))\\b",
+        "\\b(lulus|masuk|jalur|titipan|bantu|kenalan|orang dalam|calo|pelicin)\\b"
       ]
     },
     {
@@ -88,7 +89,8 @@
         }
       ],
       "syarat": [
-        "\\bakan\\b|prediksi|diprediksi|memprediksi|minggu depan|bulan depan|tanggal|datang|dalam \\d+ (hari|minggu)"
+        "\\b(gempa|tsunami)\\b",
+        "\\b(akan|diprediksi|memprediksi|prediksi)\\b(\\W+\\w+){0,8}\\W+(terjadi|datang|melanda|minggu depan|bulan depan|tanggal|dalam \\d+ (hari|minggu))|\\b(minggu depan|bulan depan|tanggal \\d+|dalam \\d+ (hari|minggu))\\b"
       ]
     },
     {
@@ -115,7 +117,8 @@
         }
       ],
       "syarat": [
-        "sembuh|nyembuhin|obat|mengobati|ampuh|manjur"
+        "\\b(sembuh|nyembuhin|menyembuhkan|mengobati|ampuh|manjur|penangkal)\\b|\\bobat (covid|corona|virus)",
+        "\\b(covid|corona|virus)\\b"
       ]
     },
     {
@@ -143,7 +146,7 @@
         }
       ],
       "syarat": [
-        "gratis|klik|link|tautan|isi (nomor|data)|bagikan|daftar"
+        "\\b(klik|link|tautan|isi (nomor|data)|bagikan ke|sebarkan ke|share ke)\\b"
       ]
     },
     {
@@ -164,7 +167,8 @@
         }
       ],
       "syarat": [
-        "gratis|klik|link|tautan|klaim"
+        "\\b(gratis|cuma-cuma|hadiah)\\b",
+        "\\b(klik|link|tautan|klaim|isi data)\\b"
       ]
     },
     {
@@ -191,7 +195,7 @@
         }
       ],
       "syarat": [
-        "waspada|hati-hati|awas|berkeliaran|keliling|menyamar|organ|share|sebar|komplotan"
+        "\\b(berkeliaran|keliling|menyamar|organ|organnya|komplotan|sindikat|mobil|mengincar|incar|sebarkan|sebarin|share)\\b"
       ]
     }
   ]

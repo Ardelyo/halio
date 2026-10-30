@@ -1,17 +1,12 @@
-// On-device text heuristics. Port of backend/halio/manipulation.py; keep in sync.
+// On-device text heuristics. The rules come from lexicon_data.js, which is generated from
+// backend/halio/manipulation.py and pii.py (scripts/sync_lexicon.py), so both sides match.
 // Runs entirely in the page; nothing is sent anywhere by this file.
 (() => {
-  const TECHNIQUES = [
-    ["ajakan_sebar", "Desakan menyebarkan", [/\bsebar(kan|luaskan)?\b/, /\bviral(kan)?\b/, /\bteruskan\b/, /\bbagikan\b/, /jangan berhenti di/, /kirim(kan)? ke \d+/, /\bshare\b/]],
-    ["urgensi", "Dibuat terburu-buru", [/\bsegera\b/, /sekarang juga/, /\bburuan\b/, /hari ini terakhir/, /batas (waktu|akhir)/, /\bcepat\b/, /terbatas/]],
-    ["otoritas_palsu", "Mengaku orang penting", [/info (a1|valid|dari dalam)/, /orang dalam/, /kata (dokter|intel|teman)/, /sumber terpercaya/, /info dari (polda|polres|kodim|kodam|mabes)/]],
-    ["rasa_takut", "Menakut-nakuti", [/\bwaspada\b/, /\bbahaya\b/, /\bawas\b/, /mematikan/, /penculik/, /\bdarurat\b/, /tsunami besar/, /gempa besar/]],
-    ["iming_iming", "Iming-iming hadiah", [/\bgratis\b/, /\bhadiah\b/, /bantuan (tunai|langsung|sosial)/, /\bbansos\b/, /dijamin lulus/, /kuota \d+ ?gb/, /\bbonus\b/]],
-    ["minta_data_uang", "Minta data atau uang", [/biaya (admin|administrasi|pendaftaran)/, /\btransfer\b/, /kode otp/, /\botp\b/, /isi (data|formulir)/, /klik (link|tautan)/, /nomor rekening/]],
-  ];
-
-  // Online gambling (judol) vocabulary common in Indonesian banners and links.
-  const JUDOL = /\b(slot|gacor|maxwin|togel|scatter|rtp|zeus|olympus|mahjong ways|bonus new member|depo(sit)? \d|wd cepat|situs (resmi|terpercaya) \d*|link alternatif)\b/i;
+  const D = globalThis.HalioLexiconData;
+  const TECHNIQUES = D.techniques.map(([id, label, ps]) => [id, label, ps.map((p) => new RegExp(p))]);
+  const JUDOL_STRONG = D.judolStrong.map((p) => new RegExp(p));
+  const JUDOL_WEAK = D.judolWeak.map((p) => new RegExp(p));
+  const SCRUB = D.scrub.map(([p, flags, repl]) => [new RegExp(p, flags), repl]);
 
   function fold(s) {
     return s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -23,29 +18,25 @@
     for (const [id, label, patterns] of TECHNIQUES) {
       if (patterns.some((p) => p.test(low))) techniques.push({ id, label });
     }
-    const letters = text.replace(/[^A-Za-z]/g, "");
-    const caps = letters.length > 30 && letters.replace(/[^A-Z]/g, "").length / letters.length > 0.6;
+    const letters = [...text].filter((c) => c.toLowerCase() !== c.toUpperCase());
+    const caps = letters.length > 30 && letters.filter((c) => c === c.toUpperCase()).length / letters.length > 0.6;
     const shouting = caps || text.includes("!!!");
     const score = Math.min(1, 0.25 * techniques.length + (shouting ? 0.15 : 0));
     return { techniques, shouting, score, needsCheck: score >= 0.5 };
   }
 
+  // Strong words alone, or two everyday words together ("slot" + "jackpot"); see manipulation.py.
   function isJudol(text) {
-    return JUDOL.test(fold(text || ""));
+    const low = fold(text || "");
+    return JUDOL_STRONG.some((p) => p.test(low)) || JUDOL_WEAK.filter((p) => p.test(low)).length >= 2;
   }
 
-  // Same rules as backend/halio/pii.py: only scrubbed text (<=300 chars) may leave the device.
+  // Same rules as backend/halio/pii.py: only scrubbed text may leave the device.
   function scrub(text) {
-    return text
-      .replace(/https?:\/\/\S+|www\.\S+/gi, "[TAUTAN]")
-      .replace(/\b\d{6}[\s.-]?\d{6}[\s.-]?\d{4}\b/g, "[NIK]")
-      .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[EMAIL]")
-      .replace(/(?:\+?62|0)8\d{1,3}[\s.-]?\d{3,4}[\s.-]?\d{3,5}/g, "[NOMOR]")
-      .replace(/\b\d{10,15}\b/g, "[REKENING]")
-      .replace(/(^|\s)@\w{3,}/g, "$1[AKUN]")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 300);
+    let out = text;
+    for (const [re, repl] of SCRUB) out = out.replace(re, repl);
+    out = out.replace(/\s+/g, " ").trim();
+    return out.length > D.maxClaimChars ? out.slice(0, D.maxClaimChars - 1) + "…" : out;
   }
 
   globalThis.HalioLexicon = { analyze, isJudol, scrub };

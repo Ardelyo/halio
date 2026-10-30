@@ -17,7 +17,7 @@ from datetime import datetime
 from . import claims, factcheck_api, llm_verdict, manipulation
 from .config import Settings
 from .pii import extract_domains
-from .retrieval import Match, get_index
+from .retrieval import Match, get_index, is_correction
 from .store import WIB
 
 STATUS_LABEL = {
@@ -27,7 +27,8 @@ STATUS_LABEL = {
 }
 
 SHORTENERS = {"bit.ly", "s.id", "cutt.ly", "tinyurl.com", "shorturl.at", "rb.gy", "t.ly", "linktr.ee", "wa.me"}
-OFFICIAL_SUFFIXES = (".go.id", ".mil.id", ".polri.go.id", ".ac.id", ".sch.id")
+# Only domains a scammer cannot register. .ac.id / .sch.id are run by thousands of schools and get hijacked.
+OFFICIAL_SUFFIXES = (".go.id", ".mil.id")
 
 DISCLAIMER = "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriksa fakta atau sumber resmi yang disebutkan."
 
@@ -35,9 +36,12 @@ DISCLAIMER = "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriks
 def _link_warnings(domains: list[str]) -> list[str]:
     warnings = []
     for d in domains:
+        # d is the parsed hostname, so "kemensos.go.id.bansos.xyz" or "x.go.id?.xyz" does not pass.
+        if d.endswith(OFFICIAL_SUFFIXES):
+            continue
         if d in SHORTENERS:
             warnings.append(f"Tautan {d} menyembunyikan alamat aslinya. Jangan diklik sebelum tahu tujuannya.")
-        elif not d.endswith(OFFICIAL_SUFFIXES):
+        else:
             warnings.append(f"Tautan {d} bukan situs pemerintah (.go.id). Hati-hati bila diminta mengisi data.")
     return warnings
 
@@ -50,12 +54,17 @@ def _match_payload(m: Match) -> dict:
     }
 
 
-def _voice(status: str, sapaan: str, match: Match | None, manip: dict) -> str:
+def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: dict) -> str:
     if status == "terbukti_salah" and match:
         src = match.debunk.sumber[0]["nama"].split(":")[0]
         return (
             f"{sapaan}, pesan ini sudah dicek dan ternyata tidak benar. {match.debunk.sederhana} "
             f"Sumbernya dari {src}. Sebaiknya jangan diteruskan, ya."
+        )
+    if status == "tidak_yakin" and match and reason == "tampak_meluruskan":
+        return (
+            f"{sapaan}, pesan ini tampaknya justru memperingatkan soal kabar bohong, bukan menyebarkannya. "
+            f"Yang sudah dicek: {match.debunk.sederhana}"
         )
     if status == "tidak_yakin" and match:
         return (
@@ -91,7 +100,11 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
             candidates = sorted(candidates + remote, key=lambda m: m.score, reverse=True)[:3]
 
     best = candidates[0] if candidates else None
-    if not claim.is_factual and (not best or best.score < cfg.match_threshold):
+    correction = is_correction(text)
+    if best and best.score >= cfg.unsure_threshold and correction:
+        # It warns about or corrects the hoax ("itu hoaks", "BMKG membantah"): never call that a hoax.
+        status, reason = "tidak_yakin", "tampak_meluruskan"
+    elif not claim.is_factual and (not best or best.score < cfg.match_threshold):
         status, reason = "tidak_yakin", "bukan_klaim_faktual"
     elif best and best.score >= cfg.match_threshold and not best.debunk.core_present(text):
         # Same topic, but the core of the false claim is missing or negated.
@@ -108,8 +121,11 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         j = llm_verdict.judge(claim.text, candidates, cfg.llm_model)
         if j is not None:
             method.append("llm")
-            if j.relation == "sama" and j.grounded:
-                best = next(m for m in candidates if m.debunk.id == j.debunk_id)
+            hit = next((m for m in candidates if m.debunk.id == j.debunk_id), None)
+            # The LLM may confirm, or lift a "mirip" case, but never past the core-claim guard or a correction.
+            liftable = status == "terbukti_salah" or (reason == "mirip_tapi_tidak_sama" and hit and hit.debunk.core_present(text))
+            if j.relation == "sama" and j.grounded and hit and liftable:
+                best = hit
                 status, reason = "terbukti_salah", "cocok_dikonfirmasi_llm"
                 llm_note = {"kutipan": j.quote, "penjelasan": j.explanation}
             elif status == "terbukti_salah":
@@ -130,7 +146,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "llm": llm_note,
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _link_warnings(domains)},
-        "voice_script": _voice(status, sapaan, shown, manip),
+        "voice_script": _voice(status, reason, sapaan, shown, manip),
         "offer_human_review": status != "terbukti_salah",
         "method": "+".join(method),
         "disclaimer": DISCLAIMER,

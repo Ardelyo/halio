@@ -9,6 +9,7 @@ chrome.storage.sync.get(DEFAULTS, (s) => {
 chrome.storage.local.get("stats", ({ stats = {} }) => {
   $("imagesChecked").textContent = stats.imagesChecked || 0;
   $("textChecks").textContent = stats.textChecks || 0;
+  $("bytesSent").textContent = (stats.bytesSent || 0).toLocaleString("id-ID");
 });
 chrome.runtime.sendMessage({ type: "model-status" }, (r) => {
   $("model").textContent = r && r.ok

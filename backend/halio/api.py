@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import json
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from . import __version__, card, pipeline, voice
 from .channels import whatsapp
@@ -17,6 +20,7 @@ from .config import settings
 from .ingest import coverage
 from .ingest.fetcher import Poller
 from .ingest.store import SensorStore, utcnow
+from .netguard import RateLimiter, client_ip, network_of, reporter_for
 from .store import ResultCache, Store
 
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +28,8 @@ logging.basicConfig(level=logging.INFO)
 cache = ResultCache()
 store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
 sensor = SensorStore(settings.db_path)
+limiter = RateLimiter(settings.rate_per_minute)
+log = logging.getLogger("halio.api")
 
 
 @asynccontextmanager
@@ -43,10 +49,16 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "P
 
 
 class CheckIn(BaseModel):
-    text: str = Field(min_length=3, max_length=4000)
+    # Long forwards are cut, not rejected: the claim is almost always in the first lines.
+    text: str = Field(min_length=3, max_length=100_000)
     channel: str = Field(default="web", pattern="^(web|telegram|whatsapp|extension|demo)$")
     sapaan: str = Field(default="Bapak, Ibu", max_length=30)
-    reporter: str | None = Field(default=None, max_length=128, description="Opaque per-device id; hashed with a daily salt")
+    reporter: str | None = Field(default=None, max_length=128, description="Trusted only from our own bots (HALIO_CHANNEL_KEY)")
+
+    @field_validator("text")
+    @classmethod
+    def _cut(cls, v: str) -> str:
+        return v[: settings.max_input_chars]
 
 
 class AppealIn(BaseModel):
@@ -58,13 +70,17 @@ class EscalateIn(BaseModel):
     check_id: str
 
 
-def run_check(body: CheckIn) -> dict:
+def run_check(body: CheckIn, reporter: str | None) -> dict:
     result = pipeline.check(body.text, settings, sapaan=body.sapaan)
     result["card_url"] = f"/api/card/{result['id']}.png"
     result["voice_url"] = f"/api/voice/{result['id']}.mp3"
     cache.put(result["id"], result)
-    store.record(result, body.channel, body.reporter)
+    store.record(result, body.channel, reporter)
     return result
+
+
+def _limit(request: Request, bucket: str) -> None:
+    limiter.check(f"{bucket}:{network_of(client_ip(request, settings))}")
 
 
 def _cached(check_id: str) -> dict:
@@ -83,8 +99,9 @@ def health() -> dict:
 
 
 @app.post("/api/check")
-def api_check(body: CheckIn) -> dict:
-    return run_check(body)
+def api_check(body: CheckIn, request: Request) -> dict:
+    _limit(request, "check")
+    return run_check(body, reporter_for(request, settings, body.reporter))
 
 
 @app.get("/api/check/{check_id}")
@@ -98,8 +115,9 @@ def api_card(check_id: str) -> Response:
 
 
 @app.get("/api/voice/{check_id}.mp3")
-def api_voice(check_id: str) -> Response:
+def api_voice(check_id: str, request: Request) -> Response:
     result = _cached(check_id)
+    _limit(request, "voice")
     try:
         audio = voice.synthesize(result["voice_script"])
     except voice.VoiceUnavailable as exc:
@@ -108,14 +126,16 @@ def api_voice(check_id: str) -> Response:
 
 
 @app.post("/api/appeal")
-def api_appeal(body: AppealIn) -> dict:
+def api_appeal(body: AppealIn, request: Request) -> dict:
+    _limit(request, "appeal")
     result = cache.get(body.check_id) or {}
     debunk_id = (result.get("match") or {}).get("debunk_id")
     return {"ok": True, "appeal_id": store.add_appeal(body.check_id, debunk_id, body.reason)}
 
 
 @app.post("/api/escalate")
-def api_escalate(body: EscalateIn) -> dict:
+def api_escalate(body: EscalateIn, request: Request) -> dict:
+    _limit(request, "appeal")
     result = _cached(body.check_id)
     return {
         "ok": True,
@@ -124,30 +144,33 @@ def api_escalate(body: EscalateIn) -> dict:
     }
 
 
-def _require_radar_token(authorization: str | None) -> None:
-    if settings.radar_token and authorization != f"Bearer {settings.radar_token}":
-        raise HTTPException(401, "Radar memerlukan token")
+def _require_radar_token(authorization: str | None, request: Request) -> None:
+    if settings.radar_token:
+        if not hmac.compare_digest(authorization or "", f"Bearer {settings.radar_token}"):
+            raise HTTPException(401, "Radar memerlukan token")
+    elif not settings.radar_public and client_ip(request, settings) not in ("127.0.0.1", "::1", "testclient"):
+        raise HTTPException(401, "Radar tertutup: set RADAR_TOKEN, atau HALIO_RADAR_PUBLIC=1 untuk demo publik")
 
 
 @app.get("/api/radar")
-def api_radar(days: int = 14, authorization: str | None = Header(default=None)) -> dict:
-    _require_radar_token(authorization)
+def api_radar(request: Request, days: int = 14, authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization, request)
     return store.radar(days=max(1, min(days, 90)))
 
 
 @app.get("/api/sensor/coverage")
-def api_sensor_coverage(authorization: str | None = Header(default=None)) -> dict:
+def api_sensor_coverage(request: Request, authorization: str | None = Header(default=None)) -> dict:
     """Which sources the sensor watches, how fresh each is, and the declared blind spots."""
-    _require_radar_token(authorization)
+    _require_radar_token(authorization, request)
     report = coverage.build(sensor, utcnow())
     report["polling"] = settings.sensor_enabled
     return report
 
 
 @app.get("/api/sensor/items")
-def api_sensor_items(limit: int = 50, source: str | None = None, authorization: str | None = Header(default=None)) -> dict:
+def api_sensor_items(request: Request, limit: int = 50, source: str | None = None, authorization: str | None = Header(default=None)) -> dict:
     """Newest headline metadata seen since polling started (public media only)."""
-    _require_radar_token(authorization)
+    _require_radar_token(authorization, request)
     return {"items": sensor.recent_items(limit=limit, source_id=source)}
 
 
@@ -160,12 +183,35 @@ def wa_verify(request: Request) -> PlainTextResponse:
     raise HTTPException(403)
 
 
-@app.post("/webhook/whatsapp")
-async def wa_receive(request: Request) -> dict:
-    payload = await request.json()
+def _wa_signature_ok(raw: bytes, header: str | None) -> bool:
+    if not settings.wa_app_secret or not header or not header.startswith("sha256="):
+        return False
+    expected = hmac.new(settings.wa_app_secret.encode(), raw, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(header.removeprefix("sha256="), expected)
+
+
+def _wa_process(payload: dict) -> None:
     for sender, text in whatsapp.incoming_texts(payload):
-        result = run_check(CheckIn(text=text, channel="whatsapp", reporter=f"wa:{sender}"))
-        whatsapp.reply(sender, result, settings)
+        try:
+            if len(text.strip()) < 3:
+                continue
+            result = run_check(CheckIn(text=text, channel="whatsapp"), reporter=f"wa:{sender}")
+            whatsapp.reply(sender, result, settings)
+        except Exception:  # one bad message must not drop the rest of the batch
+            log.exception("WhatsApp message failed")
+
+
+@app.post("/webhook/whatsapp")
+async def wa_receive(request: Request, background: BackgroundTasks) -> dict:
+    raw = await request.body()
+    if not _wa_signature_ok(raw, request.headers.get("x-hub-signature-256")):
+        raise HTTPException(401, "Tanda tangan webhook tidak valid")
+    try:
+        payload = json.loads(raw)
+    except ValueError:
+        return {"ok": True}  # signed but unreadable: acknowledge so Meta does not retry forever
+    # Answer Meta at once; the checks (and the blocking HTTP replies) run after the response.
+    background.add_task(_wa_process, payload if isinstance(payload, dict) else {})
     return {"ok": True}
 
 

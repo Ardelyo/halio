@@ -13,7 +13,7 @@
         "https://*.twitter.com/*", "https://*.tiktok.com/*", "https://*.youtube.com/*",
         "http://localhost/*", "http://127.0.0.1/*"
       ],
-      "js": ["lexicon.js", "content.js"],
+      "js": ["lexicon_data.js", "lexicon.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }

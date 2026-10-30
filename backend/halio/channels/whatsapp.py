@@ -21,11 +21,13 @@ GRAPH_VERSION = os.getenv("WHATSAPP_GRAPH_VERSION", "v21.0")
 
 
 def incoming_texts(payload: dict) -> Iterator[tuple[str, str]]:
-    for entry in payload.get("entry", []):
-        for change in entry.get("changes", []):
-            for msg in change.get("value", {}).get("messages", []):
-                if msg.get("type") == "text":
-                    yield msg["from"], msg["text"]["body"]
+    """(sender, text) for every text message; anything malformed is skipped, never raised."""
+    for entry in payload.get("entry") or []:
+        for change in (entry or {}).get("changes") or []:
+            for msg in ((change or {}).get("value") or {}).get("messages") or []:
+                body = (msg.get("text") or {}).get("body") if msg.get("type") == "text" else None
+                if isinstance(body, str) and msg.get("from"):
+                    yield str(msg["from"]), body
 
 
 def _send(cfg: Settings, body: dict) -> None:

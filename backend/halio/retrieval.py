@@ -17,7 +17,20 @@ from pathlib import Path
 
 from .textnorm import fold, normalized, tokens
 
-_NEGATION = re.compile(r"\b(tidak|tak|tanpa|bukan|gak|nggak|belum)\b[\w\s]{0,10}$")
+_NEGATION = re.compile(r"\b(tidak|tak|tanpa|bukan|gak|nggak|belum|jangan)\b[\w\s]{0,10}$")
+# "biaya gratis", "uang: tidak dipungut" -- the cost word is there, but it says the opposite.
+_DEFUSED = re.compile(r"^[\s:,-]{0,3}(\w+\s){0,1}(gratis|nol rupiah|rp ?0\b|tidak dipungut|tanpa (biaya|dipungut))")
+# The message talks ABOUT a hoax or scam instead of making the claim: a warning or a correction.
+_CORRECTION = re.compile(
+    r"\b(hoaks|hoax|kabar bohong|berita bohong|disinformasi|misinformasi|tidak benar|membantah|dibantah|bantahan|"
+    r"klarifikasi|tidak ada bukti|tidak terbukti|belum terbukti|modus penipuan|adalah (penipu|penipuan|calo)|itu (penipu|penipuan)|waspada (calo|penipu|penipuan|modus))\b")
+_NOT_A_CORRECTION = re.compile(r"\b(bukan|tidak|gak|nggak|bkn) (hoaks|hoax)\b")
+
+
+def is_correction(text: str) -> bool:
+    """True if the message warns about or corrects a hoax rather than spreading it."""
+    low = fold(text)
+    return bool(_CORRECTION.search(low)) and not _NOT_A_CORRECTION.search(low)
 
 
 @dataclass
@@ -36,10 +49,13 @@ class Debunk:
         return [self.klaim, *self.varian]
 
     def core_present(self, text: str) -> bool:
-        """True if every 'syarat' group appears un-negated in the text."""
+        """True if every 'syarat' group appears in the text, not negated and not defused."""
         low = fold(text)
         for group in self.syarat:
-            hits = [m for m in re.finditer(group, low) if not _NEGATION.search(low[max(0, m.start() - 16) : m.start()])]
+            hits = [
+                m for m in re.finditer(group, low)
+                if not _NEGATION.search(low[max(0, m.start() - 16) : m.start()]) and not _DEFUSED.match(low[m.end() : m.end() + 24])
+            ]
             if not hits:
                 return False
         return True

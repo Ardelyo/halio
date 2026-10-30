@@ -38,6 +38,10 @@ SCHEMA = {
 }
 
 
+# Models that accept the server-side "default" refusal fallback.
+FALLBACK_MODELS = {"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"}
+
+
 @dataclass
 class LlmJudgement:
     relation: str            # sama | berbeda | tidak_cukup_bukti
@@ -66,15 +70,18 @@ def judge(claim: str, candidates: list[Match], model: str) -> LlmJudgement | Non
 
     client = anthropic.Anthropic()
     try:
-        response = client.beta.messages.create(
+        kwargs = dict(
             model=model,
             max_tokens=2048,
             system=SYSTEM,
             messages=[{"role": "user", "content": prompt}],
             output_config={"effort": "medium", "format": {"type": "json_schema", "schema": SCHEMA}},
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
         )
+        if model in FALLBACK_MODELS:
+            response = client.beta.messages.create(**kwargs, betas=["server-side-fallback-2026-07-01"], fallbacks="default")
+        else:
+            # Haiku has no server-side refusal fallback; a refusal just falls back to retrieval below.
+            response = client.messages.create(**kwargs)
     except anthropic.RateLimitError:
         log.warning("LLM rate limited; falling back to retrieval-only verdict")
         return None

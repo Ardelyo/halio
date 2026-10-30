@@ -30,3 +30,23 @@
 {"text": "Menurut saya pemerintah harus lebih memperhatikan petani", "expect": "opinion", "note": "opinion"}
 {"text": "Apa kabar semuanya? Sudah makan belum?", "expect": "opinion", "note": "question"}
 {"text": "Terima kasih atas doanya, mohon maaf lahir batin", "expect": "opinion", "note": "greeting"}
+{"text": "Pemerintah resmi membuka pendaftaran bansos PKH tahap 2, cek nama penerima lewat situs cekbansos.kemensos.go.id", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Presiden Prabowo membagikan bantuan sembako kepada warga di Jakarta hari ini, daftar penerima sudah diumumkan kelurahan", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "BMKG: gempa magnitudo 5,3 mengguncang Cianjur, tidak berpotensi tsunami, warga diimbau tetap tenang dan waspada gempa susulan", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "BMKG akan memperbarui peringatan dini cuaca ekstrem pekan depan, pantau terus aplikasi InfoBMKG", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "BMKG mengimbau masyarakat waspada potensi gempa besar di zona megathrust, siapkan tas siaga bencana", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Pendaftaran Bintara TNI AD 2026 dibuka tanggal 5 Januari melalui penerimaan.tniad.mil.id, biaya gratis", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Rekrutmen tamtama TNI AD gratis tidak dipungut biaya, waspada calo yang menjanjikan jalur khusus", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Kodam Jaya buka pendaftaran Bintara, hubungi panitia di kodam untuk informasi, jangan bayar uang kepada siapapun", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Air kelapa muda baik untuk menjaga hidrasi, bisa diminum dengan sedikit garam setelah olahraga", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Dokter menyarankan minum air kelapa dan jeruk nipis untuk menjaga daya tahan tubuh saat sakit flu, tapi tetap minum obat dari dokter", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Telkomsel memberi bonus kuota gratis 5GB untuk pelanggan setia yang mengisi pulsa Rp100 ribu, cek di aplikasi MyTelkomsel", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Telkomsel bagikan kuota gratis untuk korban banjir, daftar lewat aplikasi resmi MyTelkomsel", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Kominfo meluncurkan program internet gratis di desa terpencil lewat satelit Satria", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Jasa Marga memberikan diskon tarif tol 20 persen, saldo e-toll bisa diisi lewat aplikasi Travoy", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Hati-hati penculikan anak, polisi sudah menangkap pelakunya di Bekasi, warga diminta tetap waspada", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Waspada penipuan online yang mengatasnamakan bank, jangan bagikan kode OTP kepada siapapun", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Polisi mengimbau warga waspada berita hoaks penculikan anak yang beredar di WhatsApp, pelaku sudah dibantah", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Hubungi nomor 112 untuk layanan darurat, gratis dari semua operator", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Daftar BPJS Kesehatan gratis untuk warga kurang mampu lewat kantor desa dan dinas sosial", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja bergaji di bawah 3,5 juta, cek di bsu.kemnaker.go.id", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}

@@ -21,6 +21,8 @@ log = logging.getLogger("halio.telegram")
 
 API_URL = os.getenv("HALIO_API_URL", "http://localhost:8000").rstrip("/")
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+# Lets the API trust our per-chat reporter id (halio/netguard.py). Same value as the server's.
+CHANNEL_HEADERS = {"x-halio-channel-key": os.getenv("HALIO_CHANNEL_KEY", "")}
 TG = f"https://api.telegram.org/bot{TOKEN}"
 
 WELCOME = (
@@ -90,7 +92,7 @@ def handle_message(msg: dict) -> None:
         return
 
     tg("sendChatAction", json={"chat_id": chat_id, "action": "typing"})
-    resp = httpx.post(f"{API_URL}/api/check", timeout=30, json={
+    resp = httpx.post(f"{API_URL}/api/check", timeout=30, headers=CHANNEL_HEADERS, json={
         "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}",
         "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
     })
@@ -111,7 +113,7 @@ def handle_callback(cb: dict) -> None:
     elif action == "trik":
         r = httpx.get(f"{API_URL}/api/check/{check_id}", timeout=10)
         techs = r.json()["manipulation"]["techniques"] if r.status_code == 200 else []
-        text = "\n\n".join(f"<b>{t['label']}</b>\n{t['lesson']}" for t in techs) or (
+        text = "\n\n".join(f"<b>{html.escape(t['label'])}</b>\n{html.escape(t['lesson'])}" for t in techs) or (
             "Pesan ini tidak memakai trik manipulasi yang umum. Tetap cek sumbernya sebelum meneruskan, ya.")
     else:
         return
