@@ -1,11 +1,4 @@
-"""Persistence with privacy by design.
-
-- Check results live only in a short in-memory cache (for card/voice download).
-- The database holds aggregate, non-personal events for the Radar dashboard.
-- Unknown rumours are counted by hash. Their scrubbed text is stored only once
-  k distinct reporters (daily-rotated pseudonyms) have sent the same rumour,
-  i.e. once it is demonstrably circulating publicly, not a private message.
-"""
+"""Short-lived check cache and privacy-conscious SQLite persistence."""
 
 from __future__ import annotations
 
@@ -39,13 +32,23 @@ CREATE TABLE IF NOT EXISTS appeals (
 );
 CREATE TABLE IF NOT EXISTS escalations (
     id INTEGER PRIMARY KEY AUTOINCREMENT, created TEXT NOT NULL, check_id TEXT,
-    claim TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'menunggu'
+    claim TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'menunggu',
+    channel TEXT, reporter TEXT
+);
+CREATE TABLE IF NOT EXISTS review_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, created TEXT NOT NULL,
+    item_type TEXT NOT NULL, item_id INTEGER NOT NULL, action TEXT NOT NULL,
+    response TEXT
 );
 """
 
 
 def today() -> str:
     return datetime.now(WIB).date().isoformat()
+
+
+def now_iso() -> str:
+    return datetime.now(WIB).isoformat(timespec="seconds")
 
 
 def claim_hash(text: str) -> str:
@@ -81,27 +84,39 @@ class Store:
         self.k = k_anonymity
         self.min_cell = min_cell
         self._lock = threading.Lock()
+        self._last_prune = ""
         with self._conn() as c:
             c.executescript(SCHEMA)
+            columns = {r["name"] for r in c.execute("PRAGMA table_info(escalations)")}
+            if "channel" not in columns:
+                c.execute("ALTER TABLE escalations ADD COLUMN channel TEXT")
+            if "reporter" not in columns:
+                c.execute("ALTER TABLE escalations ADD COLUMN reporter TEXT")
 
     def _conn(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.path, check_same_thread=False)
+        conn = sqlite3.connect(self.path, check_same_thread=False, timeout=10)
         conn.row_factory = sqlite3.Row
         return conn
 
-    # --- pseudonyms -----------------------------------------------------
     def _salt(self, c: sqlite3.Connection, day: str) -> str:
         row = c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()
         if row:
             return row["salt"]
         salt = secrets.token_hex(16)
-        c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))  # old salts destroyed
+        c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))
         c.execute("INSERT INTO daily_salt VALUES (?,?)", (day, salt))
         return salt
 
-    # --- writes ---------------------------------------------------------
+    def prune(self, retention_days: int = 30) -> None:
+        cutoff = (datetime.now(WIB) - timedelta(days=retention_days)).isoformat(timespec="seconds")
+        day_cutoff = (date.fromisoformat(today()) - timedelta(days=retention_days)).isoformat()
+        with self._lock, self._conn() as c:
+            c.execute("DELETE FROM unknown_claims WHERE last_seen<?", (day_cutoff,))
+            c.execute("DELETE FROM appeals WHERE created<?", (cutoff,))
+            c.execute("DELETE FROM escalations WHERE created<? AND status<>'menunggu'", (cutoff,))
+            c.execute("DELETE FROM review_events WHERE created<?", (cutoff,))
+
     def record(self, result: dict, channel: str, reporter: str | None, day: str | None = None) -> None:
-        """`day` override exists only for scripts/seed_demo.py (channel='demo')."""
         day = day if day and channel == "demo" else today()
         match = result.get("match") or {}
         techniques = ",".join(t["id"] for t in result["manipulation"]["techniques"])
@@ -112,6 +127,9 @@ class Store:
             )
             if result["status"] == "belum_ada_pemeriksaan" and reporter and result["claim"]:
                 self._count_unknown(c, day, result["claim"], reporter)
+        if self._last_prune != day:
+            self.prune()
+            self._last_prune = day
 
     def _count_unknown(self, c: sqlite3.Connection, day: str, claim: str, reporter: str) -> None:
         h = claim_hash(claim)
@@ -120,9 +138,8 @@ class Store:
         if row is None:
             c.execute("INSERT INTO unknown_claims VALUES (?,?,?,?,?,NULL)", (h, day, day, json.dumps([pseudo]), 1))
             return
-        # Yesterday's pseudonyms are unlinkable to today's, so k counts same-day reporters.
         reporters = json.loads(row["reporters"]) if row["last_seen"] == day else []
-        is_new = pseudo not in reporters
+        is_new = pseudo not in reporters and len(reporters) < self.k
         if is_new:
             reporters.append(pseudo)
         count = row["count"] + int(is_new)
@@ -136,20 +153,42 @@ class Store:
         with self._lock, self._conn() as c:
             cur = c.execute(
                 "INSERT INTO appeals (created, check_id, debunk_id, reason) VALUES (?,?,?,?)",
-                (datetime.now(WIB).isoformat(timespec="seconds"), check_id, debunk_id, reason[:500]),
+                (now_iso(), check_id, debunk_id, reason[:500]),
             )
             return cur.lastrowid
 
-    def add_escalation(self, check_id: str, claim: str) -> int:
-        """User explicitly asked a human to look; only the scrubbed claim is kept."""
+    def add_escalation(self, check_id: str, claim: str, channel: str, reporter: str | None) -> int:
         with self._lock, self._conn() as c:
             cur = c.execute(
-                "INSERT INTO escalations (created, check_id, claim) VALUES (?,?,?)",
-                (datetime.now(WIB).isoformat(timespec="seconds"), check_id, claim),
+                "INSERT INTO escalations (created, check_id, claim, channel, reporter) VALUES (?,?,?,?,?)",
+                (now_iso(), check_id, claim, channel, reporter),
             )
             return cur.lastrowid
 
-    # --- radar ----------------------------------------------------------
+    def review_items(self, item_type: str, open_only: bool = True) -> list[dict]:
+        if item_type not in ("appeals", "escalations"):
+            raise ValueError("item_type must be appeals or escalations")
+        pending = "baru" if item_type == "appeals" else "menunggu"
+        where = " WHERE status=?" if open_only else ""
+        args = (pending,) if open_only else ()
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(f"SELECT * FROM {item_type}{where} ORDER BY id", args)]
+
+    def resolve_review(self, item_type: str, item_id: int, response: str) -> dict:
+        if item_type not in ("appeals", "escalations"):
+            raise ValueError("item_type must be appeals or escalations")
+        done = "selesai"
+        with self._lock, self._conn() as c:
+            row = c.execute(f"SELECT * FROM {item_type} WHERE id=?", (item_id,)).fetchone()
+            if not row:
+                raise KeyError(item_id)
+            c.execute(f"UPDATE {item_type} SET status=? WHERE id=?", (done, item_id))
+            c.execute(
+                "INSERT INTO review_events (created,item_type,item_id,action,response) VALUES (?,?,?,?,?)",
+                (now_iso(), item_type, item_id, "resolved", response[:2000]),
+            )
+            return dict(row)
+
     def _suppress(self, n: int) -> int | str:
         return n if n >= self.min_cell else f"<{self.min_cell}"
 

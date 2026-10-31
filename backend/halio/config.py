@@ -23,6 +23,10 @@ class Settings:
     )
     web_dir: Path = field(default_factory=lambda: REPO_ROOT / "web")
     public_base_url: str = field(default_factory=lambda: os.getenv("PUBLIC_BASE_URL", "http://localhost:8000"))
+    cors_origins: tuple[str, ...] = field(
+        default_factory=lambda: tuple(x.strip() for x in os.getenv("HALIO_CORS_ORIGINS", "").split(",") if x.strip())
+    )
+    rate_limit_per_minute: int = field(default_factory=lambda: int(os.getenv("HALIO_RATE_LIMIT", "60")))
 
     # Retrieval thresholds, calibrated with eval/run_eval.py. Re-run the eval after changing.
     match_threshold: float = field(default_factory=lambda: float(os.getenv("HALIO_MATCH_THRESHOLD", "0.40")))
@@ -52,6 +56,7 @@ class Settings:
     wa_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_TOKEN") or None)
     wa_phone_id: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_PHONE_NUMBER_ID") or None)
     wa_verify_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_VERIFY_TOKEN") or None)
+    wa_app_secret: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_APP_SECRET") or None)
 
 
 settings = Settings()

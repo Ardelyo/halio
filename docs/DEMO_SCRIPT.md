@@ -18,30 +18,31 @@ Stage note: say "bayangkan". Ibu Sri is a persona. Facts: Katadata (100 victims 
 
 | Time | Scene | Screen | Honesty note |
 |---|---|---|---|
-| 0:00–1:00 | Story (A) | B-roll / slides | Persona stated |
-| 1:00–1:30 | Problem + Siber Sosial framing: cognitive sovereignty, family as smallest unit of resilience, scams impersonating TNI AD | Slide | Avoid claiming "Siber Sosial" is official doctrine |
-| 1:30–2:45 | **Flow 1**: forward the bansos message to the Telegram bot on a real phone → text answer, Halio Card, voice note | Phone screen recording | Real bot. Demo claims are in the corpus; say so |
-| 2:45–3:30 | **Flow 1b**: TNI recruitment scam ("dijamin lulus, bayar 80 juta") → Terbukti salah + bit.ly link warning | Web app | — |
-| 3:30–4:15 | **Flow 2 (honesty moment)**: unknown rumour → "Belum ada pemeriksaan, Halio tidak mau menebak" → tap "Tanya pemeriksa manusia" | Bot | Real, not mocked |
-| 4:15–4:45 | **Flow 3**: true statement "BMKG mencatat gempa M5,1… tidak berpotensi tsunami" → *not* labelled hoax. Explain the core-claim guard and the eval (0 false-hoax on our test set, optimistic) | Web app + `eval/RESULTS.md` | Say the test set is self-written |
-| 4:45–5:30 | **Flow 4**: extension on demo feed → "Perlu dicek?" badges, gambling banner blurred, popup "0 byte gambar dikirim" | Desktop | Demo feed is labelled "simulasi". No explicit images |
-| 5:30–6:30 | **Flow 5**: Radar: categories ("Penipuan mencatut TNI" highlighted), techniques, trend, emerging rumour surfaced only after 5 distinct reporters; privacy panel | Radar | Simulated-data banner stays visible |
-| 6:30–7:15 | Deployment: `docker compose up`, no GPU, no paid API; roadmap (WhatsApp, disaster mode, family weekly summary, voice-scam family code); close: "Ketahanan kognitif dimulai dari unit sosial terkecil: keluarga." | Terminal + slide | Roadmap items clearly labelled |
+| 0:00–0:40 | **Family problem**: shortened story (A) and one synthetic suspicious message | B-roll / phone | Persona stated; do not present it as interview evidence |
+| 0:40–1:00 | Siber Sosial framing and the differentiator: a closed loop, not another hoax classifier | One loop diagram | No claim of official doctrine, access, or partnership |
+| 1:00–1:50 | **Voluntary family signal**: forward the message → sourced answer, Halio Card, voice note; explain the non-shaming correction language | Real phone recording | Demo claim is in the corpus; say so. Research-inspired design, not proven behaviour change |
+| 1:50–2:20 | **Honest uncertainty**: unknown rumour → "Belum ada pemeriksaan" → human escalation; then a true same-topic statement is not called a hoax | Bot + web app | Both flows real; self-written test set limitation stated |
+| 2:20–3:10 | **Aggregate early warning**: the voluntary reports appear as counts/trends in Radar; emerging rumour is shown only after the small-cell threshold | Radar | Simulated-data banner stays visible; k-anonymity reduces exposure but does not guarantee anonymity |
+| 3:10–4:10 | **Analyst triage/verification**: select the issue, inspect evidence and coverage, record the reason, choose a response, and send/resolve the review | Radar + reviewer flow | No fake analyst identity. State exactly which actions are live |
+| 4:10–4:50 | **Correction returns**: the analyst response and source arrive back in the original family channel; show the completed loop and its actual timestamps where available | Phone + loop diagram | If web follow-up remains manual, say so; never imply a response that was not sent |
+| 4:50–5:30 | **Evidence and limitations**: actual eval, corpus size, synthetic/simulated data, privacy, known coverage gaps; show the research protocol and clearly label interviews/experiments as completed or pending | `eval/RESULTS.md` + evidence slide | No participant counts or impact claims until the studies are actually run |
+| 5:30–6:10 | Deployment: on-premise, no GPU, no paid API required; close on the measured loop: "Dari sinyal keluarga, ke keputusan analis, kembali menjadi koreksi bersumber." | Architecture slide | Keep roadmap items out of the core demo; extension is optional backup footage, not a second feature tour |
 
 **Backup plan for recording day:** pre-rendered voice MP3s; second phone as hotspot; recorded clips of every flow before 12 Nov; local server if hosting is flaky.
 
 ## C. Final pitch (10 min slot)
 
-- 0:00–0:45 story (shortened A)
-- 0:45–4:00 live demo: hand a judge a phone with Telegram open (bot pinned), or ask a judge for any rumour and forward it. Then the honesty moment, then the Radar
-- 4:00–5:00 why this matters for TNI AD (Siber Sosial monitoring, scams impersonating TNI, families of personnel) and how a unit deploys it
-- 5:00–5:30 credibility: sources, three states, appeal, privacy, what we don't claim
+- 0:00–0:40 family problem and the closed-loop proposition
+- 0:40–4:20 one live loop: voluntary family signal, honest answer, aggregate Radar, analyst triage, sourced correction returned
+- 4:20–5:00 why this matters for Siber Sosial and how a unit could deploy it, without claiming access or partnership
+- 5:00–5:30 evidence and credibility: sources, abstention, appeal, privacy, actual research status, and what we do not claim
 - 5:30–10:00 Q&A
 
 ### Prepared Q&A
-- **"Kenapa tidak pakai ChatGPT saja?"** Chatbots need the user to know to ask, don't flag proactively, don't restrict answers to verified Indonesian sources, and don't reliably say "not enough evidence". Halio is voice-first for parents, keeps no message history, and runs on-prem without a paid API.
-- **"Bukankah ini pengawasan warga?"** No message is stored. The Radar holds counts only. Rumour text appears only after ≥5 distinct people sent it the same day (public by definition), and pseudonyms rotate daily. It cannot identify a person by design.
+- **"Kenapa tidak pakai ChatGPT saja?"** Halio's proposed value is the integrated workflow: a bounded source corpus, explicit abstention, family-friendly correction, analyst handoff, and an on-premise deployment path. Do not claim that every general chatbot lacks these capabilities; show the working loop instead.
+- **"Bukankah ini pengawasan warga?"** Signals are user-initiated and the Radar exposes aggregate trends with small-cell suppression. Rumour text appears only after ≥5 distinct reporters in the configured window and pseudonyms rotate daily. These controls reduce exposure; they do not guarantee anonymity or make private text "public by definition". Show `docs/PRIVACY.md` and the actual stored fields.
 - **"Siapa yang menentukan benar/salah?"** Named fact-checkers and official sources. Halio only matches. When there is no source, it says so.
 - **"Bagaimana kalau salah?"** Appeal button, human queue, the false-hoax metric is the one we optimise first, and verdicts fall back to "tidak yakin".
 - **"Akurasinya berapa?"** Report `eval/RESULTS.md` numbers and say the test set is small and self-written. Then describe the plan for an independent test set.
+- **"Apakah terbukti mengubah perilaku?"** Not yet. Accuracy-nudge and prebunking research informs the design, but Halio-specific interviews and human experiments remain pending until actually conducted. Show the protocol and never substitute intention-sharing results for real-world behaviour.
 - **"Deteksi deepfake?"** Not claimed. We match the *claim* in the message to existing debunks.

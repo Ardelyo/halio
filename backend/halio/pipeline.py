@@ -117,7 +117,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
                 status, reason = "tidak_yakin", "llm_tidak_dapat_membuktikan"
 
     shown = best if status != "belum_ada_pemeriksaan" and reason != "bukan_klaim_faktual" else None
-    check_id = uuid.uuid4().hex[:12]
+    check_id = uuid.uuid4().hex
     return {
         "id": check_id,
         "created": datetime.now(WIB).isoformat(timespec="seconds"),

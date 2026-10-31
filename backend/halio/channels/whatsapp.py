@@ -20,12 +20,16 @@ log = logging.getLogger(__name__)
 GRAPH_VERSION = os.getenv("WHATSAPP_GRAPH_VERSION", "v21.0")
 
 
-def incoming_texts(payload: dict) -> Iterator[tuple[str, str]]:
+def incoming_texts(payload: dict) -> Iterator[tuple[str, str, str]]:
+    if not isinstance(payload, dict):
+        return
     for entry in payload.get("entry", []):
         for change in entry.get("changes", []):
             for msg in change.get("value", {}).get("messages", []):
-                if msg.get("type") == "text":
-                    yield msg["from"], msg["text"]["body"]
+                if msg.get("type") == "text" and msg.get("id") and msg.get("from"):
+                    body = msg.get("text", {}).get("body", "")
+                    if isinstance(body, str) and 3 <= len(body) <= 4000:
+                        yield msg["id"], msg["from"], body
 
 
 def _send(cfg: Settings, body: dict) -> None:

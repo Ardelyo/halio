@@ -1,13 +1,14 @@
-"""HTTP API + static web app.  Run:  uvicorn halio.api:app --reload  (from backend/)."""
+"""HTTP API + static web app. Run from backend/ with uvicorn halio.api:app."""
 
 from __future__ import annotations
 
+import json
 import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -17,13 +18,17 @@ from .config import settings
 from .ingest import coverage
 from .ingest.fetcher import Poller
 from .ingest.store import SensorStore, utcnow
+from .security import RateLimiter, valid_meta_signature
 from .store import ResultCache, Store
 
 logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("halio.api")
 
 cache = ResultCache()
+seen_wa_messages = ResultCache(max_items=10000, ttl=86400)
 store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
 sensor = SensorStore(settings.db_path)
+limiter = RateLimiter(settings.rate_limit_per_minute)
 
 
 @asynccontextmanager
@@ -38,8 +43,26 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Halio API", version=__version__, lifespan=lifespan)
-# The extension calls from page origins; only scrubbed claim text is accepted.
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "POST"], allow_headers=["*"])
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(settings.cors_origins),
+        allow_methods=["GET", "POST"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
+
+
+@app.middleware("http")
+async def protect(request: Request, call_next):
+    if request.url.path.startswith(("/api/", "/webhook/")):
+        client = request.client.host if request.client else "unknown"
+        if not limiter.allow(f"{client}:{request.url.path}"):
+            return JSONResponse({"detail": "Terlalu banyak permintaan. Coba lagi satu menit lagi."}, status_code=429)
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
 
 
 class CheckIn(BaseModel):
@@ -50,19 +73,24 @@ class CheckIn(BaseModel):
 
 
 class AppealIn(BaseModel):
-    check_id: str
+    check_id: str = Field(min_length=32, max_length=32)
     reason: str = Field(default="", max_length=500)
 
 
 class EscalateIn(BaseModel):
-    check_id: str
+    check_id: str = Field(min_length=32, max_length=32)
+
+
+def _public(result: dict) -> dict:
+    return {k: v for k, v in result.items() if not k.startswith("_")}
 
 
 def run_check(body: CheckIn) -> dict:
     result = pipeline.check(body.text, settings, sapaan=body.sapaan)
     result["card_url"] = f"/api/card/{result['id']}.png"
     result["voice_url"] = f"/api/voice/{result['id']}.mp3"
-    cache.put(result["id"], result)
+    cached = {**result, "_channel": body.channel, "_reporter": body.reporter}
+    cache.put(result["id"], cached)
     store.record(result, body.channel, body.reporter)
     return result
 
@@ -76,10 +104,14 @@ def _cached(check_id: str) -> dict:
 
 @app.get("/health")
 def health() -> dict:
-    return {
-        "ok": True, "version": __version__,
-        "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled,
-    }
+    return {"ok": True, "version": __version__, "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled}
+
+
+@app.get("/ready")
+def ready() -> dict:
+    with store._conn() as c:
+        c.execute("SELECT 1").fetchone()
+    return {"ok": True}
 
 
 @app.post("/api/check")
@@ -89,7 +121,7 @@ def api_check(body: CheckIn) -> dict:
 
 @app.get("/api/check/{check_id}")
 def api_get(check_id: str) -> dict:
-    return _cached(check_id)
+    return _public(_cached(check_id))
 
 
 @app.get("/api/card/{check_id}.png")
@@ -103,13 +135,14 @@ def api_voice(check_id: str) -> Response:
     try:
         audio = voice.synthesize(result["voice_script"])
     except voice.VoiceUnavailable as exc:
-        raise HTTPException(501, f"Suara server tidak tersedia: {exc}") from exc
+        log.warning("Voice unavailable: %s", type(exc).__name__)
+        raise HTTPException(501, "Suara server tidak tersedia. Coba fitur suara di perangkat Anda.") from exc
     return Response(audio, media_type="audio/mpeg")
 
 
 @app.post("/api/appeal")
 def api_appeal(body: AppealIn) -> dict:
-    result = cache.get(body.check_id) or {}
+    result = _cached(body.check_id)
     debunk_id = (result.get("match") or {}).get("debunk_id")
     return {"ok": True, "appeal_id": store.add_appeal(body.check_id, debunk_id, body.reason)}
 
@@ -117,10 +150,11 @@ def api_appeal(body: AppealIn) -> dict:
 @app.post("/api/escalate")
 def api_escalate(body: EscalateIn) -> dict:
     result = _cached(body.check_id)
+    ticket = store.add_escalation(body.check_id, result["claim"], result["_channel"], result["_reporter"])
     return {
         "ok": True,
-        "ticket": store.add_escalation(body.check_id, result["claim"]),
-        "message": "Terima kasih. Pertanyaan Anda diteruskan ke pemeriksa manusia. Jawaban akan dikirim lewat kanal yang sama.",
+        "ticket": ticket,
+        "message": "Pertanyaan Anda masuk antrean pemeriksa. Simpan nomor tiket ini; balasan dikirim bila kanal mendukungnya.",
     }
 
 
@@ -137,7 +171,6 @@ def api_radar(days: int = 14, authorization: str | None = Header(default=None)) 
 
 @app.get("/api/sensor/coverage")
 def api_sensor_coverage(authorization: str | None = Header(default=None)) -> dict:
-    """Which sources the sensor watches, how fresh each is, and the declared blind spots."""
     _require_radar_token(authorization)
     report = coverage.build(sensor, utcnow())
     report["polling"] = settings.sensor_enabled
@@ -146,12 +179,10 @@ def api_sensor_coverage(authorization: str | None = Header(default=None)) -> dic
 
 @app.get("/api/sensor/items")
 def api_sensor_items(limit: int = 50, source: str | None = None, authorization: str | None = Header(default=None)) -> dict:
-    """Newest headline metadata seen since polling started (public media only)."""
     _require_radar_token(authorization)
     return {"items": sensor.recent_items(limit=limit, source_id=source)}
 
 
-# --- WhatsApp Cloud API webhook (see channels/whatsapp.py; access unverified) ---
 @app.get("/webhook/whatsapp")
 def wa_verify(request: Request) -> PlainTextResponse:
     p = request.query_params
@@ -162,14 +193,22 @@ def wa_verify(request: Request) -> PlainTextResponse:
 
 @app.post("/webhook/whatsapp")
 async def wa_receive(request: Request) -> dict:
-    payload = await request.json()
-    for sender, text in whatsapp.incoming_texts(payload):
+    body = await request.body()
+    if not valid_meta_signature(body, request.headers.get("X-Hub-Signature-256"), settings.wa_app_secret):
+        raise HTTPException(403, "Signature webhook tidak valid")
+    try:
+        payload = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise HTTPException(400, "Payload webhook tidak valid") from exc
+    for message_id, sender, text in whatsapp.incoming_texts(payload):
+        if seen_wa_messages.get(message_id):
+            continue
+        seen_wa_messages.put(message_id, {"seen": True})
         result = run_check(CheckIn(text=text, channel="whatsapp", reporter=f"wa:{sender}"))
         whatsapp.reply(sender, result, settings)
     return {"ok": True}
 
 
-# --- Static web app (PWA + Radar) ---
 @app.get("/radar")
 def radar_page() -> FileResponse:
     return FileResponse(settings.web_dir / "radar.html")

@@ -66,6 +66,15 @@ docker compose up -d
 
 Ekstensi Chrome: lihat [extension/README.md](extension/README.md).
 
+Antrean pemeriksa manusia (di server tepercaya):
+
+```bash
+python scripts/review.py list escalations
+python scripts/review.py resolve escalations ID --response "Jawaban pemeriksa"
+```
+
+Balasan Telegram/WhatsApp dikirim sebelum tiket ditutup. Kanal web memerlukan tindak lanjut manual dengan nomor tiket. Batas risiko dan gerbang peluncuran ada di [Kesiapan demo dan peluncuran](docs/LAUNCH_READINESS.md).
+
 ## Struktur
 
 ```
@@ -82,6 +91,7 @@ docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 ## Dokumen
 
 - [Rencana proyek](docs/PROJECT_PLAN.md): jadwal, peran, risiko, pemetaan ke kriteria penilaian
+- [Riset agar Halio menonjol](docs/RESEARCH_STANDOUT.md): bukti ilmiah, peta kompetitor, protokol wawancara dan eksperimen, serta metrik dampak
 - [Arsitektur teknis](docs/ARCHITECTURE.md)
 - [Arsitektur sensor (pemantauan narasi)](docs/ARCHITECTURE_SENSOR.md)
 - [Privasi & aturan netral](docs/PRIVACY.md)

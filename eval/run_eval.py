@@ -116,6 +116,8 @@ def main() -> None:
     m = evaluate(base, items)
     out = report(base, m)
     (ROOT / "eval" / "RESULTS.md").write_text(out, encoding="utf-8")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     print(out)
 
 

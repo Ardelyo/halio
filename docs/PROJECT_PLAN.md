@@ -46,21 +46,41 @@ Inputs: the official Rulebook (PUSSIBERAD × CODEPOLITAN) and the team research 
 
 **Honesty rules (credibility is the product):** never claim deepfake detection; never call a statement a hoax without a named source; label every simulation; report eval numbers including failures; describe partner organisations as targets, not partners.
 
+### 2.1 Evidence gate: prove one closed loop before adding features
+
+See [RESEARCH_STANDOUT.md](RESEARCH_STANDOUT.md) for verified sources, competitor gaps, interview guides, and experiment protocols. The product position is **closed-loop cognitive resilience**: voluntary family signal → aggregate early warning → analyst triage/verification → sourced correction back to the family channel.
+
+Two claims are still unproven: that the correction experience improves family decisions, and that Radar improves analyst work. Accuracy-nudge and prebunking studies justify testing these patterns, not claiming that Halio is effective. The preregistered accuracy-nudge replication found a failed first stage and only a small pooled effect; this is a reason to compare conditions honestly.
+
+Before the next feature, run the approved research protocol:
+
+1. **Family discovery:** 5–8 members, critical-incident interviews and observed tasks; no “do you like this idea?” validation.
+2. **Operational discovery:** 3–5 prospective analysts and 2–3 fact-checkers; walk through real roles, evidence, authority, and response handoffs using synthetic scenarios.
+3. **Formative family test:** correction card, accuracy pause, prebunking, and non-shaming tone. Report true/false sharing separately, discernment, comprehension, and time. Small samples are not effectiveness proof.
+4. **Formative Radar test:** equivalent synthetic raw-feed and Radar scenarios, counterbalanced. Measure time-to-awareness, time-to-triage, triage precision, false alarms, correction time, and action clarity.
+5. **Change the demo only after observing the loop:** family problem → voluntary signal → aggregate Radar → analyst decision → correction returned → evidence and limitations.
+
+No interviews or human experiments have been completed by this planning work. Do not invent participants, access to TNI, findings, or endorsements. If time is insufficient, present the protocol and the working synthetic loop as such; do not substitute motivational quotations for evidence.
+
 ---
 
 ## 3. Product scope
 
-### 3.1 Personas (synthetic; no Indonesian user research exists, see research §10)
+### 3.1 Personas (synthetic; no Halio-specific user research has been completed)
 - **Ibu Sri (68)**, the hero user: forwards messages to the family group out of love. Doesn't install apps and doesn't type much.
 - **Dimas (34)**, the installer: Ibu Sri's son. Sets Halio up for her (the greeting, e.g. "Bu", and the family rules) and is tired of being the family "hoax police".
 - **Analis Siber Satuan**, the Radar user: monitors trends, not individuals. Needs early warning of campaigns impersonating TNI AD.
 
+These are hypotheses to test through §2.1, not discovered user needs.
+
 ### 3.2 Core flows (the only things the video must show)
-1. **Forward → answer** (Telegram or web): voice note + Halio Card + "Kenali triknya" + source links.
+1. **Family signal → answer**: forward/check voluntarily (Telegram or web), then voice note + Halio Card + source links.
 2. **Honest abstain**: an unknown claim gets "Belum ada pemeriksaan" and an offer to ask a human reviewer.
 3. **No false accusation**: a *true* statement on a hoax topic gets "Tidak yakin", not "Terbukti salah".
-4. **Feed layer** (extension): "Perlu dicek?" badge + gambling banner blurred on-device + "0 byte gambar dikirim".
-5. **Radar**: categories, techniques, trend, an emerging rumour surfaced only after k distinct reporters.
+4. **Aggregate early warning → analyst triage**: Radar surfaces the synthetic scenario; the analyst inspects evidence, records a decision, and responds.
+5. **Correction returns → evidence**: the sourced answer reaches the original channel; the demo closes with actual eval, limitations, and research status.
+
+The extension is optional supporting footage, not part of the core story.
 
 ### 3.3 Feature matrix and repository status
 
