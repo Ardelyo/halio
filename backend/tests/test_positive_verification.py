@@ -33,7 +33,7 @@ def entry(**changes):
 def config(tmp_path, entries):
     path = tmp_path / "positive.json"
     path.write_text(json.dumps({"debunks": entries}), encoding="utf-8")
-    return Settings(corpus_path=path, google_factcheck_key=None, llm_enabled=True)
+    return Settings(corpus_path=path, google_factcheck_key=None, llm_enabled=True, llm_provider="anthropic")
 
 
 def ground_positive(monkeypatch, quote=QUOTE, grounded=True):
