@@ -4,7 +4,8 @@
     "collected": "2026-10-27",
     "status": "URLs gathered from search results on 2026-10-27. The team MUST open every URL and confirm the wording before the demo (docs/PROJECT_PLAN.md, task D-2). Replace with TurnBackHoax/Mafindo/CekFakta article URLs where available.",
     "license_note": "Only short factual summaries in our own words plus links. Do not copy article text.",
-    "syarat_note": "Each pattern group in 'syarat' is the core of the false claim (e.g. predicting a date, paying to pass). A lexical match without it (or with it negated: 'tidak', 'tanpa', 'bukan') is capped at 'tidak yakin'. This prevents true same-topic statements from being labelled hoax."
+    "syarat_note": "Each pattern group in 'syarat' is the core of the false claim (e.g. predicting a date, paying to pass). A lexical match without it (or with it negated: 'tidak', 'tanpa', 'bukan') is capped at 'tidak yakin'. This prevents true same-topic statements from being labelled hoax.",
+    "positive_note": "Entries with jenis='verifikasi_positif' also require an official named source, kutipan_sumber copied exactly from fakta, valid_from, optional valid_until and wilayah. They never produce a green result from retrieval alone: grounded AI must support the whole claim and no competing candidate may pass the match threshold."
   },
   "debunks": [
     {

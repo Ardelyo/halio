@@ -1,18 +1,19 @@
-"""The check pipeline: message in, honest three-state verdict out.
+"""The check pipeline: message in, evidence-bounded verdict out.
 
     claim extraction -> PII scrub -> T1 retrieval (local corpus + ClaimReview)
     -> optional T2 grounded LLM -> verdict + voice script + manipulation hints
 
 Verdict states (never a bare "TRUE/FALSE" from the model):
-    terbukti_salah         a named fact-checker/official source already debunked it
-    tidak_yakin            looks related but not the same claim, or not a factual claim
-    belum_ada_pemeriksaan  no fact-check exists yet; Halio refuses to guess
+    terbukti_salah          a named fact-checker/official source already debunked it
+    sejalan_dengan_sumber   current official evidence supports the whole claim, with AI grounding
+    tidak_yakin             evidence is incomplete, conflicting, expired, or only topically related
+    belum_ada_pemeriksaan   no fact-check exists yet; Halio refuses to guess
 """
 
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from . import claims, factcheck_api, llm_verdict, manipulation
 from .config import Settings
@@ -22,6 +23,7 @@ from .store import WIB
 
 STATUS_LABEL = {
     "terbukti_salah": "Terbukti salah",
+    "sejalan_dengan_sumber": "Sejalan dengan sumber",
     "tidak_yakin": "Halio tidak yakin",
     "belum_ada_pemeriksaan": "Belum ada pemeriksaan",
 }
@@ -47,7 +49,36 @@ def _match_payload(m: Match) -> dict:
     return {
         "debunk_id": d.id, "kategori": d.kategori, "score": m.score,
         "klaim_dibantah": d.klaim, "fakta": d.fakta, "sederhana": d.sederhana, "sumber": d.sumber,
+        "jenis": d.jenis, "kutipan_sumber": d.kutipan_sumber,
+        "valid_from": d.valid_from, "valid_until": d.valid_until, "wilayah": d.wilayah,
     }
+
+
+def _positive_evidence_reason(
+    match: Match,
+    candidates: list[Match],
+    judgement: llm_verdict.LlmJudgement,
+    today: date,
+    threshold: float,
+) -> str | None:
+    d = match.debunk
+    source = d.sumber[0] if d.sumber else {}
+    if match.score < threshold:
+        return "kandidat_kurang_cocok"
+    if source.get("jenis") != "resmi" or not source.get("nama") or not source.get("url", "").startswith("https://"):
+        return "sumber_bukan_resmi"
+    if (
+        not judgement.quote
+        or not d.kutipan_sumber
+        or d.kutipan_sumber not in d.fakta
+        or judgement.quote not in d.kutipan_sumber
+    ):
+        return "kutipan_sumber_tidak_cocok"
+    if not d.is_current(today):
+        return "sumber_belum_berlaku" if d.valid_from and d.valid_from > today.isoformat() else "sumber_kedaluwarsa"
+    if any(m.debunk.id != d.id and m.score >= threshold for m in candidates):
+        return "bukti_bertentangan"
+    return None
 
 
 def _voice(status: str, sapaan: str, match: Match | None, manip: dict) -> str:
@@ -57,10 +88,17 @@ def _voice(status: str, sapaan: str, match: Match | None, manip: dict) -> str:
             f"{sapaan}, pesan ini sudah dicek dan ternyata tidak benar. {match.debunk.sederhana} "
             f"Sumbernya dari {src}. Sebaiknya jangan diteruskan, ya."
         )
-    if status == "tidak_yakin" and match:
+    if status == "sejalan_dengan_sumber" and match:
+        src = match.debunk.sumber[0]["nama"].split(":")[0]
         return (
-            f"{sapaan}, Halio belum yakin. Pesan ini mirip dengan kabar bohong yang pernah beredar, "
-            f"tapi tidak sama persis. Lebih aman ditahan dulu. Kalau mau, Halio bisa tanyakan ke pemeriksa manusia."
+            f"{sapaan}, isi pesan ini sejalan dengan keterangan dari {src}. {match.debunk.sederhana} "
+            f"Tetap cek tanggal dan konteksnya sebelum diteruskan."
+        )
+    if status == "tidak_yakin" and match:
+        topic = "informasi dari sumber resmi" if match.debunk.is_positive else "kabar bohong yang pernah beredar"
+        return (
+            f"{sapaan}, Halio belum yakin. Pesan ini mirip dengan {topic}, "
+            f"tapi buktinya belum cukup. Lebih aman ditahan dulu. Kalau mau, Halio bisa tanyakan ke pemeriksa manusia."
         )
     if status == "tidak_yakin":
         return (
@@ -93,8 +131,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
     best = candidates[0] if candidates else None
     if not claim.is_factual and (not best or best.score < cfg.match_threshold):
         status, reason = "tidak_yakin", "bukan_klaim_faktual"
+    elif best and best.score >= cfg.match_threshold and best.debunk.is_positive:
+        status, reason = "tidak_yakin", "memerlukan_verifikasi_ai"
     elif best and best.score >= cfg.match_threshold and not best.debunk.core_present(text):
-        # Same topic, but the core of the false claim is missing or negated.
         status, reason = "tidak_yakin", "inti_klaim_tidak_ada"
     elif best and best.score >= cfg.match_threshold:
         status, reason = "terbukti_salah", "cocok_dengan_bantahan"
@@ -110,10 +149,16 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
             method.append("llm")
             if j.relation == "sama" and j.grounded:
                 best = next(m for m in candidates if m.debunk.id == j.debunk_id)
-                status, reason = "terbukti_salah", "cocok_dikonfirmasi_llm"
                 llm_note = {"kutipan": j.quote, "penjelasan": j.explanation}
-            elif status == "terbukti_salah":
-                # LLM could not ground the match: downgrade, never upgrade without a quote.
+                if best.debunk.is_positive:
+                    gate = _positive_evidence_reason(
+                        best, candidates, j, datetime.now(WIB).date(), cfg.match_threshold
+                    )
+                    status = "sejalan_dengan_sumber" if gate is None else "tidak_yakin"
+                    reason = gate or "cocok_dengan_sumber_resmi"
+                else:
+                    status, reason = "terbukti_salah", "cocok_dikonfirmasi_llm"
+            elif status == "terbukti_salah" or reason == "memerlukan_verifikasi_ai":
                 status, reason = "tidak_yakin", "llm_tidak_dapat_membuktikan"
 
     shown = best if status != "belum_ada_pemeriksaan" and reason != "bukan_klaim_faktual" else None
@@ -131,7 +176,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _link_warnings(domains)},
         "voice_script": _voice(status, sapaan, shown, manip),
-        "offer_human_review": status != "terbukti_salah",
+        "offer_human_review": status not in {"terbukti_salah", "sejalan_dengan_sumber"},
         "method": "+".join(method),
         "disclaimer": DISCLAIMER,
     }

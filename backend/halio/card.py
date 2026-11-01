@@ -13,6 +13,7 @@ SIZE = 1080
 PAD = 72
 THEME = {
     "terbukti_salah": ("#B42318", "TERBUKTI SALAH"),
+    "sejalan_dengan_sumber": ("#067647", "SEJALAN DENGAN SUMBER"),
     "tidak_yakin": ("#B54708", "HALIO TIDAK YAKIN"),
     "belum_ada_pemeriksaan": ("#475467", "BELUM ADA PEMERIKSAAN"),
 }
