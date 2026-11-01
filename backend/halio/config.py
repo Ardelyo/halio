@@ -35,9 +35,13 @@ class Settings:
     # T1: Google Fact Check Tools (ClaimReview). Optional.
     google_factcheck_key: str | None = field(default_factory=lambda: os.getenv("GOOGLE_FACTCHECK_API_KEY") or None)
 
-    # T2: LLM verdict over retrieved sources. Optional, off by default.
+    # T2: grounded model verdict and web evidence. Optional, off by default.
     llm_enabled: bool = field(default_factory=lambda: _bool("HALIO_LLM"))
-    llm_model: str = field(default_factory=lambda: os.getenv("HALIO_LLM_MODEL", "claude-opus-5-5"))
+    llm_provider: str = field(default_factory=lambda: os.getenv("HALIO_LLM_PROVIDER", "google"))
+    llm_model: str = field(default_factory=lambda: os.getenv("HALIO_LLM_MODEL", "gemini-2.5-flash-lite"))
+    google_cloud_project: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_PROJECT", "gemma4good-494311"))
+    google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"))
+    agent_timeout_s: float = field(default_factory=lambda: float(os.getenv("HALIO_AGENT_TIMEOUT", "45")))
 
     # Radar (aggregate dashboard) privacy knobs.
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)

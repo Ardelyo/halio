@@ -53,4 +53,4 @@ Thresholds: match >= 0.4, unsure >= 0.26. Mode: retrieval only (no LLM, no Claim
 
 - Same-topic TRUE statements score close to the threshold; that is why the 'tidak yakin' band exists.
 - Retrieval is lexical; heavy paraphrase without shared words is missed (falls to 'belum ada pemeriksaan', which is safe).
-- The T2 LLM step (HALIO_LLM=1) is not measured here; it may only downgrade or confirm with an exact quote.
+- The optional LLM/web-agent step (HALIO_LLM=1) is not measured here. Live sources, quotes, latency, and provider availability need a separate online evaluation.

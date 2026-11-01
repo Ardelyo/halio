@@ -15,7 +15,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from . import claims, factcheck_api, llm_verdict, manipulation
+from . import claims, factcheck_api, google_agent, llm_verdict, manipulation
 from .config import Settings
 from .pii import extract_domains
 from .retrieval import Match, get_index
@@ -143,7 +143,32 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         status, reason = "belum_ada_pemeriksaan", "tidak_ada_bantahan"
 
     llm_note = None
-    if cfg.llm_enabled and best and best.score >= cfg.unsure_threshold:
+    if cfg.llm_enabled and cfg.llm_provider == "google" and claim.is_factual:
+        seed_urls = [
+            source["url"]
+            for candidate in candidates
+            for source in candidate.debunk.sumber
+            if source.get("jenis") in {"resmi", "cek_fakta"}
+        ][:3]
+        agent = google_agent.investigate(claim.text, cfg, seed_urls=seed_urls)
+        if agent is None and status == "terbukti_salah":
+            status, reason = "tidak_yakin", "verifikasi_web_tidak_tersedia"
+        if agent is not None:
+            method.append("gemini_search")
+            llm_note = agent.note
+            if agent.match:
+                best = agent.match
+            if agent.status == "sejalan_dengan_sumber" and agent.judgement:
+                gate = _positive_evidence_reason(
+                    best, [best], agent.judgement, datetime.now(WIB).date(), cfg.match_threshold
+                )
+                status = "sejalan_dengan_sumber" if gate is None else "tidak_yakin"
+                reason = gate or agent.reason
+            elif agent.status == "terbukti_salah":
+                status, reason = agent.status, agent.reason
+            elif agent.match or status == "terbukti_salah":
+                status, reason = "tidak_yakin", agent.reason
+    elif cfg.llm_enabled and cfg.llm_provider == "anthropic" and best and best.score >= cfg.unsure_threshold:
         j = llm_verdict.judge(claim.text, candidates, cfg.llm_model)
         if j is not None:
             method.append("llm")

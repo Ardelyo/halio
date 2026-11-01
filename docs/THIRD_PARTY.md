@@ -23,7 +23,8 @@ The repository was created on 27 Oct 2026, within the programme period, from the
 |---|---|---|
 | NudeNet 3.4 (320n ONNX) | Optional on-device adult-content screening | MIT (per PyPI listing) |
 | Google Fact Check Tools API (optional) | ClaimReview lookup | Google API ToS; ClaimReview content belongs to publishers |
-| LLM API (optional, `HALIO_LLM=1`) | Match confirmation with exact-quote verification | Provider terms |
+| Google Vertex AI Gemini + Google Search (optional, `HALIO_LLM=1`) | Evidence discovery and claim/source relation; backend fetches and verifies every URL and quote | Provider terms |
+| Anthropic API (legacy optional provider) | Match confirmation with exact-quote verification | Provider terms |
 | Debunk corpus (`data/debunks.json`) | Summaries in our own words + links to sources | Sources: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (with Mafindo), MerahPutih, RRI, Kumparan. No article text copied |
 
 ## Research sources used in the narrative
