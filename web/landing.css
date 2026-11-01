@@ -252,7 +252,7 @@ h1 em { color: #3f6a5b; }
 .footer-links { display: flex; justify-content: flex-end; gap: 24px; font-size: 10px; font-weight: 600; }
 .footer-links a:hover { text-decoration: underline; }
 
-.js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .75s ease, transform .75s cubic-bezier(.2,.7,.2,1); }
+.js .reveal { opacity: 1; transform: translateY(24px); transition: transform .75s cubic-bezier(.2,.7,.2,1); }
 .js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .hero-copy .reveal:nth-child(2) { transition-delay: .08s; }
 .hero-copy .reveal:nth-child(3) { transition-delay: .16s; }
