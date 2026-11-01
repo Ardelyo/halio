@@ -21,7 +21,7 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 |---|---|
 | Landing page | [ardelyo.github.io/halio](https://ardelyo.github.io/halio/) |
 | Demo cek pesan (PWA, mendukung menu *Bagikan*) | [Buka demo](https://ardelyo.github.io/halio/cek.html) |
-| Bot Telegram | Belum dipublikasikan |
+| Bot Telegram | [@halioid_bot](https://t.me/halioid_bot) (aktif selama proses bot dan API berjalan) |
 | Radar (data simulasi pada GitHub Pages) | [Buka Radar](https://ardelyo.github.io/halio/radar.html) |
 | Cakupan sensor (contoh tampilan pada GitHub Pages) | [Buka cakupan](https://ardelyo.github.io/halio/coverage.html) |
 | Feed simulasi untuk ekstensi | [Buka feed](https://ardelyo.github.io/halio/demo-feed.html) |
