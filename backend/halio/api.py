@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Res
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import __version__, card, pipeline, voice
+from . import __version__, card, pipeline, review, voice
 from .channels import whatsapp
 from .config import settings
 from .ingest import coverage
@@ -79,6 +79,11 @@ class AppealIn(BaseModel):
 
 class EscalateIn(BaseModel):
     check_id: str = Field(min_length=32, max_length=32)
+
+
+class ReviewResolveIn(BaseModel):
+    response: str = Field(min_length=1, max_length=2000)
+    send: bool = True
 
 
 def _public(result: dict) -> dict:
@@ -161,6 +166,49 @@ def api_escalate(body: EscalateIn) -> dict:
 def _require_radar_token(authorization: str | None) -> None:
     if settings.radar_token and authorization != f"Bearer {settings.radar_token}":
         raise HTTPException(401, "Radar memerlukan token")
+
+
+def _validate_review_type(item_type: str) -> None:
+    if item_type not in ("appeals", "escalations"):
+        raise HTTPException(404, "Jenis antrean tidak dikenal")
+
+
+@app.get("/api/review/{item_type}")
+def api_review_items(item_type: str, open_only: bool = True, authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization)
+    _validate_review_type(item_type)
+    return {"items": store.review_items(item_type, open_only), "events": store.review_events(item_type)}
+
+
+@app.post("/api/review/{item_type}/{item_id}/resolve")
+def api_resolve_review(item_type: str, item_id: int, body: ReviewResolveIn, authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization)
+    _validate_review_type(item_type)
+    if item_id < 1:
+        raise HTTPException(422, "ID tiket tidak valid")
+    if not body.response.strip():
+        raise HTTPException(422, "Respons pemeriksa tidak boleh kosong")
+    items = {item["id"]: item for item in store.review_items(item_type, open_only=False)}
+    item = items.get(item_id)
+    if not item:
+        raise HTTPException(404, "Tiket tidak ditemukan")
+    if item["status"] == "selesai":
+        raise HTTPException(409, "Tiket sudah diselesaikan")
+    sent = False
+    if item_type == "escalations" and body.send:
+        try:
+            review.send_reply(item, body.response)
+            sent = True
+        except Exception as exc:
+            log.warning("Balasan tiket %s gagal: %s", item_id, type(exc).__name__)
+            detail = str(exc) if isinstance(exc, RuntimeError) else "Kanal tujuan menolak balasan; tiket belum ditutup"
+            raise HTTPException(502, detail) from exc
+    try:
+        store.resolve_review(item_type, item_id, body.response)
+    except PermissionError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    message = "Balasan terkirim dan tiket ditutup." if sent else "Respons dicatat dan tiket ditutup. Tindak lanjut manual tetap diperlukan bila kanal tidak mendukung balasan."
+    return {"ok": True, "sent": sent, "recorded": True, "message": message}
 
 
 @app.get("/api/radar")

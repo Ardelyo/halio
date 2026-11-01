@@ -7,7 +7,7 @@ Dokumen ini memisahkan pekerjaan teknis yang sudah diverifikasi dari risiko yang
 - Jalankan seluruh tes dan evaluasi dari clone bersih.
 - Uji alur web: klaim dikenal, klaim benar pada topik yang sama, klaim belum dikenal, kartu, suara/fallback, banding, eskalasi, dan hasil kedaluwarsa.
 - Uji Telegram dengan akun uji; jangan memakai pesan pengguna nyata.
-- Jalankan `python scripts/review.py list escalations` dan `python scripts/review.py resolve escalations ID --response "Jawaban pemeriksa"` pada server tepercaya. Tiket hanya ditutup setelah balasan kanal berhasil; `--no-send` memerlukan tindak lanjut manual.
+- Uji alur analis di Radar: buka eskalasi/banding, tulis respons, kirim melalui kanal yang mendukung, dan periksa riwayat. Tiket hanya ditutup setelah balasan kanal berhasil; pencatatan tanpa pengiriman memerlukan tindak lanjut manual. Lindungi API publik dengan `RADAR_TOKEN`. CLI `scripts/review.py` tetap tersedia di server tepercaya.
 - Tampilkan data Radar simulasi dengan label. Jangan menyebut deteksi deepfake, cakupan semua platform, atau akurasi dunia nyata.
 - Siapkan rekaman cadangan dan uji semua tautan dari jendela privat.
 
@@ -20,7 +20,7 @@ Dokumen ini memisahkan pekerjaan teknis yang sudah diverifikasi dari risiko yang
 | Tinggi | WhatsApp belum diuji dengan Meta | Uji sandbox signature, retry, deduplikasi, outbound media, kegagalan API dan izin bisnis |
 | Tinggi | LLM dan ClaimReview belum dievaluasi live | Ukur cakupan, kegagalan grounding, injeksi prompt, biaya dan latensi pada set independen |
 | Tinggi | Rate limit dan cache lokal hanya berlaku per proses | Batas pada reverse proxy/gateway dan strategi cache bersama sebelum multi-instance |
-| Tinggi | Autentikasi reviewer mengandalkan akses lokal server | Kontrol akses server, akun individual, audit dan prosedur operasional; UI reviewer berautentikasi untuk penggunaan non-teknis |
+| Tinggi | UI analis memakai satu token Radar bersama, bukan akun individual | Akun dan peran individual, rotasi token, audit terikat identitas, kontrol akses server dan prosedur operasional |
 | Tinggi | K-anonimitas bukan jaminan anonimitas | Tinjauan privasi, uji korelasi/serangan komposisi, persetujuan dan minimisasi data tambahan |
 | Sedang | Akurasi NudeNet dan kompatibilitas DOM belum diukur | Safe-set seimbang, bias/false-positive report, uji situs nyata, model berversi dan deklarasi Chrome Web Store |
 | Sedang | Aksesibilitas lansia belum diuji pengguna | Audit WCAG dan sesi usability dengan pengguna lansia Indonesia |

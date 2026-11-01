@@ -8,40 +8,70 @@
   <meta name="theme-color" content="#173f35">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="app.css">
 </head>
-<body class="check-page">
-<main>
-  <header class="top">
-    <a class="app-brand" href="./" aria-label="Kembali ke beranda Halio"><img src="icons/icon.svg" alt=""><span>halio.</span></a>
-    <a class="back-link" href="./">← Beranda</a>
+<body>
+  <a class="skip-link" href="#checker">Lewati ke alat cek pesan</a>
+  <header class="app-topbar">
+    <a class="app-brand" href="./" aria-label="Halio, kembali ke beranda"><img src="icons/icon.svg" alt="" width="40" height="40"><span>halio.</span></a>
+    <nav aria-label="Navigasi aplikasi"><a href="./#cara-kerja">Cara kerja</a><a href="radar.html">Radar analis <span aria-hidden="true">↗</span></a></nav>
+    <span class="prototype-badge">Prototipe</span>
   </header>
-  <div class="app-heading"><p class="app-eyebrow">Teman cek pesan keluarga</p><h1>Ada pesan yang<br>mengganjal?</h1><p>Tempel di bawah. Kita periksa sumbernya dulu.</p></div>
 
-  <div id="static-notice" class="banner hidden"><b>Mode demo statis.</b> Jawaban berasal dari skenario lokal di perangkat ini. Tidak ada pesan yang dikirim ke server dan eskalasi tidak benar-benar dikirim.</div>
-  <section class="card check-card" aria-labelledby="ask">
-    <label class="big" id="ask" for="msg">Tempel pesan yang meragukan di sini</label>
-    <textarea id="msg" placeholder="Contoh: pesan berantai dari grup keluarga…"></textarea>
-    <div class="row">
-      <label for="sapaan" class="note">Panggil saya:</label>
-      <select id="sapaan">
-        <option>Bapak, Ibu</option><option>Bu</option><option>Pak</option>
-        <option>Mbah</option><option>Oma</option><option>Opa</option><option>Kak</option>
-      </select>
+  <main class="check-shell">
+    <aside class="check-intro">
+      <p class="eyebrow">Teman cek pesan keluarga</p>
+      <h1>Berhenti sebentar.<br><em>Cek dulu.</em></h1>
+      <p class="intro-copy">Tidak semua pesan perlu dijawab. Tidak semua kabar perlu diteruskan. Tempel pesannya, lalu lihat apa yang sudah diperiksa.</p>
+      <ol class="trust-list" id="panduan">
+        <li><span>01</span><div><b>Klaimnya yang diperiksa</b><p>Bukan pengirim, pilihan politik, atau pandangan Anda.</p></div></li>
+        <li><span>02</span><div><b>Sumbernya bisa Anda buka</b><p>Jawaban “terbukti salah” selalu disertai pemeriksa bernama.</p></div></li>
+        <li><span>03</span><div><b>Kalau belum tahu, kami bilang</b><p>Halio tidak mengisi kekosongan bukti dengan tebakan.</p></div></li>
+      </ol>
+      <div class="privacy-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><p><b>Pesan Anda, pilihan Anda.</b> Halio hanya memeriksa teks yang Anda kirim. Nomor telepon, NIK, email, dan tautan disaring lebih dulu.</p></div>
+    </aside>
+
+    <div class="workbench">
+      <div id="static-notice" class="mode-notice hidden" role="status"><span class="mode-dot" aria-hidden="true"></span><p><b>Demo di perangkat ini.</b> Tidak ada pesan atau tiket yang dikirim ke server.</p></div>
+      <section class="checker-card" id="checker" aria-labelledby="ask">
+        <div class="card-heading"><span class="step-label">Mulai di sini</span><span id="char-count" aria-live="polite">0 / 4.000</span></div>
+        <label class="big" id="ask" for="msg">Pesan apa yang ingin Anda periksa?</label>
+        <p class="field-help">Salin pesan dari grup atau teruskan teksnya ke kolom ini.</p>
+        <div class="textarea-wrap">
+          <textarea id="msg" maxlength="4000" placeholder="Tempel pesan yang meragukan di sini…"></textarea>
+          <button class="clear-input hidden" id="clear-input" type="button" aria-label="Hapus isi pesan">Hapus</button>
+        </div>
+        <div class="form-row">
+          <label for="sapaan">Panggil saya</label>
+          <select id="sapaan"><option>Bapak, Ibu</option><option>Bu</option><option>Pak</option><option>Mbah</option><option>Oma</option><option>Opa</option><option>Kak</option></select>
+          <button id="go" class="primary-button" type="button">Cek pesan ini <span aria-hidden="true">→</span></button>
+        </div>
+        <p class="keyboard-hint">Ctrl + Enter untuk memeriksa</p>
+      </section>
+
+      <section class="examples-section" aria-labelledby="examples-title">
+        <div class="examples-heading"><h2 id="examples-title">Belum ada pesan? Coba contoh ini.</h2><span>Pesan sintetis</span></div>
+        <div class="example-grid" id="examples"></div>
+      </section>
+
+      <section id="result" class="result-container hidden" aria-live="polite" aria-label="Hasil pemeriksaan"></section>
     </div>
-    <div class="row"><button id="go" class="primary">Cek pesan ini <span aria-hidden="true">→</span></button></div>
-    <p class="note example-label">Atau pilih pesan contoh:</p>
-    <div class="chips" id="examples"></div>
-  </section>
+  </main>
 
-  <section id="result" class="hidden" aria-live="polite"></section>
+  <footer class="app-footer"><p>Halio membantu memeriksa klaim, bukan menggantikan penilaian Anda.</p><div><a href="https://github.com/Ardelyo/halio/blob/main/docs/PRIVACY.md" target="_blank" rel="noopener">Privasi ↗</a><a href="https://github.com/Ardelyo/halio" target="_blank" rel="noopener">Kode sumber ↗</a></div></footer>
 
-  <footer>
-    <b>Privasi tetap dijaga.</b> Halio menghapus nomor telepon, NIK, email, dan tautan sebelum memeriksa. Bila belum ada pemeriksaan, Halio tidak membuat vonis sendiri.
-    <br><a href="radar.html">Radar Ketahanan Kognitif</a> · <a href="https://github.com/Ardelyo/halio" id="repo" target="_blank" rel="noopener">Kode sumber</a> · Prototipe Kartika Cyber Hackathon 2026
-  </footer>
-</main>
-<script src="static-demo.js"></script>
-<script src="app.js"></script>
+  <dialog id="appeal-dialog" class="appeal-dialog">
+    <form id="appeal-form">
+      <button class="dialog-close" type="button" id="appeal-close" aria-label="Tutup">×</button>
+      <p class="eyebrow">Banding atas hasil</p><h2>Bagian mana yang perlu ditinjau?</h2>
+      <p>Jelaskan bila ada sumber atau konteks yang terlewat. Banding akan masuk ke antrean pemeriksa.</p>
+      <label for="appeal-reason">Catatan untuk pemeriksa <span>(opsional)</span></label>
+      <textarea id="appeal-reason" maxlength="500" placeholder="Contoh: pesan asli membahas tanggal yang berbeda…"></textarea>
+      <button class="primary-button" type="submit">Kirim banding <span aria-hidden="true">→</span></button>
+    </form>
+  </dialog>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <script src="static-demo.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

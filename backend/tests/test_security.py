@@ -1,8 +1,10 @@
 import hashlib
 import hmac
 
+import pytest
 from fastapi.testclient import TestClient
 
+from halio import api as api_module
 from halio.api import app
 from halio.factcheck_api import is_false_rating
 from halio.security import RateLimiter, valid_meta_signature
@@ -52,6 +54,19 @@ def test_reviewer_workflow_tracks_origin_and_resolution(tmp_path):
     resolved = store.resolve_review("escalations", ticket, "Sudah diperiksa")
     assert resolved["claim"] == "Klaim"
     assert store.review_items("escalations") == []
+    events = store.review_events("escalations", ticket)
+    assert len(events) == 1 and events[0]["response"] == "Sudah diperiksa"
+    with pytest.raises(PermissionError):
+        store.resolve_review("escalations", ticket, "Menyelesaikan ulang")
+
+
+def test_review_api_requires_configured_token(monkeypatch):
+    from dataclasses import replace
+
+    monkeypatch.setattr(api_module, "settings", replace(api_module.settings, radar_token="test-secret"))
+    assert client.get("/api/review/escalations").status_code == 401
+    assert client.get("/api/review/escalations", headers={"Authorization": "Bearer wrong"}).status_code == 401
+    assert client.get("/api/review/escalations", headers={"Authorization": "Bearer test-secret"}).status_code == 200
 
 
 def test_factcheck_rating_does_not_invert_negated_false_labels():

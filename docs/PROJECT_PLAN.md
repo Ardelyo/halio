@@ -94,7 +94,7 @@ Legend: ✅ working in repo · 🟡 code present, needs config/verification · �
 | 2 | Voice note (Halio Suara) | MVP core | 🟡 gTTS server-side (needs internet) + browser fallback ✅; pre-render demo clips ⬜ |
 | 3 | Plain-language explanation ("sederhana") | MVP | ✅ per debunk |
 | 4 | Source trail visualisation | Honest mock | ⬜ (show source list; trail graphic only in slides) |
-| 5 | Abstain + human escalation | MVP core | ✅ API + queue; reviewer UI ⬜ (use DB/CLI for demo) |
+| 5 | Abstain + human escalation | MVP core | ✅ API, antrean, UI analis, pengiriman bersyarat, dan riwayat tindakan |
 | 6 | Manipulation-technique prebunking | MVP light | ✅ 6 techniques, ID lexicon |
 | 7 | Family Guardian weekly summary | Roadmap | ⬜ |
 | 8 | Voice-scam "kode keluarga" | Honest mock | ⬜ slide only |

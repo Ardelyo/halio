@@ -166,28 +166,45 @@ class Store:
             return cur.lastrowid
 
     def review_items(self, item_type: str, open_only: bool = True) -> list[dict]:
-        if item_type not in ("appeals", "escalations"):
-            raise ValueError("item_type must be appeals or escalations")
+        self._validate_review_type(item_type)
         pending = "baru" if item_type == "appeals" else "menunggu"
         where = " WHERE status=?" if open_only else ""
         args = (pending,) if open_only else ()
         with self._conn() as c:
-            return [dict(r) for r in c.execute(f"SELECT * FROM {item_type}{where} ORDER BY id", args)]
+            return [dict(r) for r in c.execute(f"SELECT * FROM {item_type}{where} ORDER BY id DESC", args)]
+
+    def review_events(self, item_type: str, item_id: int | None = None) -> list[dict]:
+        self._validate_review_type(item_type)
+        where = " WHERE item_type=?"
+        args: tuple = (item_type,)
+        if item_id is not None:
+            where += " AND item_id=?"
+            args += (item_id,)
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(
+                f"SELECT * FROM review_events{where} ORDER BY id DESC", args
+            )]
 
     def resolve_review(self, item_type: str, item_id: int, response: str) -> dict:
-        if item_type not in ("appeals", "escalations"):
-            raise ValueError("item_type must be appeals or escalations")
-        done = "selesai"
+        self._validate_review_type(item_type)
+        pending = "baru" if item_type == "appeals" else "menunggu"
         with self._lock, self._conn() as c:
             row = c.execute(f"SELECT * FROM {item_type} WHERE id=?", (item_id,)).fetchone()
             if not row:
                 raise KeyError(item_id)
-            c.execute(f"UPDATE {item_type} SET status=? WHERE id=?", (done, item_id))
+            if row["status"] != pending:
+                raise PermissionError("Tiket sudah diselesaikan")
+            c.execute(f"UPDATE {item_type} SET status='selesai' WHERE id=?", (item_id,))
             c.execute(
                 "INSERT INTO review_events (created,item_type,item_id,action,response) VALUES (?,?,?,?,?)",
                 (now_iso(), item_type, item_id, "resolved", response[:2000]),
             )
             return dict(row)
+
+    @staticmethod
+    def _validate_review_type(item_type: str) -> None:
+        if item_type not in ("appeals", "escalations"):
+            raise ValueError("item_type must be appeals or escalations")
 
     def _suppress(self, n: int) -> int | str:
         return n if n >= self.min_cell else f"<{self.min_cell}"

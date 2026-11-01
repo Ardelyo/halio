@@ -69,14 +69,14 @@ docker compose up -d
 
 Ekstensi Chrome: lihat [extension/README.md](extension/README.md).
 
-Antrean pemeriksa manusia (di server tepercaya):
+Antrean pemeriksa manusia tersedia di **Radar analis** (`/radar` atau `radar.html`): buka tiket, tulis respons, kirim bila kanal mendukung, dan periksa riwayat tindakan. Endpoint review memakai token Radar yang sama; jangan membukanya tanpa `RADAR_TOKEN` pada server publik. CLI tetap tersedia di server tepercaya:
 
 ```bash
 python scripts/review.py list escalations
 python scripts/review.py resolve escalations ID --response "Jawaban pemeriksa"
 ```
 
-Balasan Telegram/WhatsApp dikirim sebelum tiket ditutup. Kanal web memerlukan tindak lanjut manual dengan nomor tiket. Batas risiko dan gerbang peluncuran ada di [Kesiapan demo dan peluncuran](docs/LAUNCH_READINESS.md).
+Balasan Telegram/WhatsApp dikirim sebelum tiket ditutup. Kegagalan pengiriman membuat tiket tetap terbuka. Kanal web memerlukan tindak lanjut manual dengan nomor tiket. Pada GitHub Pages, penyelesaian tiket hanya simulasi lokal selama sesi dan tidak mengirim balasan. Batas risiko dan gerbang peluncuran ada di [Kesiapan demo dan peluncuran](docs/LAUNCH_READINESS.md).
 
 ## Struktur
 
