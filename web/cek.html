@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cek pesan — Halio</title>
+  <meta name="description" content="Tempel pesan yang meragukan. Halio mencari bantahan bersumber dan berkata jujur bila belum tahu.">
+  <meta name="theme-color" content="#173f35">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="check-page">
+<main>
+  <header class="top">
+    <a class="app-brand" href="./" aria-label="Kembali ke beranda Halio"><img src="icons/icon.svg" alt=""><span>halio.</span></a>
+    <a class="back-link" href="./">← Beranda</a>
+  </header>
+  <div class="app-heading"><p class="app-eyebrow">Teman cek pesan keluarga</p><h1>Ada pesan yang<br>mengganjal?</h1><p>Tempel di bawah. Kita periksa sumbernya dulu.</p></div>
+
+  <div id="static-notice" class="banner hidden"><b>Mode demo statis.</b> Jawaban berasal dari skenario lokal di perangkat ini. Tidak ada pesan yang dikirim ke server dan eskalasi tidak benar-benar dikirim.</div>
+  <section class="card check-card" aria-labelledby="ask">
+    <label class="big" id="ask" for="msg">Tempel pesan yang meragukan di sini</label>
+    <textarea id="msg" placeholder="Contoh: pesan berantai dari grup keluarga…"></textarea>
+    <div class="row">
+      <label for="sapaan" class="note">Panggil saya:</label>
+      <select id="sapaan">
+        <option>Bapak, Ibu</option><option>Bu</option><option>Pak</option>
+        <option>Mbah</option><option>Oma</option><option>Opa</option><option>Kak</option>
+      </select>
+    </div>
+    <div class="row"><button id="go" class="primary">Cek pesan ini <span aria-hidden="true">→</span></button></div>
+    <p class="note example-label">Atau pilih pesan contoh:</p>
+    <div class="chips" id="examples"></div>
+  </section>
+
+  <section id="result" class="hidden" aria-live="polite"></section>
+
+  <footer>
+    <b>Privasi tetap dijaga.</b> Halio menghapus nomor telepon, NIK, email, dan tautan sebelum memeriksa. Bila belum ada pemeriksaan, Halio tidak membuat vonis sendiri.
+    <br><a href="radar.html">Radar Ketahanan Kognitif</a> · <a href="https://github.com/Ardelyo/halio" id="repo" target="_blank" rel="noopener">Kode sumber</a> · Prototipe Kartika Cyber Hackathon 2026
+  </footer>
+</main>
+<script src="static-demo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

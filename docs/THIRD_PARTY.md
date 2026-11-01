@@ -15,6 +15,8 @@ The repository was created on 27 Oct 2026, within the programme period, from the
 | anthropic SDK (optional) | T2 grounded LLM step | MIT |
 | pytest | Tests | MIT |
 | onnxruntime-web | On-device inference in the extension | MIT |
+| DM Sans | Website typography | SIL Open Font License 1.1; see `web/fonts/DM-Sans-OFL.txt` |
+| Instrument Serif | Website display typography | SIL Open Font License 1.1; see `web/fonts/Instrument-Serif-OFL.txt` |
 
 ## Models & data
 | Component | Use | Licence / terms |

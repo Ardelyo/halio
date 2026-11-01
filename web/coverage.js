@@ -59,9 +59,14 @@ function render(c, recent) {
 }
 
 async function load() {
+  if (window.HALIO_STATIC_DEMO) {
+    $("#off").innerHTML = "<b>Mode demo statis.</b> Semua status dan waktu di halaman ini adalah contoh tampilan, bukan hasil pemantauan saat ini.";
+    render(window.HalioStaticDemo.coverage.coverage, window.HalioStaticDemo.coverage.recent);
+    return;
+  }
   const [c, recent] = await Promise.all([get("/api/sensor/coverage"), get("/api/sensor/items?limit=15")]);
   render(c, recent);
 }
 
 load().catch((e) => { console.error(e); $("#tiles").innerHTML = `<p class="note">Cakupan tidak bisa dimuat.</p>`; });
-setInterval(() => load().catch(() => {}), REFRESH_MS);
+if (!window.HALIO_STATIC_DEMO) setInterval(() => load().catch(() => {}), REFRESH_MS);

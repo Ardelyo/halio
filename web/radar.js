@@ -44,15 +44,20 @@ function bars(el, rows) {
 }
 
 async function load() {
-  let token = null;
-  try { token = localStorage.getItem("halio.radar"); } catch { /* storage blocked */ }
-  let r = await fetch(API + "/api/radar", { headers: token ? { Authorization: "Bearer " + token } : {} });
-  if (r.status === 401) {
-    token = prompt("Radar memerlukan token akses:");
-    try { localStorage.setItem("halio.radar", token); } catch { /* storage blocked */ }
-    r = await fetch(API + "/api/radar", { headers: { Authorization: "Bearer " + token } });
+  let d;
+  if (window.HALIO_STATIC_DEMO) {
+    d = window.HalioStaticDemo.radar;
+  } else {
+    let token = null;
+    try { token = localStorage.getItem("halio.radar"); } catch { /* storage blocked */ }
+    let r = await fetch(API + "/api/radar", { headers: token ? { Authorization: "Bearer " + token } : {} });
+    if (r.status === 401) {
+      token = prompt("Radar memerlukan token akses:");
+      try { localStorage.setItem("halio.radar", token); } catch { /* storage blocked */ }
+      r = await fetch(API + "/api/radar", { headers: { Authorization: "Bearer " + token } });
+    }
+    d = await r.json();
   }
-  const d = await r.json();
 
   $("#window").textContent = `${d.window_days} hari terakhir (sejak ${d.since})`;
   if (d.demo_events) {

@@ -19,11 +19,14 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 
 | Kanal | Tautan |
 |---|---|
-| Web (bisa dipasang di Android, mendukung menu *Bagikan*) | `https://<isi-setelah-deploy>` |
-| Bot Telegram | `https://t.me/<isi-nama-bot>` |
-| Radar | `https://<isi-setelah-deploy>/radar` |
-| Cakupan sensor | `https://<isi-setelah-deploy>/coverage` |
-| Feed simulasi untuk ekstensi | `https://<isi-setelah-deploy>/demo-feed.html` |
+| Landing page | [ardelyo.github.io/halio](https://ardelyo.github.io/halio/) |
+| Demo cek pesan (PWA, mendukung menu *Bagikan*) | [Buka demo](https://ardelyo.github.io/halio/cek.html) |
+| Bot Telegram | Belum dipublikasikan |
+| Radar (data simulasi pada GitHub Pages) | [Buka Radar](https://ardelyo.github.io/halio/radar.html) |
+| Cakupan sensor (contoh tampilan pada GitHub Pages) | [Buka cakupan](https://ardelyo.github.io/halio/coverage.html) |
+| Feed simulasi untuk ekstensi | [Buka feed](https://ardelyo.github.io/halio/demo-feed.html) |
+
+GitHub Pages menjalankan skenario lokal berlabel simulasi tanpa mengirim pesan ke server. Untuk pemeriksaan API, penyimpanan tiket, dan data Radar nyata, jalankan backend seperti petunjuk di bawah. Situs dideploy otomatis dari direktori `web/` oleh workflow `.github/workflows/pages.yml`.
 
 ## Sensor: apa yang dipantau, dan apa yang tidak
 
