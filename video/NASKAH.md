@@ -1,6 +1,6 @@
 # Naskah narasi · Video demo Halio
 
-Durasi total: **3 menit 45 detik** (batas Rulebook: 10 menit).
+Durasi total: **3 menit 48 detik** (batas Rulebook: 10 menit).
 Kecepatan baca santai sekitar 14 karakter per detik. Subtitle di video mengikuti waktu di bawah ini,
 jadi rekam suara sambil memutar video tanpa musik (`halio-demo-tanpa-musik.mp4`) dan baca saat subtitle muncul.
 
@@ -30,27 +30,27 @@ jadi rekam suara sambil memutar video tanpa musik (`halio-demo-tanpa-musik.mp4`)
 | 1:38.3 | 05 · Kejujuran | Bagaimana jika belum ada yang memeriksa? |
 | 1:41.4 | 05 · Kejujuran | Halio tidak menebak. Ia bilang terus terang, menyarankan pesan ditahan dulu, |
 | 1:47.1 | 05 · Kejujuran | dan menawarkan bantuan pemeriksa manusia. |
-| 1:51.8 | 05 · Kejujuran | Karena itu, setiap jawaban hanya punya tiga keadaan: |
-| 1:55.8 | 05 · Kejujuran | terbukti salah, tidak yakin, atau belum ada pemeriksaan. |
-| 2:02.2 | 06 · Cara kerja | Di balik layar, Halio memilih kalimat yang layak dicek, |
-| 2:06.4 | 06 · Cara kerja | lalu menghapus nomor telepon, NIK, dan tautan. |
-| 2:09.9 | 06 · Cara kerja | Klaim dicocokkan dengan bantahan yang bersumber, |
-| 2:13.6 | 06 · Cara kerja | dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks. |
-| 2:18.7 | 06 · Cara kerja | Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis. |
-| 2:27.3 | 07 · Untuk satuan siber | Untuk satuan siber, Halio menyediakan sensor. |
-| 2:30.8 | 07 · Untuk satuan siber | Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime. |
-| 2:36.8 | 07 · Untuk satuan siber | Halio juga menunjukkan apa yang tidak bisa ia lihat. |
-| 2:42.3 | 07 · Untuk satuan siber | Radar Ketahanan Kognitif merangkum tren secara anonim: |
-| 2:46.4 | 07 · Untuk satuan siber | kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD. |
-| 2:52.1 | 07 · Untuk satuan siber | Kabar baru baru tampil setelah dikirim banyak orang berbeda. |
-| 2:58.2 | 08 · Tata kelola | Ini alat pertahanan siber, bukan alat untuk mengawasi warga. |
-| 3:02.7 | 08 · Tata kelola | Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna. |
-| 3:10.7 | 09 · Penerapan | Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar, |
-| 3:15.9 | 09 · Penerapan | sehingga dapat dipasang di server satuan. |
-| 3:20.6 | 10 · Status jujur | Ini masih prototipe. Korpus bantahan masih kecil, |
-| 3:24.4 | 10 · Status jujur | dan uji kami masih menemukan kalimat benar yang salah ditandai. |
-| 3:29.1 | 10 · Status jujur | Kami menampilkan angkanya, dan terus memperbaikinya. |
-| 3:34.6 | Epilog | Ketahanan kognitif dimulai dari keluarga. |
-| 3:37.8 | Epilog | Halio. Cek dulu, baru teruskan. |
+| 1:51.8 | 05 · Kejujuran | Karena itu, setiap jawaban hanya punya empat keadaan: |
+| 1:55.9 | 05 · Kejujuran | terbukti salah, sejalan dengan sumber, tidak yakin, atau belum ada pemeriksaan. |
+| 2:03.9 | 06 · Cara kerja | Di balik layar, Halio memilih kalimat yang layak dicek, |
+| 2:08.1 | 06 · Cara kerja | lalu menghapus nomor telepon, NIK, dan tautan. |
+| 2:11.6 | 06 · Cara kerja | Klaim dicocokkan dengan bantahan yang bersumber, |
+| 2:15.3 | 06 · Cara kerja | dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks. |
+| 2:20.4 | 06 · Cara kerja | Pencarian oleh model bersifat opsional, dan kode kami memeriksa ulang setiap tautan dan kutipannya. |
+| 2:30.1 | 07 · Untuk satuan siber | Untuk satuan siber, Halio menyediakan sensor. |
+| 2:33.5 | 07 · Untuk satuan siber | Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime. |
+| 2:39.6 | 07 · Untuk satuan siber | Halio juga menunjukkan apa yang tidak bisa ia lihat. |
+| 2:45.1 | 07 · Untuk satuan siber | Radar Ketahanan Kognitif merangkum tren secara anonim: |
+| 2:49.2 | 07 · Untuk satuan siber | kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD. |
+| 2:54.9 | 07 · Untuk satuan siber | Kabar baru baru tampil setelah dikirim banyak orang berbeda. |
+| 3:01.0 | 08 · Tata kelola | Ini alat pertahanan siber, bukan alat untuk mengawasi warga. |
+| 3:05.5 | 08 · Tata kelola | Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna. |
+| 3:13.4 | 09 · Penerapan | Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar, |
+| 3:18.7 | 09 · Penerapan | sehingga dapat dipasang di server satuan. |
+| 3:23.4 | 10 · Status jujur | Ini masih prototipe. Korpus bantahan masih kecil, |
+| 3:27.2 | 10 · Status jujur | dan uji kami masih menemukan kalimat benar yang salah ditandai. |
+| 3:31.9 | 10 · Status jujur | Kami menampilkan angkanya, dan terus memperbaikinya. |
+| 3:37.4 | Epilog | Ketahanan kognitif dimulai dari keluarga. |
+| 3:40.6 | Epilog | Halio. Cek dulu, baru teruskan. |
 
 Ubah narasi di `video/tools/build_timeline.py`, lalu render ulang (`video/README.md`).

@@ -35,25 +35,25 @@ Dialogue: 0,0:01:31.94,0:01:36.51,Sub,,0,0,0,,dan membuat Kartu Halio untuk melu
 Dialogue: 0,0:01:38.31,0:01:41.17,Sub,,0,0,0,,Bagaimana jika belum ada yang memeriksa?
 Dialogue: 0,0:01:41.42,0:01:46.85,Sub,,0,0,0,,Halio tidak menebak. Ia bilang terus terang, menyarankan pesan ditahan dulu,
 Dialogue: 0,0:01:47.10,0:01:50.03,Sub,,0,0,0,,dan menawarkan bantuan pemeriksa manusia.
-Dialogue: 0,0:01:51.83,0:01:55.54,Sub,,0,0,0,,Karena itu, setiap jawaban hanya punya tiga keadaan:
-Dialogue: 0,0:01:55.79,0:01:59.79,Sub,,0,0,0,,terbukti salah, tidak yakin, atau belum ada pemeriksaan.
-Dialogue: 0,0:02:02.19,0:02:06.12,Sub,,0,0,0,,Di balik layar, Halio memilih kalimat yang layak dicek,
-Dialogue: 0,0:02:06.37,0:02:09.66,Sub,,0,0,0,,lalu menghapus nomor telepon, NIK, dan tautan.
-Dialogue: 0,0:02:09.91,0:02:13.33,Sub,,0,0,0,,Klaim dicocokkan dengan bantahan yang bersumber,
-Dialogue: 0,0:02:13.58,0:02:18.44,Sub,,0,0,0,,dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks.
-Dialogue: 0,0:02:18.69,0:02:24.69,Sub,,0,0,0,,Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis.
-Dialogue: 0,0:02:27.29,0:02:30.50,Sub,,0,0,0,,Untuk satuan siber, Halio menyediakan sensor.
-Dialogue: 0,0:02:30.75,0:02:36.54,Sub,,0,0,0,,Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime.
-Dialogue: 0,0:02:36.79,0:02:40.50,Sub,,0,0,0,,Halio juga menunjukkan apa yang tidak bisa ia lihat.
-Dialogue: 0,0:02:42.31,0:02:46.16,Sub,,0,0,0,,Radar Ketahanan Kognitif merangkum tren secara anonim:
-Dialogue: 0,0:02:46.41,0:02:51.84,Sub,,0,0,0,,kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD.
-Dialogue: 0,0:02:52.09,0:02:56.38,Sub,,0,0,0,,Kabar baru baru tampil setelah dikirim banyak orang berbeda.
-Dialogue: 0,0:02:58.18,0:03:02.46,Sub,,0,0,0,,Ini alat pertahanan siber, bukan alat untuk mengawasi warga.
-Dialogue: 0,0:03:02.71,0:03:08.85,Sub,,0,0,0,,Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna.
-Dialogue: 0,0:03:10.66,0:03:15.66,Sub,,0,0,0,,Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar,
-Dialogue: 0,0:03:15.91,0:03:18.83,Sub,,0,0,0,,sehingga dapat dipasang di server satuan.
-Dialogue: 0,0:03:20.63,0:03:24.13,Sub,,0,0,0,,Ini masih prototipe. Korpus bantahan masih kecil,
-Dialogue: 0,0:03:24.38,0:03:28.88,Sub,,0,0,0,,dan uji kami masih menemukan kalimat benar yang salah ditandai.
-Dialogue: 0,0:03:29.13,0:03:32.85,Sub,,0,0,0,,Kami menampilkan angkanya, dan terus memperbaikinya.
-Dialogue: 0,0:03:34.65,0:03:37.58,Sub,,0,0,0,,Ketahanan kognitif dimulai dari keluarga.
-Dialogue: 0,0:03:37.83,0:03:40.04,Sub,,0,0,0,,Halio. Cek dulu, baru teruskan.
+Dialogue: 0,0:01:51.83,0:01:55.61,Sub,,0,0,0,,Karena itu, setiap jawaban hanya punya empat keadaan:
+Dialogue: 0,0:01:55.86,0:02:01.51,Sub,,0,0,0,,terbukti salah, sejalan dengan sumber, tidak yakin, atau belum ada pemeriksaan.
+Dialogue: 0,0:02:03.91,0:02:07.84,Sub,,0,0,0,,Di balik layar, Halio memilih kalimat yang layak dicek,
+Dialogue: 0,0:02:08.09,0:02:11.37,Sub,,0,0,0,,lalu menghapus nomor telepon, NIK, dan tautan.
+Dialogue: 0,0:02:11.62,0:02:15.05,Sub,,0,0,0,,Klaim dicocokkan dengan bantahan yang bersumber,
+Dialogue: 0,0:02:15.30,0:02:20.16,Sub,,0,0,0,,dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks.
+Dialogue: 0,0:02:20.41,0:02:27.48,Sub,,0,0,0,,Pencarian oleh model bersifat opsional, dan kode kami memeriksa ulang setiap tautan dan kutipannya.
+Dialogue: 0,0:02:30.08,0:02:33.29,Sub,,0,0,0,,Untuk satuan siber, Halio menyediakan sensor.
+Dialogue: 0,0:02:33.54,0:02:39.33,Sub,,0,0,0,,Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime.
+Dialogue: 0,0:02:39.58,0:02:43.29,Sub,,0,0,0,,Halio juga menunjukkan apa yang tidak bisa ia lihat.
+Dialogue: 0,0:02:45.09,0:02:48.95,Sub,,0,0,0,,Radar Ketahanan Kognitif merangkum tren secara anonim:
+Dialogue: 0,0:02:49.20,0:02:54.63,Sub,,0,0,0,,kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD.
+Dialogue: 0,0:02:54.88,0:02:59.16,Sub,,0,0,0,,Kabar baru baru tampil setelah dikirim banyak orang berbeda.
+Dialogue: 0,0:03:00.96,0:03:05.25,Sub,,0,0,0,,Ini alat pertahanan siber, bukan alat untuk mengawasi warga.
+Dialogue: 0,0:03:05.50,0:03:11.64,Sub,,0,0,0,,Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna.
+Dialogue: 0,0:03:13.44,0:03:18.44,Sub,,0,0,0,,Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar,
+Dialogue: 0,0:03:18.69,0:03:21.62,Sub,,0,0,0,,sehingga dapat dipasang di server satuan.
+Dialogue: 0,0:03:23.42,0:03:26.92,Sub,,0,0,0,,Ini masih prototipe. Korpus bantahan masih kecil,
+Dialogue: 0,0:03:27.17,0:03:31.67,Sub,,0,0,0,,dan uji kami masih menemukan kalimat benar yang salah ditandai.
+Dialogue: 0,0:03:31.92,0:03:35.63,Sub,,0,0,0,,Kami menampilkan angkanya, dan terus memperbaikinya.
+Dialogue: 0,0:03:37.43,0:03:40.36,Sub,,0,0,0,,Ketahanan kognitif dimulai dari keluarga.
+Dialogue: 0,0:03:40.61,0:03:42.83,Sub,,0,0,0,,Halio. Cek dulu, baru teruskan.

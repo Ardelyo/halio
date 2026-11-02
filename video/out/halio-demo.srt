@@ -95,89 +95,89 @@ Halio tidak menebak. Ia bilang terus terang, menyarankan pesan ditahan dulu,
 dan menawarkan bantuan pemeriksa manusia.
 
 25
-00:01:51,827 --> 00:01:55,541
-Karena itu, setiap jawaban hanya punya tiga keadaan:
+00:01:51,827 --> 00:01:55,613
+Karena itu, setiap jawaban hanya punya empat keadaan:
 
 26
-00:01:55,791 --> 00:01:59,791
-terbukti salah, tidak yakin, atau belum ada pemeriksaan.
+00:01:55,863 --> 00:02:01,506
+terbukti salah, sejalan dengan sumber, tidak yakin, atau belum ada pemeriksaan.
 
 27
-00:02:02,191 --> 00:02:06,120
+00:02:03,906 --> 00:02:07,835
 Di balik layar, Halio memilih kalimat yang layak dicek,
 
 28
-00:02:06,370 --> 00:02:09,655
+00:02:08,085 --> 00:02:11,370
 lalu menghapus nomor telepon, NIK, dan tautan.
 
 29
-00:02:09,905 --> 00:02:13,334
+00:02:11,620 --> 00:02:15,049
 Klaim dicocokkan dengan bantahan yang bersumber,
 
 30
-00:02:13,584 --> 00:02:18,441
+00:02:15,299 --> 00:02:20,156
 dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks.
 
 31
-00:02:18,691 --> 00:02:24,691
-Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis.
+00:02:20,406 --> 00:02:27,477
+Pencarian oleh model bersifat opsional, dan kode kami memeriksa ulang setiap tautan dan kutipannya.
 
 32
-00:02:27,291 --> 00:02:30,505
+00:02:30,077 --> 00:02:33,291
 Untuk satuan siber, Halio menyediakan sensor.
 
 33
-00:02:30,755 --> 00:02:36,541
+00:02:33,541 --> 00:02:39,327
 Dua puluh tiga feed berita, cek fakta, dan sumber resmi dipantau hampir realtime.
 
 34
-00:02:36,791 --> 00:02:40,505
+00:02:39,577 --> 00:02:43,291
 Halio juga menunjukkan apa yang tidak bisa ia lihat.
 
 35
-00:02:42,305 --> 00:02:46,162
+00:02:45,091 --> 00:02:48,948
 Radar Ketahanan Kognitif merangkum tren secara anonim:
 
 36
-00:02:46,412 --> 00:02:51,841
+00:02:49,198 --> 00:02:54,627
 kategori hoaks, trik yang sering dipakai, dan penipuan yang mencatut TNI AD.
 
 37
-00:02:52,091 --> 00:02:56,376
+00:02:54,877 --> 00:02:59,162
 Kabar baru baru tampil setelah dikirim banyak orang berbeda.
 
 38
-00:02:58,176 --> 00:03:02,462
+00:03:00,962 --> 00:03:05,248
 Ini alat pertahanan siber, bukan alat untuk mengawasi warga.
 
 39
-00:03:02,712 --> 00:03:08,855
+00:03:05,498 --> 00:03:11,641
 Tidak ada profil individu, dan pesan pribadi tidak disimpan tanpa permintaan pengguna.
 
 40
-00:03:10,655 --> 00:03:15,655
+00:03:13,441 --> 00:03:18,441
 Halio berjalan dalam satu kontainer, tanpa GPU dan tanpa API berbayar,
 
 41
-00:03:15,905 --> 00:03:18,834
+00:03:18,691 --> 00:03:21,620
 sehingga dapat dipasang di server satuan.
 
 42
-00:03:20,634 --> 00:03:24,134
+00:03:23,420 --> 00:03:26,920
 Ini masih prototipe. Korpus bantahan masih kecil,
 
 43
-00:03:24,384 --> 00:03:28,884
+00:03:27,170 --> 00:03:31,670
 dan uji kami masih menemukan kalimat benar yang salah ditandai.
 
 44
-00:03:29,134 --> 00:03:32,848
+00:03:31,920 --> 00:03:35,634
 Kami menampilkan angkanya, dan terus memperbaikinya.
 
 45
-00:03:34,648 --> 00:03:37,577
+00:03:37,434 --> 00:03:40,363
 Ketahanan kognitif dimulai dari keluarga.
 
 46
-00:03:37,827 --> 00:03:40,041
+00:03:40,613 --> 00:03:42,827
 Halio. Cek dulu, baru teruskan.

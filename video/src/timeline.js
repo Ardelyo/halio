@@ -3,7 +3,7 @@ window.TIMELINE = {
  "fps": 30,
  "width": 1920,
  "height": 1080,
- "duration": 224.841,
+ "duration": 227.627,
  "scenes": [
   {
    "id": "pembuka",
@@ -209,25 +209,25 @@ window.TIMELINE = {
    "id": "tiga",
    "tag": "05 · Kejujuran",
    "start": 110.827,
-   "dur": 10.364,
+   "dur": 12.079,
    "cues": [
     {
-     "text": "Karena itu, setiap jawaban hanya punya tiga keadaan:",
+     "text": "Karena itu, setiap jawaban hanya punya empat keadaan:",
      "t0": 1.0,
-     "t1": 4.714
+     "t1": 4.786
     },
     {
-     "text": "terbukti salah, tidak yakin, atau belum ada pemeriksaan.",
-     "t0": 4.964,
-     "t1": 8.964
+     "text": "terbukti salah, sejalan dengan sumber, tidak yakin, atau belum ada pemeriksaan.",
+     "t0": 5.036,
+     "t1": 10.679
     }
    ]
   },
   {
    "id": "mesin",
    "tag": "06 · Cara kerja",
-   "start": 121.191,
-   "dur": 25.1,
+   "start": 122.906,
+   "dur": 26.171,
    "cues": [
     {
      "text": "Di balik layar, Halio memilih kalimat yang layak dicek,",
@@ -250,16 +250,16 @@ window.TIMELINE = {
      "t1": 17.25
     },
     {
-     "text": "Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis.",
+     "text": "Pencarian oleh model bersifat opsional, dan kode kami memeriksa ulang setiap tautan dan kutipannya.",
      "t0": 17.5,
-     "t1": 23.5
+     "t1": 24.571
     }
    ]
   },
   {
    "id": "sensor",
    "tag": "07 · Untuk satuan siber",
-   "start": 146.291,
+   "start": 149.077,
    "dur": 15.014,
    "cues": [
     {
@@ -282,7 +282,7 @@ window.TIMELINE = {
   {
    "id": "radar",
    "tag": "07 · Untuk satuan siber",
-   "start": 161.305,
+   "start": 164.091,
    "dur": 15.871,
    "cues": [
     {
@@ -305,7 +305,7 @@ window.TIMELINE = {
   {
    "id": "batas",
    "tag": "08 · Tata kelola",
-   "start": 177.176,
+   "start": 179.962,
    "dur": 12.479,
    "cues": [
     {
@@ -323,7 +323,7 @@ window.TIMELINE = {
   {
    "id": "pasang",
    "tag": "09 · Penerapan",
-   "start": 189.655,
+   "start": 192.441,
    "dur": 9.979,
    "cues": [
     {
@@ -341,7 +341,7 @@ window.TIMELINE = {
   {
    "id": "status",
    "tag": "10 · Status jujur",
-   "start": 199.634,
+   "start": 202.42,
    "dur": 14.014,
    "cues": [
     {
@@ -364,7 +364,7 @@ window.TIMELINE = {
   {
    "id": "penutup",
    "tag": "Epilog",
-   "start": 213.648,
+   "start": 216.434,
    "dur": 11.193,
    "cues": [
     {
