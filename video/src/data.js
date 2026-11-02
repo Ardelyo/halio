@@ -16,7 +16,12 @@ window.DATA = {
      "url": "https://katadata.co.id/amp/digital/teknologi/67a5dc910647b/penipuan-bansos-pakai-ai-wajah-prabowo-ratusan-korban-rugi-puluhan-juta/",
      "jenis": "media"
     }
-   ]
+   ],
+   "jenis": "bantahan",
+   "kutipan_sumber": "",
+   "valid_from": null,
+   "valid_until": null,
+   "wilayah": ""
   },
   "claim": "Bapak ibu, ada video Pak Presiden bagi-bagi bantuan tunai! Langsung chat nomor WA [NOMOR] untuk daftar, bayar biaya admin 150rb dulu."
  },
@@ -27,7 +32,7 @@ window.DATA = {
  },
  "coverage": {
   "sources_total": 23,
-  "hidup": 22,
-  "generated": "2026-10-28T09:19:28+00:00"
+  "hidup": 19,
+  "generated": "2026-11-02T13:47:17+00:00"
  }
 };

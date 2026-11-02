@@ -1,6 +1,6 @@
 {
- "id": "f21402e46e2d",
- "created": "2026-10-28T16:07:41+07:00",
+ "id": "f7c15bd78bb14bd58278c0b6deec0990",
+ "created": "2026-11-02T20:47:11+07:00",
  "status": "belum_ada_pemeriksaan",
  "status_label": "Belum ada pemeriksaan",
  "reason": "tidak_ada_bantahan",
@@ -32,6 +32,6 @@
  "offer_human_review": true,
  "method": "lokal",
  "disclaimer": "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriksa fakta atau sumber resmi yang disebutkan.",
- "card_url": "/api/card/f21402e46e2d.png",
- "voice_url": "/api/voice/f21402e46e2d.mp3"
+ "card_url": "/api/card/f7c15bd78bb14bd58278c0b6deec0990.png",
+ "voice_url": "/api/voice/f7c15bd78bb14bd58278c0b6deec0990.mp3"
 }
