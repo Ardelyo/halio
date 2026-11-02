@@ -19,6 +19,7 @@ FONT_DIR = Path(__file__).resolve().parent / "fonts"
 BLUE, CREAM, INK, MUTED, LINE, SUN = "#014BAA", "#F8F3F0", "#0E1726", "#5B6475", "#E7E1DC", "#FFC83D"
 THEME = {
     "terbukti_salah": ("#B42318", "TERBUKTI SALAH"),
+    "sejalan_dengan_sumber": ("#067647", "SEJALAN DENGAN SUMBER"),
     "tidak_yakin": ("#B54708", "HALIO TIDAK YAKIN"),
     "belum_ada_pemeriksaan": ("#475467", "BELUM ADA PEMERIKSAAN"),
 }

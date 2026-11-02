@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r backend/requirements.txt pytest==9.2.0
+      - run: cd backend && python -m pytest
+      - run: python eval/run_eval.py && git diff --exit-code -- eval/RESULTS.md
+      - run: python -m compileall -q backend scripts eval
+      - run: for file in extension/*.js web/*.js; do node --check "$file"; done
+      - run: docker build .

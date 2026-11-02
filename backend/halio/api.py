@@ -1,8 +1,7 @@
-"""HTTP API + static web app.  Run:  uvicorn halio.api:app --reload  (from backend/)."""
+"""HTTP API + static web app. Run from backend/ with uvicorn halio.api:app."""
 
 from __future__ import annotations
 
-import hashlib
 import hmac
 import json
 import logging
@@ -10,30 +9,36 @@ from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from . import __version__, card, pipeline, voice
+from . import __version__, card, pipeline, review, voice
 from .channels import whatsapp
 from .config import settings
 from .ingest import coverage
 from .ingest.fetcher import Poller
 from .ingest.store import SensorStore, utcnow
-from .netguard import RateLimiter, client_ip, network_of, reporter_for
+from .netguard import client_ip, reporter_for
+from .security import RateLimiter, valid_meta_signature
 from .store import ResultCache, Store
 
 logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("halio.api")
 
 cache = ResultCache()
+seen_wa_messages = ResultCache(max_items=10000, ttl=86400)
 store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
 sensor = SensorStore(settings.db_path)
-limiter = RateLimiter(settings.rate_per_minute)
-log = logging.getLogger("halio.api")
+limiter = RateLimiter(settings.rate_limit_per_minute)
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    if settings.telegram_token and not settings.channel_key:
+        # Without the shared key the Telegram bot's per-chat id is not trusted, so escalation replies
+        # cannot be routed back and every Telegram user counts as one reporter for the Radar.
+        log.warning("TELEGRAM_BOT_TOKEN is set but HALIO_CHANNEL_KEY is not: set the same value on the API and the bot")
     poller = None
     if settings.sensor_enabled:
         poller = Poller(sensor, settings.sensor_user_agent, settings.sensor_tick_s, settings.sensor_workers)
@@ -44,8 +49,26 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Halio API", version=__version__, lifespan=lifespan)
-# The extension calls from page origins; only scrubbed claim text is accepted.
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "POST"], allow_headers=["*"])
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(settings.cors_origins),
+        allow_methods=["GET", "POST"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
+
+
+@app.middleware("http")
+async def protect(request: Request, call_next):
+    if request.url.path.startswith(("/api/", "/webhook/")):
+        client = client_ip(request, settings)
+        if not limiter.allow(f"{client}:{request.url.path}"):
+            return JSONResponse({"detail": "Terlalu banyak permintaan. Coba lagi satu menit lagi."}, status_code=429)
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
 
 
 class CheckIn(BaseModel):
@@ -62,25 +85,31 @@ class CheckIn(BaseModel):
 
 
 class AppealIn(BaseModel):
-    check_id: str
+    check_id: str = Field(min_length=32, max_length=32)
     reason: str = Field(default="", max_length=500)
 
 
 class EscalateIn(BaseModel):
-    check_id: str
+    check_id: str = Field(min_length=32, max_length=32)
+
+
+class ReviewResolveIn(BaseModel):
+    response: str = Field(min_length=1, max_length=2000)
+    send: bool = True
+
+
+def _public(result: dict) -> dict:
+    return {k: v for k, v in result.items() if not k.startswith("_")}
 
 
 def run_check(body: CheckIn, reporter: str | None) -> dict:
     result = pipeline.check(body.text, settings, sapaan=body.sapaan)
     result["card_url"] = f"/api/card/{result['id']}.png"
     result["voice_url"] = f"/api/voice/{result['id']}.mp3"
-    cache.put(result["id"], result)
+    cached = {**result, "_channel": body.channel, "_reporter": reporter}
+    cache.put(result["id"], cached)
     store.record(result, body.channel, reporter)
     return result
-
-
-def _limit(request: Request, bucket: str) -> None:
-    limiter.check(f"{bucket}:{network_of(client_ip(request, settings))}")
 
 
 def _cached(check_id: str) -> dict:
@@ -92,21 +121,25 @@ def _cached(check_id: str) -> dict:
 
 @app.get("/health")
 def health() -> dict:
-    return {
-        "ok": True, "version": __version__,
-        "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled,
-    }
+    return {"ok": True, "version": __version__, "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled}
+
+
+@app.get("/ready")
+def ready() -> dict:
+    with store._conn() as c:
+        c.execute("SELECT 1").fetchone()
+    return {"ok": True}
 
 
 @app.post("/api/check")
 def api_check(body: CheckIn, request: Request) -> dict:
-    _limit(request, "check")
+    # A client-chosen reporter id is free to forge; only our own bots may name one (netguard.py).
     return run_check(body, reporter_for(request, settings, body.reporter))
 
 
 @app.get("/api/check/{check_id}")
 def api_get(check_id: str) -> dict:
-    return _cached(check_id)
+    return _public(_cached(check_id))
 
 
 @app.get("/api/card/{check_id}.png")
@@ -115,32 +148,31 @@ def api_card(check_id: str) -> Response:
 
 
 @app.get("/api/voice/{check_id}.mp3")
-def api_voice(check_id: str, request: Request) -> Response:
+def api_voice(check_id: str) -> Response:
     result = _cached(check_id)
-    _limit(request, "voice")
     try:
         audio = voice.synthesize(result["voice_script"])
     except voice.VoiceUnavailable as exc:
-        raise HTTPException(501, f"Suara server tidak tersedia: {exc}") from exc
+        log.warning("Voice unavailable: %s", type(exc).__name__)
+        raise HTTPException(501, "Suara server tidak tersedia. Coba fitur suara di perangkat Anda.") from exc
     return Response(audio, media_type="audio/mpeg")
 
 
 @app.post("/api/appeal")
-def api_appeal(body: AppealIn, request: Request) -> dict:
-    _limit(request, "appeal")
-    result = cache.get(body.check_id) or {}
+def api_appeal(body: AppealIn) -> dict:
+    result = _cached(body.check_id)
     debunk_id = (result.get("match") or {}).get("debunk_id")
     return {"ok": True, "appeal_id": store.add_appeal(body.check_id, debunk_id, body.reason)}
 
 
 @app.post("/api/escalate")
-def api_escalate(body: EscalateIn, request: Request) -> dict:
-    _limit(request, "appeal")
+def api_escalate(body: EscalateIn) -> dict:
     result = _cached(body.check_id)
+    ticket = store.add_escalation(body.check_id, result["claim"], result["_channel"], result["_reporter"])
     return {
         "ok": True,
-        "ticket": store.add_escalation(body.check_id, result["claim"]),
-        "message": "Terima kasih. Pertanyaan Anda diteruskan ke pemeriksa manusia. Jawaban akan dikirim lewat kanal yang sama.",
+        "ticket": ticket,
+        "message": "Pertanyaan Anda masuk antrean pemeriksa. Simpan nomor tiket ini; balasan dikirim bila kanal mendukungnya.",
     }
 
 
@@ -152,6 +184,49 @@ def _require_radar_token(authorization: str | None, request: Request) -> None:
         raise HTTPException(401, "Radar tertutup: set RADAR_TOKEN, atau HALIO_RADAR_PUBLIC=1 untuk demo publik")
 
 
+def _validate_review_type(item_type: str) -> None:
+    if item_type not in ("appeals", "escalations"):
+        raise HTTPException(404, "Jenis antrean tidak dikenal")
+
+
+@app.get("/api/review/{item_type}")
+def api_review_items(request: Request, item_type: str, open_only: bool = True, authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization, request)
+    _validate_review_type(item_type)
+    return {"items": store.review_items(item_type, open_only), "events": store.review_events(item_type)}
+
+
+@app.post("/api/review/{item_type}/{item_id}/resolve")
+def api_resolve_review(request: Request, item_type: str, item_id: int, body: ReviewResolveIn, authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization, request)
+    _validate_review_type(item_type)
+    if item_id < 1:
+        raise HTTPException(422, "ID tiket tidak valid")
+    if not body.response.strip():
+        raise HTTPException(422, "Respons pemeriksa tidak boleh kosong")
+    items = {item["id"]: item for item in store.review_items(item_type, open_only=False)}
+    item = items.get(item_id)
+    if not item:
+        raise HTTPException(404, "Tiket tidak ditemukan")
+    if item["status"] == "selesai":
+        raise HTTPException(409, "Tiket sudah diselesaikan")
+    sent = False
+    if item_type == "escalations" and body.send:
+        try:
+            review.send_reply(item, body.response)
+            sent = True
+        except Exception as exc:
+            log.warning("Balasan tiket %s gagal: %s", item_id, type(exc).__name__)
+            detail = str(exc) if isinstance(exc, RuntimeError) else "Kanal tujuan menolak balasan; tiket belum ditutup"
+            raise HTTPException(502, detail) from exc
+    try:
+        store.resolve_review(item_type, item_id, body.response)
+    except PermissionError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    message = "Balasan terkirim dan tiket ditutup." if sent else "Respons dicatat dan tiket ditutup. Tindak lanjut manual tetap diperlukan bila kanal tidak mendukung balasan."
+    return {"ok": True, "sent": sent, "recorded": True, "message": message}
+
+
 @app.get("/api/radar")
 def api_radar(request: Request, days: int = 14, authorization: str | None = Header(default=None)) -> dict:
     _require_radar_token(authorization, request)
@@ -160,7 +235,6 @@ def api_radar(request: Request, days: int = 14, authorization: str | None = Head
 
 @app.get("/api/sensor/coverage")
 def api_sensor_coverage(request: Request, authorization: str | None = Header(default=None)) -> dict:
-    """Which sources the sensor watches, how fresh each is, and the declared blind spots."""
     _require_radar_token(authorization, request)
     report = coverage.build(sensor, utcnow())
     report["polling"] = settings.sensor_enabled
@@ -169,12 +243,10 @@ def api_sensor_coverage(request: Request, authorization: str | None = Header(def
 
 @app.get("/api/sensor/items")
 def api_sensor_items(request: Request, limit: int = 50, source: str | None = None, authorization: str | None = Header(default=None)) -> dict:
-    """Newest headline metadata seen since polling started (public media only)."""
     _require_radar_token(authorization, request)
     return {"items": sensor.recent_items(limit=limit, source_id=source)}
 
 
-# --- WhatsApp Cloud API webhook (see channels/whatsapp.py; access unverified) ---
 @app.get("/webhook/whatsapp")
 def wa_verify(request: Request) -> PlainTextResponse:
     p = request.query_params
@@ -183,18 +255,12 @@ def wa_verify(request: Request) -> PlainTextResponse:
     raise HTTPException(403)
 
 
-def _wa_signature_ok(raw: bytes, header: str | None) -> bool:
-    if not settings.wa_app_secret or not header or not header.startswith("sha256="):
-        return False
-    expected = hmac.new(settings.wa_app_secret.encode(), raw, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(header.removeprefix("sha256="), expected)
-
-
 def _wa_process(payload: dict) -> None:
-    for sender, text in whatsapp.incoming_texts(payload):
+    for message_id, sender, text in whatsapp.incoming_texts(payload):
+        if seen_wa_messages.get(message_id):
+            continue
+        seen_wa_messages.put(message_id, {"seen": True})
         try:
-            if len(text.strip()) < 3:
-                continue
             result = run_check(CheckIn(text=text, channel="whatsapp"), reporter=f"wa:{sender}")
             whatsapp.reply(sender, result, settings)
         except Exception:  # one bad message must not drop the rest of the batch
@@ -203,19 +269,18 @@ def _wa_process(payload: dict) -> None:
 
 @app.post("/webhook/whatsapp")
 async def wa_receive(request: Request, background: BackgroundTasks) -> dict:
-    raw = await request.body()
-    if not _wa_signature_ok(raw, request.headers.get("x-hub-signature-256")):
-        raise HTTPException(401, "Tanda tangan webhook tidak valid")
+    body = await request.body()
+    if not valid_meta_signature(body, request.headers.get("X-Hub-Signature-256"), settings.wa_app_secret):
+        raise HTTPException(403, "Signature webhook tidak valid")
     try:
-        payload = json.loads(raw)
-    except ValueError:
-        return {"ok": True}  # signed but unreadable: acknowledge so Meta does not retry forever
+        payload = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise HTTPException(400, "Payload webhook tidak valid") from exc
     # Answer Meta at once; the checks (and the blocking HTTP replies) run after the response.
     background.add_task(_wa_process, payload if isinstance(payload, dict) else {})
     return {"ok": True}
 
 
-# --- Static web app (PWA + Radar) ---
 @app.get("/radar")
 def radar_page() -> FileResponse:
     return FileResponse(settings.web_dir / "radar.html")

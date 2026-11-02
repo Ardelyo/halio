@@ -11,11 +11,8 @@ from __future__ import annotations
 
 import hmac
 import ipaddress
-import threading
-import time
-from collections import defaultdict, deque
 
-from fastapi import HTTPException, Request
+from fastapi import Request
 
 from .config import Settings
 
@@ -47,28 +44,3 @@ def reporter_for(request: Request, cfg: Settings, claimed: str | None) -> str:
     if claimed and trusted_channel(request, cfg):
         return claimed
     return "net:" + network_of(client_ip(request, cfg))
-
-
-class RateLimiter:
-    """Sliding one-minute window per key. In memory: fine for one process, reset on restart."""
-
-    def __init__(self, per_minute: int):
-        self.per_minute = per_minute
-        self._hits: dict[str, deque[float]] = defaultdict(deque)
-        self._lock = threading.Lock()
-
-    def check(self, key: str, now: float | None = None) -> None:
-        if self.per_minute <= 0:
-            return
-        now = time.monotonic() if now is None else now
-        with self._lock:
-            q = self._hits[key]
-            while q and now - q[0] > 60:
-                q.popleft()
-            if len(q) >= self.per_minute:
-                raise HTTPException(429, "Terlalu banyak permintaan. Tunggu sebentar, lalu coba lagi.",
-                                    headers={"Retry-After": str(int(60 - (now - q[0])) + 1)})
-            q.append(now)
-            if len(self._hits) > 50_000:  # drop idle keys so memory stays bounded
-                for k in [k for k, v in self._hits.items() if not v or now - v[-1] > 60]:
-                    del self._hits[k]

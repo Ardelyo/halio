@@ -12,6 +12,7 @@ import math
 import re
 from collections import Counter
 from dataclasses import dataclass, field
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
@@ -43,6 +44,31 @@ class Debunk:
     sederhana: str
     sumber: list[dict]
     syarat: list[str] = field(default_factory=list)
+    jenis: str = "bantahan"
+    kutipan_sumber: str = ""
+    valid_from: str | None = None
+    valid_until: str | None = None
+    wilayah: str = ""
+
+    def __post_init__(self) -> None:
+        if self.jenis not in {"bantahan", "verifikasi_positif"}:
+            raise ValueError(f"Jenis bukti tidak dikenal: {self.jenis}")
+        for value in (self.valid_from, self.valid_until):
+            if value:
+                date.fromisoformat(value)
+        if self.valid_from and self.valid_until and self.valid_from > self.valid_until:
+            raise ValueError(f"Masa berlaku terbalik pada bukti {self.id}")
+
+    @property
+    def is_positive(self) -> bool:
+        return self.jenis == "verifikasi_positif"
+
+    def is_current(self, today: date) -> bool:
+        return (
+            bool(self.valid_from)
+            and date.fromisoformat(self.valid_from) <= today
+            and (not self.valid_until or today <= date.fromisoformat(self.valid_until))
+        )
 
     @property
     def texts(self) -> list[str]:

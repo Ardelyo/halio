@@ -15,7 +15,9 @@ The repository was created on 27 Oct 2026, within the programme period, from the
 | anthropic SDK (optional) | T2 grounded LLM step | MIT |
 | pytest | Tests | MIT |
 | onnxruntime-web | On-device inference in the extension | MIT |
-| Instrument Serif, Archivo, Inter (Google Fonts) | Brand typography in the app, Kartu Halio, thumbnail and video (`web/fonts`, `backend/halio/fonts`, `video/fonts`) | SIL Open Font License 1.1 |
+| Instrument Serif, Archivo, Inter (Google Fonts) | Brand typography in Kartu Halio, thumbnail and video (`backend/halio/fonts`, `video/fonts`) | SIL Open Font License 1.1 |
+| DM Sans | Website typography | SIL Open Font License 1.1; see `web/fonts/DM-Sans-OFL.txt` |
+| Instrument Serif | Website display typography | SIL Open Font License 1.1; see `web/fonts/Instrument-Serif-OFL.txt` |
 | Playwright + Chromium, FFmpeg (libx264, libass) | Rendering the demo video frame by frame and burning subtitles (`video/tools`) | Apache-2.0 / BSD; FFmpeg LGPL/GPL (tooling only, not shipped) |
 
 ## Models & data
@@ -23,7 +25,8 @@ The repository was created on 27 Oct 2026, within the programme period, from the
 |---|---|---|
 | NudeNet 3.4 (320n ONNX) | Optional on-device adult-content screening | MIT (per PyPI listing) |
 | Google Fact Check Tools API (optional) | ClaimReview lookup | Google API ToS; ClaimReview content belongs to publishers |
-| LLM API (optional, `HALIO_LLM=1`) | Match confirmation with exact-quote verification | Provider terms |
+| Google Vertex AI, Gemini 3.5 Flash-Lite + Google Search (optional, `HALIO_LLM=1`) | Evidence discovery and claim/source relation; backend fetches and verifies every URL and quote | Provider terms |
+| Anthropic API (legacy optional provider) | Match confirmation with exact-quote verification | Provider terms |
 | Debunk corpus (`data/debunks.json`) | Summaries in our own words + links to sources | Sources: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (with Mafindo), MerahPutih, RRI, Kumparan. No article text copied |
 
 ## Video assets

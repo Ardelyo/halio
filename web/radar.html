@@ -3,60 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Radar Halio</title>
-  <meta name="description" content="Radar Ketahanan Kognitif: tren hoaks agregat dan anonim dari cek warga.">
+  <title>Radar analis — Halio</title>
+  <meta name="description" content="Ruang kerja analis Halio untuk membaca tren agregat dan menindaklanjuti antrean pemeriksaan.">
+  <meta name="theme-color" content="#173f35">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="radar.css">
 </head>
 <body>
-<main class="wide">
-  <header class="top">
-    <img src="icons/icon.svg" alt="">
-    <div>
-      <h1>Radar Ketahanan Kognitif</h1>
-      <p>Tren agregat dan anonim dari pesan yang dicek warga lewat Halio · <span id="window"></span></p>
+  <a class="skip-link" href="#workspace">Lewati ke ruang kerja</a>
+  <aside class="radar-sidebar">
+    <a class="radar-brand" href="./" aria-label="Halio, kembali ke beranda"><img src="icons/icon.svg" alt="" width="39" height="39"><span>halio.</span></a>
+    <div class="workspace-label"><span>Ruang kerja</span><b>Radar analis</b></div>
+    <nav class="radar-nav" aria-label="Ruang kerja analis">
+      <button class="nav-item active" data-view="overview" type="button" aria-current="page"><span class="nav-icon" aria-hidden="true">⌁</span>Ringkasan<span class="nav-arrow" aria-hidden="true">→</span></button>
+      <button class="nav-item" data-view="queue" type="button"><span class="nav-icon" aria-hidden="true">□</span>Antrean<span id="nav-queue-count" class="nav-count">0</span></button>
+      <button class="nav-item" data-view="emerging" type="button"><span class="nav-icon" aria-hidden="true">↗</span>Kabar baru<span class="nav-arrow" aria-hidden="true">→</span></button>
+      <button class="nav-item" data-view="coverage" type="button"><span class="nav-icon" aria-hidden="true">◎</span>Cakupan<span class="nav-arrow" aria-hidden="true">→</span></button>
+    </nav>
+    <div class="sidebar-note"><span class="privacy-mark" aria-hidden="true">✓</span><p><b>Tren, bukan pengawasan.</b> Radar tidak menampilkan profil warga atau isi pesan pribadi.</p></div>
+    <a class="public-link" href="./">Lihat situs publik <span aria-hidden="true">↗</span></a>
+  </aside>
+
+  <main class="radar-main" id="workspace">
+    <header class="radar-topbar"><div><span class="connection-dot" id="connection-dot"></span><span id="connection-label">Menghubungkan</span></div><div class="topbar-actions"><span id="last-updated">Memuat data…</span><button id="access" class="quiet-button" type="button">Akses analis</button><button id="refresh" class="refresh-button" type="button" aria-label="Muat ulang data">↻ <span>Muat ulang</span></button></div></header>
+    <div class="radar-content">
+      <div id="demo-notice" class="dashboard-notice hidden" role="status"><b>Simulasi lokal.</b><span>Data dan tiket di halaman ini sintetis. Penyelesaian tiket hanya berlaku selama sesi dan tidak mengirim balasan.</span></div>
+      <div id="load-error" class="dashboard-error hidden" role="alert"></div>
+
+      <section id="view-overview" class="dashboard-view" aria-labelledby="overview-title">
+        <div class="page-heading"><div><p class="section-kicker">Gambaran situasi</p><h1 id="overview-title">Yang perlu mendapat<br><em>perhatian hari ini.</em></h1><p class="page-description">Ikuti pola pesan yang diperiksa warga, lalu lanjutkan yang membutuhkan penilaian manusia.</p></div><div class="period-control" id="period" aria-label="Periode data"><button type="button" data-days="7" class="active" aria-pressed="true">7 hari</button><button type="button" data-days="14" aria-pressed="false">14 hari</button><button type="button" data-days="30" aria-pressed="false">30 hari</button></div></div>
+        <div class="metric-grid" id="metrics" aria-label="Metrik utama"></div>
+        <div class="overview-grid">
+          <section class="panel trend-panel"><div class="panel-heading"><div><p class="panel-kicker">Aktivitas pemeriksaan</p><h2>Jumlah cek per hari</h2></div><span class="panel-badge" id="trend-total">0 cek</span></div><div id="trend-chart" class="trend-chart"></div><details class="data-table-details"><summary>Lihat data tren dalam tabel</summary><div class="table-scroll"><table id="trend-table"></table></div></details></section>
+          <section class="panel status-panel"><div class="panel-heading"><div><p class="panel-kicker">Hasil pemeriksaan</p><h2>Sebaran status</h2></div></div><div id="status-breakdown"></div><p class="panel-footnote">“Belum ada pemeriksaan” berarti Halio tidak memiliki sumber yang cocok. Itu bukan bukti bahwa kabar benar.</p></section>
+          <section class="panel"><div class="panel-heading"><div><p class="panel-kicker">Topik</p><h2>Kategori yang sering muncul</h2></div></div><div class="bar-list" id="categories"></div></section>
+          <section class="panel"><div class="panel-heading"><div><p class="panel-kicker">Pola pesan</p><h2>Trik yang perlu dikenali</h2></div></div><div class="bar-list" id="techniques"></div></section>
+        </div>
+        <section class="queue-callout"><div><p class="section-kicker">Perlu tindakan manusia</p><h2 id="queue-callout-title">Antrean menunggu.</h2><p>Buka klaim, periksa konteksnya, lalu catat respons yang bisa dipertanggungjawabkan.</p></div><button class="primary-button" type="button" data-go-queue>Buka antrean <span aria-hidden="true">→</span></button></section>
+      </section>
+
+      <section id="view-queue" class="dashboard-view hidden" aria-labelledby="queue-title">
+        <div class="page-heading compact"><div><p class="section-kicker">Ruang triase</p><h1 id="queue-title">Satu tiket,<br><em>satu keputusan.</em></h1><p class="page-description">Baca konteks, tulis jawaban, dan pilih cara tindak lanjut. Tiket tidak ditutup bila pengiriman balasan gagal.</p></div></div>
+        <div class="queue-toolbar"><div class="queue-tabs" role="tablist" aria-label="Jenis antrean"><button id="tab-escalations" role="tab" aria-selected="true" class="active" data-type="escalations" type="button">Eskalasi <span id="escalation-count">0</span></button><button id="tab-appeals" role="tab" aria-selected="false" data-type="appeals" type="button">Banding <span id="appeal-count">0</span></button></div><label class="filter-label" for="queue-filter">Tampilkan<select id="queue-filter"><option value="open">Perlu ditangani</option><option value="all">Semua tiket</option></select></label></div>
+        <div class="queue-layout"><div id="ticket-list" class="ticket-list"></div><aside class="queue-guide"><span class="guide-number">03</span><h2>Sebelum menutup tiket</h2><ol><li>Pastikan klaim dan konteksnya dibaca utuh.</li><li>Gunakan sumber yang dapat dibuka penerima.</li><li>Tulis jawaban dengan bahasa yang langsung dan sopan.</li></ol><p>Untuk kanal web, respons hanya dicatat. Tindak lanjut manual tetap diperlukan.</p></aside></div>
+      </section>
+
+      <section id="view-emerging" class="dashboard-view hidden" aria-labelledby="emerging-title">
+        <div class="page-heading compact"><div><p class="section-kicker">Sinyal awal</p><h1 id="emerging-title">Kabar baru,<br><em>tanpa membuka pesan pribadi.</em></h1><p class="page-description">Isi kabar tak dikenal baru muncul setelah melewati ambang pelapor berbeda pada hari yang sama.</p></div></div>
+        <div class="privacy-explainer"><span id="k-anonymity">5</span><div><h2>Ambang k-anonimitas</h2><p>Di bawah ambang ini, isi kabar tidak disimpan dan tidak ditampilkan. Angka kecil pada agregat juga disamarkan.</p></div></div>
+        <section class="panel table-panel"><div class="panel-heading"><div><p class="panel-kicker">Belum memiliki bantahan</p><h2>Kabar yang mulai berulang</h2></div><span class="panel-badge" id="below-k"></span></div><div class="table-scroll"><table id="emerging-table"></table></div></section>
+        <section class="panel table-panel"><div class="panel-heading"><div><p class="panel-kicker">Sudah memiliki sumber</p><h2>Bantahan yang sering terpakai</h2></div><a href="https://github.com/Ardelyo/halio/blob/main/data/debunks.json" target="_blank" rel="noopener noreferrer">Lihat korpus ↗</a></div><div class="table-scroll"><table id="top-table"></table></div></section>
+      </section>
+
+      <section id="view-coverage" class="dashboard-view hidden" aria-labelledby="coverage-title">
+        <div class="page-heading compact"><div><p class="section-kicker">Batas pengamatan</p><h1 id="coverage-title">Ukur yang terlihat.<br><em>Akui yang terlewat.</em></h1><p class="page-description">Cakupan feed membantu analis membedakan ketiadaan kabar dari keterbatasan sensor.</p></div><a class="secondary-button" href="coverage.html">Laporan cakupan lengkap ↗</a></div>
+        <div id="coverage-summary" class="coverage-summary"></div>
+        <section class="panel table-panel"><div class="panel-heading"><div><p class="panel-kicker">Sumber terbuka</p><h2>Keadaan feed</h2></div></div><div class="table-scroll"><table id="coverage-table"></table></div></section>
+        <div class="coverage-lower"><section class="panel"><div class="panel-heading"><div><p class="panel-kicker">Titik buta</p><h2>Yang tidak dipantau</h2></div></div><div id="blind-spots" class="blind-spots"></div></section><section class="panel"><div class="panel-heading"><div><p class="panel-kicker">Temuan terbaru</p><h2>Item feed</h2></div></div><div id="recent-items" class="recent-items"></div></section></div>
+      </section>
+      <footer class="radar-footer"><span>Halio · alat bantu pemeriksaan, bukan vonis otomatis.</span><a href="https://github.com/Ardelyo/halio/blob/main/docs/PRIVACY.md" target="_blank" rel="noopener noreferrer">Prinsip privasi ↗</a></footer>
     </div>
-  </header>
+  </main>
 
-  <div id="demo" class="banner hidden"></div>
-  <div class="tiles" id="tiles"></div>
+  <dialog id="ticket-dialog" class="ticket-dialog">
+    <div class="dialog-shell"><button id="ticket-close" class="dialog-close" type="button" aria-label="Tutup detail tiket">×</button><div id="ticket-detail"></div><form id="resolve-form"><label for="analyst-response">Respons analis</label><textarea id="analyst-response" maxlength="2000" required placeholder="Tulis jawaban, dasar pemeriksaan, dan langkah yang dapat dilakukan penerima…"></textarea><div class="response-meta"><span>Maksimal 2.000 karakter</span><span id="response-count">0 / 2.000</span></div><label id="send-option" class="send-option"><input id="send-response" type="checkbox" checked><span>Kirim respons ke kanal asal sebelum menutup tiket</span></label><p id="delivery-note" class="delivery-note"></p><p id="resolve-error" class="resolve-error hidden" role="alert"></p><button id="resolve-submit" class="primary-button" type="submit">Simpan dan selesaikan <span aria-hidden="true">→</span></button></form><section class="review-history" aria-labelledby="history-title"><h3 id="history-title">Riwayat tindakan</h3><div id="review-history"></div></section></div>
+  </dialog>
 
-  <div class="grid2">
-    <section class="card"><h2>Kategori hoaks yang dicek</h2><div class="bars" id="kategori"></div></section>
-    <section class="card"><h2>Trik manipulasi yang paling sering</h2><div class="bars" id="techniques"></div></section>
-  </div>
-
-  <section class="card">
-    <h2>Jumlah cek per hari</h2>
-    <div class="cols" id="daily" role="img" aria-label="Jumlah cek per hari"></div>
-    <div class="note" style="display:flex;justify-content:space-between"><span id="d0"></span><span id="d1"></span></div>
-    <details style="margin-top:12px"><summary>Lihat sebagai tabel</summary><table id="dailytable"></table></details>
-  </section>
-
-  <section class="card">
-    <h2>Kabar baru yang mulai menyebar</h2>
-    <p class="note">Kabar yang belum pernah diperiksa. Isinya baru tampil setelah dikirim oleh minimal <b id="k"></b> orang berbeda pada hari yang sama,
-      sehingga yang tampil adalah kabar publik, bukan pesan pribadi. <span id="belowk"></span></p>
-    <table id="emerging"></table>
-  </section>
-
-  <section class="card">
-    <h2>Hoaks yang paling sering dicek</h2>
-    <table id="top"></table>
-  </section>
-
-  <section class="card note">
-    <h2>🔒 Cara Radar menjaga privasi</h2>
-    <ul>
-      <li>Tidak ada isi pesan, nomor telepon, nama, atau lokasi yang disimpan untuk kabar yang sudah dibantah. Hanya jumlah per kategori.</li>
-      <li>Angka di bawah 3 ditampilkan sebagai “&lt;3” agar tidak bisa ditelusuri ke satu orang.</li>
-      <li>Pelapor dihitung dengan nama samaran yang berganti setiap hari; kunci hari sebelumnya dihapus.</li>
-      <li>Radar adalah alat pemantauan tren untuk pemeriksa fakta dan satuan siber, bukan alat penindakan individu.</li>
-    </ul>
-  </section>
-  <footer><a href="/">← Kembali ke Halio</a> · <a href="coverage">Cakupan sensor</a></footer>
-</main>
-<script src="radar.js"></script>
+  <dialog id="access-dialog" class="access-dialog"><form id="access-form"><button id="access-close" class="dialog-close" type="button" aria-label="Tutup">×</button><p class="section-kicker">Ruang terbatas</p><h2>Masuk sebagai analis</h2><p>Gunakan token Radar dari server. Token disimpan di peramban ini dan dikirim hanya ke API Halio yang sedang dibuka.</p><label for="radar-token">Token akses</label><input id="radar-token" type="password" autocomplete="off" required><p id="access-error" class="resolve-error hidden" role="alert"></p><button class="primary-button" type="submit">Buka ruang kerja <span aria-hidden="true">→</span></button></form></dialog>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <script src="static-demo.js"></script>
+  <script src="dashboard-demo.js"></script>
+  <script src="radar.js"></script>
 </body>
 </html>

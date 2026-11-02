@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from html import escape
 
-ICON = {"terbukti_salah": "🔴", "tidak_yakin": "🟠", "belum_ada_pemeriksaan": "⚪"}
+ICON = {
+    "terbukti_salah": "🔴",
+    "sejalan_dengan_sumber": "🟢",
+    "tidak_yakin": "🟠",
+    "belum_ada_pemeriksaan": "⚪",
+}
 
 
 def reply_text(result: dict, html: bool = False) -> str:

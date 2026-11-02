@@ -2,10 +2,11 @@
   "name": "Halio: Teman Cek Pesan Keluarga",
   "short_name": "Halio",
   "lang": "id",
-  "start_url": "/",
+  "start_url": "./cek.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#F8F3F0",
-  "theme_color": "#014BAA",
+  "background_color": "#f5f4ed",
+  "theme_color": "#173f35",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -25,7 +26,7 @@
     }
   ],
   "share_target": {
-    "action": "/",
+    "action": "./cek.html",
     "method": "GET",
     "params": {
       "title": "title",

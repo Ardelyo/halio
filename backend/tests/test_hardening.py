@@ -20,7 +20,8 @@ from fastapi.testclient import TestClient  # noqa: E402
 from halio import api, manipulation, pipeline  # noqa: E402
 from halio.channels.format import reply_text  # noqa: E402
 from halio.config import Settings  # noqa: E402
-from halio.netguard import RateLimiter, network_of  # noqa: E402
+from halio.netguard import network_of  # noqa: E402
+from halio.security import RateLimiter  # noqa: E402
 from halio.pii import extract_domains, scrub  # noqa: E402
 from halio.retrieval import is_correction  # noqa: E402
 
@@ -67,7 +68,7 @@ def test_llm_cannot_lift_past_the_guard(monkeypatch):
         return llm_verdict.LlmJudgement("sama", d.id, d.fakta[:30], "x", True)
 
     monkeypatch.setattr(llm_verdict, "judge", always_same)
-    cfg = replace(CFG, llm_enabled=True)
+    cfg = replace(CFG, llm_enabled=True, llm_provider="anthropic")
     # Core negated ("tidak dipungut biaya"): the LLM saying "sama" must not turn it into a hoax.
     r = pipeline.check("Rekrutmen tamtama TNI AD tidak dipungut biaya, daftar resmi lewat situs", cfg)
     assert r["status"] != "terbukti_salah"
@@ -135,6 +136,16 @@ def test_rate_limit_returns_429(monkeypatch):
     assert codes == [200, 200, 429]
 
 
+def test_rate_limit_keys_on_forwarded_address_only_when_proxy_trusted(monkeypatch):
+    seen = []
+    monkeypatch.setattr(api, "limiter", type("L", (), {"allow": lambda self, key: seen.append(key) or True})())
+    hdr = {"x-forwarded-for": "6.6.6.6, 203.0.113.9"}
+    client.post("/api/check", json={"text": "Harga cabai naik di pasar"}, headers=hdr)
+    monkeypatch.setattr(api, "settings", replace(api.settings, trust_proxy=True))
+    client.post("/api/check", json={"text": "Harga cabai naik di pasar"}, headers=hdr)
+    assert seen[0].startswith("testclient:") and seen[1].startswith("203.0.113.9:")
+
+
 def test_forged_reporters_count_once():
     # Five invented "devices" from one network are one reporter for k-anonymity.
     for i in range(6):
@@ -163,15 +174,18 @@ def test_whatsapp_rejects_unsigned_and_accepts_signed(monkeypatch):
     seen = []
     monkeypatch.setattr(api.whatsapp, "reply", lambda to, result, cfg: seen.append((to, result["status"])))
     body = json.dumps({"entry": [{"changes": [{"value": {"messages": [
-        {"from": "628111", "type": "text", "text": {"body": "Waspada gempa besar diprediksi minggu depan, sebarkan!"}},
-        {"from": "628222", "type": "image"}, {"type": "text"},
+        {"id": "wamid.1", "from": "628111", "type": "text", "text": {"body": "Waspada gempa besar diprediksi minggu depan, sebarkan!"}},
+        {"id": "wamid.2", "from": "628222", "type": "image"}, {"type": "text"},
     ]}}]}]}).encode()
-    assert client.post("/webhook/whatsapp", content=body, headers={"content-type": "application/json"}).status_code == 401
-    assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "wrong")).status_code == 401
+    assert client.post("/webhook/whatsapp", content=body, headers={"content-type": "application/json"}).status_code == 403
+    assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "wrong")).status_code == 403
+    assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "s3cret")).status_code == 200
+    assert seen == [("628111", "terbukti_salah")]
+    # Meta retries a redelivered message id: it must not be answered twice.
     assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "s3cret")).status_code == 200
     assert seen == [("628111", "terbukti_salah")]
     junk = b"not json"
-    assert client.post("/webhook/whatsapp", content=junk, headers=_signed(junk, "s3cret")).status_code == 200
+    assert client.post("/webhook/whatsapp", content=junk, headers=_signed(junk, "s3cret")).status_code == 400
 
 
 # --- Telegram HTML -----------------------------------------------------------------------------
@@ -180,3 +194,36 @@ def test_telegram_reply_escapes_user_text():
     r = pipeline.check("Jembatan <b>Suramadu</b> ditutup, cek http://a<script>.xyz", CFG, sapaan="<i>Bu</i>")
     out = reply_text(r, html=True)
     assert "<i>" not in out and "<script>" not in out
+
+
+def test_bot_reporter_is_kept_only_with_the_channel_key(monkeypatch):
+    monkeypatch.setattr(api, "settings", replace(api.settings, channel_key="k3y"))
+    body = {"text": "Jembatan Ampera ditutup total tiga hari mulai besok pagi", "channel": "telegram", "reporter": "tg:42"}
+    forged = client.post("/api/check", json=body).json()
+    real = client.post("/api/check", json=body, headers={"x-halio-channel-key": "k3y"}).json()
+    assert api.cache.get(forged["id"])["_reporter"].startswith("net:")
+    assert api.cache.get(real["id"])["_reporter"] == "tg:42"  # escalation replies are routed with this
+
+
+def test_web_agent_cannot_turn_a_correction_into_a_hoax(monkeypatch):
+    from halio import google_agent
+
+    def refutes(claim, cfg, seed_urls=()):
+        match = pipeline.get_index(cfg.corpus_path).search(claim, k=1)[0]
+        return google_agent.AgentResult("terbukti_salah", "cocok_dengan_bantahan_web", match, None, {"penjelasan": "x"})
+
+    monkeypatch.setattr(google_agent, "investigate", refutes)
+    cfg = replace(CFG, llm_enabled=True, llm_provider="google")
+    r = pipeline.check("Pesan prediksi gempa besar minggu depan itu hoaks, BMKG sudah membantahnya", cfg)
+    assert r["status"] == "tidak_yakin" and r["reason"] == "tampak_meluruskan"
+    r = pipeline.check("Waspada gempa besar diprediksi terjadi minggu depan, sebarkan ke keluarga", cfg)
+    assert r["status"] == "terbukti_salah"
+
+
+def test_gemini_defaults(monkeypatch):
+    for k in ("HALIO_LLM_MODEL", "HALIO_LLM_PROVIDER", "GOOGLE_CLOUD_LOCATION"):
+        monkeypatch.delenv(k, raising=False)
+    cfg = Settings()
+    assert (cfg.llm_provider, cfg.llm_model, cfg.google_cloud_location) == ("google", "gemini-3.5-flash-lite", "global")
+    monkeypatch.setenv("HALIO_LLM_PROVIDER", "anthropic")
+    assert Settings().llm_model == "claude-haiku-5-5"

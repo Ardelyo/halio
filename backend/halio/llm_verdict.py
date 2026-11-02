@@ -1,8 +1,8 @@
-"""T2: grounded LLM judgement over retrieved debunks (optional, HALIO_LLM=1).
+"""T2: grounded LLM judgement over retrieved evidence (optional, HALIO_LLM=1).
 
 The model never produces a verdict from its own knowledge. It may only say
-whether the user's claim is the same claim as one of the retrieved debunks,
-and must quote the debunk text it relied on. The quote is checked as an exact
+whether the user's claim is the same claim as one of the retrieved entries,
+and must quote the entry text it relied on. The quote is checked as an exact
 substring; any failure falls back to "tidak yakin".
 """
 
@@ -19,8 +19,9 @@ log = logging.getLogger(__name__)
 SYSTEM = (
     "Kamu adalah pemeriksa kecocokan klaim untuk Halio, alat cek hoaks keluarga Indonesia. "
     "Kamu TIDAK menilai benar/salah dari pengetahuanmu sendiri. Tugasmu hanya memutuskan apakah "
-    "klaim pengguna adalah klaim yang SAMA dengan salah satu kandidat bantahan yang diberikan. "
-    "Jika ragu, atau klaim hanya mirip topiknya, pilih 'tidak_cukup_bukti'. "
+    "klaim pengguna adalah klaim yang SAMA dengan salah satu kandidat bukti yang diberikan. "
+    "Untuk kandidat verifikasi_positif, 'sama' berarti seluruh klaim pengguna didukung oleh teks fakta, "
+    "bukan hanya mirip topik atau sebagian benar. Jika ragu, pilih 'tidak_cukup_bukti'. "
     "Kutipan harus disalin persis, kata per kata, dari teks 'fakta' kandidat yang kamu pilih. "
     "Penjelasan ditulis untuk orang tua berusia 60-an: maksimal dua kalimat pendek, sopan, tanpa istilah teknis."
 )
@@ -60,12 +61,12 @@ def judge(claim: str, candidates: list[Match], model: str) -> LlmJudgement | Non
         return None
 
     cands = [
-        {"id": m.debunk.id, "klaim_yang_dibantah": m.debunk.klaim, "fakta": m.debunk.fakta}
+        {"id": m.debunk.id, "jenis": m.debunk.jenis, "klaim": m.debunk.klaim, "fakta": m.debunk.fakta}
         for m in candidates
     ]
     prompt = (
         f"Klaim pengguna:\n<klaim>{claim}</klaim>\n\n"
-        f"Kandidat bantahan (JSON):\n{json.dumps(cands, ensure_ascii=False, indent=2)}"
+        f"Kandidat bukti (JSON):\n{json.dumps(cands, ensure_ascii=False, indent=2)}"
     )
 
     client = anthropic.Anthropic()

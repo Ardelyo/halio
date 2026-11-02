@@ -126,8 +126,9 @@ LIMITS = """## Known limitations
 - Both sets were written by the same people who wrote the corpus. Real forwarded messages will be messier.
 - Same-topic TRUE statements score close to the threshold; that is why the 'tidak yakin' band exists.
 - Retrieval is lexical; heavy paraphrase without shared words is missed (falls to 'belum ada pemeriksaan', which is safe).
-- The T2 LLM step (HALIO_LLM=1) is not measured here. It can confirm or downgrade, and may lift a
-  'mirip' case only when the core-claim guard and the correction check both pass, with an exact quote.
+- The optional LLM/web-agent step (HALIO_LLM=1) is not measured here. Live sources, quotes, latency and provider
+  availability need a separate online evaluation. It may only confirm a hoax, or lift a 'mirip' case when the
+  core-claim guard and the correction check both pass, with an exact quote.
 """
 
 
@@ -152,6 +153,8 @@ def main() -> None:
         summary.append(f"{name:<8} false-hoax {m['false_hoax']}/{m['counts']['negatives']}  recall {m['recall_known_hoax']:.0%}  "
                        f"wrong-debunk {m['wrong_debunk']}  opinion {m['opinion_detect']:.0%}")
     (ROOT / "eval" / "RESULTS.md").write_text(HEADER + "\n".join(parts) + "\n" + HISTORY + LIMITS, encoding="utf-8")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     print("\n".join(summary))
 
 

@@ -23,6 +23,10 @@ class Settings:
     )
     web_dir: Path = field(default_factory=lambda: REPO_ROOT / "web")
     public_base_url: str = field(default_factory=lambda: os.getenv("PUBLIC_BASE_URL", "http://localhost:8000"))
+    cors_origins: tuple[str, ...] = field(
+        default_factory=lambda: tuple(x.strip() for x in os.getenv("HALIO_CORS_ORIGINS", "").split(",") if x.strip())
+    )
+    rate_limit_per_minute: int = field(default_factory=lambda: int(os.getenv("HALIO_RATE_LIMIT", "60")))
 
     # Retrieval thresholds, calibrated with eval/run_eval.py. Re-run the eval after changing.
     match_threshold: float = field(default_factory=lambda: float(os.getenv("HALIO_MATCH_THRESHOLD", "0.40")))
@@ -31,9 +35,19 @@ class Settings:
     # T1: Google Fact Check Tools (ClaimReview). Optional.
     google_factcheck_key: str | None = field(default_factory=lambda: os.getenv("GOOGLE_FACTCHECK_API_KEY") or None)
 
-    # T2: LLM verdict over retrieved sources. Optional, off by default.
+    # T2: grounded model verdict and web evidence. Optional, off by default.
     llm_enabled: bool = field(default_factory=lambda: _bool("HALIO_LLM"))
-    llm_model: str = field(default_factory=lambda: os.getenv("HALIO_LLM_MODEL", "claude-haiku-5-5"))
+    llm_provider: str = field(default_factory=lambda: os.getenv("HALIO_LLM_PROVIDER", "google"))
+    llm_model: str = field(
+        default_factory=lambda: os.getenv(
+            "HALIO_LLM_MODEL",
+            "claude-haiku-5-5" if os.getenv("HALIO_LLM_PROVIDER", "google") == "anthropic" else "gemini-3.5-flash-lite",
+        )
+    )
+    google_cloud_project: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_PROJECT", "gemma4good-494311"))
+    # Gemini 3.5 Flash-Lite is served from "global" (and the us/eu multi-regions), not us-central1.
+    google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
+    agent_timeout_s: float = field(default_factory=lambda: float(os.getenv("HALIO_AGENT_TIMEOUT", "45")))
 
     # Radar (aggregate dashboard) privacy knobs.
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)
@@ -49,8 +63,8 @@ class Settings:
         default_factory=lambda: os.getenv("HALIO_SENSOR_UA", "HalioSensor/0.1 (riset anti-disinformasi; hanya feed publik)")
     )
 
-    # Abuse limits (halio/netguard.py).
-    rate_per_minute: int = field(default_factory=lambda: int(os.getenv("HALIO_RATE_PER_MIN", "30")))
+    # Abuse limits and trust (halio/netguard.py). The per-minute limit is rate_limit_per_minute above.
+    # Behind a reverse proxy every client shares the proxy's address; enable this to read X-Forwarded-For.
     trust_proxy: bool = field(default_factory=lambda: _bool("HALIO_TRUST_PROXY"))
     max_input_chars: int = field(default_factory=lambda: int(os.getenv("HALIO_MAX_INPUT", "4000")))
     # Shared secret our own bots send so their reporter ids are trusted.

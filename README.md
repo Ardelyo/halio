@@ -19,11 +19,14 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 
 | Kanal | Tautan |
 |---|---|
-| Web (bisa dipasang di Android, mendukung menu *Bagikan*) | `https://<isi-setelah-deploy>` |
-| Bot Telegram | `https://t.me/<isi-nama-bot>` |
-| Radar | `https://<isi-setelah-deploy>/radar` |
-| Cakupan sensor | `https://<isi-setelah-deploy>/coverage` |
-| Feed simulasi untuk ekstensi | `https://<isi-setelah-deploy>/demo-feed.html` |
+| Landing page | [ardelyo.github.io/halio](https://ardelyo.github.io/halio/) |
+| Demo cek pesan (PWA, mendukung menu *Bagikan*) | [Buka demo](https://ardelyo.github.io/halio/cek.html) |
+| Bot Telegram | [@halioid_bot](https://t.me/halioid_bot) (aktif selama proses bot dan API berjalan) |
+| Radar (data simulasi pada GitHub Pages) | [Buka Radar](https://ardelyo.github.io/halio/radar.html) |
+| Cakupan sensor (contoh tampilan pada GitHub Pages) | [Buka cakupan](https://ardelyo.github.io/halio/coverage.html) |
+| Feed simulasi untuk ekstensi | [Buka feed](https://ardelyo.github.io/halio/demo-feed.html) |
+
+GitHub Pages menjalankan skenario lokal berlabel simulasi tanpa mengirim pesan ke server. Untuk pemeriksaan API, penyimpanan tiket, dan data Radar nyata, jalankan backend seperti petunjuk di bawah. Situs dideploy otomatis dari direktori `web/` oleh workflow `.github/workflows/pages.yml`.
 
 ## Sensor: apa yang dipantau, dan apa yang tidak
 
@@ -66,6 +69,15 @@ docker compose up -d
 
 Ekstensi Chrome: lihat [extension/README.md](extension/README.md).
 
+Antrean pemeriksa manusia tersedia di **Radar analis** (`/radar` atau `radar.html`): buka tiket, tulis respons, kirim bila kanal mendukung, dan periksa riwayat tindakan. Endpoint review memakai token Radar yang sama; jangan membukanya tanpa `RADAR_TOKEN` pada server publik. CLI tetap tersedia di server tepercaya:
+
+```bash
+python scripts/review.py list escalations
+python scripts/review.py resolve escalations ID --response "Jawaban pemeriksa"
+```
+
+Balasan Telegram/WhatsApp dikirim sebelum tiket ditutup. Kegagalan pengiriman membuat tiket tetap terbuka. Kanal web memerlukan tindak lanjut manual dengan nomor tiket. Pada GitHub Pages, penyelesaian tiket hanya simulasi lokal selama sesi dan tidak mengirim balasan. Batas risiko dan gerbang peluncuran ada di [Kesiapan demo dan peluncuran](docs/LAUNCH_READINESS.md).
+
 ## Struktur
 
 ```
@@ -82,6 +94,7 @@ docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 ## Dokumen
 
 - [Rencana proyek](docs/PROJECT_PLAN.md): jadwal, peran, risiko, pemetaan ke kriteria penilaian
+- [Riset agar Halio menonjol](docs/RESEARCH_STANDOUT.md): bukti ilmiah, peta kompetitor, protokol wawancara dan eksperimen, serta metrik dampak
 - [Arsitektur teknis](docs/ARCHITECTURE.md)
 - [Arsitektur sensor (pemantauan narasi)](docs/ARCHITECTURE_SENSOR.md)
 - [Privasi & aturan netral](docs/PRIVACY.md)

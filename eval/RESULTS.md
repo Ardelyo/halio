@@ -53,12 +53,12 @@ Thresholds: match >= 0.4, unsure >= 0.26. Mode: retrieval only (no LLM, no Claim
 | ✅ | opinion | tidak_yakin | bukan_klaim_faktual | - | Menurut saya pemerintah harus lebih memperhatikan petani |
 | ✅ | opinion | tidak_yakin | bukan_klaim_faktual | - | Apa kabar semuanya? Sudah makan belum? |
 | ✅ | opinion | tidak_yakin | bukan_klaim_faktual | - | Terima kasih atas doanya, mohon maaf lahir batin |
-| ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.355 | Pemerintah resmi membuka pendaftaran bansos PKH tahap 2, cek nama pene |
+| ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.329 | Pemerintah resmi membuka pendaftaran bansos PKH tahap 2, cek nama pene |
 | ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.436 | Presiden Prabowo membagikan bantuan sembako kepada warga di Jakarta ha |
 | ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.408 | BMKG: gempa magnitudo 5,3 mengguncang Cianjur, tidak berpotensi tsunam |
 | ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.346 | BMKG akan memperbarui peringatan dini cuaca ekstrem pekan depan, panta |
 | ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.37 | BMKG mengimbau masyarakat waspada potensi gempa besar di zona megathru |
-| ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.492 | Pendaftaran Bintara TNI AD 2026 dibuka tanggal 5 Januari melalui pener |
+| ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.409 | Pendaftaran Bintara TNI AD 2026 dibuka tanggal 5 Januari melalui pener |
 | ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.386 | Rekrutmen tamtama TNI AD gratis tidak dipungut biaya, waspada calo yan |
 | ✅ | not_debunked | belum_ada_pemeriksaan | tidak_ada_bantahan | - | Kodam Jaya buka pendaftaran Bintara, hubungi panitia di kodam untuk in |
 | ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.515 | Air kelapa muda baik untuk menjaga hidrasi, bisa diminum dengan sediki |
@@ -72,7 +72,7 @@ Thresholds: match >= 0.4, unsure >= 0.26. Mode: retrieval only (no LLM, no Claim
 | ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.496 | Polisi mengimbau warga waspada berita hoaks penculikan anak yang bered |
 | ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.31 | Hubungi nomor 112 untuk layanan darurat, gratis dari semua operator |
 | ✅ | not_debunked | belum_ada_pemeriksaan | tidak_ada_bantahan | - | Daftar BPJS Kesehatan gratis untuk warga kurang mampu lewat kantor des |
-| ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.281 | Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja berg |
+| ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.315 | Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja berg |
 
 ## holdout: holdout.jsonl
 
@@ -165,5 +165,6 @@ The next fresh set should be written by someone outside the team, from real forw
 - Both sets were written by the same people who wrote the corpus. Real forwarded messages will be messier.
 - Same-topic TRUE statements score close to the threshold; that is why the 'tidak yakin' band exists.
 - Retrieval is lexical; heavy paraphrase without shared words is missed (falls to 'belum ada pemeriksaan', which is safe).
-- The T2 LLM step (HALIO_LLM=1) is not measured here. It can confirm or downgrade, and may lift a
-  'mirip' case only when the core-claim guard and the correction check both pass, with an exact quote.
+- The optional LLM/web-agent step (HALIO_LLM=1) is not measured here. Live sources, quotes, latency and provider
+  availability need a separate online evaluation. It may only confirm a hoax, or lift a 'mirip' case when the
+  core-claim guard and the correction check both pass, with an exact quote.

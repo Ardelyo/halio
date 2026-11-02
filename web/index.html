@@ -3,47 +3,183 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Halio</title>
-  <meta name="description" content="Halio: teman cek pesan keluarga. Teruskan pesan meragukan, dapatkan jawaban jujur bersumber.">
-  <meta name="theme-color" content="#014BAA">
-  <link rel="manifest" href="manifest.webmanifest">
+  <title>Halio — Saring dulu, baru sharing</title>
+  <meta name="description" content="Halio membantu keluarga memeriksa pesan mencurigakan dan membagikan koreksi bersumber, dengan bahasa yang tidak menghakimi.">
+  <meta name="theme-color" content="#173f35">
+  <meta property="og:title" content="Halio — Saring dulu, baru sharing">
+  <meta property="og:description" content="Teman cek pesan untuk keluarga Indonesia. Coba demonstrasi interaktifnya.">
+  <meta property="og:type" content="website">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="landing.css?v=3">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
-<main>
-  <header class="top">
-    <img src="icons/icon.svg" alt="">
-    <div>
-      <h1>halio<span style="color:#FFC83D">.</span></h1>
-      <p>Teman cek pesan keluarga</p>
-    </div>
+  <a class="skip-link" href="#main">Lewati ke konten</a>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Halio, kembali ke beranda">
+      <img src="icons/icon.svg" alt="" width="42" height="42">
+      <span>halio<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="main-nav" aria-label="Navigasi utama">
+      <a href="#cara-kerja">Cara kerja</a>
+      <a href="#prinsip">Prinsip</a>
+      <a href="#keterbatasan">Keterbatasan</a>
+    </nav>
+    <a class="button button-small button-ink" href="cek.html">Coba demonya <span aria-hidden="true">↗</span></a>
   </header>
 
-  <section class="card" aria-labelledby="ask">
-    <label class="big" id="ask" for="msg">Tempel pesan yang meragukan di sini</label>
-    <textarea id="msg" placeholder="Contoh: pesan berantai dari grup keluarga…"></textarea>
-    <div class="row">
-      <label for="sapaan" class="note">Panggil saya:</label>
-      <select id="sapaan">
-        <option>Bapak, Ibu</option><option>Bu</option><option>Pak</option>
-        <option>Mbah</option><option>Oma</option><option>Opa</option><option>Kak</option>
-      </select>
+  <main id="main">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow reveal">Teman cek pesan keluarga</p>
+        <h1 id="hero-title" class="reveal">Saring dulu.<br><em>Baru sharing.</em></h1>
+        <p class="hero-intro reveal">Pesan mencurigakan tidak perlu langsung diteruskan. Kirim ke Halio, pahami jebakannya, lalu bagikan jawaban bersumber ke grup keluarga.</p>
+        <div class="hero-actions reveal">
+          <a class="button button-primary" href="cek.html">Cek pesan contoh <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#demo"><span class="play-icon" aria-hidden="true">▶</span> Lihat alurnya</a>
+        </div>
+        <p class="hero-note reveal"><span class="status-dot" aria-hidden="true"></span> Prototipe terbuka · Tidak yakin? Halio bilang tidak yakin.</p>
+      </div>
+
+      <div class="hero-scene reveal" aria-label="Ilustrasi pesan bansos mencurigakan yang diperiksa Halio">
+        <span class="scene-scribble" aria-hidden="true">?</span>
+        <div class="floating-card incoming-card">
+          <div class="mini-profile"><span class="avatar">K</span><span><b>Grup keluarga</b><small>Pesan diteruskan</small></span><span class="message-time">08.42</span></div>
+          <p>“Ada video Presiden bagi-bagi bantuan tunai! Bayar biaya admin Rp150 ribu lewat WA. SEBARKAN!!”</p>
+          <span class="message-tag">Pesan sintetis untuk demo</span>
+        </div>
+        <div class="floating-card answer-card">
+          <div class="answer-top"><span class="answer-symbol" aria-hidden="true">!</span><span><small>Hasil pemeriksaan</small><b>Terbukti salah</b></span></div>
+          <p>Itu video palsu. Bantuan resmi tidak meminta biaya administrasi lewat WhatsApp.</p>
+          <div class="source-line"><span aria-hidden="true">↗</span><span><small>Sumber bernama</small>Katadata · Bareskrim Polri</span></div>
+        </div>
+        <div class="pause-note"><span aria-hidden="true">Ⅱ</span><span>Ambil jeda.<br><b>Cek sebelum kirim.</b></span></div>
+        <svg class="scene-line" viewBox="0 0 400 220" fill="none" aria-hidden="true"><path d="M25 24C143 4 305 28 322 102c12 51-53 82-141 88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 8"/><path d="m164 178 20 12-23 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </section>
+
+    <div class="loop-ribbon" aria-label="Alur Halio">
+      <div class="shell ribbon-inner"><span>Dari keluarga</span><i aria-hidden="true">→</i><span>Diperiksa</span><i aria-hidden="true">→</i><span>Bersumber</span><i aria-hidden="true">→</i><span>Kembali ke keluarga</span></div>
     </div>
-    <div class="row"><button id="go" class="primary">🔍 Cek pesan ini</button></div>
-    <p class="note" style="margin-bottom:0">Coba contoh:</p>
-    <div class="chips" id="examples"></div>
-  </section>
 
-  <section id="result" class="hidden" aria-live="polite"></section>
+    <section id="demo" class="demo-section section-space">
+      <div class="shell">
+        <div class="section-heading light reveal">
+          <p class="eyebrow">Coba alurnya</p>
+          <h2>Satu pesan.<br><em>Empat langkah.</em></h2>
+          <p>Klik setiap tahap untuk melihat bagaimana pesan berantai berubah menjadi koreksi yang layak dibagikan.</p>
+        </div>
+        <div class="demo-grid reveal">
+          <div class="demo-controls" role="tablist" aria-label="Tahapan demonstrasi">
+            <button class="demo-step is-active" role="tab" aria-selected="true" aria-controls="demo-screen" data-step="0"><span>01</span><span><b>Terima pesannya</b><small>Temukan tanda yang perlu dicurigai.</small></span></button>
+            <button class="demo-step" role="tab" aria-selected="false" aria-controls="demo-screen" data-step="1" tabindex="-1"><span>02</span><span><b>Periksa, bukan menebak</b><small>Cocokkan dengan bantahan bersumber.</small></span></button>
+            <button class="demo-step" role="tab" aria-selected="false" aria-controls="demo-screen" data-step="2" tabindex="-1"><span>03</span><span><b>Pahami jawabannya</b><small>Baca fakta, trik, dan sumbernya.</small></span></button>
+            <button class="demo-step" role="tab" aria-selected="false" aria-controls="demo-screen" data-step="3" tabindex="-1"><span>04</span><span><b>Kembalikan koreksinya</b><small>Luruskan tanpa mempermalukan.</small></span></button>
+            <button class="demo-next" id="demo-next">Lanjut: periksa klaim <span aria-hidden="true">→</span></button>
+            <p class="simulation-label">Simulasi interaktif · memakai contoh dari korpus demo</p>
+          </div>
+          <div class="demo-device-wrap">
+            <div class="demo-device" id="demo-screen" role="tabpanel" aria-live="polite" aria-label="Tampilan simulasi Halio"></div>
+            <span class="device-caption">Tampilan ilustratif, bukan percakapan pengguna.</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <footer>
-    🔒 Halio menghapus nomor telepon, NIK, email, dan tautan sebelum memeriksa. Halio tidak membuat vonis sendiri:
-    jawaban selalu dari pemeriksa fakta atau sumber resmi, dan bila belum ada, Halio bilang terus terang.
-    <br><a href="radar">Radar Ketahanan Kognitif</a> · <a href="https://github.com/Ardelyo/halio" id="repo">Kode sumber</a> · Prototipe Kartika Cyber Hackathon 2026
+    <section id="cara-kerja" class="section-space shell">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Bukan mesin vonis</p>
+        <h2>Jawaban yang jujur,<br><em>termasuk saat ragu.</em></h2>
+        <p>Halio mencocokkan pesan dengan pemeriksaan yang sudah ada. Tidak ada sumber yang cocok? Tidak ada vonis karangan.</p>
+      </div>
+      <div class="verdict-grid">
+        <article class="verdict-card verdict-wrong reveal">
+          <span class="verdict-number">01 / SALAH</span>
+          <div class="verdict-icon" aria-hidden="true">×</div>
+          <h3>Terbukti salah</h3>
+          <p>Ada bantahan yang cocok dari pemeriksa fakta atau sumber resmi. Halio menunjukkan fakta dan tautannya.</p>
+          <span class="card-foot">Vonis berasal dari sumber, bukan tebakan model.</span>
+        </article>
+        <article class="verdict-card verdict-unsure reveal">
+          <span class="verdict-number">02 / RAGU</span>
+          <div class="verdict-icon" aria-hidden="true">?</div>
+          <h3>Halio tidak yakin</h3>
+          <p>Pesannya mirip, tetapi inti klaimnya berbeda. Halio menahan jawaban dan menjelaskan apa yang perlu dicek.</p>
+          <span class="card-foot">Topik yang sama tidak otomatis sama faktanya.</span>
+        </article>
+        <article class="verdict-card verdict-unknown reveal">
+          <span class="verdict-number">03 / BELUM ADA</span>
+          <div class="verdict-icon" aria-hidden="true">—</div>
+          <h3>Belum ada pemeriksaan</h3>
+          <p>Belum ditemukan bantahan yang relevan. Pengguna dapat meminta tindak lanjut pemeriksa manusia.</p>
+          <span class="card-foot">“Belum tahu” adalah jawaban yang sah.</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow-section section-space">
+      <div class="shell workflow-grid">
+        <div class="workflow-copy reveal">
+          <p class="eyebrow">Satu lingkaran kerja</p>
+          <h2>Dari grup keluarga,<br><em>kembali ke keluarga.</em></h2>
+          <p>Cek pesan bukan titik akhir. Laporan sukarela dapat menjadi sinyal agregat untuk analis, lalu hasil verifikasi kembali menjadi koreksi bersumber.</p>
+          <a class="text-link dark-link" href="radar.html">Lihat Radar Halio <span aria-hidden="true">↗</span></a>
+        </div>
+        <ol class="workflow-list reveal">
+          <li><span class="workflow-index">01</span><div><h3>Sinyal sukarela</h3><p>Keluarga memilih pesan yang ingin diperiksa. Halio tidak membaca grup pribadi.</p></div><span class="workflow-mark" aria-hidden="true">↗</span></li>
+          <li><span class="workflow-index">02</span><div><h3>Peringatan agregat</h3><p>Radar merangkum tren. Isi kabar baru ditahan sampai melewati ambang pelapor.</p></div><span class="workflow-mark" aria-hidden="true">↗</span></li>
+          <li><span class="workflow-index">03</span><div><h3>Triase manusia</h3><p>Analis memeriksa konteks dan bukti sebelum mengambil tindakan.</p></div><span class="workflow-mark" aria-hidden="true">↗</span></li>
+          <li><span class="workflow-index">04</span><div><h3>Koreksi bersumber</h3><p>Jawaban yang mudah dipahami kembali ke kanal keluarga, lengkap dengan sumber.</p></div><span class="workflow-mark" aria-hidden="true">✓</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="prinsip" class="privacy-section section-space">
+      <div class="shell privacy-grid">
+        <div class="privacy-art reveal" aria-hidden="true">
+          <div class="privacy-orbit orbit-one"></div><div class="privacy-orbit orbit-two"></div>
+          <div class="lock-shape"><svg viewBox="0 0 80 90" fill="none"><rect x="10" y="36" width="60" height="48" rx="14" fill="currentColor"/><path d="M24 36V25a16 16 0 0 1 32 0v11" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><circle cx="40" cy="58" r="5" fill="#173f35"/><path d="M40 62v8" stroke="#173f35" stroke-width="4" stroke-linecap="round"/></svg></div>
+          <span class="art-note note-one">Nomor telepon<br><b>dihapus lebih dulu</b></span>
+          <span class="art-note note-two">Sumber selalu<br><b>bisa dibuka</b></span>
+        </div>
+        <div class="privacy-copy reveal">
+          <p class="eyebrow">Privasi sejak awal</p>
+          <h2>Cukup tahu polanya.<br><em>Tak perlu mengawasi orangnya.</em></h2>
+          <p>Halio dirancang untuk membantu keluarga, bukan menilai atau menindak individu.</p>
+          <ul class="principle-list">
+            <li><span aria-hidden="true">01</span><div><b>Pesan dikirim atas kehendak pengguna</b><p>Tidak ada pemindaian diam-diam pada percakapan pribadi.</p></div></li>
+            <li><span aria-hidden="true">02</span><div><b>Data pribadi disaring sebelum pemeriksaan</b><p>Nomor telepon, NIK, email, dan tautan dihapus dari teks yang diproses.</p></div></li>
+            <li><span aria-hidden="true">03</span><div><b>Radar membatasi kelompok kecil</b><p>Ambang pelapor mengurangi paparan pesan pribadi, tetapi tidak menjamin anonimitas.</p></div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="keterbatasan" class="section-space shell evidence-section">
+      <div class="evidence-top reveal">
+        <div><p class="eyebrow">Terbuka soal batas</p><h2>Prototipe,<br><em>bukan janji berlebihan.</em></h2></div>
+        <p>Evaluasi saat ini memakai data buatan tim. Hasil ini berguna untuk menguji pipeline, bukan untuk mengklaim perubahan perilaku atau kesiapan lapangan.</p>
+      </div>
+      <div class="evidence-grid reveal">
+        <div class="evidence-stat"><strong>7</strong><span>bantahan bersumber<br>dalam korpus demo</span></div>
+        <div class="evidence-stat"><strong>32</strong><span>item uji<br>yang ditulis tim</span></div>
+        <div class="evidence-stat"><strong>0/12</strong><span>klaim benar/belum dikenal<br>yang salah disebut hoaks</span></div>
+        <div class="evidence-action"><p>Yang belum terbukti: manfaat nyata bagi keluarga dan analis.</p><a href="https://github.com/Ardelyo/halio/blob/main/eval/RESULTS.md" target="_blank" rel="noopener">Baca evaluasi & batasannya <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="final-cta shell reveal">
+      <div><p class="eyebrow">Mulai dari satu pesan</p><h2>Grup keluarga ramai.<br><em>Kepala tetap tenang.</em></h2></div>
+      <div class="cta-side"><p>Coba pesan contoh, lihat sumbernya, lalu putuskan dengan jeda.</p><a class="button button-lime" href="cek.html">Buka demo Halio <span aria-hidden="true">↗</span></a></div>
+      <span class="cta-watermark" aria-hidden="true">h.</span>
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <a class="brand footer-brand" href="./"><img src="icons/icon.svg" alt="" width="34" height="34"><span>halio.</span></a>
+    <p>Prototipe untuk Kartika Cyber Hackathon 2026<br>Kategori Siber Sosial · Bukan produk resmi TNI</p>
+    <div class="footer-links"><a href="https://github.com/Ardelyo/halio" target="_blank" rel="noopener">GitHub ↗</a><a href="https://github.com/Ardelyo/halio/blob/main/docs/PRIVACY.md" target="_blank" rel="noopener">Privasi ↗</a><a href="cek.html">Demo ↗</a></div>
   </footer>
-</main>
-<script src="app.js"></script>
+  <script src="landing.js"></script>
 </body>
 </html>

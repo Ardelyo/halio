@@ -12,7 +12,10 @@ Ringkasan aturan yang ditegakkan di kode, bukan sekadar janji. Tinjauan hukum UU
 | Isi kabar tak dikenal baru disimpan setelah ≥ k pelapor berbeda (k-anonimitas), nama samaran berganti harian | `store._count_unknown` |
 | Angka agregat < 3 disamarkan | `store._suppress` |
 | Gambar diperiksa di perangkat; 0 byte gambar dikirim | `extension/offscreen.js` |
-| Eskalasi ke manusia menyimpan klaim yang sudah dibersihkan, atas permintaan eksplisit pengguna | `/api/escalate` |
+| Eskalasi ke manusia menyimpan klaim yang sudah dibersihkan dan tujuan balasan kanal, atas permintaan eksplisit pengguna | `/api/escalate`, `store.Store.add_escalation` |
+| Kabar tak dikenal, banding, tiket selesai, dan audit reviewer dihapus menurut jadwal retensi 30 hari; tiket menunggu tetap disimpan | `store.Store.prune`, dipanggil harian saat ada cek |
+| Nama samaran harian dibatasi maksimal k per hash; reporter web adalah ID perangkat yang dapat dihapus pengguna, bukan identitas terverifikasi | `store._count_unknown`, `web/app.js` |
+| Webhook WhatsApp wajib lolos HMAC app secret dan pesan ber-ID dideduplikasi selama 24 jam | `security.valid_meta_signature`, `/webhook/whatsapp` |
 
 ## Aturan netral topik
 1. Halio hanya memeriksa **klaim faktual** yang dapat diverifikasi, bukan opini atau pandangan politik.

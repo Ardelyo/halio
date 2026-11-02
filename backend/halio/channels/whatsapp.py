@@ -20,14 +20,16 @@ log = logging.getLogger(__name__)
 GRAPH_VERSION = os.getenv("WHATSAPP_GRAPH_VERSION", "v21.0")
 
 
-def incoming_texts(payload: dict) -> Iterator[tuple[str, str]]:
-    """(sender, text) for every text message; anything malformed is skipped, never raised."""
+def incoming_texts(payload: dict) -> Iterator[tuple[str, str, str]]:
+    """(message id, sender, text) for every text message; anything malformed is skipped, never raised."""
+    if not isinstance(payload, dict):
+        return
     for entry in payload.get("entry") or []:
         for change in (entry or {}).get("changes") or []:
             for msg in ((change or {}).get("value") or {}).get("messages") or []:
                 body = (msg.get("text") or {}).get("body") if msg.get("type") == "text" else None
-                if isinstance(body, str) and msg.get("from"):
-                    yield str(msg["from"]), body
+                if isinstance(body, str) and msg.get("id") and msg.get("from") and len(body.strip()) >= 3:
+                    yield str(msg["id"]), str(msg["from"]), body
 
 
 def _send(cfg: Settings, body: dict) -> None:
