@@ -149,3 +149,8 @@ footer a { text-underline-offset: 3px; }
   .check-card { padding: 18px; }
   .actions { grid-template-columns: 1fr; }
 }
+
+/* Brand: serif display headings (same as the landing and check pages) */
+header.top h1, h2 { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em; }
+header.top h1 { font-size: 2.3rem; line-height: 1; }
+h2 { font-size: 1.7rem; line-height: 1.15; }
