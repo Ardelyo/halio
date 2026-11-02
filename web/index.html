@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Halio — Saring dulu, baru sharing</title>
   <meta name="description" content="Halio membantu keluarga memeriksa pesan mencurigakan dan membagikan koreksi bersumber, dengan bahasa yang tidak menghakimi.">
-  <meta name="theme-color" content="#173f35">
+  <meta name="theme-color" content="#014BAA">
   <meta property="og:title" content="Halio — Saring dulu, baru sharing">
   <meta property="og:description" content="Teman cek pesan untuk keluarga Indonesia. Coba demonstrasi interaktifnya.">
   <meta property="og:type" content="website">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="brand.css">
   <link rel="stylesheet" href="landing.css?v=3">
   <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -23,6 +25,7 @@
     <nav class="main-nav" aria-label="Navigasi utama">
       <a href="#cara-kerja">Cara kerja</a>
       <a href="#prinsip">Prinsip</a>
+      <a href="#unit-siber">Unit siber</a>
       <a href="#keterbatasan">Keterbatasan</a>
     </nav>
     <a class="button button-small button-ink" href="cek.html">Coba demonya <span aria-hidden="true">↗</span></a>
@@ -90,7 +93,7 @@
       <div class="section-heading reveal">
         <p class="eyebrow">Bukan mesin vonis</p>
         <h2>Jawaban yang jujur,<br><em>termasuk saat ragu.</em></h2>
-        <p>Halio mencocokkan pesan dengan pemeriksaan yang sudah ada. Tidak ada sumber yang cocok? Tidak ada vonis karangan.</p>
+        <p>Halio mencocokkan pesan dengan pemeriksaan yang sudah ada. Tidak ada sumber yang cocok? Tidak ada vonis karangan. Kabar yang benar pun tidak dicap hoaks.</p>
       </div>
       <div class="verdict-grid">
         <article class="verdict-card verdict-wrong reveal">
@@ -100,15 +103,22 @@
           <p>Ada bantahan yang cocok dari pemeriksa fakta atau sumber resmi. Halio menunjukkan fakta dan tautannya.</p>
           <span class="card-foot">Vonis berasal dari sumber, bukan tebakan model.</span>
         </article>
+        <article class="verdict-card verdict-ok reveal">
+          <span class="verdict-number">02 / SEJALAN</span>
+          <div class="verdict-icon" aria-hidden="true">✓</div>
+          <h3>Sejalan dengan sumber</h3>
+          <p>Benar bukan berarti hoaks. Halio hanya menyebut “sejalan” bila sumber resmi yang masih berlaku memuat kutipan yang mendukung seluruh klaim, dan kutipan itu dicek ulang pada halamannya.</p>
+          <span class="card-foot">Bukan “pasti benar”: cek tanggal dan konteksnya.</span>
+        </article>
         <article class="verdict-card verdict-unsure reveal">
-          <span class="verdict-number">02 / RAGU</span>
+          <span class="verdict-number">03 / RAGU</span>
           <div class="verdict-icon" aria-hidden="true">?</div>
           <h3>Halio tidak yakin</h3>
           <p>Pesannya mirip, tetapi inti klaimnya berbeda. Halio menahan jawaban dan menjelaskan apa yang perlu dicek.</p>
           <span class="card-foot">Topik yang sama tidak otomatis sama faktanya.</span>
         </article>
         <article class="verdict-card verdict-unknown reveal">
-          <span class="verdict-number">03 / BELUM ADA</span>
+          <span class="verdict-number">04 / BELUM ADA</span>
           <div class="verdict-icon" aria-hidden="true">—</div>
           <h3>Belum ada pemeriksaan</h3>
           <p>Belum ditemukan bantahan yang relevan. Pengguna dapat meminta tindak lanjut pemeriksa manusia.</p>
@@ -138,7 +148,7 @@
       <div class="shell privacy-grid">
         <div class="privacy-art reveal" aria-hidden="true">
           <div class="privacy-orbit orbit-one"></div><div class="privacy-orbit orbit-two"></div>
-          <div class="lock-shape"><svg viewBox="0 0 80 90" fill="none"><rect x="10" y="36" width="60" height="48" rx="14" fill="currentColor"/><path d="M24 36V25a16 16 0 0 1 32 0v11" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><circle cx="40" cy="58" r="5" fill="#173f35"/><path d="M40 62v8" stroke="#173f35" stroke-width="4" stroke-linecap="round"/></svg></div>
+          <div class="lock-shape"><svg viewBox="0 0 80 90" fill="none"><rect x="10" y="36" width="60" height="48" rx="14" fill="currentColor"/><path d="M24 36V25a16 16 0 0 1 32 0v11" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><circle cx="40" cy="58" r="5" fill="#0E1726"/><path d="M40 62v8" stroke="#0E1726" stroke-width="4" stroke-linecap="round"/></svg></div>
           <span class="art-note note-one">Nomor telepon<br><b>dihapus lebih dulu</b></span>
           <span class="art-note note-two">Sumber selalu<br><b>bisa dibuka</b></span>
         </div>
@@ -155,6 +165,35 @@
       </div>
     </section>
 
+    <section id="unit-siber" class="section-space shell">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Untuk unit siber</p>
+        <h2>Melihat pola,<br><em>bukan mengawasi orang.</em></h2>
+        <p>Laporan keluarga menjadi sinyal agregat: kabar apa yang sedang naik, trik apa yang dipakai, dan sumber mana yang sedang kami pantau. Cakupan dan titik butanya ditampilkan apa adanya.</p>
+      </div>
+      <div class="cyber-grid">
+        <article class="cyber-card reveal">
+          <span class="cyber-no">01</span>
+          <h3>Radar agregat</h3>
+          <p>Jumlah per kategori dan tren harian. Kabar baru baru muncul setelah dikirim oleh beberapa pelapor berbeda (k-anonimitas), tanpa profil individu.</p>
+          <a href="radar.html">Buka Radar analis <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="cyber-card reveal">
+          <span class="cyber-no">02</span>
+          <h3>Sensor sumber publik</h3>
+          <p>Memantau 23 feed media dan pemeriksa fakta yang terbuka, hampir waktu nyata. Tidak membaca grup privat, tidak masuk akun, tidak menyamar.</p>
+          <a href="coverage.html">Lihat panel cakupan <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="cyber-card reveal">
+          <span class="cyber-no">03</span>
+          <h3>Antrean triase manusia</h3>
+          <p>Banding dan eskalasi masuk antrean analis. Tiket baru ditutup setelah balasan terkirim ke kanal asal.</p>
+          <a href="radar.html">Lihat antrean <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+      <p class="cyber-note reveal"><strong>Batasnya jelas:</strong> hanya sumber publik, hanya agregat, tidak menilai opini, tidak melacak akun atau prajurit tertentu. Ini prototipe pertahanan siber, bukan alat pengawasan warga.</p>
+    </section>
+
     <section id="keterbatasan" class="section-space shell evidence-section">
       <div class="evidence-top reveal">
         <div><p class="eyebrow">Terbuka soal batas</p><h2>Prototipe,<br><em>bukan janji berlebihan.</em></h2></div>
@@ -162,8 +201,8 @@
       </div>
       <div class="evidence-grid reveal">
         <div class="evidence-stat"><strong>7</strong><span>bantahan bersumber<br>dalam korpus demo</span></div>
-        <div class="evidence-stat"><strong>32</strong><span>item uji<br>yang ditulis tim</span></div>
-        <div class="evidence-stat"><strong>0/12</strong><span>klaim benar/belum dikenal<br>yang salah disebut hoaks</span></div>
+        <div class="evidence-stat"><strong>108</strong><span>item uji ditulis tim<br>(52 dev, 56 holdout)</span></div>
+        <div class="evidence-stat"><strong>0/66</strong><span>klaim benar/belum dikenal<br>yang salah disebut hoaks</span></div>
         <div class="evidence-action"><p>Yang belum terbukti: manfaat nyata bagi keluarga dan analis.</p><a href="https://github.com/Ardelyo/halio/blob/main/eval/RESULTS.md" target="_blank" rel="noopener">Baca evaluasi & batasannya <span aria-hidden="true">↗</span></a></div>
       </div>
     </section>

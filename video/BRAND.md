@@ -1,6 +1,10 @@
 # Halio · Identitas Merek (v1, 28 Okt 2026)
 
-Satu sistem untuk video, aplikasi, Kartu Halio, slide, dan thumbnail.
+Satu sistem untuk situs, aplikasi, ekstensi, Kartu Halio, video, slide, dan thumbnail.
+
+**Sumber token:** `web/brand.css` (situs, ekstensi, halaman analis), `backend/halio/card.py` (Kartu Halio), `video/src/style.css` (video). Ubah nilai di sini dulu, lalu samakan ketiganya. Font: `web/fonts/fonts.css`.
+
+**Keputusan 2 Nov 2026:** warna situs sebelumnya (hijau hutan + limau) diganti dengan sistem biru ini agar situs, keluaran, dan video satu identitas.
 
 ## Gagasan
 **Padang rumput yang tenang, bukan ruang kontrol yang menakutkan.** Halio menenangkan keluarga, lalu

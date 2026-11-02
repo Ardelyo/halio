@@ -72,15 +72,15 @@ SCENES: list[tuple[str, str, list[str]]] = [
         "dan menawarkan bantuan pemeriksa manusia.",
     ]),
     ("tiga", "05 · Kejujuran", [
-        "Karena itu, setiap jawaban hanya punya tiga keadaan:",
-        "terbukti salah, tidak yakin, atau belum ada pemeriksaan.",
+        "Karena itu, setiap jawaban hanya punya empat keadaan:",
+        "terbukti salah, sejalan dengan sumber, tidak yakin, atau belum ada pemeriksaan.",
     ]),
     ("mesin", "06 · Cara kerja", [
         "Di balik layar, Halio memilih kalimat yang layak dicek,",
         "lalu menghapus nomor telepon, NIK, dan tautan.",
         "Klaim dicocokkan dengan bantahan yang bersumber,",
         "dan dijaga agar topik yang sekadar mirip tidak langsung dicap hoaks.",
-        "Model bahasa bersifat opsional, dan hanya boleh mengonfirmasi dengan kutipan persis.",
+        "Pencarian oleh model bersifat opsional, dan kode kami memeriksa ulang setiap tautan dan kutipannya.",
     ]),
     ("sensor", "07 · Untuk satuan siber", [
         "Untuk satuan siber, Halio menyediakan sensor.",

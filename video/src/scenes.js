@@ -8,16 +8,17 @@
   // Edit before rendering if the prototype status changes (keep it honest).
   const STATUS = D.status || {
     done: [
-      "Cek pesan dengan tiga keadaan dan sumber bernama",
+      "Cek pesan dengan empat keadaan dan sumber bernama",
       "Kartu Halio dan pesan suara",
       "Radar agregat dengan k-anonimitas",
       "Sensor 23 feed dan panel cakupan",
-      "29 uji otomatis lulus",
+      "Agen web: tautan dan kutipan dicek ulang oleh kode",
+      "95 uji otomatis lulus",
     ],
     todo: [
       "Korpus bantahan baru 7 entri",
-      "Uji independen: 6 dari 20 kalimat benar masih salah ditandai",
-      "Bot Telegram dan WhatsApp belum diuji langsung",
+      "Evaluasi masih buatan tim: 0 dari 66 klaim benar salah ditandai",
+      "WhatsApp belum diuji dengan Meta; belum ada pengguna nyata",
       "Deteksi narasi (klaster) belum dibangun",
     ],
   };
@@ -368,24 +369,25 @@
     bg: "bg-cream",
     build(root) {
       const s = {};
-      s.h = text(root, "serif", 0, 150, "Tiga keadaan. *Tanpa tebakan.*", { width: "1920px", textAlign: "center", fontSize: "104px" });
+      s.h = text(root, "serif", 0, 150, "Empat keadaan. *Tanpa tebakan.*", { width: "1920px", textAlign: "center", fontSize: "104px" });
       const C = [
         ["#B42318", "Terbukti salah", "Sudah dibantah pemeriksa fakta atau sumber resmi yang disebutkan.", "Disertai nama sumber dan tautan"],
+        ["#067647", "Sejalan dengan sumber", "Sumber resmi yang masih berlaku memuat kutipan yang mendukung seluruh klaim.", "Kutipan dicek ulang oleh kode"],
         ["#B54708", "Tidak yakin", "Mirip kabar bohong, tetapi tidak sama persis, atau bukan klaim faktual.", "Disarankan ditahan dulu"],
         ["#475467", "Belum ada pemeriksaan", "Belum ada bantahan. Halio tidak menebak.", "Ditawarkan pemeriksa manusia"],
       ];
       s.cards = C.map(([c, label, desc, foot], i) => {
-        const k = el("div", "card", null, root); at(k, 140 + i * 560, 330, { width: "520px", height: "500px", overflow: "hidden" });
-        el("div", "grot", label, k, { background: c, color: "#F8F3F0", fontSize: "46px", padding: "40px 36px", height: "190px", display: "flex", alignItems: "flex-end" });
-        el("div", null, desc, k, { font: "600 30px/1.35 Inter", padding: "32px 36px 0", color: "#0E1726" });
-        el("div", "micro", foot, k, { position: "absolute", left: "36px", bottom: "34px", color: c, fontSize: "17px" });
+        const k = el("div", "card", null, root); at(k, 100 + i * 440, 330, { width: "410px", height: "520px", overflow: "hidden" });
+        el("div", "grot", label, k, { background: c, color: "#F8F3F0", fontSize: "38px", padding: "40px 30px", height: "190px", display: "flex", alignItems: "flex-end" });
+        el("div", null, desc, k, { font: "600 26px/1.35 Inter", padding: "28px 30px 0", color: "#0E1726" });
+        el("div", "micro", foot, k, { position: "absolute", left: "30px", bottom: "30px", color: c, fontSize: "15px" });
         return k;
       });
       return s;
     },
     update(t, s, sc) {
       stagger(s.h.sp, t, cs(sc, 0) - 0.3, 0.12, 0.8);
-      const per = (ce(sc, 1) - cs(sc, 1)) / 3;
+      const per = (ce(sc, 1) - cs(sc, 1)) / 4;
       s.cards.forEach((k, i) => reveal(k, P(t, cs(sc, 1) - 0.2 + i * per, 0.8, ease.back), { y: 60, blur: 0, scale: 0.94 }));
     },
   };
@@ -397,7 +399,7 @@
       const s = {};
       s.k = block(root, "micro", "Cara kerja", 146, 140, { color: "#FFC83D" });
       s.h = text(root, "serif", 140, 180, "Dari pesan berantai ke jawaban yang *jujur*.", { fontSize: "86px", color: "#F8F3F0" });
-      const L = ["Pilih kalimat yang layak dicek", "Hapus nomor, NIK, dan tautan", "Cocokkan dengan bantahan bersumber", "Jaga inti klaim", "LLM opsional, wajib kutipan persis"];
+      const L = ["Pilih kalimat yang layak dicek", "Hapus nomor, NIK, dan tautan", "Cocokkan dengan bantahan bersumber", "Jaga inti klaim", "Model opsional, kutipan dicek kode"];
       s.chips = L.map((txt, i) => {
         const c = el("div", null, null, root); at(c, 140 + i * 332, 330, { width: "312px", height: "150px", borderRadius: "24px", background: "#F8F3F0", padding: "22px 24px" });
         el("div", "grot", "0" + (i + 1), c, { fontSize: "36px", color: "#014BAA" });

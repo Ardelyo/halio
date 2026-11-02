@@ -15,9 +15,7 @@ The repository was created on 27 Oct 2026, within the programme period, from the
 | anthropic SDK (optional) | T2 grounded LLM step | MIT |
 | pytest | Tests | MIT |
 | onnxruntime-web | On-device inference in the extension | MIT |
-| Instrument Serif, Archivo, Inter (Google Fonts) | Brand typography in Kartu Halio, thumbnail and video (`backend/halio/fonts`, `video/fonts`) | SIL Open Font License 1.1 |
-| DM Sans | Website typography | SIL Open Font License 1.1; see `web/fonts/DM-Sans-OFL.txt` |
-| Instrument Serif | Website display typography | SIL Open Font License 1.1; see `web/fonts/Instrument-Serif-OFL.txt` |
+| Instrument Serif, Archivo, Inter (Google Fonts) | Brand typography on the website, extension, Kartu Halio, thumbnail and video (`web/fonts`, `extension/fonts`, `backend/halio/fonts`, `video/fonts`) | SIL Open Font License 1.1 |
 | Playwright + Chromium, FFmpeg (libx264, libass) | Rendering the demo video frame by frame and burning subtitles (`video/tools`) | Apache-2.0 / BSD; FFmpeg LGPL/GPL (tooling only, not shipped) |
 
 ## Models & data

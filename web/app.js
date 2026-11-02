@@ -217,24 +217,30 @@ function speak(result) {
   currentAudio.play().catch(fallback);
 }
 
-function makeStaticCard(result) {
+async function makeStaticCard(result) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1350;
   const context = canvas.getContext("2d");
-  context.fillStyle = "#f5f4ed";
+  context.fillStyle = "#F8F3F0";
   context.fillRect(0, 0, 1080, 1350);
-  context.fillStyle = "#173f35";
+  // Same layout and palette as the server's Kartu Halio (backend/halio/card.py, video/BRAND.md).
+  const THEME = { terbukti_salah: "#B42318", sejalan_dengan_sumber: "#067647", tidak_yakin: "#B54708", belum_ada_pemeriksaan: "#475467" };
+  const SERIF = '"Instrument Serif", Georgia, serif', SANS = 'Inter, system-ui, Arial, sans-serif';
+  try { await Promise.all([document.fonts.load(`80px ${SERIF}`), document.fonts.load(`600 30px ${SANS}`)]); } catch { /* fall back to system fonts */ }
+  context.fillStyle = "#014BAA";
   context.fillRect(0, 0, 1080, 170);
-  context.fillStyle = "#dff584";
-  context.font = "bold 64px Arial";
-  context.fillText("halio.", 80, 108);
-  context.fillStyle = result.status === "terbukti_salah" ? "#b84c35" : "#173f35";
-  context.font = "bold 66px Arial";
+  context.fillStyle = "#F8F3F0";
+  context.font = `84px ${SERIF}`;
+  context.fillText("halio", 80, 112);
+  context.fillStyle = "#FFC83D";
+  context.fillText(".", 80 + context.measureText("halio").width, 112);
+  context.fillStyle = THEME[result.status] || "#0E1726";
+  context.font = `700 66px ${SANS}`;
   const status = context.measureText(result.status_label).width > 900 ? "Belum ada pemeriksaan" : result.status_label;
   context.fillText(status, 80, 300);
-  context.fillStyle = "#173f35";
-  context.font = "46px Arial";
+  context.fillStyle = "#0E1726";
+  context.font = `500 46px ${SANS}`;
   let line = "";
   let y = 410;
   for (const word of result.voice_script.split(" ")) {
@@ -248,15 +254,15 @@ function makeStaticCard(result) {
   }
   context.fillText(line, 80, y);
   if (result.match?.sumber?.length) {
-    context.fillStyle = "#62716a";
-    context.font = "28px Arial";
+    context.fillStyle = "#5B6475";
+    context.font = `500 28px ${SANS}`;
     context.fillText("Sumber:", 80, 1060);
-    context.fillStyle = "#173f35";
-    context.font = "bold 30px Arial";
+    context.fillStyle = "#0E1726";
+    context.font = `700 30px ${SANS}`;
     context.fillText(result.match.sumber[0].nama.slice(0, 58), 80, 1110);
   }
-  context.fillStyle = "#62716a";
-  context.font = "25px Arial";
+  context.fillStyle = "#5B6475";
+  context.font = `500 25px ${SANS}`;
   context.fillText(window.HALIO_STATIC_DEMO ? "Kartu simulasi lokal · periksa kembali sumbernya" : "Kartu Halio · periksa kembali sumbernya", 80, 1250);
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
