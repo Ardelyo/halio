@@ -9,9 +9,9 @@ const TECH = {
   rasa_takut: "Menakut-nakuti", iming_iming: "Iming-iming hadiah", minta_data_uang: "Minta data atau uang",
 };
 const STATUS = [
-  ["terbukti_salah", "Terbukti salah", "#b84c35"],
-  ["tidak_yakin", "Tidak yakin", "#c19b32"],
-  ["belum_ada_pemeriksaan", "Belum diperiksa", "#9aaba0"],
+  ["terbukti_salah", "Terbukti salah", "#B42318"],
+  ["tidak_yakin", "Tidak yakin", "#B54708"],
+  ["belum_ada_pemeriksaan", "Belum diperiksa", "#98A2B3"],
 ];
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
@@ -176,7 +176,7 @@ function renderTrend(data) {
   const labels = rows.map((row, index) => (index % labelEvery === 0 || index === rows.length - 1)
     ? `<text class="chart-label" text-anchor="middle" x="${x(index)}" y="${height - 10}">${esc(shortDate(row.day))}</text>` : "").join("");
   const circles = rows.map((row, index) => `<circle class="chart-point" cx="${x(index)}" cy="${y(row.n)}" r="3"><title>${esc(formatDate(row.day))}: ${row.n} cek</title></circle>`).join("");
-  $("#trend-chart").innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Grafik ${data.total_checks} pemeriksaan selama ${data.window_days} hari"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#71917d" stop-opacity=".25"/><stop offset="1" stop-color="#71917d" stop-opacity="0"/></linearGradient></defs>${grids}<path class="chart-area" d="${area}"/><path class="chart-line" d="${line}"/>${circles}${labels}</svg>`;
+  $("#trend-chart").innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Grafik ${data.total_checks} pemeriksaan selama ${data.window_days} hari"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6F7D93" stop-opacity=".25"/><stop offset="1" stop-color="#6F7D93" stop-opacity="0"/></linearGradient></defs>${grids}<path class="chart-area" d="${area}"/><path class="chart-line" d="${line}"/>${circles}${labels}</svg>`;
   $("#trend-table").innerHTML = `<thead><tr><th>Tanggal</th><th class="numeric">Jumlah cek</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${esc(formatDate(row.day))}</td><td class="numeric">${row.n}</td></tr>`).join("")}</tbody>`;
 }
 
@@ -188,7 +188,7 @@ function renderStatus(data) {
     cursor += total ? (data.by_status[key] || 0) / total * 100 : 0;
     return `${color} ${start}% ${cursor}%`;
   });
-  if (!total) segments.push("#e4e9df 0 100%");
+  if (!total) segments.push("#E7E1DC 0 100%");
   $("#status-breakdown").innerHTML = `<div class="donut-layout"><div class="donut" style="background:conic-gradient(${segments.join(",")})"><div class="donut-center"><b>${total}</b><span>total cek</span></div></div><div class="status-legend">${STATUS.map(([key, label, color]) => `<div class="status-row"><i style="background:${color}"></i><span>${label}</span><b>${data.by_status[key] || 0}</b></div>`).join("")}</div></div>`;
 }
 

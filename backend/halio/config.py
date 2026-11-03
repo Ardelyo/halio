@@ -38,13 +38,21 @@ class Settings:
     # T2: grounded model verdict and web evidence. Optional, off by default.
     llm_enabled: bool = field(default_factory=lambda: _bool("HALIO_LLM"))
     llm_provider: str = field(default_factory=lambda: os.getenv("HALIO_LLM_PROVIDER", "google"))
-    llm_model: str = field(default_factory=lambda: os.getenv("HALIO_LLM_MODEL", "gemini-2.5-flash-lite"))
+    llm_model: str = field(
+        default_factory=lambda: os.getenv(
+            "HALIO_LLM_MODEL",
+            "claude-haiku-5-5" if os.getenv("HALIO_LLM_PROVIDER", "google") == "anthropic" else "gemini-3.5-flash-lite",
+        )
+    )
     google_cloud_project: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_PROJECT", "gemma4good-494311"))
-    google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"))
+    # Gemini 3.5 Flash-Lite is served from "global" (and the us/eu multi-regions), not us-central1.
+    google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
     agent_timeout_s: float = field(default_factory=lambda: float(os.getenv("HALIO_AGENT_TIMEOUT", "45")))
 
     # Radar (aggregate dashboard) privacy knobs.
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)
+    # Without a token the Radar answers only localhost, unless this is set (public demo; data is aggregate).
+    radar_public: bool = field(default_factory=lambda: _bool("HALIO_RADAR_PUBLIC"))
     k_anonymity: int = field(default_factory=lambda: int(os.getenv("HALIO_K_ANON", "5")))
 
     # Sensor: polls public news / fact-check feeds (docs/ARCHITECTURE_SENSOR.md). Off by default.
@@ -55,11 +63,19 @@ class Settings:
         default_factory=lambda: os.getenv("HALIO_SENSOR_UA", "HalioSensor/0.1 (riset anti-disinformasi; hanya feed publik)")
     )
 
+    # Abuse limits and trust (halio/netguard.py). The per-minute limit is rate_limit_per_minute above.
+    # Behind a reverse proxy every client shares the proxy's address; enable this to read X-Forwarded-For.
+    trust_proxy: bool = field(default_factory=lambda: _bool("HALIO_TRUST_PROXY"))
+    max_input_chars: int = field(default_factory=lambda: int(os.getenv("HALIO_MAX_INPUT", "4000")))
+    # Shared secret our own bots send so their reporter ids are trusted.
+    channel_key: str | None = field(default_factory=lambda: os.getenv("HALIO_CHANNEL_KEY") or None)
+
     # Channels.
     telegram_token: str | None = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN") or None)
     wa_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_TOKEN") or None)
     wa_phone_id: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_PHONE_NUMBER_ID") or None)
     wa_verify_token: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_VERIFY_TOKEN") or None)
+    # Meta signs each webhook POST with the app secret (X-Hub-Signature-256). Required to accept them.
     wa_app_secret: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_APP_SECRET") or None)
 
 

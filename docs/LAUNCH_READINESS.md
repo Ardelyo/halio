@@ -35,3 +35,12 @@ Dokumen ini memisahkan pekerjaan teknis yang sudah diverifikasi dari risiko yang
 - Chrome Web Store publishing: https://developer.chrome.com/docs/webstore/publish
 
 Referensi ini adalah baseline rekayasa dan editorial, bukan sertifikasi Halio.
+
+## Catatan setelah audit 28 Okt – 2 Nov
+
+- Guard tuduhan palsu diperketat dan diuji pada dua set (`eval/testset.jsonl`, `eval/holdout.jsonl`): 0 tuduhan palsu di kedua set. Holdout tidak sepenuhnya bersih karena satu cue koreksi ditambahkan setelah melihat satu kegagalannya; set independen dari luar tim tetap diperlukan.
+- Agen web dan LLM tidak bisa lagi mengubah pesan yang meluruskan hoaks ("itu hoaks, BMKG membantah") menjadi vonis hoaks.
+- ID pelapor dari klien tidak dipercaya. Hanya bot kami, dengan `HALIO_CHANNEL_KEY` yang sama di API dan bot, boleh menyebut pelapor (`tg:<chat>`); tanpa itu balasan eskalasi Telegram tidak bisa diarahkan dan semua pengguna Telegram terhitung satu pelapor.
+- Di belakang reverse proxy set `HALIO_TRUST_PROXY=1`, kalau tidak semua klien berbagi satu batas laju.
+- Radar, antrean review, dan data sensor tertutup untuk akses jarak jauh kecuali `RADAR_TOKEN` diisi atau `HALIO_RADAR_PUBLIC=1`.
+- Model: `gemini-3.5-flash-lite` di lokasi `global` (bukan `us-central1`); parameter `thinking_level="MINIMAL"` menggantikan `thinking_budget`. Belum diuji langsung ke Vertex dari sandbox ini.

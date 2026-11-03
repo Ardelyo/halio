@@ -4,20 +4,24 @@
   <meta charset="utf-8">
   <title>Halio</title>
   <style>
-    body { font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; width: 320px; margin: 0; padding: 16px; color: #101828; }
-    h1 { font-size: 18px; margin: 0 0 4px; }
-    .muted { color: #667085; font-size: 12px; }
-    fieldset { border: 1px solid #e4e7ec; border-radius: 10px; margin: 12px 0; padding: 10px 12px; }
+    @font-face { font-family: "Inter"; src: url(fonts/Inter-normal-latin.woff2) format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Instrument Serif"; src: url(fonts/InstrumentSerif-normal-latin.woff2) format("woff2"); }
+    @font-face { font-family: "Instrument Serif"; font-style: italic; src: url(fonts/InstrumentSerif-italic-latin.woff2) format("woff2"); }
+    body { font: 14px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; width: 320px; margin: 0; padding: 16px; color: #0E1726; background: #F8F3F0; }
+    h1 { font: 400 28px/1 "Instrument Serif", Georgia, serif; letter-spacing: -.02em; margin: 0 0 6px; color: #014BAA; }
+    input[type=checkbox] { accent-color: #014BAA; }
+    .muted { color: #5B6475; font-size: 12px; }
+    fieldset { border: 1px solid #E7E1DC; border-radius: 10px; margin: 12px 0; padding: 10px 12px; }
     legend { font-weight: 700; padding: 0 4px; }
     label { display: block; margin: 6px 0; }
     input[type=text], select { width: 100%; box-sizing: border-box; padding: 6px; font: inherit; }
     .stat { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f2f4f7; }
     .stat b { font-variant-numeric: tabular-nums; }
-    .zero b { color: #027a48; }
+    .zero b { color: #067647; }
   </style>
 </head>
 <body>
-  <h1>Halio · Lapisan Feed</h1>
+  <h1>halio<span style="color:#FFC83D">.</span> <i style="font-size:20px">lapisan feed</i></h1>
   <div class="muted">Aturan keluarga kita, diperiksa di perangkat ini.</div>
 
   <fieldset>
@@ -37,8 +41,9 @@
   <fieldset>
     <legend>Transparansi</legend>
     <div class="stat"><span>Gambar diperiksa di perangkat</span><b id="imagesChecked">0</b></div>
-    <div class="stat zero"><span>Byte gambar dikirim keluar</span><b>0</b></div>
     <div class="stat"><span>Teks dicek atas permintaan Anda</span><b id="textChecks">0</b></div>
+    <div class="stat"><span>Byte teks yang dikirim (terukur)</span><b id="bytesSent">0</b></div>
+    <div class="muted">Gambar tidak pernah dikirim: tidak ada kode di ekstensi ini yang mengunggah gambar.</div>
     <div class="muted">Teks hanya dikirim saat Anda menekan “Cek dengan Halio”, setelah nomor, NIK, email, dan tautan dihapus (maks. 300 karakter).</div>
   </fieldset>
 

@@ -5,8 +5,8 @@
   "start_url": "./cek.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f4ed",
-  "theme_color": "#173f35",
+  "background_color": "#F8F3F0",
+  "theme_color": "#014BAA",
   "icons": [
     {
       "src": "icons/icon-192.png",

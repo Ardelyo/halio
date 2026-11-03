@@ -2,7 +2,8 @@
 
 Flags techniques (urgency, fake authority, chain-forward pressure, ...) with a
 plain-language explanation and a 30-second lesson. Topic-neutral by design, so
-it never judges political opinion. Keep in sync with extension/lexicon.js.
+it never judges political opinion. extension/lexicon_data.js is generated from this file
+(python scripts/sync_lexicon.py); tests fail if it is stale.
 """
 
 from __future__ import annotations
@@ -69,6 +70,22 @@ TECHNIQUES: tuple[Technique, ...] = (
 )
 
 _COMPILED = [(t, [re.compile(p) for p in t.patterns]) for t in TECHNIQUES]
+
+# Online gambling (judol) vocabulary in Indonesian banners and links, for the extension's blur rule.
+# Words like "slot", "rtp", "scatter" or "situs resmi" are everyday Indonesian too ("slot parkir",
+# "situs resmi Kemensos"), so they only count when two of them appear together.
+JUDOL_STRONG = (r"\bgacor\b", r"\bmaxwin\b", r"\btogel\b", r"\bslot ?(gacor|online|88|777|\d{2,3})\b",
+                r"bonus new member", r"\bdepo(sit)? ?\d+ ?(rb|ribu|k)?\b", r"\bwd cepat\b", r"\bmahjong ways\b",
+                r"\bzeus\b.{0,20}\bslot\b|\bslot\b.{0,20}\b(zeus|olympus)\b", r"\brtp (live|slot)\b")
+JUDOL_WEAK = (r"\bslot\b", r"\brtp\b", r"\bscatter\b", r"\bjackpot\b", r"\bspin\b", r"link alternatif",
+              r"situs (terpercaya|resmi) \d+", r"\bdaftar sekarang\b", r"\bmenang\b", r"\bbet\b")
+_JUDOL_STRONG = [re.compile(p) for p in JUDOL_STRONG]
+_JUDOL_WEAK = [re.compile(p) for p in JUDOL_WEAK]
+
+
+def is_judol(text: str) -> bool:
+    low = fold(text or "")
+    return any(p.search(low) for p in _JUDOL_STRONG) or sum(bool(p.search(low)) for p in _JUDOL_WEAK) >= 2
 
 
 def _shouting(text: str) -> bool:

@@ -67,9 +67,8 @@ def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigat
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM,
             tools=[types.Tool(google_search=types.GoogleSearch())],
-            temperature=0,
             max_output_tokens=3000,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
+            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
             http_options=timeout,
         ),
     )
@@ -90,9 +89,8 @@ def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigat
             system_instruction="Ubah laporan menjadi skema yang diminta. Jangan menambah sumber, kutipan, tanggal, atau fakta baru. Kosongkan sources jika laporan tidak memiliki bukti lengkap.",
             response_mime_type="application/json",
             response_schema=Investigation,
-            temperature=0,
             max_output_tokens=3000,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
+            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
             http_options=timeout,
         ),
     )
@@ -121,9 +119,8 @@ def repair_source(claim: str, check: Verification, cfg: Settings) -> Verificatio
                 ),
                 response_mime_type="application/json",
                 response_schema=SourceEvidence,
-                temperature=0,
                 max_output_tokens=2000,
-                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
                 http_options=types.HttpOptions(timeout=cfg.agent_timeout_s * 1000),
             ),
         )

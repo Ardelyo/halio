@@ -1,0 +1,12 @@
+/* Halio brand tokens: the single source for every page. Spec and rules: video/BRAND.md */
+:root {
+  --blue: #014BAA; --blue-2: #0A5BC9; --blue-soft: #E6EEF9;
+  --cream: #F8F3F0; --cream-2: #EFE8E3; --white: #FFFFFF;
+  --ink: #0E1726; --ink-2: #3A4456; --muted: #5B6475; --line: #E7E1DC;
+  --sun: #FFC83D; --sun-soft: #FFF1C2; --meadow: #3F7D26; --sky: #9CC3EB;
+  --salah: #B42318; --salah-bg: #FEF3F2; --ragu: #B54708; --ragu-bg: #FFFAEB;
+  --belum: #475467; --belum-bg: #F2F4F7; --ok: #067647; --ok-bg: #ECFDF3;
+  --serif: "Instrument Serif", Georgia, serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --display: "Archivo", "Inter", system-ui, sans-serif;
+}
