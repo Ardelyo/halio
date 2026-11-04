@@ -19,7 +19,7 @@ from .config import settings
 from .ingest import coverage
 from .ingest.fetcher import Poller
 from .ingest.store import SensorStore, utcnow
-from .netguard import client_ip, reporter_for
+from .netguard import client_ip, is_direct_local, reporter_for
 from .security import RateLimiter, valid_meta_signature
 from .store import ResultCache, Store
 
@@ -180,7 +180,7 @@ def _require_radar_token(authorization: str | None, request: Request) -> None:
     if settings.radar_token:
         if not hmac.compare_digest(authorization or "", f"Bearer {settings.radar_token}"):
             raise HTTPException(401, "Radar memerlukan token")
-    elif not settings.radar_public and client_ip(request, settings) not in ("127.0.0.1", "::1", "testclient"):
+    elif not settings.radar_public and not is_direct_local(request, settings):
         raise HTTPException(401, "Radar tertutup: set RADAR_TOKEN, atau HALIO_RADAR_PUBLIC=1 untuk demo publik")
 
 

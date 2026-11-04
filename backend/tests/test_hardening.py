@@ -227,3 +227,12 @@ def test_gemini_defaults(monkeypatch):
     assert (cfg.llm_provider, cfg.llm_model, cfg.google_cloud_location) == ("google", "gemini-3.5-flash-lite", "global")
     monkeypatch.setenv("HALIO_LLM_PROVIDER", "anthropic")
     assert Settings().llm_model == "claude-haiku-5-5"
+
+
+def test_radar_stays_closed_behind_a_same_host_proxy():
+    # nginx / Cloudflare Tunnel connect from 127.0.0.1; the proxy headers reveal the real remote client.
+    proxied = TestClient(api.app, client=("127.0.0.1", 5000))
+    for path in ("/api/radar", "/api/review/escalations", "/api/sensor/coverage"):
+        for hdr in ({"x-forwarded-for": "203.0.113.9"}, {"cf-connecting-ip": "203.0.113.9"}, {"forwarded": "for=203.0.113.9"}):
+            assert proxied.get(path, headers=hdr).status_code == 401, (path, hdr)
+    assert proxied.get("/api/radar").status_code == 200  # a developer hitting the app directly still works
