@@ -41,6 +41,15 @@ PRIVACY = (
     "• Isi kabar yang belum dikenal baru dicatat bila sudah dikirim banyak orang berbeda (k-anonimitas)."
 )
 
+CARD_CAPTION = {
+    "terbukti_salah": "Kartu Halio: bagikan ke grup keluarga untuk meluruskan.",
+    "sejalan_dengan_sumber": "Kartu Halio: sumbernya bisa dibuka, cek tanggal dan konteksnya.",
+    "tidak_yakin": "Kartu Halio: Halio belum yakin, sebaiknya ditahan dulu.",
+    "belum_ada_pemeriksaan": "Kartu Halio: belum ada pemeriksaan, jangan diteruskan dulu.",
+}
+BUSY = "Maaf, Halio sedang tidak bisa memeriksa pesan ini. Coba kirim lagi sebentar lagi, ya."
+NOT_TEXT = "Untuk sekarang saya baru bisa membaca teks. Teruskan pesan tulisannya, ya."
+
 sapaan_by_chat: dict[int, str] = {}  # in memory only; families set it once
 
 
@@ -63,14 +72,21 @@ def send_result(chat_id: int, result: dict) -> None:
         "chat_id": chat_id, "text": reply_text(result, html=True), "parse_mode": "HTML",
         "disable_web_page_preview": True, "reply_markup": {"inline_keyboard": keyboard},
     })
-    card = httpx.get(f"{API_URL}{result['card_url']}", timeout=20)
-    if card.status_code == 200:
-        tg("sendPhoto", data={"chat_id": chat_id, "caption": "Kartu Halio: bagikan ke grup keluarga untuk meluruskan."},
-           files={"photo": ("kartu-halio.png", card.content, "image/png")})
-    audio = httpx.get(f"{API_URL}{result['voice_url']}", timeout=30)
-    if audio.status_code == 200:
-        tg("sendAudio", data={"chat_id": chat_id, "title": "Halio Suara", "performer": "Halio"},
-           files={"audio": ("halio-suara.mp3", audio.content, "audio/mpeg")})
+    # The card and the voice note are extras: if either fails the text answer above has already been delivered.
+    try:
+        card = httpx.get(f"{API_URL}{result['card_url']}", timeout=20)
+        if card.status_code == 200:
+            tg("sendPhoto", data={"chat_id": chat_id, "caption": CARD_CAPTION.get(result["status"], CARD_CAPTION["tidak_yakin"])},
+               files={"photo": ("kartu-halio.png", card.content, "image/png")})
+    except httpx.HTTPError as exc:
+        log.warning("Card skipped: %s", exc)
+    try:
+        audio = httpx.get(f"{API_URL}{result['voice_url']}", timeout=30)
+        if audio.status_code == 200:
+            tg("sendAudio", data={"chat_id": chat_id, "title": "Halio Suara", "performer": "Halio"},
+               files={"audio": ("halio-suara.mp3", audio.content, "audio/mpeg")})
+    except httpx.HTTPError as exc:
+        log.warning("Voice skipped: %s", exc)
 
 
 def handle_message(msg: dict) -> None:
@@ -88,16 +104,25 @@ def handle_message(msg: dict) -> None:
         tg("sendMessage", json={"chat_id": chat_id, "text": f"Baik, saya akan memanggil Anda “{html.escape(value)}”."})
         return
     if len(text.strip()) < 3:
-        tg("sendMessage", json={"chat_id": chat_id, "text": "Untuk sekarang saya baru bisa membaca teks. Teruskan pesan tulisannya, ya."})
+        tg("sendMessage", json={"chat_id": chat_id, "text": NOT_TEXT})
         return
 
     tg("sendChatAction", json={"chat_id": chat_id, "action": "typing"})
-    resp = httpx.post(f"{API_URL}/api/check", timeout=30, headers=CHANNEL_HEADERS, json={
-        "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}",
-        "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
-    })
-    resp.raise_for_status()
-    send_result(chat_id, resp.json())
+    try:
+        resp = httpx.post(f"{API_URL}/api/check", timeout=30, headers=CHANNEL_HEADERS, json={
+            "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}",
+            "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
+        })
+        if resp.status_code == 429:
+            tg("sendMessage", json={"chat_id": chat_id, "text": "Terlalu banyak pesan dalam waktu singkat. Tunggu sebentar, lalu kirim lagi, ya."})
+            return
+        resp.raise_for_status()
+        result = resp.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        log.warning("Check failed for chat %s: %s", chat_id, exc)
+        tg("sendMessage", json={"chat_id": chat_id, "text": BUSY})
+        return
+    send_result(chat_id, result)
 
 
 def handle_callback(cb: dict) -> None:
@@ -120,15 +145,43 @@ def handle_callback(cb: dict) -> None:
     tg("sendMessage", json={"chat_id": chat_id, "text": text, "parse_mode": "HTML"})
 
 
+def _chat_of(upd: dict) -> int | None:
+    m = upd.get("message") or (upd.get("callback_query") or {}).get("message") or {}
+    return (m.get("chat") or {}).get("id")
+
+
+def startup_checks() -> None:
+    """Fail loudly on a bad token; warn about the settings that silently break features."""
+    me = httpx.get(f"{TG}/getMe", timeout=15).json()
+    if not me.get("ok"):
+        raise SystemExit(f"Token Telegram ditolak: {me.get('description', 'tidak dikenal')}. Periksa TELEGRAM_BOT_TOKEN.")
+    log.info("Logged in as @%s", me["result"].get("username"))
+    # A leftover webhook makes getUpdates fail with 409; this bot polls.
+    httpx.post(f"{TG}/deleteWebhook", json={"drop_pending_updates": False}, timeout=15)
+    try:
+        health = httpx.get(f"{API_URL}/health", timeout=10).json()
+        log.info("API reachable: version %s, llm=%s", health.get("version"), health.get("llm"))
+    except (httpx.HTTPError, ValueError):
+        log.warning("API %s belum bisa dihubungi; bot tetap berjalan dan akan membalas permintaan maaf sampai API hidup", API_URL)
+    if not CHANNEL_HEADERS["x-halio-channel-key"]:
+        log.warning("HALIO_CHANNEL_KEY kosong: tombol 'Tanya pemeriksa manusia' tidak bisa membalas, dan semua pengguna terhitung satu pelapor")
+
+
 def main() -> None:
     if not TOKEN:
         raise SystemExit("Set TELEGRAM_BOT_TOKEN (dari @BotFather) terlebih dahulu.")
     logging.basicConfig(level=logging.INFO)
     log.info("Halio Telegram bot started, API=%s", API_URL)
+    startup_checks()
     offset = 0
     while True:
         try:
             updates = httpx.get(f"{TG}/getUpdates", params={"timeout": 30, "offset": offset}, timeout=40).json()
+            if not updates.get("ok"):
+                # 409 = another bot process is polling with this token; never spin on an error reply.
+                log.warning("getUpdates ditolak: %s; mencoba lagi dalam 5 detik", updates.get("description"))
+                time.sleep(5)
+                continue
             for upd in updates.get("result", []):
                 offset = upd["update_id"] + 1
                 try:
@@ -136,9 +189,15 @@ def main() -> None:
                         handle_message(upd["message"])
                     elif "callback_query" in upd:
                         handle_callback(upd["callback_query"])
-                except (httpx.HTTPError, KeyError, json.JSONDecodeError) as exc:
-                    log.exception("Failed to handle update: %s", exc)
-        except httpx.HTTPError as exc:
+                except Exception:  # one bad update must never stop the bot, and the user must not be left waiting
+                    log.exception("Failed to handle update %s", upd.get("update_id"))
+                    chat = _chat_of(upd)
+                    if chat:
+                        try:
+                            tg("sendMessage", json={"chat_id": chat, "text": BUSY})
+                        except Exception:
+                            log.exception("Could not send the apology either")
+        except (httpx.HTTPError, ValueError) as exc:
             log.warning("Polling error: %s; retrying in 3s", exc)
             time.sleep(3)
 
