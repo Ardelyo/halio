@@ -19,3 +19,11 @@
 .process-list li.none > span { background: #8a8a8a; }
 .process-list b { display: block; }
 .process-list small { display: block; opacity: .8; overflow-wrap: anywhere; }
+
+.reading-block { margin: 1rem 0; }
+.reading-block ul { list-style: none; padding: 0; margin: .5rem 0; display: grid; gap: .6rem; }
+.reading-block li small { display: block; opacity: .7; overflow-wrap: anywhere; }
+.reading-note { opacity: .8; margin: .25rem 0; }
+.reading-kind { font-size: .75rem; padding: .1rem .5rem; border-radius: 99px; background: #e8e4dc; margin-left: .3rem; }
+.reading-kind.resmi { background: #d6ecdd; }
+.reading-kind.cek_fakta { background: #dbe6f5; }

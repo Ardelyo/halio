@@ -114,3 +114,32 @@ def test_reply_shows_how_halio_checked_and_version():
 
     out = reply_text(pipeline.check("Jembatan Suramadu akan ditutup total selama seminggu mulai besok.", Settings()), html=True)
     assert "Cara Halio memeriksa" in out and "Sebaiknya" in out and "Halio v" in out
+
+
+def test_soft_404_page_is_not_a_good_link():
+    html = "<title>404 - Halaman tidak ditemukan</title>"
+    out = link_check.check_link("https://x.example/a", transport(lambda r: httpx.Response(200, headers={"content-type": "text/html"}, text=html)))
+    assert out["state"] == "rusak"
+    ok = link_check.check_link("https://x.example/b", transport(lambda r: httpx.Response(200, headers={"content-type": "text/html"}, text="<title>Rp 404 juta dibagikan</title>")))
+    assert ok["state"] == "terbuka"
+
+
+def test_best_passage_is_verbatim_and_needs_real_overlap():
+    from halio.source_verifier import best_passage, quote_present
+
+    page = "Beranda. Video Presiden Prabowo membagikan bantuan tunai lewat WhatsApp adalah hoaks dan hasil rekayasa teknologi. Lihat juga berita olahraga."
+    p = best_passage("Presiden Prabowo membagikan bantuan tunai lewat WhatsApp", page)
+    assert p and quote_present(p, page)
+    assert best_passage("Jembatan Suramadu ditutup total seminggu", page) is None
+
+
+def test_reading_list_filters_dead_pages(monkeypatch):
+    from halio import reading
+
+    def fake(url):
+        dead = "mati" in url
+        return {"state": "rusak" if dead else "terbuka", "final_url": url, "final_host": "x", "title": "T", "kind": "resmi" if "go.id" in url else ""}
+
+    monkeypatch.setattr(reading, "check_link", fake)
+    out = reading.build([{"title": "a", "uri": "https://a.com/mati"}, {"title": "b", "uri": "https://b.go.id/x"}, {"title": "c", "uri": "https://c.com/y"}])
+    assert [i["url"] for i in out["items"]] == ["https://b.go.id/x", "https://c.com/y"] and out["disaring"] == 1

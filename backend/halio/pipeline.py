@@ -232,6 +232,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "checkworthiness": round(claim.score, 2),
         "match": _match_payload(shown) if shown else None,
         "llm": llm_note,
+        "reading": (llm_note or {}).get("bacaan", {"items": [], "disaring": 0}),
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
         "voice_script": _voice(status, reason, sapaan, shown, manip),

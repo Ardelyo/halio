@@ -73,6 +73,15 @@ def reply_text(result: dict, html: bool = False) -> str:
         else:
             links = "\n".join(f"{s['nama']}: {s['url']}" for s in match["sumber"][:2])
         lines += ["", "📚 " + b("Sumber") + ": " + links]
+    items = (result.get("reading") or {}).get("items", [])[:3]
+    if items:
+        lines += ["", "📖 " + b("Bahan bacaan") + " (tautan sudah dibuka dan bisa diakses)"]
+        for it in items:
+            if html:
+                lines.append(f'  • <a href="{escape(it["url"])}">{e(it["title"][:70])}</a> ({e(it["kind_label"])})')
+            else:
+                lines.append(f"  • {it['title'][:70]} ({it['kind_label']}): {it['url']}")
+        lines.append("  Bacaan ini pelengkap, bukan dasar vonis.")
     lines += ["", "👉 " + b("Sebaiknya") + ": " + e(ACTION[status])]
     if result["offer_human_review"]:
         lines.append("Tekan 🙋 di bawah untuk bertanya ke pemeriksa manusia.")

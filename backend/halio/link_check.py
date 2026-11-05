@@ -95,6 +95,9 @@ def check_link(url: str, transport: httpx.BaseTransport | None = None) -> dict:
                         t = _Title()
                         t.feed(bytes(body).decode(r.encoding or "utf-8", errors="replace"))
                         out["title"] = " ".join(t.title.split())[:160]
+                    if re.search(r"^\s*(error\s*)?404\b|\b404\s*[-:|]|tidak ditemukan|not found|halaman tidak (ada|tersedia)", out["title"], re.I):
+                        out.update(state="rusak", note="Halaman ini menampilkan 'tidak ditemukan'.")
+                        return out
                     out["ok"] = True
                     out["state"] = "terbuka"
                     out["kind"] = "resmi" if out["final_host"].endswith(OFFICIAL) else (source_kind(current) or "")

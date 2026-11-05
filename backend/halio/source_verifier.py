@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ipaddress
+import re
 import socket
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -70,6 +71,27 @@ def visible_text(html: str) -> str:
 def quote_present(quote: str, page_text: str) -> bool:
     normalized = compact(quote)
     return 40 <= len(normalized) <= 1500 and normalized in compact(page_text)
+
+
+def best_passage(claim: str, page_text: str) -> str | None:
+    """The sentence of the page that overlaps the claim most, copied from the page by code (so it is always verbatim).
+
+    None unless at least half of the claim's content words appear in it: a page that merely shares a topic does not count.
+    """
+    from .textnorm import tokens
+
+    want = set(tokens(claim))
+    if len(want) < 3:
+        return None
+    best, best_score = None, 0.0
+    for sentence in re.split(r"(?<=[.!?])\s+|\s\|\s", page_text):
+        sentence = sentence.strip()
+        if not 40 <= len(sentence) <= 600:
+            continue
+        score = len(want & set(tokens(sentence))) / len(want)
+        if score > best_score:
+            best, best_score = sentence, score
+    return best if best_score >= 0.5 else None
 
 
 def source_kind(url: str) -> str:

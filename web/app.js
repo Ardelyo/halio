@@ -151,6 +151,13 @@ function processPanel(result) {
   return `<details class="process-details" open><summary>Bagaimana Halio memeriksa ini</summary><ol class="process-list">${rows.map(([k, t, d]) => `<li class="${k}"><span aria-hidden="true">${icon[k]}</span><div><b>${esc(t)}</b><small>${esc(d)}</small></div></li>`).join("")}</ol></details>`;
 }
 
+function readingPanel(result) {
+  const items = result.reading?.items || [];
+  if (!items.length) return "";
+  const safe = items.filter((i) => safeUrl(i.url) !== "#");
+  return `<div class="reading-block"><h3>Bahan bacaan</h3><p class="reading-note">Halaman ini sudah dibuka oleh Halio dan bisa diakses. Pelengkap, bukan dasar vonis.</p><ul>${safe.map((i) => `<li><a href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener noreferrer">${esc(i.title)}</a> <span class="reading-kind ${esc(i.kind)}">${esc(i.kind_label)}</span><small>${esc(i.host)}</small></li>`).join("")}</ul>${result.reading.disaring ? `<small>${result.reading.disaring} tautan lain disaring karena rusak atau tidak bisa dibuka.</small>` : ""}</div>`;
+}
+
 let stageTimer = 0;
 function startStages(button) {
   const stages = ["Membaca dan mengenali klaim…", "Mencocokkan dengan bantahan terverifikasi…", "AI mencari sumber di web…", "Membuka dan mencocokkan kutipan sumber…"];
@@ -186,6 +193,7 @@ function render(result, original) {
       ${match ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
       ${result.llm?.kutipan ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
       ${processPanel(result)}
+      ${readingPanel(result)}
       <div class="next-steps"><h3>Yang bisa Anda lakukan</h3><ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></div>
       ${warnings.map((warning) => `<p class="warning">${esc(warning)}</p>`).join("")}
       <details class="claim-details"><summary>Lihat klaim yang diperiksa</summary><p>“${esc(result.claim)}”</p></details>
