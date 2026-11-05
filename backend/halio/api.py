@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Res
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from . import __version__, card, pipeline, review, voice
+from . import BUILD, __version__, card, pipeline, review, voice
 from .channels import whatsapp
 from .config import settings
 from .ingest import coverage
@@ -129,7 +129,7 @@ def _cached(check_id: str) -> dict:
 
 @app.get("/health")
 def health() -> dict:
-    return {"ok": True, "version": __version__, "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled}
+    return {"ok": True, "version": __version__, "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled, "media": settings.media_enabled, "build": BUILD}
 
 
 @app.get("/ready")

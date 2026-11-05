@@ -93,3 +93,24 @@ def test_telegram_media_detection():
     assert t._media_of({"voice": {"file_id": "v"}}) == ("v", "audio/ogg")
     assert t._media_of({"document": {"file_id": "d", "mime_type": "application/zip"}}) is None
     assert t._media_of({"text": "hai"}) is None
+
+
+def test_versi_and_bantuan_commands_answer(monkeypatch):
+    calls = []
+    monkeypatch.setattr(t, "tg", lambda method, **kw: calls.append((method, kw)) or {"ok": True})
+    monkeypatch.setattr(t, "_status_line", lambda: "API: aktif")
+    t.handle_message({"chat": {"id": 7}, "text": "/versi"})
+    t.handle_message({"chat": {"id": 7}, "text": "/bantuan"})
+    t.handle_message({"chat": {"id": 7}, "text": "/start"})
+    texts = [kw["json"]["text"] for _, kw in calls]
+    assert "Halio v" in texts[0] and "API: aktif" in texts[0]
+    assert "Bantuan" in texts[1]
+    assert "Halio v" in texts[2] and "Cara pakai" in texts[2]
+
+
+def test_reply_shows_how_halio_checked_and_version():
+    from halio import pipeline
+    from halio.channels.format import reply_text
+
+    out = reply_text(pipeline.check("Jembatan Suramadu akan ditutup total selama seminggu mulai besok.", Settings()), html=True)
+    assert "Cara Halio memeriksa" in out and "Sebaiknya" in out and "Halio v" in out

@@ -15,6 +15,7 @@ import time
 
 import httpx
 
+from .. import version_line
 from .format import reply_text
 
 log = logging.getLogger("halio.telegram")
@@ -31,7 +32,19 @@ WELCOME = (
     "kartu yang bisa dibagikan ke grup keluarga, dan pesan suara.\n\n"
     "Saya hanya membaca pesan yang Anda kirim ke sini. Saya tidak membuat vonis sendiri: "
     "jawaban selalu dari pemeriksa fakta atau sumber resmi, dan kalau belum ada, saya bilang terus terang.\n\n"
-    "Perintah: /sapaan Bu  (cara saya memanggil Anda), /privasi"
+    "<b>Cara pakai</b>\n"
+    "1️⃣ Teruskan pesan, atau kirim foto/pesan suara\n"
+    "2️⃣ Tunggu sebentar (kadang sampai 30 detik, AI sedang mencari sumber)\n"
+    "3️⃣ Baca vonis berwarna: 🔴 salah · 🟢 sejalan dengan sumber · 🟠 tidak yakin · ⚪ belum ada pemeriksaan\n\n"
+    "Perintah: /bantuan · /sapaan Bu · /privasi · /versi"
+)
+HELP = (
+    "🆘 <b>Bantuan</b>\n"
+    "• Kirim pesan yang meragukan, atau foto/suara yang berisi kabar itu.\n"
+    "• Kirim tautan: Halio membukanya dan memberi tahu bila rusak, dialihkan, atau bukan situs resmi.\n"
+    "• 🔴 terbukti salah · 🟢 sejalan dengan sumber resmi · 🟠 tidak yakin · ⚪ belum ada yang memeriksa\n"
+    "• Halio tidak menilai pendapat, dan tidak menilai apakah sebuah foto asli.\n"
+    "• /sapaan Nenek mengatur cara Halio memanggil Anda."
 )
 PRIVACY = (
     "🔒 <b>Privasi Halio</b>\n"
@@ -89,6 +102,14 @@ def send_result(chat_id: int, result: dict) -> None:
         log.warning("Voice skipped: %s", exc)
 
 
+def _status_line() -> str:
+    try:
+        h = httpx.get(f"{API_URL}/health", timeout=8).json()
+        return f"API: aktif · AI pencarian web: {'ya' if h.get('llm') else 'tidak'} · baca foto/suara: {'ya' if h.get('media') else 'tidak'}"
+    except (httpx.HTTPError, ValueError):
+        return "API: tidak merespons"
+
+
 def _media_of(msg: dict) -> tuple[str, str] | None:
     """(file_id, mime) of a photo, voice note, audio or image document, else None."""
     if msg.get("photo"):
@@ -140,7 +161,13 @@ def handle_message(msg: dict) -> None:
     chat_id = msg["chat"]["id"]
     text = msg.get("text") or msg.get("caption") or ""
     if text.startswith("/start"):
-        tg("sendMessage", json={"chat_id": chat_id, "text": WELCOME, "parse_mode": "HTML"})
+        tg("sendMessage", json={"chat_id": chat_id, "text": WELCOME + f"\n\n<i>{html.escape(version_line())}</i>", "parse_mode": "HTML"})
+        return
+    if text.startswith(("/versi", "/version")):
+        tg("sendMessage", json={"chat_id": chat_id, "text": f"🤖 <b>{html.escape(version_line())}</b>\n{_status_line()}", "parse_mode": "HTML"})
+        return
+    if text.startswith("/bantuan"):
+        tg("sendMessage", json={"chat_id": chat_id, "text": HELP, "parse_mode": "HTML"})
         return
     if text.startswith("/privasi"):
         tg("sendMessage", json={"chat_id": chat_id, "text": PRIVACY, "parse_mode": "HTML"})
@@ -160,7 +187,7 @@ def handle_message(msg: dict) -> None:
 
     tg("sendChatAction", json={"chat_id": chat_id, "action": "typing"})
     try:
-        resp = httpx.post(f"{API_URL}/api/check", timeout=30, headers=CHANNEL_HEADERS, json={
+        resp = httpx.post(f"{API_URL}/api/check", timeout=80, headers=CHANNEL_HEADERS, json={
             "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}",
             "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
         })

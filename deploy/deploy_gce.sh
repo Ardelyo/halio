@@ -11,4 +11,5 @@ gcloud compute instances describe "$VM" --project "$PROJECT" --zone "$ZONE" >/de
 tar --exclude=.venv --exclude=.git --exclude=halio.db --exclude='__pycache__' -czf /tmp/halio.tgz backend data web deploy
 gcloud compute scp /tmp/halio.tgz .env deploy/remote_install.sh "$VM":/tmp/ --project "$PROJECT" --zone "$ZONE"
 HOST=${HOST:-}   # public hostname behind Caddy, e.g. 34-101-109-211.sslip.io
-gcloud compute ssh "$VM" --project "$PROJECT" --zone "$ZONE" --command "sudo bash /tmp/remote_install.sh '$HOST'"
+BUILD="$(git rev-parse --short HEAD 2>/dev/null || echo dev)-$(date -u +%Y%m%d-%H%M)"
+gcloud compute ssh "$VM" --project "$PROJECT" --zone "$ZONE" --command "sudo bash /tmp/remote_install.sh '$HOST' '$BUILD'"
