@@ -89,6 +89,38 @@ async function check(text) {
   }
 }
 
+async function checkMedia(file) {
+  const button = $("#go");
+  button.disabled = true;
+  button.textContent = "Membaca berkas…";
+  try {
+    if (file.size > 6_000_000) throw Object.assign(new Error("big"), { http: 413 });
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    const response = await fetch(`${API}/api/check-media`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data_b64: btoa(binary), mime: file.type || "image/jpeg", channel: "web", sapaan: $("#sapaan").value, reporter: deviceId() }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw Object.assign(new Error(data.detail || response.statusText), { http: response.status, detail: data.detail });
+    if (data.readable === false) { toast(data.message, true); return; }
+    $("#msg").value = data.claim;
+    updateInput();
+    render(data, data.claim);
+    toast("Halio membaca isi berkas Anda. Halio tidak menilai apakah fotonya asli, hanya isinya.");
+  } catch (error) {
+    console.error(error);
+    toast(error.http === 413 ? "Berkasnya terlalu besar (maksimal 6 MB)."
+      : error.http === 503 || error.http === 415 ? (error.detail || "Halio belum bisa membaca berkas ini. Ketik teksnya saja.")
+      : "Halio belum bisa membaca berkas. Coba lagi atau ketik teksnya.", true);
+  } finally {
+    button.disabled = false;
+    button.innerHTML = 'Cek pesan ini <span aria-hidden="true">→</span>';
+    $("#media-file").value = "";
+  }
+}
+
 function sourceList(match) {
   if (!match?.sumber?.length) return "";
   return `<ul class="source-list" aria-label="Sumber pemeriksaan">${match.sumber.map((source) => `
@@ -334,6 +366,8 @@ function init() {
   const sapaan = $("#sapaan");
   sapaan.value = store.get("halio.sapaan", "Bapak, Ibu");
   sapaan.onchange = () => store.set("halio.sapaan", sapaan.value);
+  if (window.HALIO_STATIC_DEMO) $("#media-row")?.classList.add("hidden");
+  else $("#media-file")?.addEventListener("change", (event) => event.target.files[0] && checkMedia(event.target.files[0]));
   $("#msg").addEventListener("input", updateInput);
   $("#msg").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {

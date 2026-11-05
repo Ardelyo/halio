@@ -89,6 +89,53 @@ def send_result(chat_id: int, result: dict) -> None:
         log.warning("Voice skipped: %s", exc)
 
 
+def _media_of(msg: dict) -> tuple[str, str] | None:
+    """(file_id, mime) of a photo, voice note, audio or image document, else None."""
+    if msg.get("photo"):
+        return msg["photo"][-1]["file_id"], "image/jpeg"  # Telegram lists sizes small to large
+    for key, default in (("voice", "audio/ogg"), ("audio", "audio/mpeg"), ("document", "")):
+        item = msg.get(key)
+        if item and (item.get("mime_type") or default):
+            mime = item.get("mime_type") or default
+            if key != "document" or mime.startswith(("image/", "audio/")):
+                return item["file_id"], mime
+    return None
+
+
+def handle_media(chat_id: int, ref: tuple[str, str]) -> None:
+    import base64
+
+    file_id, mime = ref
+    tg("sendChatAction", json={"chat_id": chat_id, "action": "typing"})
+    try:
+        info = tg("getFile", json={"file_id": file_id})["result"]
+        if info.get("file_size", 0) > 8_000_000:
+            tg("sendMessage", json={"chat_id": chat_id, "text": "Berkasnya terlalu besar. Kirim yang lebih kecil, atau salin teksnya, ya."})
+            return
+        raw = httpx.get(f"https://api.telegram.org/file/bot{TOKEN}/{info['file_path']}", timeout=40).content
+        resp = httpx.post(f"{API_URL}/api/check-media", timeout=90, headers=CHANNEL_HEADERS, json={
+            "data_b64": base64.b64encode(raw).decode(), "mime": mime, "channel": "telegram",
+            "reporter": f"tg:{chat_id}", "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
+        })
+        if resp.status_code == 503:
+            tg("sendMessage", json={"chat_id": chat_id, "text": NOT_TEXT})
+            return
+        resp.raise_for_status()
+        result = resp.json()
+    except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
+        log.warning("Media check failed for chat %s: %s", chat_id, type(exc).__name__)
+        tg("sendMessage", json={"chat_id": chat_id, "text": BUSY})
+        return
+    if not result.get("readable", True):
+        tg("sendMessage", json={"chat_id": chat_id, "text": result["message"]})
+        return
+    note = "Halio membaca tulisan/ucapan di berkas Anda. Halio <b>tidak menilai apakah fotonya asli</b>, hanya isinya."
+    if result["media"].get("looks_edited"):
+        note += "\n⚠️ Ada tanda foto ini sudah disunting."
+    tg("sendMessage", json={"chat_id": chat_id, "text": note, "parse_mode": "HTML"})
+    send_result(chat_id, result)
+
+
 def handle_message(msg: dict) -> None:
     chat_id = msg["chat"]["id"]
     text = msg.get("text") or msg.get("caption") or ""
@@ -102,6 +149,10 @@ def handle_message(msg: dict) -> None:
         value = text.removeprefix("/sapaan").strip()[:30] or "Bapak, Ibu"
         sapaan_by_chat[chat_id] = value
         tg("sendMessage", json={"chat_id": chat_id, "text": f"Baik, saya akan memanggil Anda “{html.escape(value)}”."})
+        return
+    media_ref = _media_of(msg)
+    if media_ref and len(text.strip()) < 3:
+        handle_media(chat_id, media_ref)
         return
     if len(text.strip()) < 3:
         tg("sendMessage", json={"chat_id": chat_id, "text": NOT_TEXT})
@@ -171,6 +222,7 @@ def main() -> None:
     if not TOKEN:
         raise SystemExit("Set TELEGRAM_BOT_TOKEN (dari @BotFather) terlebih dahulu.")
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # httpx logs full URLs, which contain the bot token
     log.info("Halio Telegram bot started, API=%s", API_URL)
     startup_checks()
     offset = 0

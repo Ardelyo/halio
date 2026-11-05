@@ -15,7 +15,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from . import claims, factcheck_api, google_agent, llm_verdict, manipulation
+from . import claims, factcheck_api, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
 from .pii import extract_domains
 from .retrieval import Match, get_index, is_correction
@@ -46,6 +46,14 @@ def _link_warnings(domains: list[str]) -> list[str]:
         else:
             warnings.append(f"Tautan {d} bukan situs pemerintah (.go.id). Hati-hati bila diminta mengisi data.")
     return warnings
+
+
+def _all_link_warnings(domains: list[str], checked: list[dict]) -> list[str]:
+    if not checked:
+        return _link_warnings(domains)
+    out = [w for w in map(link_check.warning_for, checked) if w]
+    seen = {c["host"] for c in checked}
+    return out + _link_warnings([d for d in domains if d not in seen])
 
 
 def _match_payload(m: Match) -> dict:
@@ -164,8 +172,8 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
             if source.get("jenis") in {"resmi", "cek_fakta"}
         ][:3]
         agent = google_agent.investigate(claim.text, cfg, seed_urls=seed_urls)
-        if agent is None and status == "terbukti_salah":
-            status, reason = "tidak_yakin", "verifikasi_web_tidak_tersedia"
+        # A named, curated debunk stays when the web search is down or finds nothing new; only verified
+        # conflicting evidence may lower it (see the final branch below).
         if agent is not None:
             method.append("gemini_search")
             llm_note = agent.note
@@ -179,7 +187,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
                 reason = gate or agent.reason
             elif agent.status == "terbukti_salah":
                 status, reason = agent.status, agent.reason
-            elif agent.match or status == "terbukti_salah":
+            elif agent.match or (status == "terbukti_salah" and agent.reason == "bukti_bertentangan"):
                 status, reason = "tidak_yakin", agent.reason
     elif cfg.llm_enabled and cfg.llm_provider == "anthropic" and best and best.score >= cfg.unsure_threshold:
         j = llm_verdict.judge(claim.text, candidates, cfg.llm_model)
@@ -211,6 +219,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         # Any later stage (web agent, LLM) may only confirm a hoax, never turn a warning into one.
         status, reason = "tidak_yakin", "tampak_meluruskan"
 
+    checked_links = link_check.check_links(text) if cfg.link_check_enabled else []
     shown = best if status != "belum_ada_pemeriksaan" and reason != "bukan_klaim_faktual" else None
     check_id = uuid.uuid4().hex
     return {
@@ -224,7 +233,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "match": _match_payload(shown) if shown else None,
         "llm": llm_note,
         "manipulation": manip,
-        "links": {"domains": domains, "warnings": _link_warnings(domains)},
+        "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
         "voice_script": _voice(status, reason, sapaan, shown, manip),
         "offer_human_review": status not in {"terbukti_salah", "sejalan_dengan_sumber"},
         "method": "+".join(method),
