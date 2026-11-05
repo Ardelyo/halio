@@ -44,3 +44,19 @@ def reporter_for(request: Request, cfg: Settings, claimed: str | None) -> str:
     if claimed and trusted_channel(request, cfg):
         return claimed
     return "net:" + network_of(client_ip(request, cfg))
+
+
+_PROXY_HEADERS = ("x-forwarded-for", "forwarded", "cf-connecting-ip", "x-real-ip", "true-client-ip", "x-forwarded-host")
+
+
+def is_direct_local(request: Request, cfg: Settings) -> bool:
+    """True only for a developer on the same machine talking to the app directly.
+
+    A reverse proxy or tunnel (nginx, Cloudflare Tunnel) on the same host also connects from 127.0.0.1,
+    so a loopback peer alone proves nothing. Any proxy header, or HALIO_TRUST_PROXY, means the request came
+    from the network and must carry the token.
+    """
+    if cfg.trust_proxy or any(h in request.headers for h in _PROXY_HEADERS):
+        return False
+    peer = request.client.host if request.client else ""
+    return peer in ("127.0.0.1", "::1", "testclient")
