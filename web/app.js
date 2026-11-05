@@ -57,7 +57,7 @@ function updateInput() {
 async function check(text) {
   const button = $("#go");
   button.disabled = true;
-  button.textContent = "Sedang memeriksa…";
+  startStages(button);
   $("#result").setAttribute("aria-busy", "true");
   try {
     let result;
@@ -83,6 +83,7 @@ async function check(text) {
       true,
     );
   } finally {
+    stopStages();
     button.disabled = false;
     button.innerHTML = 'Cek pesan ini <span aria-hidden="true">→</span>';
     $("#result").removeAttribute("aria-busy");
@@ -129,6 +130,36 @@ function sourceList(match) {
     </a></li>`).join("")}</ul>`;
 }
 
+function processPanel(result) {
+  const rows = [];
+  const m = result.match;
+  const used = (result.method || "").split("+");
+  if (result.media) rows.push(["ok", `Membaca ${result.media.kind === "ucapan" ? "suara" : "foto"} dengan Gemini`, "Hanya isi tulisan/ucapan yang dibaca. Keaslian foto tidak dinilai."]);
+  rows.push(["ok", "Mengenali klaim yang bisa dicek", `“${result.claim}”`]);
+  rows.push([m ? "ok" : "none", "Mencocokkan dengan bantahan dan sumber yang sudah terverifikasi", m ? `Cocok dengan: ${m.klaim_dibantah} (kemiripan ${Math.round((m.score || 0) * 100)}%)` : "Tidak ada yang cukup mirip. Halio tidak menebak."]);
+  if (used.includes("gemini_search")) {
+    const n = result.llm || {};
+    rows.push(["ok", "AI (Gemini) mencari di web", `${n.sumber_ditemukan ?? 0} sumber ditemukan. Kode Halio membuka setiap halaman dan mencocokkan kutipan: ${n.sumber_terverifikasi ?? 0} terverifikasi. AI tidak memberi vonis sendiri.`]);
+  } else {
+    rows.push(["none", "Pencarian web oleh AI", "Tidak dipakai pada pemeriksaan ini."]);
+  }
+  const links = result.links?.checked || [];
+  for (const c of links) {
+    rows.push([c.state === "terbuka" ? "ok" : "warn", `Membuka tautan ${c.host}`, c.state === "terbuka" ? `Terbuka${c.title ? `: “${c.title}”` : ""}${c.note ? ` · ${c.note}` : ""}` : c.note || c.state]);
+  }
+  const icon = { ok: "✓", warn: "!", none: "–" };
+  return `<details class="process-details" open><summary>Bagaimana Halio memeriksa ini</summary><ol class="process-list">${rows.map(([k, t, d]) => `<li class="${k}"><span aria-hidden="true">${icon[k]}</span><div><b>${esc(t)}</b><small>${esc(d)}</small></div></li>`).join("")}</ol></details>`;
+}
+
+let stageTimer = 0;
+function startStages(button) {
+  const stages = ["Membaca dan mengenali klaim…", "Mencocokkan dengan bantahan terverifikasi…", "AI mencari sumber di web…", "Membuka dan mencocokkan kutipan sumber…"];
+  let i = 0;
+  button.textContent = stages[0];
+  stageTimer = setInterval(() => { i = Math.min(i + 1, stages.length - 1); button.textContent = stages[i]; }, 1800);
+}
+function stopStages() { clearInterval(stageTimer); }
+
 function render(result, original) {
   if (cardPreviewUrl) {
     URL.revokeObjectURL(cardPreviewUrl);
@@ -153,7 +184,8 @@ function render(result, original) {
       <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
       <p class="answer-lead">${esc(match ? match.sederhana : result.voice_script)}</p>
       ${match ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
-      ${result.llm ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
+      ${result.llm?.kutipan ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
+      ${processPanel(result)}
       <div class="next-steps"><h3>Yang bisa Anda lakukan</h3><ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></div>
       ${warnings.map((warning) => `<p class="warning">${esc(warning)}</p>`).join("")}
       <details class="claim-details"><summary>Lihat klaim yang diperiksa</summary><p>“${esc(result.claim)}”</p></details>
