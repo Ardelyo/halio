@@ -16,6 +16,7 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
+from . import outlets
 from .source_verifier import source_kind
 
 URL_RE = re.compile(r"https?://[^\s<>\"')\]]+", re.I)
@@ -42,13 +43,25 @@ def _is_public(host: str) -> bool:
     return bool(infos) and all(ipaddress.ip_address(i[4][0]).is_global for i in infos)
 
 
+_META_KEYS = {
+    "og:site_name": "site_name", "og:title": "og_title", "og:description": "description", "description": "description",
+    "article:published_time": "published", "og:article:published_time": "published", "date": "published",
+    "pubdate": "published", "publishdate": "published", "parsely-pub-date": "published",
+}
+
+
 class _Title(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.in_title, self.title = False, ""
+        self.in_title, self.title, self.meta = False, "", {}
 
     def handle_starttag(self, tag, attrs):
         self.in_title = tag == "title"
+        if tag == "meta":
+            a = {k.lower(): (v or "") for k, v in attrs}
+            key = _META_KEYS.get((a.get("property") or a.get("name") or "").lower())
+            if key and a.get("content") and key not in self.meta:
+                self.meta[key] = " ".join(a["content"].split())[:300]
 
     def handle_endtag(self, tag):
         if tag == "title":
@@ -63,7 +76,8 @@ def check_link(url: str, transport: httpx.BaseTransport | None = None) -> dict:
     """Return {url, ok, state, final_url, final_host, status, title, kind, note}. Never raises."""
     host = (urlparse(url).hostname or "").lower()
     out = {"url": url, "host": host, "ok": False, "state": "tidak_diperiksa", "final_url": url, "final_host": host,
-           "status": None, "title": "", "kind": "", "shortener": host in SHORTENERS, "note": ""}
+           "status": None, "title": "", "kind": "", "shortener": host in SHORTENERS, "note": "",
+           "site_name": "", "description": "", "published": "", "outlet": "", "outlet_group": ""}
     current, hops = url, 0
     try:
         with httpx.Client(timeout=httpx.Timeout(10.0, connect=5.0), follow_redirects=False, transport=transport,
@@ -95,12 +109,21 @@ def check_link(url: str, transport: httpx.BaseTransport | None = None) -> dict:
                         t = _Title()
                         t.feed(bytes(body).decode(r.encoding or "utf-8", errors="replace"))
                         out["title"] = " ".join(t.title.split())[:160]
+                        out["site_name"] = t.meta.get("site_name", "")
+                        out["description"] = t.meta.get("description", "")
+                        out["published"] = t.meta.get("published", "")[:40]
+                        if not out["title"]:
+                            out["title"] = t.meta.get("og_title", "")[:160]
                     if re.search(r"^\s*(error\s*)?404\b|\b404\s*[-:|]|tidak ditemukan|not found|halaman tidak (ada|tersedia)", out["title"], re.I):
                         out.update(state="rusak", note="Halaman ini menampilkan 'tidak ditemukan'.")
                         return out
                     out["ok"] = True
                     out["state"] = "terbuka"
                     out["kind"] = "resmi" if out["final_host"].endswith(OFFICIAL) else (source_kind(current) or "")
+                    known = outlets.lookup(current)
+                    if known:
+                        out["outlet"], out["outlet_group"] = known.name, known.group
+                        out["kind"] = out["kind"] or "media"
                     if out["final_host"] != host and not out["final_host"].endswith("." + host.removeprefix("www.")):
                         out["note"] = f"Tautan ini dialihkan ke {out['final_host']}."
                     return out
@@ -125,6 +148,8 @@ def warning_for(c: dict) -> str | None:
         return f"Tautan {c['host']}: {c['note']} Jangan diandalkan sebagai bukti."
     if c["state"] != "terbuka":
         return f"Tautan {c['host']}: {c['note']}"
+    if c.get("outlet") and not c["shortener"]:
+        return None  # an ordinary article from a known outlet: nothing to warn about, the answer describes it
     if c["shortener"]:
         return f"Tautan pendek ini ternyata menuju {host}. {'Situs pemerintah.' if c['kind'] == 'resmi' else 'Bukan situs pemerintah, hati-hati bila diminta data.'}"
     if c["note"] and c["kind"] != "resmi":

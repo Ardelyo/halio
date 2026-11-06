@@ -12,14 +12,17 @@ Verdict states (never a bare "TRUE/FALSE" from the model):
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import date, datetime
 
 from . import claims, factcheck_api, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
+from .dates import human_date
 from .pii import extract_domains
 from .retrieval import Match, get_index, is_correction
 from .store import WIB
+from .textnorm import tokens
 
 STATUS_LABEL = {
     "terbukti_salah": "Terbukti salah",
@@ -31,6 +34,9 @@ STATUS_LABEL = {
 SHORTENERS = {"bit.ly", "s.id", "cutt.ly", "tinyurl.com", "shorturl.at", "rb.gy", "t.ly", "linktr.ee", "wa.me"}
 # Only domains a scammer cannot register. .ac.id / .sch.id are run by thousands of schools and get hijacked.
 OFFICIAL_SUFFIXES = (".go.id", ".mil.id")
+
+# Answers that describe what something is; they are not rumours to judge, so no correction card, voice note or review button.
+PLAIN_KINDS = {"berita_media_dikenal", "kumpulan_judul"}
 
 DISCLAIMER = "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriksa fakta atau sumber resmi yang disebutkan."
 
@@ -46,6 +52,53 @@ def _link_warnings(domains: list[str]) -> list[str]:
         else:
             warnings.append(f"Tautan {d} bukan situs pemerintah (.go.id). Hati-hati bila diminta mengisi data.")
     return warnings
+
+
+_URL = re.compile(r"https?://\S+", re.I)
+_TITLE_TAIL = re.compile(r"\s+[-|–—]\s+[^-|–—]{2,40}$")
+
+
+def _clean_title(title: str) -> str:
+    """'Judul berita - detikNews' -> 'Judul berita'."""
+    out = _TITLE_TAIL.sub("", title.strip())
+    return out if len(out) >= 12 else title.strip()
+
+
+def _describe(c: dict) -> dict:
+    """What an opened page says about itself: who published it, the headline, the date, its own summary."""
+    return {
+        "penerbit": c.get("outlet") or c.get("site_name") or c.get("final_host", ""),
+        "grup": c.get("outlet_group", ""),
+        "judul": _clean_title(c.get("title", "")),
+        "terbit": (c.get("published") or "")[:10],
+        "ringkasan": (c.get("description") or "")[:260],
+        "url": c.get("final_url", ""),
+        "dikenal": bool(c.get("outlet")),
+    }
+
+
+def _kind_and_info(text: str, checked: list[dict], manip: dict) -> tuple[str, dict | None]:
+    """pesan | berita_media | kumpulan_judul.
+
+    'berita_media': the message is essentially a link to an article of a known outlet. Such a message is not a rumour
+    to be judged; the useful answer is what the article is. A message that also pushes urgency, money or "share this"
+    stays an ordinary message and is judged as one.
+    """
+    pushy = len(manip["techniques"]) >= 2
+    for c in checked:
+        if c["state"] != "terbuka" or not c.get("outlet") or pushy:
+            continue
+        rest = _URL.sub(" ", text)
+        want = set(tokens(_clean_title(c["title"])))
+        overlap = len(want & set(tokens(rest))) / len(want) if want else 0
+        if overlap >= 0.5 or len(rest.split()) <= 40:
+            return "berita_media", _describe(c)
+    if not _URL.search(text):
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        short = [ln for ln in lines if len(ln.split()) <= 12 and not ln.endswith((".", "?", "!"))]
+        if len(lines) >= 3 and len(short) >= 0.8 * len(lines):
+            return "kumpulan_judul", {"judul_list": lines[:8]}
+    return "pesan", None
 
 
 def _all_link_warnings(domains: list[str], checked: list[dict]) -> list[str]:
@@ -93,7 +146,18 @@ def _positive_evidence_reason(
     return None
 
 
-def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: dict) -> str:
+def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: dict, info: dict | None = None) -> str:
+    if reason == "berita_media_dikenal" and info:
+        tgl = f" pada {human_date(info['terbit'])}" if info.get("terbit") else ""
+        return (
+            f"{sapaan}, ini artikel dari {info['penerbit']}{tgl}. Halio belum menemukan pemeriksa fakta yang membahasnya, "
+            f"dan itu wajar untuk berita biasa. Halio belum menilai isinya. Untuk hal yang penting, bandingkan dengan satu atau dua media lain."
+        )
+    if reason == "kumpulan_judul":
+        return (
+            f"{sapaan}, gambar ini berisi beberapa judul berita sekaligus. Kirim satu judul atau satu berita per pesan, "
+            f"supaya Halio bisa memeriksanya satu per satu."
+        )
     if status == "terbukti_salah" and match:
         src = match.debunk.sumber[0]["nama"].split(":")[0]
         return (
@@ -136,6 +200,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
     manip = manipulation.analyze(text)
     domains = extract_domains(text)
 
+    checked_links = link_check.check_links(text) if cfg.link_check_enabled else []
+    kind, info = _kind_and_info(text, checked_links, manip)
+
     index = get_index(cfg.corpus_path)
     candidates = index.search(claim.text, k=3)
     method = ["lokal"]
@@ -146,6 +213,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
             candidates = sorted(candidates + remote, key=lambda m: m.score, reverse=True)[:3]
 
     best = candidates[0] if candidates else None
+    if kind == "kumpulan_judul" and ((best and best.score >= cfg.unsure_threshold) or manip["techniques"]):
+        # A hoax chain message is also written in short lines. Only call it "headlines" if nothing matches and nothing pushes.
+        kind, info = "pesan", None
     correction = is_correction(text)
     if best and best.score >= cfg.unsure_threshold and correction and not best.debunk.is_positive:
         # It warns about or corrects the hoax ("itu hoaks", "BMKG membantah"): never call that a hoax.
@@ -164,7 +234,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         status, reason = "belum_ada_pemeriksaan", "tidak_ada_bantahan"
 
     llm_note = None
-    if cfg.llm_enabled and cfg.llm_provider == "google" and claim.is_factual:
+    # The web agent can only accept official and fact-check pages as evidence. For an ordinary article from a known outlet,
+    # or a screenshot of several headlines, it would burn 30 seconds to report "0 verified", so it is skipped.
+    if cfg.llm_enabled and cfg.llm_provider == "google" and claim.is_factual and kind == "pesan":
         seed_urls = [
             source["url"]
             for candidate in candidates
@@ -219,7 +291,11 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         # Any later stage (web agent, LLM) may only confirm a hoax, never turn a warning into one.
         status, reason = "tidak_yakin", "tampak_meluruskan"
 
-    checked_links = link_check.check_links(text) if cfg.link_check_enabled else []
+    if status == "belum_ada_pemeriksaan" and kind == "berita_media":
+        reason = "berita_media_dikenal"
+    elif kind == "kumpulan_judul" and status != "terbukti_salah":
+        status, reason = "belum_ada_pemeriksaan", "kumpulan_judul"
+
     shown = best if status != "belum_ada_pemeriksaan" and reason != "bukan_klaim_faktual" else None
     check_id = uuid.uuid4().hex
     return {
@@ -235,8 +311,10 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "reading": (llm_note or {}).get("bacaan", {"items": [], "disaring": 0}),
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
-        "voice_script": _voice(status, reason, sapaan, shown, manip),
-        "offer_human_review": status not in {"terbukti_salah", "sejalan_dengan_sumber"},
+        "kind": kind,
+        "info": info,
+        "voice_script": _voice(status, reason, sapaan, shown, manip, info),
+        "offer_human_review": status not in {"terbukti_salah", "sejalan_dengan_sumber"} and reason not in PLAIN_KINDS,
         "method": "+".join(method),
         "disclaimer": DISCLAIMER,
     }
