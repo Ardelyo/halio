@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ipaddress
+import re
 import socket
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -32,6 +33,41 @@ class Verification:
 
 class SourceError(ValueError):
     pass
+
+
+@dataclass
+class Page:
+    text: str
+    final_url: str
+    title: str = ""
+    published: str = ""
+    site_name: str = ""
+
+
+_META = {
+    "og:site_name": "site_name", "article:published_time": "published", "og:article:published_time": "published",
+    "pubdate": "published", "publishdate": "published", "parsely-pub-date": "published", "date": "published",
+}
+
+
+class _Head(HTMLParser):
+    """Title and the few meta tags that say who published a page and when."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.title, self.meta, self._in_title = "", {}, False
+
+    def handle_starttag(self, tag, attrs):
+        self._in_title = tag == "title"
+        if tag == "meta":
+            a = {k.lower(): (v or "") for k, v in attrs}
+            key = _META.get((a.get("property") or a.get("name") or "").lower())
+            if key and a.get("content") and key not in self.meta:
+                self.meta[key] = " ".join(a["content"].split())[:200]
+
+    def handle_data(self, data):
+        if self._in_title and len(self.title) < 200:
+            self.title += data
 
 
 class _VisibleText(HTMLParser):
@@ -72,6 +108,27 @@ def quote_present(quote: str, page_text: str) -> bool:
     return 40 <= len(normalized) <= 1500 and normalized in compact(page_text)
 
 
+def best_passage(claim: str, page_text: str) -> str | None:
+    """The sentence of the page that overlaps the claim most, copied from the page by code (so it is always verbatim).
+
+    None unless at least half of the claim's content words appear in it: a page that merely shares a topic does not count.
+    """
+    from .textnorm import tokens
+
+    want = set(tokens(claim))
+    if len(want) < 3:
+        return None
+    best, best_score = None, 0.0
+    for sentence in re.split(r"(?<=[.!?])\s+|\s\|\s", page_text):
+        sentence = sentence.strip()
+        if not 40 <= len(sentence) <= 600:
+            continue
+        score = len(want & set(tokens(sentence))) / len(want)
+        if score > best_score:
+            best, best_score = sentence, score
+    return best if best_score >= 0.5 else None
+
+
 def source_kind(url: str) -> str:
     host = (urlparse(url).hostname or "").lower().rstrip(".")
     path = urlparse(url).path.lower()
@@ -104,7 +161,8 @@ def ensure_public_url(url: str) -> None:
         raise SourceError("alamat_jaringan_tidak_publik")
 
 
-def fetch_text(url: str, transport: httpx.BaseTransport | None = None, max_redirects: int = 4) -> tuple[str, str]:
+def fetch_page(url: str, transport: httpx.BaseTransport | None = None, max_redirects: int = 4) -> Page:
+    """Public https pages only, no scripts, size-capped; redirects are followed by hand and each hop is re-checked."""
     current = url
     with httpx.Client(
         timeout=httpx.Timeout(12.0, connect=6.0),
@@ -130,9 +188,20 @@ def fetch_text(url: str, transport: httpx.BaseTransport | None = None, max_redir
                     body.extend(chunk)
                     if len(body) > MAX_BYTES:
                         raise SourceError("halaman_terlalu_besar")
-                encoding = response.encoding or "utf-8"
-                return visible_text(body.decode(encoding, errors="replace")), current
+                html = bytes(body).decode(response.encoding or "utf-8", errors="replace")
+                head = _Head()
+                try:
+                    head.feed(html[:200_000])
+                except Exception:  # a malformed head must not lose the page text
+                    pass
+                return Page(visible_text(html), current, " ".join(head.title.split())[:200],
+                            head.meta.get("published", ""), head.meta.get("site_name", ""))
     raise SourceError("terlalu_banyak_redirect")
+
+
+def fetch_text(url: str, transport: httpx.BaseTransport | None = None, max_redirects: int = 4) -> tuple[str, str]:
+    page = fetch_page(url, transport, max_redirects)
+    return page.text, page.final_url
 
 
 def verify_source(evidence: EvidenceLike, transport: httpx.BaseTransport | None = None) -> Verification:

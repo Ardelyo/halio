@@ -37,6 +37,8 @@ class Settings:
 
     # T2: grounded model verdict and web evidence. Optional, off by default.
     llm_enabled: bool = field(default_factory=lambda: _bool("HALIO_LLM"))
+    # "v2" = numbered passages picked by code + tier policy (halio/evidence.py); "v1" = the earlier quote-matching agent.
+    evidence_engine: str = field(default_factory=lambda: os.getenv("HALIO_ENGINE", "v2"))
     llm_provider: str = field(default_factory=lambda: os.getenv("HALIO_LLM_PROVIDER", "google"))
     llm_model: str = field(
         default_factory=lambda: os.getenv(
@@ -48,6 +50,12 @@ class Settings:
     # Gemini 3.5 Flash-Lite is served from "global" (and the us/eu multi-regions), not us-central1.
     google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
     agent_timeout_s: float = field(default_factory=lambda: float(os.getenv("HALIO_AGENT_TIMEOUT", "45")))
+
+    # Photos and voice notes: Gemini reads them into text (halio/media.py). Independent of HALIO_LLM so verdicts stay stable.
+    media_enabled: bool = field(default_factory=lambda: _bool("HALIO_MEDIA"))
+    media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-3.5-flash-lite"))
+    # Open the links users forward and report what is there (halio/link_check.py).
+    link_check_enabled: bool = field(default_factory=lambda: os.getenv("HALIO_LINK_CHECK", "1") != "0")
 
     # Radar (aggregate dashboard) privacy knobs.
     radar_token: str | None = field(default_factory=lambda: os.getenv("RADAR_TOKEN") or None)

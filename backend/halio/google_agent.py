@@ -14,7 +14,8 @@ from pydantic import BaseModel, Field
 from .config import Settings
 from .llm_verdict import LlmJudgement
 from .retrieval import Debunk, Match
-from .source_verifier import Verification, quote_present, verify_source
+from . import reading
+from .source_verifier import Verification, best_passage, quote_present, verify_source
 from .store import WIB
 
 log = logging.getLogger(__name__)
@@ -32,6 +33,11 @@ class SourceEvidence(BaseModel):
 class Investigation(BaseModel):
     summary: str = Field(max_length=800)
     sources: list[SourceEvidence] = Field(default_factory=list, max_length=3)
+
+
+class FoundInvestigation(Investigation):
+    """Investigation plus every page the search returned (the model's schema above does not include this)."""
+    grounding: list[dict] = Field(default_factory=list)
 
 
 @dataclass
@@ -73,12 +79,14 @@ def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigat
         ),
     )
     grounding = [f"Sumber kandidat lokal: {url}" for url in seed_urls]
+    found: list[dict] = []
     for candidate in discovery.candidates or []:
         metadata = getattr(candidate, "grounding_metadata", None)
         for chunk in getattr(metadata, "grounding_chunks", None) or []:
             web = getattr(chunk, "web", None)
             if web and web.uri:
                 grounding.append(f"{web.title or 'Sumber'}: {web.uri}")
+                found.append({"title": web.title or "", "uri": web.uri})
     extraction = client.models.generate_content(
         model=cfg.llm_model,
         contents=(
@@ -94,12 +102,19 @@ def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigat
             http_options=timeout,
         ),
     )
-    return Investigation.model_validate_json(extraction.text)
+    base = Investigation.model_validate_json(extraction.text)
+    return FoundInvestigation(**base.model_dump(), grounding=found)
 
 
 def repair_source(claim: str, check: Verification, cfg: Settings) -> Verification:
     if check.reason != "kutipan_tidak_ada_di_halaman" or not check.page_text:
         return check
+    # A debunk from an official or fact-check page: let CODE pick the page's own sentence, so the quote is verbatim by construction.
+    if check.evidence.relation == "refutes" and check.source_kind in {"resmi", "cek_fakta"}:
+        passage = best_passage(claim, check.page_text)
+        if passage:
+            fixed = check.evidence.model_copy(update={"quote": passage, "url": check.final_url})
+            return Verification(True, "terverifikasi_dari_halaman", fixed, check.final_url, check.source_kind)
     try:
         from google import genai
         from google.genai import types
@@ -179,6 +194,7 @@ def investigate(
         "sumber_ditemukan": len(report.sources),
         "sumber_terverifikasi": len(verified),
         "sumber_ditolak": [{"url": c.evidence.url, "alasan": c.reason} for c in checks if not c.ok],
+        "bacaan": reading.build(getattr(report, "grounding", [])),
     }
     relations = {c.evidence.relation for c in verified}
     if not verified:

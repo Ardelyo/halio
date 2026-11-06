@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Res
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from . import __version__, card, pipeline, review, voice
+from . import BUILD, __version__, card, pipeline, review, voice
 from .channels import whatsapp
 from .config import settings
 from .ingest import coverage
@@ -84,6 +84,14 @@ class CheckIn(BaseModel):
         return v[: settings.max_input_chars]
 
 
+class MediaIn(BaseModel):
+    data_b64: str = Field(min_length=100, max_length=12_000_000)
+    mime: str = Field(max_length=40)
+    channel: str = Field(default="web", pattern="^(web|telegram|whatsapp|extension|demo)$")
+    sapaan: str = Field(default="Bapak, Ibu", max_length=30)
+    reporter: str | None = Field(default=None, max_length=128)
+
+
 class AppealIn(BaseModel):
     check_id: str = Field(min_length=32, max_length=32)
     reason: str = Field(default="", max_length=500)
@@ -121,7 +129,7 @@ def _cached(check_id: str) -> dict:
 
 @app.get("/health")
 def health() -> dict:
-    return {"ok": True, "version": __version__, "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled}
+    return {"ok": True, "version": __version__, "claimreview": bool(settings.google_factcheck_key), "llm": settings.llm_enabled, "media": settings.media_enabled, "build": BUILD}
 
 
 @app.get("/ready")
@@ -135,6 +143,32 @@ def ready() -> dict:
 def api_check(body: CheckIn, request: Request) -> dict:
     # A client-chosen reporter id is free to forge; only our own bots may name one (netguard.py).
     return run_check(body, reporter_for(request, settings, body.reporter))
+
+
+@app.post("/api/check-media")
+def api_check_media(body: MediaIn, request: Request) -> dict:
+    """Photo or voice note -> text (Gemini reads it) -> the normal check. Never judges the picture itself."""
+    import base64
+
+    from . import media
+
+    if not media.supported(body.mime):
+        raise HTTPException(415, "Jenis berkas ini belum didukung. Kirim foto (JPG/PNG/WebP) atau pesan suara.")
+    try:
+        data = base64.b64decode(body.data_b64, validate=True)
+    except ValueError:
+        raise HTTPException(400, "Berkas rusak.")
+    reading = media.read_media(data, body.mime, settings)
+    if reading is None:
+        raise HTTPException(503, "Halio belum bisa membaca foto atau suara sekarang. Tolong ketik atau salin teksnya.")
+    if not reading.readable or len(reading.text.strip()) < 3:
+        return {"readable": False, "media": reading.model_dump(),
+                "message": "Halio tidak menemukan tulisan atau ucapan yang bisa dicek. Coba foto yang lebih jelas, atau salin teksnya."}
+    result = run_check(CheckIn(text=reading.text, channel=body.channel, sapaan=body.sapaan),
+                       reporter_for(request, settings, body.reporter))
+    result["readable"] = True
+    result["media"] = {**reading.model_dump(), "authenticity_checked": False}
+    return result
 
 
 @app.get("/api/check/{check_id}")

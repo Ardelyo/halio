@@ -40,6 +40,11 @@
           <section class="panel status-panel"><div class="panel-heading"><div><p class="panel-kicker">Hasil pemeriksaan</p><h2>Sebaran status</h2></div></div><div id="status-breakdown"></div><p class="panel-footnote">“Belum ada pemeriksaan” berarti Halio tidak memiliki sumber yang cocok. Itu bukan bukti bahwa kabar benar.</p></section>
           <section class="panel"><div class="panel-heading"><div><p class="panel-kicker">Topik</p><h2>Kategori yang sering muncul</h2></div></div><div class="bar-list" id="categories"></div></section>
           <section class="panel"><div class="panel-heading"><div><p class="panel-kicker">Pola pesan</p><h2>Trik yang perlu dikenali</h2></div></div><div class="bar-list" id="techniques"></div></section>
+          <section class="panel evidence-health"><div class="panel-heading"><div><p class="panel-kicker">Mesin bukti</p><h2>Mengapa AI gagal memakai sebuah sumber</h2></div></div>
+            <p id="evidence-summary" class="evidence-summary"></p>
+            <div class="evidence-columns"><div><h3>Halaman yang tidak dipakai</h3><div class="bar-list" id="evidence-rejections"></div></div>
+            <div><h3>Bagaimana pemeriksaan berakhir</h3><div class="bar-list" id="evidence-results"></div></div></div>
+            <p class="evidence-note">Hanya hitungan per hari, tanpa isi pesan. Alasan teratas menunjukkan apa yang perlu diperbaiki lebih dulu.</p></section>
         </div>
         <section class="queue-callout"><div><p class="section-kicker">Perlu tindakan manusia</p><h2 id="queue-callout-title">Antrean menunggu.</h2><p>Buka klaim, periksa konteksnya, lalu catat respons yang bisa dipertanggungjawabkan.</p></div><button class="primary-button" type="button" data-go-queue>Buka antrean <span aria-hidden="true">→</span></button></section>
       </section>

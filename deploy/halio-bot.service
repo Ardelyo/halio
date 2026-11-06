@@ -1,0 +1,14 @@
+[Unit]
+Description=Halio Telegram bot
+After=halio-api.service
+Requires=halio-api.service
+[Service]
+User=halio
+WorkingDirectory=/opt/halio/backend
+EnvironmentFile=/opt/halio/.env.systemd
+Environment=HALIO_API_URL=http://127.0.0.1:8000
+ExecStart=/opt/halio/.venv/bin/python -m halio.channels.telegram
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
