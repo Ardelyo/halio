@@ -1,0 +1,12 @@
+[Unit]
+Description=Halio API
+After=network-online.target
+[Service]
+User=halio
+WorkingDirectory=/opt/halio/backend
+EnvironmentFile=/opt/halio/.env.systemd
+ExecStart=/opt/halio/.venv/bin/uvicorn halio.api:app --host 127.0.0.1 --port 8000 --workers 1
+Restart=always
+RestartSec=3
+[Install]
+WantedBy=multi-user.target

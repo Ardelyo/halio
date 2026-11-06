@@ -8,7 +8,20 @@ const EXAMPLES = [
   ["Kabar belum dikenal", "Jembatan Suramadu akan ditutup total selama seminggu mulai besok karena perbaikan. Tolong sebarkan."],
   ["Salam pagi", "Selamat pagi keluarga, semoga hari ini sehat dan penuh berkah. Amin"],
 ];
-const ICON = { terbukti_salah: "!", tidak_yakin: "?", belum_ada_pemeriksaan: "—" };
+const ICON = { terbukti_salah: "!", sejalan_dengan_sumber: "✓", dilaporkan_media: "i", tidak_yakin: "?", belum_ada_pemeriksaan: "—" };
+const LABEL_BY_REASON = { berita_media_dikenal: "Berita dari media dikenal", kumpulan_judul: "Beberapa judul sekaligus" };
+const PLAIN_REASONS = ["berita_media_dikenal", "kumpulan_judul"];
+const REJECT_WHY = {
+  mesin_pencari_atau_pengalih: "tautannya hanya mesin pencari atau pengalih", bukan_sumber_dikenal: "situsnya bukan sumber yang dikenal",
+  http_404: "halaman tidak ditemukan", http_403: "situs menolak dibuka otomatis", http_410: "halaman sudah dihapus",
+  sumber_tidak_dapat_diakses: "halaman tidak bisa dibuka",
+};
+const TIER_ORDER = { A: 0, B: 1, C: 2 };
+const longDate = (iso) => {
+  const m = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  const d = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  return d ? `${Number(d[3])} ${m[Number(d[2]) - 1]} ${d[1]}` : "";
+};
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) => String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 const store = {
@@ -57,7 +70,7 @@ function updateInput() {
 async function check(text) {
   const button = $("#go");
   button.disabled = true;
-  button.textContent = "Sedang memeriksa…";
+  startStages(button);
   $("#result").setAttribute("aria-busy", "true");
   try {
     let result;
@@ -83,9 +96,42 @@ async function check(text) {
       true,
     );
   } finally {
+    stopStages();
     button.disabled = false;
     button.innerHTML = 'Cek pesan ini <span aria-hidden="true">→</span>';
     $("#result").removeAttribute("aria-busy");
+  }
+}
+
+async function checkMedia(file) {
+  const button = $("#go");
+  button.disabled = true;
+  button.textContent = "Membaca berkas…";
+  try {
+    if (file.size > 6_000_000) throw Object.assign(new Error("big"), { http: 413 });
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    const response = await fetch(`${API}/api/check-media`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data_b64: btoa(binary), mime: file.type || "image/jpeg", channel: "web", sapaan: $("#sapaan").value, reporter: deviceId() }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw Object.assign(new Error(data.detail || response.statusText), { http: response.status, detail: data.detail });
+    if (data.readable === false) { toast(data.message, true); return; }
+    $("#msg").value = data.claim;
+    updateInput();
+    render(data, data.claim);
+    toast("Halio membaca isi berkas Anda. Halio tidak menilai apakah fotonya asli, hanya isinya.");
+  } catch (error) {
+    console.error(error);
+    toast(error.http === 413 ? "Berkasnya terlalu besar (maksimal 6 MB)."
+      : error.http === 503 || error.http === 415 ? (error.detail || "Halio belum bisa membaca berkas ini. Ketik teksnya saja.")
+      : "Halio belum bisa membaca berkas. Coba lagi atau ketik teksnya.", true);
+  } finally {
+    button.disabled = false;
+    button.innerHTML = 'Cek pesan ini <span aria-hidden="true">→</span>';
+    $("#media-file").value = "";
   }
 }
 
@@ -96,6 +142,48 @@ function sourceList(match) {
       <span aria-hidden="true">↗</span><span><small>Sumber pemeriksaan</small><b>${esc(source.nama)}</b></span><span aria-hidden="true">›</span>
     </a></li>`).join("")}</ul>`;
 }
+
+function processPanel(result) {
+  const rows = [];
+  const m = result.match;
+  const used = (result.method || "").split("+");
+  if (result.media) rows.push(["ok", `Membaca ${result.media.kind === "ucapan" ? "suara" : "foto"} dengan Gemini`, "Hanya isi tulisan/ucapan yang dibaca. Keaslian foto tidak dinilai."]);
+  rows.push(["ok", "Mengenali klaim yang bisa dicek", `“${result.claim}”`]);
+  rows.push([m ? "ok" : "none", "Mencocokkan dengan bantahan dan sumber yang sudah terverifikasi", m ? `Cocok dengan: ${m.klaim_dibantah} (kemiripan ${Math.round((m.score || 0) * 100)}%)` : "Tidak ada yang cukup mirip. Halio tidak menebak."]);
+  const ev = result.evidence;
+  if (used.includes("bukti_v2") && ev) {
+    const why = [...new Set((ev.ditolak || []).map((r) => REJECT_WHY[r.alasan] || "halaman tidak bisa dipakai"))].slice(0, 2);
+    rows.push(["ok", "AI mencari di web, kode memilih kutipan",
+      `${ev.dicari?.length ? `Kata kunci: ${ev.dicari.slice(0, 2).join(", ")}. ` : ""}Halio membuka ${ev.dibuka} halaman; ${ev.relevan} berisi kalimat yang cocok dengan klaim, disalin oleh kode. AI hanya menilai hubungan tiap kutipan, tidak menulis kutipan dan tidak memberi vonis.${why.length ? ` Tidak dipakai: ${why.join("; ")}.` : ""}`]);
+  } else if (used.includes("gemini_search")) {
+    const n = result.llm || {};
+    rows.push(["ok", "AI (Gemini) mencari di web", `${n.sumber_ditemukan ?? 0} sumber ditemukan. Kode Halio membuka setiap halaman dan mencocokkan kutipan: ${n.sumber_terverifikasi ?? 0} terverifikasi. AI tidak memberi vonis sendiri.`]);
+  } else {
+    rows.push(["none", "Pencarian web oleh AI", "Tidak dipakai pada pemeriksaan ini."]);
+  }
+  const links = result.links?.checked || [];
+  for (const c of links) {
+    rows.push([c.state === "terbuka" ? "ok" : "warn", `Membuka tautan ${c.host}`, c.state === "terbuka" ? `Terbuka${c.title ? `: “${c.title}”` : ""}${c.note ? ` · ${c.note}` : ""}` : c.note || c.state]);
+  }
+  const icon = { ok: "✓", warn: "!", none: "–" };
+  return `<details class="process-details" open><summary>Bagaimana Halio memeriksa ini</summary><ol class="process-list">${rows.map(([k, t, d]) => `<li class="${k}"><span aria-hidden="true">${icon[k]}</span><div><b>${esc(t)}</b><small>${esc(d)}</small></div></li>`).join("")}</ol></details>`;
+}
+
+function readingPanel(result) {
+  const items = result.reading?.items || [];
+  if (!items.length) return "";
+  const safe = items.filter((i) => safeUrl(i.url) !== "#");
+  return `<div class="reading-block"><h3>Bahan bacaan</h3><p class="reading-note">Halaman ini sudah dibuka oleh Halio dan bisa diakses. Pelengkap, bukan dasar vonis.</p><ul>${safe.map((i) => `<li><a href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener noreferrer">${esc(i.title)}</a> <span class="reading-kind ${esc(i.kind)}">${esc(i.kind_label)}</span><small>${esc(i.host)}</small></li>`).join("")}</ul>${result.reading.disaring ? `<small>${result.reading.disaring} tautan lain disaring karena rusak atau tidak bisa dibuka.</small>` : ""}</div>`;
+}
+
+let stageTimer = 0;
+function startStages(button) {
+  const stages = ["Membaca dan mengenali klaim…", "Mencocokkan dengan bantahan terverifikasi…", "AI mencari sumber di web…", "Membuka dan mencocokkan kutipan sumber…"];
+  let i = 0;
+  button.textContent = stages[0];
+  stageTimer = setInterval(() => { i = Math.min(i + 1, stages.length - 1); button.textContent = stages[i]; }, 1800);
+}
+function stopStages() { clearInterval(stageTimer); }
 
 function render(result, original) {
   if (cardPreviewUrl) {
@@ -111,17 +199,28 @@ function render(result, original) {
     <h3>${esc(technique.label)}</h3><p>${esc(technique.lesson)}</p>
     <small>Kalimat yang memicu perhatian: “${technique.evidence.map(esc).join("”, “")}”</small>
   </div>`).join("");
-  const steps = match
+  const plain = PLAIN_REASONS.includes(result.reason);
+  const steps = result.reason === "berita_media_dikenal"
+    ? ["Halio belum menilai isi berita ini.", "Untuk hal penting, bandingkan dengan satu atau dua media lain.", "Buka artikelnya dan baca sampai habis sebelum membagikan."]
+    : result.reason === "kumpulan_judul"
+    ? ["Kirim satu judul atau satu berita per pesan.", "Halio akan memeriksanya satu per satu."]
+    : result.status === "dilaporkan_media"
+    ? ["Ini laporan media, bukan pemeriksaan fakta.", "Cek tanggal laporan dan bandingkan dengan sumber lain.", "Bila dibagikan, sebut sumbernya."]
+    : match
     ? ["Baca bantahan dan buka sumbernya.", "Jangan teruskan pesan yang menyesatkan.", "Beritahu pengirim dengan bahasa yang sopan."]
     : ["Tahan dulu sebelum meneruskan.", "Cari kabar dari kanal resmi.", "Minta bantuan pemeriksa bila tersedia."];
 
   $("#result").innerHTML = `
     <article class="verdict-card ${esc(result.status)}">
       <div class="result-kicker"><span>Hasil pemeriksaan</span><span>${window.HALIO_STATIC_DEMO ? "Simulasi lokal" : "Halio"}</span></div>
-      <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
-      <p class="answer-lead">${esc(match ? match.sederhana : result.voice_script)}</p>
+      <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(LABEL_BY_REASON[result.reason] || result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
+      ${infoPanel(result)}
+      ${plain ? "" : `<p class="answer-lead">${esc(match ? match.sederhana : result.voice_script)}</p>`}
+      ${evidencePanel(result)}
       ${match ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
-      ${result.llm ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
+      ${result.llm?.kutipan ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
+      ${processPanel(result)}
+      ${readingPanel(result)}
       <div class="next-steps"><h3>Yang bisa Anda lakukan</h3><ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></div>
       ${warnings.map((warning) => `<p class="warning">${esc(warning)}</p>`).join("")}
       <details class="claim-details"><summary>Lihat klaim yang diperiksa</summary><p>“${esc(result.claim)}”</p></details>
@@ -217,6 +316,32 @@ function speak(result) {
   currentAudio.play().catch(fallback);
 }
 
+function infoPanel(result) {
+  const info = result.info;
+  if (!info) return "";
+  if (result.kind === "kumpulan_judul") {
+    return `<div class="fact-block"><h3>Judul yang terbaca</h3><ol>${(info.judul_list || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></div>`;
+  }
+  const when = longDate(info.terbit);
+  return `<div class="fact-block"><h3>${esc(info.judul || "Artikel")}</h3><p>${esc(info.penerbit)}${when ? ` · ${esc(when)}` : ""}</p>
+    ${info.ringkasan ? `<p>“${esc(info.ringkasan)}”</p><small>Ringkasan dari halaman itu sendiri, bukan penilaian Halio.</small>` : ""}
+    ${info.url ? `<p><a href="${esc(safeUrl(info.url))}" target="_blank" rel="noopener">Buka artikel</a></p>` : ""}</div>`;
+}
+
+function evidencePanel(result) {
+  const ev = result.evidence;
+  if (!ev || !ev.items?.length) return "";
+  const bar = "■".repeat(ev.kekuatan) + "□".repeat(4 - ev.kekuatan);
+  const rows = [...ev.items].sort((a, b) => (TIER_ORDER[a.tingkat] ?? 9) - (TIER_ORDER[b.tingkat] ?? 9)).slice(0, 4).map((it) => {
+    const when = longDate(it.tanggal);
+    return `<li><a href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener">${esc(it.penerbit)}</a> <span class="tier">${esc(it.tingkat_label)}${when ? ` · ${esc(when)}` : ""}</span>
+      <blockquote>“${esc(it.kutipan.length > 240 ? it.kutipan.slice(0, 237) + "…" : it.kutipan)}”</blockquote></li>`;
+  }).join("");
+  return `<div class="fact-block evidence-block"><h3>Yang Halio temukan <span class="meter" title="Kekuatan bukti 0 sampai 4">${bar} ${ev.kekuatan}/4</span></h3>
+    <ul class="evidence-list">${rows}</ul><p>${esc(ev.alasan)}</p>
+    <small>Kutipan disalin langsung dari halaman oleh kode; AI hanya menilai hubungannya dengan klaim.</small></div>`;
+}
+
 async function makeStaticCard(result) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
@@ -225,7 +350,7 @@ async function makeStaticCard(result) {
   context.fillStyle = "#F8F3F0";
   context.fillRect(0, 0, 1080, 1350);
   // Same layout and palette as the server's Kartu Halio (backend/halio/card.py, video/BRAND.md).
-  const THEME = { terbukti_salah: "#B42318", sejalan_dengan_sumber: "#067647", tidak_yakin: "#B54708", belum_ada_pemeriksaan: "#475467" };
+  const THEME = { terbukti_salah: "#B42318", sejalan_dengan_sumber: "#067647", dilaporkan_media: "#014BAA", tidak_yakin: "#B54708", belum_ada_pemeriksaan: "#475467" };
   const SERIF = '"Instrument Serif", Georgia, serif', SANS = 'Inter, system-ui, Arial, sans-serif';
   try { await Promise.all([document.fonts.load(`80px ${SERIF}`), document.fonts.load(`600 30px ${SANS}`)]); } catch { /* fall back to system fonts */ }
   context.fillStyle = "#014BAA";
@@ -334,6 +459,8 @@ function init() {
   const sapaan = $("#sapaan");
   sapaan.value = store.get("halio.sapaan", "Bapak, Ibu");
   sapaan.onchange = () => store.set("halio.sapaan", sapaan.value);
+  if (window.HALIO_STATIC_DEMO) $("#media-row")?.classList.add("hidden");
+  else $("#media-file")?.addEventListener("change", (event) => event.target.files[0] && checkMedia(event.target.files[0]));
   $("#msg").addEventListener("input", updateInput);
   $("#msg").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {

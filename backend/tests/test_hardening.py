@@ -103,7 +103,8 @@ def test_scrub_gaps_closed(text, leak):
 def test_link_host_is_parsed_not_suffix_matched():
     assert extract_domains("https://kemensos.go.id.bansos-cair.xyz/?a=.go.id") == ["kemensos.go.id.bansos-cair.xyz"]
     assert extract_domains("klik bit.ly/abc atau s.id/daftar") == ["bit.ly", "s.id"]
-    r = pipeline.check("daftar di https://kemensos.go.id.bansos-cair.xyz/form dan https://cekbansos.kemensos.go.id", CFG)
+    # The pipeline now really opens links; keep this test offline and about hostname parsing only.
+    r = pipeline.check("daftar di https://kemensos.go.id.bansos-cair.xyz/form dan https://cekbansos.kemensos.go.id", replace(CFG, link_check_enabled=False))
     warned = " ".join(r["links"]["warnings"])
     assert "bansos-cair.xyz" in warned and "cekbansos.kemensos.go.id" not in warned
 
