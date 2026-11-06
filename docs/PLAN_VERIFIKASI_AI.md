@@ -35,6 +35,30 @@ Semua jawaban itu berakhir sama: "⚪ Belum ada pemeriksaan … jangan diteruska
 
 **Belum diuji dengan Vertex AI sungguhan** (tidak ada kredensial di lingkungan saya). Seluruh perubahan di atas bersifat deterministik dan diuji dengan tiruan.
 
+## 2b. Mesin Bukti v2: status implementasi (6 Nov, malam)
+
+**Sudah dibangun dan diuji dengan tiruan (173 tes):** `backend/halio/evidence.py`, aktif secara bawaan (`HALIO_ENGINE=v2`; `v1` mengembalikan agen lama; bila pencarian atau penilaian v2 gagal, sistem otomatis jatuh ke v1).
+
+| Bagian rancangan | Status |
+|---|---|
+| S2 kutipan dipilih **kode** (kalimat salinan dengan tumpang-tindih kata kunci), selalu utuh | Selesai, diuji |
+| S3 model hanya mengembalikan `{nomor, hubungan, covers_all}`; nomor palsu, duplikat, hubungan aneh dibuang | Selesai, diuji |
+| S4 kebijakan tingkat A/B/C/D dan kemandirian grup (dua media satu grup, atau kalimat yang sama di dua situs = satu suara) | Selesai, 16 skenario kebijakan diuji |
+| Status baru 🔵 **Dilaporkan media** (kartu, bot, web, Radar) | Selesai |
+| Kekuatan bukti 0–4 yang dapat dijelaskan | Selesai |
+| Kebijakan kesegaran: sumber resmi ≤180 hari untuk "sejalan"; laporan media ≤30 hari untuk "dilaporkan" | Selesai |
+| Arsip pemeriksa fakta Sensor sebagai kandidat gratis (tanpa model) | Selesai |
+| Halaman web tidak dapat mengubah keputusan (hanya kutipan bernomor masuk ke model; keputusan di kode) | Diuji dengan halaman berisi instruksi |
+| Alasan penolakan terlihat (jawaban bot dan web) | Selesai |
+| Skrip evaluasi langsung dari judul Sensor (`scripts/eval_live.py`) | Selesai; **harus dijalankan di server** |
+
+**Belum:** pecah satu pesan menjadi beberapa klaim (S0), deteksi kantor berita yang sama lewat teks "ANTARA" (hanya kalimat identik yang digabung), telemetri harian alasan penolakan di panel Cakupan, tinjauan daftar media terhadap Dewan Pers.
+
+**Belum teruji dengan Vertex AI sungguhan.** Dua panggilan model baru (`gemini_discover`, `gemini_judge`) hanya diuji lewat tiruan. Yang harus dipastikan di server, berurutan:
+1. `HALIO_LLM=1 python scripts/eval_live.py --news 10 --hoax 10`: apakah ada berita benar yang dituduh salah (harus 0), dan apakah jawaban informatif.
+2. Bila "0 halaman relevan" mendominasi, periksa `ditolak` di jawaban: biasanya tautan pengalih Google gagal dibuka atau situs menolak pengambil kami.
+3. Bila pengalih Google tidak bisa diuraikan, kandidat hanya datang dari arsip Sensor dan korpus; laporkan ke saya.
+
 ## 3. Rancangan: Mesin Bukti v2
 
 Prinsip dari dokumen riset Anda: **AI menafsirkan, kode memverifikasi dan memutuskan.** Model tidak pernah memberi vonis dan tidak pernah menjadi sumber kutipan.
@@ -98,7 +122,7 @@ Anggaran 20–30 detik, kuota harian per pengguna. Cache per klaim 24 jam (kunci
 Set evaluasi nyata dan terkini, bukan buatan tim (disusun dari data yang sudah dikumpulkan Sensor):
 - 40 berita benar dari 2 minggu terakhir (judul dari feed media), 30 hoaks yang sudah dibantah (judul dari feed pemeriksa fakta), 30 kabar tak terverifikasi/opini/berantai.
 - Metrik wajib: **tuduhan palsu = 0** (berita benar tidak boleh jadi "salah"); cakupan (% pesan dengan jawaban informatif); ketepatan sumber (tautan terbuka dan relevan); latensi p50/p95; biaya per pemeriksaan; alasan penolakan teratas.
-- `scripts/eval_live.py` (belum ada) menjalankan set terhadap API sungguhan dan menulis laporan; dijalankan di server GCE Anda karena kredensial Vertex ada di sana.
+- `scripts/eval_live.py` (sudah ada, lihat 2b) menjalankan set terhadap API sungguhan dan menulis laporan; dijalankan di server GCE Anda karena kredensial Vertex ada di sana.
 - Uji manusia: dua orang di luar tim menilai 30 jawaban: "apakah Anda paham, dan apakah Anda tahu langkah berikutnya?"
 
 ## 5. Urutan kerja (selaras dengan `PLAN_UNGGUL` dan code freeze 11 Nov)

@@ -35,14 +35,14 @@ WELCOME = (
     "<b>Cara pakai</b>\n"
     "1️⃣ Teruskan pesan, atau kirim foto/pesan suara\n"
     "2️⃣ Tunggu sebentar (kadang sampai 30 detik, AI sedang mencari sumber)\n"
-    "3️⃣ Baca vonis berwarna: 🔴 salah · 🟢 sejalan dengan sumber · 🟠 tidak yakin · ⚪ belum ada pemeriksaan\n\n"
+    "3️⃣ Baca vonis berwarna: 🔴 salah · 🟢 sejalan dengan sumber · 🔵 dilaporkan media · 🟠 tidak yakin · ⚪ belum ada pemeriksaan\n\n"
     "Perintah: /bantuan · /sapaan Bu · /privasi · /versi"
 )
 HELP = (
     "🆘 <b>Bantuan</b>\n"
     "• Kirim pesan yang meragukan, atau foto/suara yang berisi kabar itu.\n"
     "• Kirim tautan: Halio membukanya dan memberi tahu bila rusak, dialihkan, atau bukan situs resmi.\n"
-    "• 🔴 terbukti salah · 🟢 sejalan dengan sumber resmi · 🟠 tidak yakin · ⚪ belum ada yang memeriksa\n"
+    "• 🔴 terbukti salah · 🟢 sejalan dengan sumber resmi · 🔵 dilaporkan beberapa media (bukan pemeriksaan fakta) · 🟠 tidak yakin · ⚪ belum ada yang memeriksa\n"
     "• Halio tidak menilai pendapat, dan tidak menilai apakah sebuah foto asli.\n"
     "• /sapaan Nenek mengatur cara Halio memanggil Anda."
 )
@@ -57,6 +57,7 @@ PRIVACY = (
 CARD_CAPTION = {
     "terbukti_salah": "Kartu Halio: bagikan ke grup keluarga untuk meluruskan.",
     "sejalan_dengan_sumber": "Kartu Halio: sumbernya bisa dibuka, cek tanggal dan konteksnya.",
+    "dilaporkan_media": "Kartu Halio: dilaporkan media, bukan pemeriksaan fakta. Sebut sumbernya bila dibagikan.",
     "tidak_yakin": "Kartu Halio: Halio belum yakin, sebaiknya ditahan dulu.",
     "belum_ada_pemeriksaan": "Kartu Halio: belum ada pemeriksaan, jangan diteruskan dulu.",
 }

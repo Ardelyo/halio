@@ -10,11 +10,17 @@ from ..outlets import is_not_a_source
 ICON = {
     "terbukti_salah": "🔴",
     "sejalan_dengan_sumber": "🟢",
+    "dilaporkan_media": "🔵",
     "tidak_yakin": "🟠",
     "belum_ada_pemeriksaan": "⚪",
 }
 
 REASON = {
+    "satu_media_melaporkan": "Baru satu kelompok media yang melaporkan; belum cukup untuk dikatakan terkonfirmasi.",
+    "laporan_media_tanpa_tanggal_baru": "Ada laporan media, tetapi tanggalnya tidak jelas atau sudah lama.",
+    "tidak_ada_sumber_relevan": "Halio membuka beberapa halaman, tetapi tidak ada yang menyatakan klaim ini secara utuh.",
+    "media_melaporkan_bantahan": "Media melaporkan adanya bantahan, tetapi belum ada pemeriksa fakta atau sumber resmi yang memeriksanya.",
+    "sumber_resmi_tanpa_tanggal_atau_lama": "Ada sumber resmi yang mendukung, tetapi tanggalnya tidak jelas atau sudah lama.",
     "berita_media_dikenal": "Belum ada pemeriksa fakta yang membahas berita ini, dan itu wajar untuk berita biasa.",
     "kumpulan_judul": "Gambar ini berisi beberapa judul, bukan satu kabar.",
     "tidak_ada_bantahan": "Belum ada pemeriksa fakta yang membahas kabar ini.",
@@ -35,12 +41,16 @@ ACTION_BY_REASON = {
     "kumpulan_judul": "Kirim satu judul atau satu berita per pesan, supaya bisa diperiksa satu per satu.",
 }
 REJECTED = {
+    "mesin_pencari_atau_pengalih": "tautannya hanya mesin pencari atau pengalih",
+    "bukan_sumber_dikenal": "situsnya bukan sumber yang dikenal",
+    "http_404": "halaman tidak ditemukan", "http_403": "situs menolak dibuka otomatis", "http_410": "halaman sudah dihapus",
     "domain_bukan_sumber_primer": "halamannya dari media biasa; Halio hanya menerima situs resmi dan pemeriksa fakta sebagai bukti",
     "kutipan_tidak_ada_di_halaman": "kutipan dari AI tidak cocok dengan isi halaman",
     "redirect_ke_domain_lain": "halaman dialihkan ke situs lain",
     "sumber_tidak_dapat_diakses": "halaman tidak bisa dibuka",
 }
 ACTION = {
+    "dilaporkan_media": "Boleh dibagikan dengan menyebut sumbernya. Ini laporan media, bukan pemeriksaan fakta: cek tanggalnya dan bandingkan dulu.",
     "terbukti_salah": "Jangan diteruskan. Kirim kartu di bawah ke grup untuk meluruskan.",
     "sejalan_dengan_sumber": "Boleh dibagikan, tetapi cek tanggal dan konteksnya di sumber dulu.",
     "tidak_yakin": "Tahan dulu. Cari kabarnya di situs resmi, atau tanyakan ke pemeriksa manusia.",
@@ -58,7 +68,14 @@ def _how(result: dict) -> list[str]:
         steps.append(f"Dicocokkan dengan bantahan terverifikasi: cocok ({round(m['score'] * 100)}%)")
     else:
         steps.append("Dicocokkan dengan bantahan terverifikasi: tidak ada yang cukup mirip")
-    if "gemini_search" in (result.get("method") or ""):
+    ev = result.get("evidence")
+    if ev:
+        q = f" (kata kunci: {', '.join(ev['dicari'][:2])})" if ev.get("dicari") else ""
+        steps.append(f"AI mencari di web{q}; Halio membuka {ev['dibuka']} halaman, {ev['relevan']} berisi kalimat yang cocok dengan klaim (disalin oleh kode)")
+        why = sorted({REJECTED.get(r["alasan"], "halaman tidak bisa dipakai") for r in ev.get("ditolak", [])})
+        if ev.get("ditolak"):
+            steps.append("Tidak dipakai: " + "; ".join(why[:2]))
+    elif "gemini_search" in (result.get("method") or ""):
         n = result.get("llm") or {}
         found, ok = n.get("sumber_ditemukan", 0), n.get("sumber_terverifikasi", 0)
         steps.append(f"AI mencari di web: {found} sumber, {ok} lolos dicek ulang oleh kode")
@@ -108,6 +125,17 @@ def reply_text(result: dict, html: bool = False) -> str:
         else:
             links = "\n".join(f"{s['nama']}: {s['url']}" for s in match["sumber"][:2])
         lines += ["", "📚 " + b("Sumber") + ": " + links]
+    ev = result.get("evidence")
+    if ev and ev.get("items"):
+        bar = "■" * ev["kekuatan"] + "□" * (4 - ev["kekuatan"])
+        lines += ["", "🔍 " + b("Yang Halio temukan") + f"  ·  kekuatan bukti {bar} {ev['kekuatan']}/4"]
+        for it in ev["items"][:3]:
+            who = f"{it['penerbit']} ({it['tingkat_label']})" + (f", {_date(it['tanggal'])}" if it.get("tanggal") else "")
+            quote = it["kutipan"] if len(it["kutipan"]) <= 220 else it["kutipan"][:217].rsplit(" ", 1)[0] + "…"
+            head = f'<a href="{escape(it["url"])}">{e(who)}</a>' if html else f"{who}: {it['url']}"
+            lines.append(f"  • {head}\n    “{e(quote)}”")
+        lines.append("  " + e(ev["alasan"]))
+        lines.append("  Kutipan disalin langsung dari halaman oleh kode; AI hanya menilai hubungannya.")
     items = (result.get("reading") or {}).get("items", [])[:3]
     if items:
         lines += ["", "📖 " + b("Bahan bacaan") + " (tautan sudah dibuka dan bisa diakses)"]

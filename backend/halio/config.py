@@ -37,6 +37,8 @@ class Settings:
 
     # T2: grounded model verdict and web evidence. Optional, off by default.
     llm_enabled: bool = field(default_factory=lambda: _bool("HALIO_LLM"))
+    # "v2" = numbered passages picked by code + tier policy (halio/evidence.py); "v1" = the earlier quote-matching agent.
+    evidence_engine: str = field(default_factory=lambda: os.getenv("HALIO_ENGINE", "v2"))
     llm_provider: str = field(default_factory=lambda: os.getenv("HALIO_LLM_PROVIDER", "google"))
     llm_model: str = field(
         default_factory=lambda: os.getenv(

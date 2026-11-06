@@ -27,3 +27,9 @@
 .reading-kind { font-size: .75rem; padding: .1rem .5rem; border-radius: 99px; background: #e8e4dc; margin-left: .3rem; }
 .reading-kind.resmi { background: #d6ecdd; }
 .reading-kind.cek_fakta { background: #dbe6f5; }
+
+.sejalan_dengan_sumber{border-color:#9fd3b6}.sejalan_dengan_sumber .verdict-mark{background:#ECFDF3;color:#067647}
+.dilaporkan_media{border-color:#9db9e6}.dilaporkan_media .verdict-mark{background:#E6EEF9;color:#014BAA}.dilaporkan_media .verdict-heading h2{color:#014BAA}
+.evidence-list{margin:10px 0;padding:0;list-style:none;display:grid;gap:12px}.evidence-list li{padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.evidence-list a{font-weight:600}.evidence-list .tier{margin-left:6px;color:var(--muted);font-size:11px}.evidence-list blockquote{margin:6px 0 0;padding-left:10px;border-left:3px solid #9db9e6;color:#3A4456;font-size:13px;line-height:1.6}
+.meter{margin-left:8px;color:var(--blue);font-weight:600;letter-spacing:1px;font-size:12px}
