@@ -129,10 +129,40 @@ function renderOverview() {
   renderStatus(data);
   renderBars("#categories", data.by_kategori.map((item) => ({ label: KATEGORI[item.kategori] || item.kategori, n: item.n })));
   renderBars("#techniques", Object.entries(data.techniques).map(([key, n]) => ({ label: TECH[key] || key, n })));
+  renderEvidenceHealth(data.evidence_telemetry);
 }
 
 function percentage(value, total) {
   return total ? `${Math.round(value / total * 100)}%` : "0%";
+}
+
+const REJECT = {
+  domain_bukan_sumber_primer: "Situs bukan sumber resmi atau pemeriksa fakta", bukan_sumber_dikenal: "Situs bukan media atau sumber yang dikenal",
+  mesin_pencari_atau_pengalih: "Hanya mesin pencari atau pengalih", sumber_tidak_dapat_diakses: "Halaman tidak bisa dibuka",
+  http_404: "Halaman tidak ditemukan (404)", http_403: "Situs menolak dibuka otomatis (403)", http_410: "Halaman sudah dihapus (410)",
+  jenis_konten_tidak_didukung: "Bukan halaman web (PDF, gambar)", halaman_terlalu_besar: "Halaman terlalu besar", url_tidak_aman: "Alamat tidak aman",
+  alamat_jaringan_tidak_publik: "Alamat jaringan tidak publik", terlalu_banyak_redirect: "Terlalu banyak pengalihan",
+};
+const OUTCOME = {
+  dibantah_resmi: "Dibantah sumber resmi", dibantah_pemeriksa_fakta: "Dibantah pemeriksa fakta", cocok_dengan_sumber_resmi: "Sejalan dengan sumber resmi",
+  dilaporkan_beberapa_media: "Dilaporkan beberapa media", satu_media_melaporkan: "Baru satu media melaporkan", bukti_bertentangan: "Bukti saling bertentangan",
+  media_melaporkan_bantahan: "Media melaporkan bantahan", laporan_media_tanpa_tanggal_baru: "Laporan media tanpa tanggal baru",
+  sumber_resmi_tanpa_tanggal_atau_lama: "Sumber resmi tanpa tanggal atau lama", tidak_ada_sumber_relevan: "Tidak ada sumber yang relevan",
+};
+
+function renderEvidenceHealth(t) {
+  const panel = document.querySelector(".evidence-health");
+  if (!panel) return;
+  if (!t || !t.pemeriksaan) {
+    $("#evidence-summary").textContent = "Belum ada pemeriksaan yang memakai pencarian web pada periode ini.";
+    $("#evidence-rejections").innerHTML = ""; $("#evidence-results").innerHTML = "";
+    return;
+  }
+  const usable = t.halaman_dibuka ? Math.round(t.halaman_relevan / t.halaman_dibuka * 100) : 0;
+  $("#evidence-summary").textContent = `${t.pemeriksaan} pemeriksaan memakai pencarian web. Halio membuka ${t.halaman_dibuka} halaman; ${t.halaman_relevan} (${usable}%) berisi kalimat yang cocok dengan klaim.`
+    + (t.mesin_cadangan ? ` Mesin cadangan dipakai ${t.mesin_cadangan} kali karena pencarian atau penilaian gagal.` : "");
+  renderBars("#evidence-rejections", t.ditolak.map((r) => ({ label: REJECT[r.alasan] || r.alasan, n: r.n })));
+  renderBars("#evidence-results", t.hasil.map((r) => ({ label: OUTCOME[r.alasan] || r.alasan, n: r.n })));
 }
 
 function renderBars(selector, rows) {

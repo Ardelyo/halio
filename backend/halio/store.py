@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS unknown_claims (
     hash TEXT PRIMARY KEY, first_seen TEXT NOT NULL, last_seen TEXT NOT NULL,
     reporters TEXT NOT NULL, count INTEGER NOT NULL, text TEXT
 );
+-- Counts only, never text: why the evidence engine could not use a page, and how each check ended.
+CREATE TABLE IF NOT EXISTS evidence_telemetry (
+    day TEXT NOT NULL, kind TEXT NOT NULL, reason TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (day, kind, reason)
+);
 CREATE TABLE IF NOT EXISTS daily_salt (day TEXT PRIMARY KEY, salt TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS appeals (
     id INTEGER PRIMARY KEY AUTOINCREMENT, created TEXT NOT NULL, check_id TEXT,
@@ -112,6 +117,8 @@ class Store:
         day_cutoff = (date.fromisoformat(today()) - timedelta(days=retention_days)).isoformat()
         with self._lock, self._conn() as c:
             c.execute("DELETE FROM unknown_claims WHERE last_seen<?", (day_cutoff,))
+            c.execute("DELETE FROM events WHERE day<?", (day_cutoff,))
+            c.execute("DELETE FROM evidence_telemetry WHERE day<?", (day_cutoff,))
             c.execute("DELETE FROM appeals WHERE created<?", (cutoff,))
             c.execute("DELETE FROM escalations WHERE created<? AND status<>'menunggu'", (cutoff,))
             c.execute("DELETE FROM review_events WHERE created<?", (cutoff,))
@@ -125,11 +132,46 @@ class Store:
                 "INSERT INTO events VALUES (?,?,?,?,?,?)",
                 (day, result["status"], match.get("debunk_id"), match.get("kategori"), techniques, channel),
             )
-            if result["status"] == "belum_ada_pemeriksaan" and reporter and result["claim"]:
-                self._count_unknown(c, day, result["claim"], reporter)
+            if reporter:
+                # A message with several claims counts each unknown claim on its own, so a rumour is recognised wherever it sits.
+                for sub in result.get("claims") or [result]:
+                    if sub["status"] == "belum_ada_pemeriksaan" and sub.get("claim") and sub.get("reason") != "bukan_klaim_faktual":
+                        self._count_unknown(c, day, sub["claim"], reporter)
+            self._record_evidence(c, day, result)
         if self._last_prune != day:
             self.prune()
             self._last_prune = day
+
+    @staticmethod
+    def _evidence_rows(result: dict) -> list[tuple[str, str, int]]:
+        rows: list[tuple[str, str, int]] = []
+        evs = [x["evidence"] for x in result.get("claims") or [result] if x.get("evidence")]
+        for ev in evs:
+            rows += [("pemeriksaan", "v2", 1), ("hasil", ev["reason"], 1), ("halaman", "dibuka", ev["dibuka"]), ("halaman", "relevan", ev["relevan"])]
+            rows += [("ditolak", r["alasan"], 1) for r in ev.get("ditolak", [])]
+        if result.get("engine_fallback"):
+            rows.append(("mesin", "v2_tidak_tersedia", 1))
+        return rows
+
+    def _record_evidence(self, c: sqlite3.Connection, day: str, result: dict) -> None:
+        for kind, reason, n in self._evidence_rows(result):
+            if n:
+                c.execute(
+                    "INSERT INTO evidence_telemetry (day,kind,reason,n) VALUES (?,?,?,?) "
+                    "ON CONFLICT(day,kind,reason) DO UPDATE SET n=n+excluded.n", (day, kind, reason, n))
+
+    def evidence_stats(self, days: int = 14) -> dict:
+        since = (date.fromisoformat(today()) - timedelta(days=days - 1)).isoformat()
+        with self._conn() as c:
+            rows = c.execute("SELECT kind, reason, SUM(n) n FROM evidence_telemetry WHERE day>=? GROUP BY kind, reason ORDER BY n DESC", (since,)).fetchall()
+        by = lambda kind: [{"alasan": r["reason"], "n": r["n"]} for r in rows if r["kind"] == kind]  # noqa: E731
+        pages = {r["reason"]: r["n"] for r in rows if r["kind"] == "halaman"}
+        return {
+            "pemeriksaan": sum(r["n"] for r in rows if r["kind"] == "pemeriksaan"),
+            "halaman_dibuka": pages.get("dibuka", 0), "halaman_relevan": pages.get("relevan", 0),
+            "ditolak": by("ditolak"), "hasil": by("hasil"),
+            "mesin_cadangan": sum(r["n"] for r in rows if r["kind"] == "mesin"),
+        }
 
     def _count_unknown(self, c: sqlite3.Connection, day: str, claim: str, reporter: str) -> None:
         h = claim_hash(claim)
@@ -245,4 +287,5 @@ class Store:
             "k_anonymity": self.k,
             "open_appeals": appeals,
             "open_escalations": escalations,
+            "evidence_telemetry": self.evidence_stats(days),
         }

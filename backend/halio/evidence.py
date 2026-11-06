@@ -109,6 +109,19 @@ def classify(url: str) -> tuple[str, str, str]:
     return "D", host, host
 
 
+# ---- wire agencies: one article republished by many outlets is one voice ---------------------------------------
+
+# A dateline such as "Jakarta (ANTARA) - ..." or "(Reuters) -" marks agency copy, whoever republishes it.
+_WIRE = re.compile(r"\(\s*(ANTARA|Antara|Reuters|AFP|AP|Associated Press)\s*\)\s*[-–—:]")
+_WIRE_GROUP = {"antara": "ANTARA", "reuters": "Reuters", "afp": "AFP", "ap": "Associated Press", "associated press": "Associated Press"}
+
+
+def wire_group(text: str) -> str | None:
+    """The agency named in a dateline within the article's first part, else None. Quoting an agency in passing does not count."""
+    m = _WIRE.search(text[:6000])
+    return _WIRE_GROUP[m.group(1).lower()] if m else None
+
+
 # ---- reading: passages are picked by code ---------------------------------------------------------------------
 
 _SENT = re.compile(r"(?<=[.!?])\s+|\s\|\s")
@@ -154,6 +167,9 @@ def build_passages(claim: str, pages: list[Page]) -> tuple[list[Passage], int]:
         tier, publisher, group = classify(page.final_url)
         if tier == "D":
             continue
+        wire = wire_group(page.text)
+        if wire and tier == "C":
+            group = wire    # Tempo and Detik both printing the ANTARA copy are one voice, not two
         found = extract_passages(claim, page.text)
         if not found:
             continue

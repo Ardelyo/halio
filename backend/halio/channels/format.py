@@ -33,6 +33,7 @@ REASON = {
     "memerlukan_verifikasi_ai": "Ini informasi resmi, tetapi buktinya belum cukup untuk dinyatakan sejalan.",
 }
 HEADLINE = {
+    "beberapa_klaim": ("🧩", "PESAN BERISI BEBERAPA KLAIM"),
     "berita_media_dikenal": ("📰", "BERITA DARI MEDIA DIKENAL"),
     "kumpulan_judul": ("🗂", "BEBERAPA JUDUL SEKALIGUS"),
 }
@@ -64,7 +65,9 @@ def _how(result: dict) -> list[str]:
     if result.get("media"):
         steps.append("Membaca isi foto/suara Anda (keasliannya tidak dinilai)")
     m = result.get("match")
-    if m:
+    if result.get("claims"):
+        steps.append(f"Pesan dipecah menjadi {len(result['claims'])} klaim; tiap klaim diperiksa sendiri")
+    elif m:
         steps.append(f"Dicocokkan dengan bantahan terverifikasi: cocok ({round(m['score'] * 100)}%)")
     else:
         steps.append("Dicocokkan dengan bantahan terverifikasi: tidak ada yang cukup mirip")
@@ -88,6 +91,10 @@ def _how(result: dict) -> list[str]:
     return steps
 
 
+def many_claims(result: dict) -> bool:
+    return bool(result.get("claims"))
+
+
 def reply_text(result: dict, html: bool = False) -> str:
     # In HTML mode every dynamic string is escaped: the sapaan and link hosts come from the user,
     # and a stray "<" makes Telegram reject the whole message.
@@ -98,7 +105,7 @@ def reply_text(result: dict, html: bool = False) -> str:
     status = result["status"]
     icon, label = HEADLINE.get(result.get("reason", ""), (ICON[status], result["status_label"].upper()))
     lines = [f"{icon} {b(label)}", ""]
-    match = result.get("match")
+    match = None if many_claims(result) else result.get("match")
     info = result.get("info") or {}
     if result.get("kind") == "berita_media" and info:
         lines += [b(info["judul"] or "(tanpa judul)"), f"{e(info['penerbit'])}" + (f" · {e(_date(info['terbit']))}" if info.get("terbit") else "")]
@@ -108,7 +115,15 @@ def reply_text(result: dict, html: bool = False) -> str:
     elif result.get("kind") == "kumpulan_judul" and info.get("judul_list"):
         lines += [f"{i}. {e(t)}" for i, t in enumerate(info["judul_list"], 1)] + [""]
     plain = result.get("reason", "") in ("berita_media_dikenal", "kumpulan_judul")
-    if not plain:
+    many = result.get("claims")
+    if many:
+        for i, c in enumerate(many, 1):
+            claim = c["claim"] if len(c["claim"]) <= 120 else c["claim"][:117].rsplit(" ", 1)[0] + "…"
+            why = (c.get("match") or {}).get("sederhana") or (c.get("evidence") or {}).get("alasan") or REASON.get(c.get("reason", ""), "")
+            src = ((c.get("match") or {}).get("sumber") or [None])[0]
+            link = (f'\n    Sumber: <a href="{escape(src["url"])}">{e(src["nama"])}</a>' if html else f"\n    Sumber: {src['nama']} {src['url']}") if src else ""
+            lines += [f"{i}. {ICON[c['status']]} {b(c['status_label'])}", f"   “{e(claim)}”", f"   {e(why[:240])}{link}", ""]
+    elif not plain:
         lines.append(e(match["sederhana"]) if match else e(result["voice_script"]))
     reason = REASON.get(result.get("reason", ""))
     if reason and not match:

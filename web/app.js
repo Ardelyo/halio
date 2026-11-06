@@ -9,7 +9,8 @@ const EXAMPLES = [
   ["Salam pagi", "Selamat pagi keluarga, semoga hari ini sehat dan penuh berkah. Amin"],
 ];
 const ICON = { terbukti_salah: "!", sejalan_dengan_sumber: "✓", dilaporkan_media: "i", tidak_yakin: "?", belum_ada_pemeriksaan: "—" };
-const LABEL_BY_REASON = { berita_media_dikenal: "Berita dari media dikenal", kumpulan_judul: "Beberapa judul sekaligus" };
+const LABEL_BY_REASON = { berita_media_dikenal: "Berita dari media dikenal", kumpulan_judul: "Beberapa judul sekaligus", beberapa_klaim: "Pesan berisi beberapa klaim" };
+const STATUS_WORD = { terbukti_salah: "Terbukti salah", sejalan_dengan_sumber: "Sejalan dengan sumber", dilaporkan_media: "Dilaporkan media", tidak_yakin: "Halio tidak yakin", belum_ada_pemeriksaan: "Belum ada pemeriksaan" };
 const PLAIN_REASONS = ["berita_media_dikenal", "kumpulan_judul"];
 const REJECT_WHY = {
   mesin_pencari_atau_pengalih: "tautannya hanya mesin pencari atau pengalih", bukan_sumber_dikenal: "situsnya bukan sumber yang dikenal",
@@ -200,7 +201,10 @@ function render(result, original) {
     <small>Kalimat yang memicu perhatian: “${technique.evidence.map(esc).join("”, “")}”</small>
   </div>`).join("");
   const plain = PLAIN_REASONS.includes(result.reason);
-  const steps = result.reason === "berita_media_dikenal"
+  const many = Array.isArray(result.claims) && result.claims.length > 1;
+  const steps = many
+    ? ["Baca jawaban untuk tiap klaim di bawah.", "Jangan teruskan klaim yang sudah dibantah.", "Bagikan hanya bagian yang bersumber, dan sebut sumbernya."]
+    : result.reason === "berita_media_dikenal"
     ? ["Halio belum menilai isi berita ini.", "Untuk hal penting, bandingkan dengan satu atau dua media lain.", "Buka artikelnya dan baca sampai habis sebelum membagikan."]
     : result.reason === "kumpulan_judul"
     ? ["Kirim satu judul atau satu berita per pesan.", "Halio akan memeriksanya satu per satu."]
@@ -215,9 +219,10 @@ function render(result, original) {
       <div class="result-kicker"><span>Hasil pemeriksaan</span><span>${window.HALIO_STATIC_DEMO ? "Simulasi lokal" : "Halio"}</span></div>
       <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(LABEL_BY_REASON[result.reason] || result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
       ${infoPanel(result)}
-      ${plain ? "" : `<p class="answer-lead">${esc(match ? match.sederhana : result.voice_script)}</p>`}
-      ${evidencePanel(result)}
-      ${match ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
+      ${plain ? "" : `<p class="answer-lead">${esc(match && !many ? match.sederhana : result.voice_script)}</p>`}
+      ${claimsPanel(result)}
+      ${many ? "" : evidencePanel(result)}
+      ${match && !many ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
       ${result.llm?.kutipan ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
       ${processPanel(result)}
       ${readingPanel(result)}
@@ -326,6 +331,18 @@ function infoPanel(result) {
   return `<div class="fact-block"><h3>${esc(info.judul || "Artikel")}</h3><p>${esc(info.penerbit)}${when ? ` · ${esc(when)}` : ""}</p>
     ${info.ringkasan ? `<p>“${esc(info.ringkasan)}”</p><small>Ringkasan dari halaman itu sendiri, bukan penilaian Halio.</small>` : ""}
     ${info.url ? `<p><a href="${esc(safeUrl(info.url))}" target="_blank" rel="noopener">Buka artikel</a></p>` : ""}</div>`;
+}
+
+function claimsPanel(result) {
+  if (!Array.isArray(result.claims) || result.claims.length < 2) return "";
+  const rows = result.claims.map((c, i) => {
+    const src = (c.match?.sumber || [])[0];
+    const why = c.match?.sederhana || c.evidence?.alasan || "";
+    return `<li class="claim-row ${esc(c.status)}"><span class="claim-no" aria-hidden="true">${i + 1}</span><div>
+      <b>${esc(STATUS_WORD[c.status] || c.status_label)}</b><p class="claim-text">“${esc(c.claim)}”</p>
+      ${why ? `<p>${esc(why)}</p>` : ""}${src ? `<p><a href="${esc(safeUrl(src.url))}" target="_blank" rel="noopener">${esc(src.nama)}</a></p>` : ""}</div></li>`;
+  }).join("");
+  return `<div class="fact-block claims-block"><h3>Jawaban untuk tiap klaim</h3><ol class="claim-list">${rows}</ol></div>`;
 }
 
 function evidencePanel(result) {

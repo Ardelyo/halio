@@ -8,7 +8,7 @@ PROJECT=${PROJECT:-gemma4good-494311}; ZONE=${ZONE:-asia-southeast2-a}; VM=${VM:
 gcloud compute instances describe "$VM" --project "$PROJECT" --zone "$ZONE" >/dev/null 2>&1 || \
   gcloud compute instances create "$VM" --project "$PROJECT" --zone "$ZONE" --machine-type e2-small \
     --image-family debian-12 --image-project debian-cloud --boot-disk-size 20GB --scopes cloud-platform
-tar --exclude=.venv --exclude=.git --exclude=halio.db --exclude='__pycache__' -czf /tmp/halio.tgz backend data web deploy
+tar --exclude=.venv --exclude=.git --exclude=halio.db --exclude='__pycache__' -czf /tmp/halio.tgz backend data web deploy scripts eval
 gcloud compute scp /tmp/halio.tgz .env deploy/remote_install.sh "$VM":/tmp/ --project "$PROJECT" --zone "$ZONE"
 HOST=${HOST:-}   # public hostname behind Caddy, e.g. 34-101-109-211.sslip.io
 BUILD="$(git rev-parse --short HEAD 2>/dev/null || echo dev)-$(date -u +%Y%m%d-%H%M)"

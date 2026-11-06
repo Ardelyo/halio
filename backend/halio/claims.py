@@ -72,3 +72,31 @@ def extract(text: str, max_sentences: int = 2) -> Claim:
     best = scored[0][0]
     chosen = " ".join(s for sc, _, s in top if sc >= max(0.2, best * 0.5)) or scored[0][2]
     return Claim(text=scrub(chosen), score=best, is_factual=best >= 0.3)
+
+
+def _same(a: str, b: str) -> bool:
+    ta, tb = set(tokens(a)), set(tokens(b))
+    return bool(ta and tb) and len(ta & tb) / len(ta | tb) >= 0.6
+
+
+def split_units(text: str, max_units: int = 3, min_score: float = 0.5, min_tokens: int = 5) -> list[str]:
+    """Split a message into separate claims, each with the sentences that belong to it. Empty unless there are at least two.
+
+    A claim is a check-worthy sentence (score >= min_score, long enough); a near-duplicate of an earlier one is the same claim.
+    The sentences after a claim, up to the next claim, stay attached to it ("Pendaftaran lewat WhatsApp" belongs to the
+    handout claim before it), because the core-claim guard needs that context. A message whose only check-worthy sentence
+    is one claim, however long, is not split.
+    """
+    sents = sentences(text)
+    marks: list[int] = []
+    for i, s in enumerate(sents):
+        if checkworthiness(s) >= min_score and len(tokens(s)) >= min_tokens and not any(_same(s, sents[j]) for j in marks):
+            marks.append(i)
+    if len(marks) < 2:
+        return []
+    marks = marks[:max_units]
+    units = []
+    for k, start in enumerate(marks):
+        end = marks[k + 1] if k + 1 < len(marks) else len(sents)
+        units.append(" ".join(sents[start:end]))
+    return units

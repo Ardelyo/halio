@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
 from . import claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
@@ -101,6 +102,35 @@ def _kind_and_info(text: str, checked: list[dict], manip: dict) -> tuple[str, di
         if len(lines) >= 3 and len(short) >= 0.8 * len(lines):
             return "kumpulan_judul", {"judul_list": lines[:8]}
     return "pesan", None
+
+
+# Which result leads when a message holds several claims: the most worrying one.
+_SEVERITY = ["terbukti_salah", "tidak_yakin", "belum_ada_pemeriksaan", "dilaporkan_media", "sejalan_dengan_sumber"]
+_SHORT = {
+    "terbukti_salah": "sudah dibantah", "tidak_yakin": "belum bisa dipastikan", "belum_ada_pemeriksaan": "belum ada yang memeriksa",
+    "dilaporkan_media": "dilaporkan beberapa media", "sejalan_dengan_sumber": "sejalan dengan sumber resmi",
+}
+
+
+def _check_many(text: str, units: list[str], cfg: Settings, sapaan: str, manip: dict, domains: list[str]) -> dict:
+    """One answer per claim. The message-level status is the most worrying of them, so the card, Radar and buttons still make sense."""
+    with ThreadPoolExecutor(max_workers=len(units)) as pool:
+        subs = list(pool.map(lambda u: check(u, cfg, sapaan, _depth=1), units))
+    lead = min(subs, key=lambda r: _SEVERITY.index(r["status"]))
+    n = len(subs)
+    parts = "; ".join(f"klaim {i}: {_SHORT[r['status']]}" for i, r in enumerate(subs, 1))
+    top = dict(lead)
+    top.update({
+        "id": uuid.uuid4().hex,
+        "reason": "beberapa_klaim",
+        "manipulation": manip,
+        "links": {"domains": domains, "warnings": [], "checked": []},
+        "claims": [{k: r.get(k) for k in ("claim", "status", "status_label", "reason", "match", "evidence", "kind", "info")} for r in subs],
+        "voice_script": f"{sapaan}, pesan ini berisi {n} klaim yang berbeda. {parts.capitalize()}. Halio menjawab satu per satu di bawah.",
+        "offer_human_review": any(r["offer_human_review"] for r in subs),
+        "method": "+".join(dict.fromkeys(m for r in subs for m in r["method"].split("+"))),
+    })
+    return top
 
 
 def _apply_evidence(ev, claim: str, status: str, reason: str, best):
@@ -224,7 +254,7 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
     )
 
 
-def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
+def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0) -> dict:
     claim = claims.extract(text)
     manip = manipulation.analyze(text)
     domains = extract_domains(text)
@@ -245,6 +275,10 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
     if kind == "kumpulan_judul" and ((best and best.score >= cfg.unsure_threshold) or manip["techniques"]):
         # A hoax chain message is also written in short lines. Only call it "headlines" if nothing matches and nothing pushes.
         kind, info = "pesan", None
+    if kind == "pesan" and _depth == 0 and not _URL.search(text):
+        units = claims.split_units(text)
+        if len(units) >= 2:
+            return _check_many(text, units, cfg, sapaan, manip, domains)
     correction = is_correction(text)
     if best and best.score >= cfg.unsure_threshold and correction and not best.debunk.is_positive:
         # It warns about or corrects the hoax ("itu hoaks", "BMKG membantah"): never call that a hoax.
@@ -264,6 +298,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
 
     llm_note = None
     evidence_out = None
+    engine_fallback = False
     # The web agent can only accept official and fact-check pages as evidence. For an ordinary article from a known outlet,
     # or a screenshot of several headlines, it would burn 30 seconds to report "0 verified", so it is skipped.
     if cfg.llm_enabled and cfg.llm_provider == "google" and claim.is_factual and kind == "pesan":
@@ -281,6 +316,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
             agent = None
         else:
             # v1 (HALIO_ENGINE=v1) and the fallback when v2's search or judging is unavailable.
+            engine_fallback = cfg.evidence_engine == "v2"
             agent = google_agent.investigate(claim.text, cfg, seed_urls=seed_urls)
         # A named, curated debunk stays when the web search is down or finds nothing new; only verified
         # conflicting evidence may lower it (see the final branch below).
@@ -347,6 +383,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu") -> dict:
         "match": _match_payload(shown) if shown else None,
         "llm": llm_note,
         "evidence": evidence_out,
+        "engine_fallback": engine_fallback,
         "reading": (llm_note or {}).get("bacaan", {"items": [], "disaring": 0}),
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
