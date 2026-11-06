@@ -35,14 +35,14 @@ WELCOME = (
     "<b>Cara pakai</b>\n"
     "1️⃣ Teruskan pesan, atau kirim foto/pesan suara\n"
     "2️⃣ Tunggu sebentar (kadang sampai 30 detik, AI sedang mencari sumber)\n"
-    "3️⃣ Baca vonis berwarna: 🔴 salah · 🟢 sejalan dengan sumber · 🟠 tidak yakin · ⚪ belum ada pemeriksaan\n\n"
+    "3️⃣ Baca vonis berwarna: 🔴 salah · 🟢 sejalan dengan sumber · 🔵 dilaporkan media · 🟠 tidak yakin · ⚪ belum ada pemeriksaan\n\n"
     "Perintah: /bantuan · /sapaan Bu · /privasi · /versi"
 )
 HELP = (
     "🆘 <b>Bantuan</b>\n"
     "• Kirim pesan yang meragukan, atau foto/suara yang berisi kabar itu.\n"
     "• Kirim tautan: Halio membukanya dan memberi tahu bila rusak, dialihkan, atau bukan situs resmi.\n"
-    "• 🔴 terbukti salah · 🟢 sejalan dengan sumber resmi · 🟠 tidak yakin · ⚪ belum ada yang memeriksa\n"
+    "• 🔴 terbukti salah · 🟢 sejalan dengan sumber resmi · 🔵 dilaporkan beberapa media (bukan pemeriksaan fakta) · 🟠 tidak yakin · ⚪ belum ada yang memeriksa\n"
     "• Halio tidak menilai pendapat, dan tidak menilai apakah sebuah foto asli.\n"
     "• /sapaan Nenek mengatur cara Halio memanggil Anda."
 )
@@ -57,6 +57,7 @@ PRIVACY = (
 CARD_CAPTION = {
     "terbukti_salah": "Kartu Halio: bagikan ke grup keluarga untuk meluruskan.",
     "sejalan_dengan_sumber": "Kartu Halio: sumbernya bisa dibuka, cek tanggal dan konteksnya.",
+    "dilaporkan_media": "Kartu Halio: dilaporkan media, bukan pemeriksaan fakta. Sebut sumbernya bila dibagikan.",
     "tidak_yakin": "Kartu Halio: Halio belum yakin, sebaiknya ditahan dulu.",
     "belum_ada_pemeriksaan": "Kartu Halio: belum ada pemeriksaan, jangan diteruskan dulu.",
 }
@@ -74,17 +75,30 @@ def tg(method: str, **kwargs) -> dict:
     return data
 
 
-def send_result(chat_id: int, result: dict) -> None:
-    keyboard = [[{"text": "🧠 Kenali triknya", "callback_data": f"trik:{result['id']}"}]]
+def keyboard_for(result: dict) -> list[list[dict]]:
+    """Only buttons that mean something for this answer."""
+    rows: list[list[dict]] = []
     if result["offer_human_review"]:
-        keyboard.insert(0, [{"text": "🙋 Tanya pemeriksa manusia", "callback_data": f"esc:{result['id']}"}])
-    else:
-        keyboard.append([{"text": "⚖️ Ajukan banding", "callback_data": f"app:{result['id']}"}])
+        rows.append([{"text": "🙋 Tanya pemeriksa manusia", "callback_data": f"esc:{result['id']}"}])
+    if result["manipulation"]["techniques"]:
+        rows.append([{"text": "🧠 Kenali triknya", "callback_data": f"trik:{result['id']}"}])
+    if result["status"] in ("terbukti_salah", "sejalan_dengan_sumber"):
+        rows.append([{"text": "⚖️ Ajukan banding", "callback_data": f"app:{result['id']}"}])
+    return rows
 
-    tg("sendMessage", json={
+
+def send_result(chat_id: int, result: dict, reply_to: int | None = None) -> None:
+    body = {
         "chat_id": chat_id, "text": reply_text(result, html=True), "parse_mode": "HTML",
-        "disable_web_page_preview": True, "reply_markup": {"inline_keyboard": keyboard},
-    })
+        "disable_web_page_preview": True, "reply_markup": {"inline_keyboard": keyboard_for(result)},
+    }
+    if reply_to:
+        # Replying to the user's message lets the buttons recover the original text after a restart (see handle_callback).
+        body["reply_to_message_id"] = reply_to
+        body["allow_sending_without_reply"] = True
+    tg("sendMessage", json=body)
+    if result.get("reason") in ("berita_media_dikenal", "kumpulan_judul"):
+        return  # an article link or a list of headlines needs the text answer only, not a correction card or a voice note
     # The card and the voice note are extras: if either fails the text answer above has already been delivered.
     try:
         card = httpx.get(f"{API_URL}{result['card_url']}", timeout=20)
@@ -123,7 +137,7 @@ def _media_of(msg: dict) -> tuple[str, str] | None:
     return None
 
 
-def handle_media(chat_id: int, ref: tuple[str, str]) -> None:
+def handle_media(chat_id: int, ref: tuple[str, str], reply_to: int | None = None) -> None:
     import base64
 
     file_id, mime = ref
@@ -154,7 +168,7 @@ def handle_media(chat_id: int, ref: tuple[str, str]) -> None:
     if result["media"].get("looks_edited"):
         note += "\n⚠️ Ada tanda foto ini sudah disunting."
     tg("sendMessage", json={"chat_id": chat_id, "text": note, "parse_mode": "HTML"})
-    send_result(chat_id, result)
+    send_result(chat_id, result, reply_to=reply_to)
 
 
 def handle_message(msg: dict) -> None:
@@ -179,7 +193,7 @@ def handle_message(msg: dict) -> None:
         return
     media_ref = _media_of(msg)
     if media_ref and len(text.strip()) < 3:
-        handle_media(chat_id, media_ref)
+        handle_media(chat_id, media_ref, reply_to=msg.get("message_id"))
         return
     if len(text.strip()) < 3:
         tg("sendMessage", json={"chat_id": chat_id, "text": NOT_TEXT})
@@ -200,16 +214,39 @@ def handle_message(msg: dict) -> None:
         log.warning("Check failed for chat %s: %s", chat_id, exc)
         tg("sendMessage", json={"chat_id": chat_id, "text": BUSY})
         return
-    send_result(chat_id, result)
+    send_result(chat_id, result, reply_to=msg.get("message_id"))
+
+
+def _recover(cb: dict, chat_id: int) -> str | None:
+    """A result lives in memory for an hour and not across a restart. The bot's answer is a reply to the user's own message,
+    and Telegram sends that message back with the button press, so the check can be redone without storing anything."""
+    original = (cb["message"].get("reply_to_message") or {})
+    text = original.get("text") or original.get("caption") or ""
+    if len(text.strip()) < 3:
+        return None
+    try:
+        r = httpx.post(f"{API_URL}/api/check", timeout=80, headers=CHANNEL_HEADERS, json={
+            "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}", "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
+        })
+        r.raise_for_status()
+        return r.json()["id"]
+    except (httpx.HTTPError, ValueError, KeyError):
+        return None
 
 
 def handle_callback(cb: dict) -> None:
     action, _, check_id = cb.get("data", "").partition(":")
     chat_id = cb["message"]["chat"]["id"]
     tg("answerCallbackQuery", json={"callback_query_id": cb["id"]})
+    expired = "Maaf, hasil cek ini sudah kedaluwarsa dan pesan aslinya tidak bisa dibaca lagi. Kirim ulang pesannya, ya."
+    if action in ("esc", "trik", "app") and httpx.get(f"{API_URL}/api/check/{check_id}", timeout=10).status_code == 404:
+        check_id = _recover(cb, chat_id) or ""
+        if not check_id:
+            tg("sendMessage", json={"chat_id": chat_id, "text": expired})
+            return
     if action == "esc":
         r = httpx.post(f"{API_URL}/api/escalate", json={"check_id": check_id}, timeout=10)
-        text = r.json().get("message") if r.status_code == 200 else "Maaf, hasil cek sudah kedaluwarsa. Kirim ulang pesannya, ya."
+        text = r.json().get("message") if r.status_code == 200 else expired
     elif action == "app":
         httpx.post(f"{API_URL}/api/appeal", json={"check_id": check_id, "reason": "banding dari telegram"}, timeout=10)
         text = "Banding dicatat. Tim akan meninjau ulang sumbernya. Terima kasih sudah kritis!"

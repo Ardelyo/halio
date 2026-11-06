@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 
+from . import outlets
 from .link_check import check_link
 
 KIND_LABEL = {"resmi": "Situs resmi", "cek_fakta": "Pemeriksa fakta", "media": "Media / situs lain"}
@@ -23,13 +24,16 @@ def build(grounding: list[dict], limit: int = 5, max_check: int = 8) -> dict:
         checked = list(pool.map(lambda g: check_link(g["uri"]), cands))
     items, seen = [], set()
     for g, c in zip(cands, checked):
-        if c["state"] != "terbuka" or c["final_url"] in seen:
+        # A search-engine or redirect page is a pointer to a source, never one; an unresolved grounding link lands there.
+        if c["state"] != "terbuka" or c["final_url"] in seen or outlets.is_not_a_source(c["final_url"]):
             continue
         seen.add(c["final_url"])
         kind = c["kind"] or "media"
+        name = c.get("outlet") or c.get("site_name") or c["final_host"].removeprefix("www.")
         items.append({
-            "title": c["title"] or g.get("title") or c["final_host"],
-            "url": c["final_url"], "host": c["final_host"], "kind": kind, "kind_label": KIND_LABEL[kind],
+            "title": c["title"] or name,
+            "url": c["final_url"], "host": c["final_host"], "kind": kind,
+            "kind_label": name if kind == "media" else f"{KIND_LABEL[kind]}: {name}",
         })
     items.sort(key=lambda i: ORDER[i["kind"]])
     return {"items": items[:limit], "disaring": len(cands) - len(items)}

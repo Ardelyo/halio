@@ -10,6 +10,8 @@ const TECH = {
 };
 const STATUS = [
   ["terbukti_salah", "Terbukti salah", "#B42318"],
+  ["sejalan_dengan_sumber", "Sejalan dengan sumber", "#067647"],
+  ["dilaporkan_media", "Dilaporkan media", "#014BAA"],
   ["tidak_yakin", "Tidak yakin", "#B54708"],
   ["belum_ada_pemeriksaan", "Belum diperiksa", "#98A2B3"],
 ];
