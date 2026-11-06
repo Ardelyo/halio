@@ -52,7 +52,13 @@ Semua jawaban itu berakhir sama: "⚪ Belum ada pemeriksaan … jangan diteruska
 | Alasan penolakan terlihat (jawaban bot dan web) | Selesai |
 | Skrip evaluasi langsung dari judul Sensor (`scripts/eval_live.py`) | Selesai; **harus dijalankan di server** |
 
-**Belum:** pecah satu pesan menjadi beberapa klaim (S0), deteksi kantor berita yang sama lewat teks "ANTARA" (hanya kalimat identik yang digabung), telemetri harian alasan penolakan di panel Cakupan, tinjauan daftar media terhadap Dewan Pers.
+**Dibangun 6 Nov malam (diuji, 188 tes):**
+- **Pecah pesan menjadi ≤3 klaim** (`claims.split_units`): kalimat layak-periksa yang berbeda (kemiripan <0,6), lengkap dengan kalimat konteks setelahnya. Satu klaim yang diulang, atau satu klaim dengan ajakan sebar, tidak dipecah; pesan bertautan tidak dipecah. Status pesan = klaim yang paling mengkhawatirkan; jawaban per klaim di bot, web, dan kartu.
+- **Kantor berita lewat teks**: dateline `(ANTARA) -`, `(Reuters) -`, `(AFP) -`, `(AP) -` pada halaman membuat media yang menerbitkan ulang salinannya dihitung **satu suara**; sebutan sambil lalu dan kredit foto diabaikan.
+- **Telemetri harian** (`evidence_telemetry`, hanya hitungan, tanpa teks, 30 hari): alasan halaman ditolak, bagaimana pemeriksaan berakhir, jumlah halaman dibuka/relevan, pemakaian mesin cadangan. Tampil di Radar ("Mengapa AI gagal memakai sebuah sumber"). Sekaligus menutup temuan R5: tabel `events` kini ikut dihapus setelah 30 hari.
+- Klaim yang belum dikenal dari pesan beberapa klaim kini dihitung satu per satu untuk Radar.
+
+**Masih belum:** tinjauan daftar media terhadap Dewan Pers; deteksi kantor berita tanpa dateline; biaya: pesan dengan 3 klaim menjalankan pencarian 3 kali (paralel).
 
 **Belum teruji dengan Vertex AI sungguhan.** Dua panggilan model baru (`gemini_discover`, `gemini_judge`) hanya diuji lewat tiruan. Yang harus dipastikan di server, berurutan:
 1. `HALIO_LLM=1 python scripts/eval_live.py --news 10 --hoax 10`: apakah ada berita benar yang dituduh salah (harus 0), dan apakah jawaban informatif.
