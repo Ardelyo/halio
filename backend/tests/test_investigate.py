@@ -374,3 +374,14 @@ def test_dates_are_normalised_before_ordering():
     assert origin.iso_date("2025-01-24T10:00:00+07:00") == "2025-01-24" and origin.iso_date("kemarin") == ""
     line = origin.timeline([{"tanggal": "2025/01/24", "url": "a", "judul": ""}, {"tanggal": "2025-01-05", "url": "b", "judul": ""}])
     assert [e["url"] for e in line] == ["b", "a"] and line[1]["tanggal"] == "2025-01-24"
+
+
+def test_same_article_through_two_redirects_is_read_once():
+    class Dup(FakeTools):
+        def search(self, q):
+            return [{"uri": "https://www.kompas.com/c", "via": "google"}, {"uri": "https://www.kompas.com/c?utm_source=x", "via": "google"}]
+
+    rep = investigate.run(CLAIM, Settings(), toolbox=Dup(), fetch=fetch, judge=judge, plan_ask=plan_ask,
+                          dossier_ask=dossier_ask, today=date(2025, 3, 10))
+    texts = [b["kutipan"] for b in rep["bukti"]]
+    assert len(texts) == len(set(texts))

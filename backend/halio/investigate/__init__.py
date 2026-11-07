@@ -113,6 +113,7 @@ class _Run:
         self.reviews: list[dict] = []
         self.queries: list[str] = []
         self.core = claim
+        self.kept: set[str] = set()
         self.image: tuple[bytes, str] | None = None
         self.vision: dict | None = None
         self.agent_queries: dict[str, int] = {}
@@ -201,6 +202,10 @@ class _Run:
             pool.shutdown(wait=False, cancel_futures=True)
 
     def keep(self, c: dict, page) -> None:
+        final = evidence._canonical(page.final_url)
+        if final in self.kept:   # two search redirects to the same article: read it once
+            return
+        self.kept.add(final)
         tier, publisher, group = evidence.classify(page.final_url)
         wire = evidence.wire_group(page.text)
         if wire and tier == "C":

@@ -29,6 +29,9 @@ def headline(rep: dict, who: list[str]) -> str:
     if r == "dibantah_versi_mirip":
         by = ", ".join(who[:2]) if who else "sumber resmi atau pemeriksa fakta"
         return f"Kabar yang sangat mirip sudah dinyatakan tidak benar oleh {by}."
+    if r == "media_melaporkan_bantahan":
+        by = ", ".join(who[:2]) if who else "media"
+        return f"Media ({by}) memberitakan bantahan atas kabar ini. Belum ada pemeriksa fakta yang memastikannya."
     if s == "tidak_yakin":
         return "Halio belum bisa memastikan. Buktinya belum cukup atau saling bertentangan."
     if s == "sejalan_dengan_sumber":
