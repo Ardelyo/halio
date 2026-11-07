@@ -164,6 +164,23 @@ class SensorStore:
                 out.setdefault(r["source_id"], []).append(d)
         return out
 
+    def items_since(self, since_iso: str, limit: int = 3000) -> list[dict]:
+        # Backfill (what a feed already held at its first poll) is included: for a brief, a headline is a headline.
+        sql = ("SELECT source_id, title, url, published, first_seen FROM sensor_items WHERE first_seen >= ? "
+               "ORDER BY first_seen DESC LIMIT ?")
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(sql, (since_iso, max(1, min(limit, 10000))))]
+
+    def search_items(self, words: list[str], limit: int = 400) -> list[dict]:
+        """Whole archive (backfill included), titles containing any of the words; newest first. The caller scores them."""
+        words = [w for w in words if w][:6]
+        if not words:
+            return []
+        where = " OR ".join("lower(title) LIKE ?" for _ in words)
+        sql = f"SELECT source_id, title, url, published, first_seen FROM sensor_items WHERE {where} ORDER BY first_seen DESC LIMIT ?"
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(sql, [f"%{w.lower()}%" for w in words] + [max(1, min(limit, 2000))])]
+
     def recent_items(self, limit: int = 50, source_id: str | None = None) -> list[dict]:
         sql = "SELECT source_id, title, url, published, first_seen FROM sensor_items WHERE backfill=0"
         args: list = []

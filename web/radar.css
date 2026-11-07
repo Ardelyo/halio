@@ -11,3 +11,19 @@ dialog{color:var(--ink)}dialog::backdrop{background:#0A112085;backdrop-filter:bl
 @media(max-width:420px){.radar-content{padding-left:15px;padding-right:15px}.radar-topbar{padding:0 15px}.page-heading h1{font-size:42px}.metric-card{padding:15px 13px}.metric-label{font-size:8px}.metric-note{min-height:24px}.donut-layout{gap:17px}.donut{width:110px;height:110px}.bar-row{grid-template-columns:minmax(95px,1.2fr) 1fr 24px}.coverage-summary{grid-template-columns:1fr}.queue-tabs{gap:17px}.queue-tabs button{font-size:10px}.refresh-button span{display:none}.access-dialog form{padding:30px 22px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 .evidence-health{grid-column:1/-1}.evidence-summary{margin:0 0 16px;color:var(--ink-2);font-size:12px;line-height:1.6}.evidence-columns{display:grid;grid-template-columns:1fr 1fr;gap:28px}.evidence-columns h3{margin:0 0 10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.evidence-note{margin:16px 0 0;color:var(--muted);font-size:10px}@media(max-width:760px){.evidence-columns{grid-template-columns:1fr}}
+
+.brief-actions { display: flex; flex-direction: column; gap: .6rem; align-items: flex-end; }
+.brief-meta { color: var(--muted); margin: .5rem 0 1rem; }
+.brief-list { display: grid; gap: 14px; }
+.brief-card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.brief-card h3 { margin: .2rem 0 .4rem; font-size: 1.1rem; }
+.brief-rank { font: 700 .8rem var(--display); color: var(--blue); letter-spacing: .05em; }
+.brief-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0; }
+.brief-tags span { font-size: .78rem; padding: .15rem .6rem; border-radius: 99px; background: var(--cream-2); }
+.brief-tags .hot { background: var(--salah-bg); color: var(--salah); }
+.brief-result { margin-top: .7rem; padding: .7rem .9rem; border-radius: 12px; background: var(--cream); }
+.brief-result b { display: block; margin-bottom: .2rem; }
+.brief-heads { margin: .5rem 0 0; padding-left: 1.1rem; font-size: .9rem; }
+.brief-heads li { margin: .2rem 0; overflow-wrap: anywhere; }
+.brief-heads small { color: var(--muted); }
+@media (max-width: 720px) { .brief-actions { align-items: stretch; } }

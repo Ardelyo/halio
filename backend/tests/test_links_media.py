@@ -143,3 +143,50 @@ def test_reading_list_filters_dead_pages(monkeypatch):
     monkeypatch.setattr(reading, "check_link", fake)
     out = reading.build([{"title": "a", "uri": "https://a.com/mati"}, {"title": "b", "uri": "https://b.go.id/x"}, {"title": "c", "uri": "https://c.com/y"}])
     assert [i["url"] for i in out["items"]] == ["https://b.go.id/x", "https://c.com/y"] and out["disaring"] == 1
+
+
+def test_reading_list_keeps_only_pages_about_the_claim():
+    from halio import evidence
+    from halio.source_verifier import Page
+
+    claim = "Anak Jakarta juara satu di Harvard sebagai orang terbodoh"
+    off = Page(text="Empat tips menghindari berita hoax penculikan anak di sekolah.", final_url="https://rri.co.id/a", title="Tips hoax penculikan anak")
+    on = Page(text="Seorang anak Jakarta disebut juara satu di Harvard sebagai orang terbodoh, ini penjelasannya.", final_url="https://www.kompas.com/b", title="Anak Jakarta Harvard")
+    out = evidence.reading_list(claim, [off, on], [], [], [])
+    assert [i["url"] for i in out["items"]] == ["https://www.kompas.com/b"]
+
+
+def test_empty_result_gives_next_steps_and_plain_sentence():
+    from halio.channels.format import reply_text
+    from halio import pipeline
+
+    r = pipeline.check("Seorang anak jakarta berhasil meraih juara 1 di harvard sebagai orang terbodoh", Settings())
+    assert r["status"] == "belum_ada_pemeriksaan" and len(r["cari_sendiri"]) == 3
+    out = reply_text(r, html=True)
+    assert "Cari sendiri" in out and "turnbackhoax.id/?s=" in out
+
+
+def test_green_is_lowered_when_a_factchecker_covers_the_topic_as_hoax():
+    from halio import pipeline
+
+    assert pipeline._factcheck_warns({"items": [{"kind": "cek_fakta", "title": "[HOAKS] Pendaftaran CPNS 2026 Sudah Dibuka"}]})
+    assert not pipeline._factcheck_warns({"items": [{"kind": "media", "title": "Hoaks CPNS"}]})
+    assert not pipeline._factcheck_warns({"items": [{"kind": "cek_fakta", "title": "Cek Fakta: BMKG jelaskan gempa hari ini"}]})
+
+
+def test_attribution_mismatch_is_flagged_but_content_verdict_kept():
+    from halio import pipeline
+    from halio.channels.format import reply_text
+
+    r = pipeline.check("WASPADA!!! Menurut PMI akan terjadi gempa besar dan tsunami tanggal 12 bulan depan. Segera siapkan tas siaga!", Settings())
+    assert r["status"] == "terbukti_salah"
+    assert r["attribution"] and "PMI" in r["attribution"]["pesan"] and "BMKG" in r["attribution"]["bantahan"]
+    assert "Sumber yang disebut berbeda" in reply_text(r, html=True)
+
+
+def test_no_attribution_note_when_same_agency_or_none():
+    from halio import pipeline
+
+    same = pipeline.check("Menurut BMKG akan terjadi gempa besar dan tsunami tanggal 12 bulan depan, segera siapkan tas siaga!", Settings())
+    none = pipeline.check("Akan terjadi gempa besar dan tsunami tanggal 12 bulan depan, segera siapkan tas siaga!", Settings())
+    assert same["attribution"] is None and none["attribution"] is None

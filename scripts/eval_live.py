@@ -86,7 +86,7 @@ def main() -> None:
     store = SensorStore(settings.db_path)
     rows = store.recent_items(limit=200)
     news, hoax = build_sets(rows, {s.id: s.kind for s in SOURCES}, args.news, args.hoax)
-    if not news or not hoax:
+    if not news or (args.hoax and not hoax):
         raise SystemExit(f"Sensor belum punya cukup judul (berita {len(news)}, pemeriksaan fakta {len(hoax)}). Jalankan dengan HALIO_SENSOR=1 beberapa jam dulu.")
 
     def run(claims: list[str]) -> list[dict]:
