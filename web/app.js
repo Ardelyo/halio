@@ -171,10 +171,19 @@ function processPanel(result) {
 }
 
 function readingPanel(result) {
-  const items = result.reading?.items || [];
-  if (!items.length) return "";
-  const safe = items.filter((i) => safeUrl(i.url) !== "#");
-  return `<div class="reading-block"><h3>Bahan bacaan</h3><p class="reading-note">Halaman ini sudah dibuka oleh Halio dan bisa diakses. Pelengkap, bukan dasar vonis.</p><ul>${safe.map((i) => `<li><a href="${esc(safeUrl(i.url))}" target="_blank" rel="noopener noreferrer">${esc(i.title)}</a> <span class="reading-kind ${esc(i.kind)}">${esc(i.kind_label)}</span><small>${esc(i.host)}</small></li>`).join("")}</ul>${result.reading.disaring ? `<small>${result.reading.disaring} tautan lain disaring karena rusak atau tidak bisa dibuka.</small>` : ""}</div>`;
+  const link = (u, text) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`;
+  const items = (result.reading?.items || []).filter((i) => safeUrl(i.url) !== "#");
+  const manual = (result.reading?.buka_sendiri || []).filter((i) => safeUrl(i.url) !== "#");
+  const find = (result.cari_sendiri || []).filter((i) => safeUrl(i.url) !== "#");
+  let html = "";
+  if (items.length) {
+    html += `<div class="reading-block"><h3>Halaman yang Halio buka dan bisa Anda baca</h3><p class="reading-note">Sudah dicek: bukan halaman error. Ini bahan bacaan, bukan dasar vonis; Halio tidak menyatakan isinya benar.</p><ul>${items.map((i) => `<li>${link(i.url, i.title)} <span class="reading-kind ${esc(i.kind)}">${esc(i.kind_label)}</span><small>${esc(i.host)}${i.tanggal ? " · " + esc(i.tanggal) : ""}</small></li>`).join("")}</ul>${result.reading.disaring ? `<small>${result.reading.disaring} halaman lain tidak ditampilkan karena rusak, tidak bisa dibuka, atau tidak membahas klaim ini.</small>` : ""}</div>`;
+  } else if (result.evidence && ["belum_ada_pemeriksaan", "tidak_yakin"].includes(result.status)) {
+    html += `<div class="reading-block"><h3>Bahan bacaan</h3><p class="reading-note">Tidak ada halaman relevan yang bisa dibuka untuk klaim ini.</p></div>`;
+  }
+  if (manual.length) html += `<div class="reading-block"><p class="reading-note">Situs ini menolak dibuka otomatis, mungkin tetap berguna:</p><ul>${manual.map((i) => `<li>${link(i.url, i.title)}<small>${esc(i.host)}</small></li>`).join("")}</ul></div>`;
+  if (find.length) html += `<div class="reading-block"><h3>Cari sendiri</h3><ul>${find.map((i) => `<li>${link(i.url, i.nama)}</li>`).join("")}</ul></div>`;
+  return html;
 }
 
 let stageTimer = 0;
@@ -220,6 +229,7 @@ function render(result, original) {
       <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(LABEL_BY_REASON[result.reason] || result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
       ${infoPanel(result)}
       ${plain ? "" : `<p class="answer-lead">${esc(match && !many ? match.sederhana : result.voice_script)}</p>`}
+      ${result.attribution ? `<p class="warning attribution"><b>Sumber yang disebut berbeda.</b> ${esc(result.attribution.catatan)}</p>` : ""}
       ${claimsPanel(result)}
       ${many ? "" : evidencePanel(result)}
       ${match && !many ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
@@ -471,7 +481,18 @@ function pauseBeforeShare(button, original) {
   tick();
 }
 
+async function showVersion() {
+  const el = $("#version");
+  if (!el) return;
+  if (window.HALIO_STATIC_DEMO) { el.textContent = "Demo statis di browser (tanpa server)"; return; }
+  try {
+    const h = await (await fetch(`${API}/health`)).json();
+    el.textContent = `Halio v${h.version} · build ${h.build || "lokal"} · AI web: ${h.llm ? "aktif" : "mati"}`;
+  } catch { el.textContent = "Versi server tidak terbaca"; }
+}
+
 function init() {
+  showVersion();
   if (window.HALIO_STATIC_DEMO) $("#static-notice").classList.remove("hidden");
   const sapaan = $("#sapaan");
   sapaan.value = store.get("halio.sapaan", "Bapak, Ibu");

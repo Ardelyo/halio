@@ -18,7 +18,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
-from . import claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
+from . import attribution, claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
 from .dates import human_date
 from .pii import extract_domains
@@ -153,6 +153,25 @@ def _apply_evidence(ev, claim: str, status: str, reason: str, best):
     return (status, ev.reason, best) if status == "belum_ada_pemeriksaan" else (status, reason, best)
 
 
+_HOAX_TITLE = re.compile(r"hoa[xk]s?|tidak benar|keliru|disinformasi|penipuan|bohong|\bsalah\b", re.I)
+
+
+def _factcheck_warns(reading: dict) -> bool:
+    return any(i["kind"] == "cek_fakta" and _HOAX_TITLE.search(i["title"]) for i in reading.get("items", []))
+
+
+def _search_links(claim: str) -> list[dict]:
+    """Plain search pages (they cannot be dead links) so the user always has a next step."""
+    from urllib.parse import quote_plus
+
+    q = quote_plus(" ".join(claim.split())[:140])
+    return [
+        {"nama": "Cari beritanya di Google", "url": f"https://www.google.com/search?q={q}"},
+        {"nama": "Cari di Google dengan kata \"hoaks\" / \"cek fakta\"", "url": f"https://www.google.com/search?q={q}+hoaks+OR+%22cek+fakta%22"},
+        {"nama": "Cari di TurnBackHoax", "url": f"https://turnbackhoax.id/?s={q}"},
+    ]
+
+
 def _all_link_warnings(domains: list[str], checked: list[dict]) -> list[str]:
     if not checked:
         return _link_warnings(domains)
@@ -205,7 +224,9 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
             f"belum ada pemeriksa fakta yang memastikannya. Boleh dibagikan dengan menyebut sumbernya, tetapi cek tanggal dan bandingkan dulu."
         )
     if reason in ("satu_media_melaporkan", "laporan_media_tanpa_tanggal_baru", "tidak_ada_sumber_relevan", "media_melaporkan_bantahan") and alasan:
-        return f"{sapaan}, {alasan[0].lower() + alasan[1:]} Halio belum bisa memastikan benar atau salahnya."
+        tail = (" Itu belum berarti pasti salah, tetapi belum ada dasar untuk meneruskannya. Cek tautan bacaan dan pencarian yang Halio sertakan."
+                if reason == "tidak_ada_sumber_relevan" else " Halio belum bisa memastikan benar atau salahnya.")
+        return f"{sapaan}, {alasan[0].lower() + alasan[1:] if not alasan.startswith('Halio') else alasan}{tail}"
     if reason == "berita_media_dikenal" and info:
         tgl = f" pada {human_date(info['terbit'])}" if info.get("terbit") else ""
         return (
@@ -371,6 +392,17 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         status, reason = "belum_ada_pemeriksaan", "kumpulan_judul"
 
     shown = best if status not in ("belum_ada_pemeriksaan", "dilaporkan_media") and reason != "bukan_klaim_faktual" else None
+    reading_out = (evidence_out or {}).get("bacaan") or (llm_note or {}).get("bacaan", {"items": [], "disaring": 0})
+    if status == "sejalan_dengan_sumber" and _factcheck_warns(reading_out):
+        # A fact-checker wrote about this very topic as a hoax: a green light next to that article would mislead.
+        status, reason = "tidak_yakin", "pemeriksa_fakta_membahas_topik_ini"
+    attrib = None
+    if shown is not None:
+        d = shown.debunk
+        attrib = attribution.mismatch(text, f"{d.klaim} {d.fakta} {d.sederhana}")
+        if attrib and status == "sejalan_dengan_sumber":
+            # An official page supports a claim about ITS OWN statement; the message names someone else. Never green.
+            status, reason = "tidak_yakin", "sumber_berbeda_dari_pesan"
     check_id = uuid.uuid4().hex
     return {
         "id": check_id,
@@ -384,7 +416,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         "llm": llm_note,
         "evidence": evidence_out,
         "engine_fallback": engine_fallback,
-        "reading": (llm_note or {}).get("bacaan", {"items": [], "disaring": 0}),
+        "reading": reading_out,
+        "cari_sendiri": _search_links(claim.text) if status in ("belum_ada_pemeriksaan", "tidak_yakin") else [],
+        "attribution": attrib,
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
         "kind": kind,
