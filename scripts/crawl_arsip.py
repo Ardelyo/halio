@@ -32,6 +32,7 @@ OUT = ROOT / "data" / "arsip.jsonl"
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pages", type=int, default=150)
+    ap.add_argument("--start", type=int, default=1, help="first listing page; resume a longer crawl here")
     ap.add_argument("--delay", type=float, default=2.0)
     args = ap.parse_args()
 
@@ -40,7 +41,7 @@ def main() -> None:
         have = {json.loads(line)["url"] for line in OUT.read_text(encoding="utf-8").splitlines() if line.strip()}
     added = kept_false = 0
     with httpx.Client(headers={"User-Agent": UA}, timeout=25, follow_redirects=True) as client, OUT.open("a", encoding="utf-8") as out:
-        for page in range(1, args.pages + 1):
+        for page in range(args.start, args.start + args.pages):
             try:
                 r = client.get("https://turnbackhoax.id/articles", params={"page": page})
             except httpx.HTTPError as exc:

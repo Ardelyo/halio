@@ -19,7 +19,8 @@ def _who(rep: dict) -> list[str]:
     for b in rep.get("bukti", []):
         if b.get("hubungan") in ("refutes", "claimreview") and b["penerbit"] not in names:
             names.append(b["penerbit"])
-    return names[:4]
+    # A bare host name ("al.rekrutmen-tni.mil.id") reads oddly to a grandmother: say it is a website.
+    return [f"situs {n}" if "." in n and " " not in n else n for n in names[:4]]
 
 
 def headline(rep: dict, who: list[str]) -> str:

@@ -405,7 +405,7 @@ def test_archive_match_is_only_a_lead_for_the_engine(tmp_path, monkeypatch):
     from halio import archive
     from halio.ingest.store import SensorStore
 
-    cfg = _cfg(tmp_path)
+    cfg = _cfg(tmp_path, corpus_path=tmp_path / "debunks.json")
     store = SensorStore(cfg.db_path)
     with store._conn() as c:
         for i, (title, url) in enumerate([
@@ -427,7 +427,7 @@ def test_archive_tool_returns_candidates_with_the_archive_role(tmp_path):
     from halio.ingest.store import SensorStore
     from halio.investigate.tools import Toolbox
 
-    cfg = _cfg(tmp_path)
+    cfg = _cfg(tmp_path, corpus_path=tmp_path / "debunks.json")
     with SensorStore(cfg.db_path)._conn() as c:
         c.execute("INSERT INTO sensor_items (source_id, guid, title, url, fingerprint, first_seen) VALUES (?,?,?,?,?,?)",
                   ("liputan6-cekfakta", "1", "Cek Fakta: Tidak Benar Video Prabowo Gibran Bagi Bantuan dengan Daftar Lewat WhatsApp",
