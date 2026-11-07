@@ -164,6 +164,12 @@ class SensorStore:
                 out.setdefault(r["source_id"], []).append(d)
         return out
 
+    def items_since(self, since_iso: str, limit: int = 3000) -> list[dict]:
+        sql = ("SELECT source_id, title, url, published, first_seen FROM sensor_items WHERE backfill=0 AND first_seen >= ? "
+               "ORDER BY first_seen DESC LIMIT ?")
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(sql, (since_iso, max(1, min(limit, 10000))))]
+
     def search_items(self, words: list[str], limit: int = 400) -> list[dict]:
         """Whole archive (backfill included), titles containing any of the words; newest first. The caller scores them."""
         words = [w for w in words if w][:6]

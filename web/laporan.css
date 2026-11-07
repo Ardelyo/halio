@@ -72,3 +72,25 @@ details.lp-method summary { cursor: pointer; font-weight: 600; }
   .lp-sec, .lp-head { break-inside: avoid; border-color: #ccc; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .75rem; color: #555; overflow-wrap: anywhere; }
 }
+
+.lp-toggle { display: flex; gap: .4rem; margin: 0 0 12px; flex-wrap: wrap; }
+.lp-toggle button { font: 600 .9rem var(--sans); padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--line); background: var(--white); cursor: pointer; }
+.lp-toggle button[aria-pressed="true"] { background: var(--blue); color: var(--white); border-color: var(--blue); }
+.lp-photo { display: block; margin-top: .6rem; color: var(--ink-2); font-size: .92rem; }
+.lp-agents { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .6rem; }
+.lp-agents div { background: var(--cream); border-radius: 12px; padding: .7rem; display: flex; flex-direction: column; gap: .2rem; }
+.lp-agents small { color: var(--muted); }
+.lp-agents span { font-size: .85rem; font-weight: 600; color: var(--blue); }
+.fam { background: var(--white); border: 1px solid var(--line); border-radius: 20px; padding: 24px; font-size: 1.2rem; line-height: 1.6; }
+.fam-kicker { color: var(--muted); font-size: .95rem; margin: 0; }
+.fam-head { font: 700 2rem/1.25 var(--display); margin: .3rem 0 .8rem; }
+.fam-head.terbukti_salah { color: var(--salah); } .fam-head.tidak_yakin { color: var(--ragu); } .fam-head.belum_ada_pemeriksaan { color: var(--belum); }
+.fam-head.sejalan_dengan_sumber, .fam-head.dilaporkan_media { color: var(--ok); }
+.fam-claim { color: var(--ink-2); }
+.fam h2 { font: 700 1.3rem var(--display); margin: 1.2rem 0 .4rem; }
+.fam-list li { margin: .5rem 0; }
+.fam-line { margin: .8rem 0; }
+.fam-listen { font-size: 1.1rem; padding: .7rem 1.2rem; }
+.fam-advice { background: var(--sun-soft); border-radius: 14px; padding: .9rem 1.1rem; margin: 1.2rem 0; }
+.fam-advice p { margin: .3rem 0 0; }
+@media (max-width: 600px) { .fam { font-size: 1.1rem; padding: 18px; } .fam-head { font-size: 1.6rem; } }

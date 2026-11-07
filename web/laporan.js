@@ -29,7 +29,17 @@ function fail(text, retry = false) {
 async function start(text) {
   $("#go").disabled = true;
   try {
-    const r = await fetch(`${API}/api/investigate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, channel: "web" }) });
+    const body = { text, channel: "web" };
+    const file = $("#photo")?.files?.[0];
+    if (file) {
+      if (file.size > 6_000_000) throw new Error("Foto terlalu besar (maksimal 6 MB).");
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let bin = "";
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      body.image_b64 = btoa(bin); body.mime = file.type || "image/jpeg";
+      if (text.length < 10) body.text = "Foto tanpa tulisan yang diteruskan pengguna";
+    }
+    const r = await fetch(`${API}/api/investigate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.detail || r.statusText);
     history.replaceState(null, "", `?id=${data.id}`);
@@ -68,11 +78,61 @@ function sentences(list) {
   return (list || []).map((s) => `<p class="s">${esc(s.teks)}${s.sumber.map((n) => `<a class="cite" href="#b${n}">[${n}]</a>`).join("")}</p>`).join("");
 }
 
+let VIEW = new URLSearchParams(location.search).get("tampilan") === "keluarga" ? "keluarga" : "analis";
+let LAST = null;
+
+function toggleBar() {
+  return `<div class="lp-toggle" role="group" aria-label="Pilih tampilan"><button type="button" data-view="keluarga" aria-pressed="${VIEW === "keluarga"}">Tampilan keluarga</button><button type="button" data-view="analis" aria-pressed="${VIEW === "analis"}">Tampilan analis</button></div>`;
+}
+
+function wireToggle() {
+  document.querySelectorAll("[data-view]").forEach((b) => {
+    b.onclick = () => {
+      VIEW = b.dataset.view;
+      const q = new URLSearchParams(location.search); q.set("tampilan", VIEW); history.replaceState(null, "", `?${q}`);
+      renderReport(...LAST);
+    };
+  });
+  const listen = $("#listen");
+  if (listen) listen.onclick = () => {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(LAST[0].keluarga?.suara || "");
+    u.lang = "id-ID"; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  };
+}
+
+function renderFamily(r) {
+  const f = r.keluarga || {};
+  const g = r.gambar;
+  return `${toggleBar()}<article class="fam">
+    <p class="fam-kicker">Hasil penelusuran Halio</p>
+    <h1 class="fam-head ${esc(r.status)}">${STATUS_ICON[r.status] || ""} ${esc(f.judul || r.status_label)}</h1>
+    <p class="fam-claim">Kabar yang diperiksa: “${esc(r.klaim)}”</p>
+    <button id="listen" class="lp-primary fam-listen" type="button">🔊 Dengarkan</button>
+    ${(f.poin || []).length ? `<h2>Yang perlu diketahui</h2><ul class="fam-list">${f.poin.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+    ${f.sejak ? `<p class="fam-line">🕰 ${esc(f.sejak)}</p>` : ""}
+    ${(f.pembantah || []).length ? `<p class="fam-line">🛡 Yang sudah membantah: <b>${f.pembantah.map(esc).join(", ")}</b></p>` : ""}
+    ${g ? `<p class="fam-line">🖼 Foto yang sama ditemukan di ${esc(g.halaman_sama + g.halaman_mirip)} halaman${g.paling_awal ? `, paling awal ${esc(g.paling_awal.tanggal)}` : ""}.</p>` : ""}
+    <div class="fam-advice"><b>Sebaiknya</b><p>${esc(f.saran || "")}</p></div>
+    <p class="lp-muted">Halio membuka ${esc(r.metode?.dibuka ?? 0)} halaman untuk menyusun ini. Halio membantu memeriksa, bukan menggantikan penilaian Anda.</p>
+  </article>`;
+}
+
 function renderReport(r, job) {
+  LAST = [r, job];
+  if (VIEW === "keluarga") {
+    $("#report").innerHTML = renderFamily(r);
+    show("#report");
+    wireToggle();
+    return;
+  }
   const m = r.metode || {};
   const a = r.asal;
   const bar = "■".repeat(r.kekuatan || 0) + "□".repeat(4 - (r.kekuatan || 0));
   const html = [];
+  html.push(toggleBar());
   html.push(`<header class="lp-head"><div class="lp-kicker">Laporan Halio Telusur · ${esc(job.dibuat || r.dibuat)}</div>
     <p class="lp-claim">“${esc(r.klaim)}”</p>
     ${r.inti ? `<p class="lp-muted">Inti klaim yang dicari: ${esc(r.inti)}</p>` : ""}
@@ -90,6 +150,19 @@ function renderReport(r, job) {
       <p><b>Kemunculan paling awal:</b> ${esc(f.tanggal)} · ${esc(f.penerbit)} (${esc(VIA[f.asal] || f.asal)}) · ${link(f.url, f.judul || f.url)}</p>
       ${t ? `<p><b>Tanggapan pertama sumber resmi / pemeriksa fakta:</b> ${esc(t.tanggal)} · ${esc(t.penerbit)} · ${link(t.url, t.judul || t.url)}</p>` : "<p>Belum ditemukan tanggapan sumber resmi atau pemeriksa fakta yang bertanggal.</p>"}
       <p class="lp-muted">${esc(a.catatan)}</p></section>`);
+  }
+  if (r.gambar) {
+    const g = r.gambar, f = g.paling_awal;
+    html.push(`<section class="lp-sec"><h2>Pencarian gambar terbalik</h2>
+      <p>${esc(g.halaman_sama)} halaman memuat gambar yang sama persis, ${esc(g.halaman_mirip)} memuat gambar mirip; ${esc(g.dibuka)} dibuka.</p>
+      ${f ? `<p><b>Kemunculan gambar paling awal yang ditemukan:</b> ${esc(f.tanggal)} · ${link(f.url, f.judul || f.host)}</p>` : ""}
+      ${(g.label || []).length ? `<p>Tebakan Vision: ${g.label.map(esc).join(", ")}${(g.entitas || []).length ? ` · entitas: ${g.entitas.map(esc).join(", ")}` : ""}</p>` : ""}
+      <p class="lp-muted">${esc(g.catatan)}</p></section>`);
+  }
+  if ((r.agen || []).length) {
+    html.push(`<section class="lp-sec"><h2>Swarm agen (${r.agen.length} bekerja paralel)</h2><div class="lp-agents">${r.agen.map((a) =>
+      `<div><b>${esc(a.nama)}</b><small>${esc(a.tugas)}</small><span>${esc(a.kueri)} kueri · ${esc(a.temuan)} temuan · ${esc(a.halaman_relevan)} halaman relevan</span></div>`).join("")}</div>
+      <p class="lp-muted">Semua agen mengisi satu kumpulan bukti bersama yang dideduplikasi. Vonis tetap diputuskan aturan kode.</p></section>`);
   }
   if ((r.linimasa || []).length) {
     html.push(`<section class="lp-sec"><h2>Linimasa (${r.linimasa.length})</h2><ol class="lp-line">${r.linimasa.map((e) =>
@@ -122,6 +195,7 @@ function renderReport(r, job) {
     <p>Kueri yang dijalankan:</p><ol class="lp-list">${(m.daftar_kueri || []).map((q) => `<li>${esc(q)}</li>`).join("")}</ol></details></section>`);
   $("#report").innerHTML = html.join("");
   show("#report");
+  wireToggle();
   document.title = `Telusur: ${r.klaim.slice(0, 60)} — Halio`;
 }
 
@@ -138,6 +212,10 @@ function init() {
   show("#start");
   if (q.get("q")) $("#claim").value = q.get("q");
   if (q.get("q") && q.get("mulai") === "1") return start(q.get("q"));
-  $("#go").onclick = () => { const t = $("#claim").value.trim(); if (t.length >= 10) start(t); else fail("Klaimnya terlalu pendek (minimal 10 huruf).", true); };
+  $("#go").onclick = () => {
+    const t = $("#claim").value.trim();
+    if (t.length >= 10 || $("#photo")?.files?.length) start(t);
+    else fail("Tulis klaimnya (minimal 10 huruf) atau pilih foto.", true);
+  };
 }
 init();

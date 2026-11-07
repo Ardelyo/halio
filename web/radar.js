@@ -271,6 +271,7 @@ function renderCoverage() {
 
 function switchView(view) {
   state.view = view;
+  if (view === "brief") loadBrief();
   document.querySelectorAll(".dashboard-view").forEach((element) => element.classList.toggle("hidden", element.id !== `view-${view}`));
   document.querySelectorAll(".nav-item").forEach((button) => {
     const active = button.dataset.view === view;
@@ -361,7 +362,66 @@ function openAccess() {
   if (!$("#access-dialog").open) $("#access-dialog").showModal();
 }
 
+const BRIEF_ICON = { terbukti_salah: "🔴", sejalan_dengan_sumber: "🟢", dilaporkan_media: "🔵", tidak_yakin: "🟠", belum_ada_pemeriksaan: "⚪" };
+state.briefTopic = "tni";
+
+async function loadBrief() {
+  if (STATIC) { $("#brief-list").innerHTML = '<p class="brief-meta">Brief harian membutuhkan server Halio dengan sensor dan AI aktif.</p>'; return; }
+  $("#brief-meta").textContent = "Memuat brief…";
+  try {
+    const data = await request(`/api/brief?topic=${encodeURIComponent(state.briefTopic)}`);
+    renderBrief(data);
+    const running = (data.brief?.narasi || []).some((n) => n.hasil && ["antre", "berjalan"].includes(n.hasil.status));
+    clearTimeout(state.briefTimer);
+    if (running && state.view === "brief") state.briefTimer = setTimeout(loadBrief, 6000);
+  } catch (error) {
+    $("#brief-meta").textContent = error.status === 401 ? "Brief memerlukan akses analis (token Radar)." : error.message;
+    $("#brief-list").innerHTML = "";
+  }
+}
+
+function renderBrief(data) {
+  const b = data.brief;
+  if (!b) {
+    $("#brief-meta").textContent = `Belum ada brief untuk ${data.label}. ${data.otomatis ? "Brief otomatis disusun setiap pagi setelah 06.00 WIB." : "Tekan “Susun brief sekarang”."}`;
+    $("#brief-list").innerHTML = ""; return;
+  }
+  $("#brief-meta").textContent = `${b.label} · disusun ${formatDate(b.dibuat, true)} · ${b.berita_dibaca.toLocaleString("id-ID")} berita dibaca dalam ${b.jendela_jam} jam, ${b.berita_cocok_topik.toLocaleString("id-ID")} cocok topik, ${b.narasi.length} narasi.`;
+  $("#brief-note").textContent = b.catatan;
+  if (!b.narasi.length) { $("#brief-list").innerHTML = '<p class="brief-meta">Tidak ada narasi yang cocok dengan topik ini dalam jendela waktu.</p>'; return; }
+  $("#brief-list").innerHTML = b.narasi.map((n, i) => {
+    const h = n.hasil;
+    let result = "";
+    if (n.investigasi) {
+      const link = `<a href="laporan.html?id=${encodeURIComponent(n.investigasi)}" target="_blank" rel="noopener">Buka laporan lengkap ↗</a>`;
+      if (!h || ["antre", "berjalan"].includes(h.status)) result = `<div class="brief-result"><b>Sedang ditelusuri swarm… (${esc(h?.tahap || "antre")})</b>${link}</div>`;
+      else if (h.status === "gagal") result = `<div class="brief-result"><b>Penelusuran gagal.</b>${link}</div>`;
+      else result = `<div class="brief-result"><b>${BRIEF_ICON[h.kode_status] || ""} ${esc(h.status_label)}</b>${(h.ringkasan || []).map((s) => `<p>${esc(s)}</p>`).join("")}
+        <p class="brief-meta">${h.asal ? `Kemunculan paling awal yang ditemukan: ${esc(h.asal.tanggal)} · ${esc(h.asal.penerbit)} · ` : ""}${esc(h.bukti)} bukti · ${esc(h.dibuka ?? 0)} halaman dibuka</p>${link}</div>`;
+    } else if (n.catatan) result = `<div class="brief-result">${esc(n.catatan)}</div>`;
+    return `<article class="brief-card"><span class="brief-rank">NARASI ${i + 1} · SKOR ${esc(n.skor)}</span><h3>${esc(n.judul)}</h3>
+      <div class="brief-tags"><span>${esc(n.jumlah_berita)} berita</span><span>${esc(n.jumlah_sumber)} sumber</span>${n.jenis_sumber.includes("cek_fakta") ? '<span class="hot">pemeriksa fakta terlibat</span>' : ""}${n.berbau_hoaks ? '<span class="hot">kata hoaks/penipuan</span>' : ""}<span>pertama ${esc(formatDate(n.pertama, true))}</span></div>
+      <ul class="brief-heads">${n.berita.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber)}</small></li>`).join("")}</ul>${result}</article>`;
+  }).join("");
+}
+
+async function runBrief() {
+  const button = $("#brief-run");
+  button.disabled = true;
+  try { await request(`/api/brief/run?topic=${encodeURIComponent(state.briefTopic)}`, { method: "POST" }); toast("Brief disusun; tiga narasi teratas sedang ditelusuri."); await loadBrief(); }
+  catch (error) { toast(error.status === 401 ? "Perlu akses analis (token Radar)." : error.message, true); }
+  finally { button.disabled = false; }
+}
+
 function init() {
+  document.querySelectorAll("[data-topic]").forEach((button) => {
+    button.onclick = () => {
+      state.briefTopic = button.dataset.topic;
+      document.querySelectorAll("[data-topic]").forEach((item) => { item.classList.toggle("active", item === button); item.setAttribute("aria-pressed", String(item === button)); });
+      loadBrief();
+    };
+  });
+  $("#brief-run").onclick = runBrief;
   if (STATIC) $("#demo-notice").classList.remove("hidden");
   document.querySelectorAll(".nav-item").forEach((button) => { button.onclick = () => switchView(button.dataset.view); });
   document.querySelectorAll("[data-go-queue]").forEach((button) => { button.onclick = () => switchView("queue"); });

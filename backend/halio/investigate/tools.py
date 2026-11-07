@@ -108,6 +108,11 @@ class Toolbox:
                 out.append({"uri": url, "title": a.get("title", ""), "via": "gdelt", "seen": d, "domain": a.get("domain", "")})
         return out
 
+    def reverse_image(self, image: tuple[bytes, str]) -> dict:
+        from .reverse_image import web_detection
+
+        return web_detection(image[0], self.cfg)
+
     def wayback_first(self, url: str) -> str:
         """ISO date of the first archived capture, or ''."""
         try:

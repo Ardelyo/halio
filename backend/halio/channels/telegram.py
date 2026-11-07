@@ -85,8 +85,10 @@ def keyboard_for(result: dict) -> list[list[dict]]:
         rows.append([{"text": "🧠 Kenali triknya", "callback_data": f"trik:{result['id']}"}])
     if result["status"] in ("terbukti_salah", "sejalan_dengan_sumber"):
         rows.append([{"text": "⚖️ Ajukan banding", "callback_data": f"app:{result['id']}"}])
-    if result.get("kind", "pesan") == "pesan":
-        rows.append([{"text": "🔬 Telusuri mendalam (laporan analis)", "callback_data": f"tel:{result['id']}"}])
+    if result.get("_photo_key"):
+        rows.append([{"text": "🔬 Telusuri mendalam + cari asal foto", "callback_data": f"teli:{result['_photo_key']}"}])
+    elif result.get("kind", "pesan") == "pesan":
+        rows.append([{"text": "🔬 Telusuri mendalam (laporan lengkap)", "callback_data": f"tel:{result['id']}"}])
     return rows
 
 
@@ -102,27 +104,31 @@ def _report_link(job_id: str) -> str:
     return f"{PUBLIC_URL}/laporan.html?id={job_id}" if PUBLIC_URL.startswith("https://") else ""
 
 
-def investigation_summary(rep: dict, job_id: str) -> str:
+def investigation_summary(rep: dict, job_id: str, sapaan: str = "Bapak, Ibu") -> str:
+    """Family first: plain words with the user's form of address. The analyst detail is one tap away (report link)."""
     e = lambda s: html.escape(str(s), quote=False)  # noqa: E731
     icon = {"terbukti_salah": "🔴", "sejalan_dengan_sumber": "🟢", "dilaporkan_media": "🔵", "tidak_yakin": "🟠"}.get(rep["status"], "⚪")
+    fam = rep.get("keluarga") or {}
     m = rep.get("metode", {})
-    lines = [f"🔬 <b>Laporan Telusur</b>", f"{icon} <b>{e(rep['status_label'])}</b> · kekuatan bukti {rep.get('kekuatan', 0)}/4", "",
-             f"“{e(rep['klaim'][:200])}”", ""]
-    for s in (rep.get("laporan") or {}).get("ringkasan", [])[:3]:
-        lines.append(f"• {e(s['teks'][:300])} " + "".join(f"[{n}]" for n in s["sumber"]))
-    a = rep.get("asal")
-    if a:
-        f = a["pertama"]
-        lines += ["", f"🕰 <b>Kemunculan paling awal yang ditemukan</b>: {e(f['tanggal'])}, {e(f['penerbit'])}"]
-        if a.get("tanggapan_pertama"):
-            t = a["tanggapan_pertama"]
-            lines.append(f"🛡 Tanggapan resmi/pemeriksa fakta pertama: {e(t['tanggal'])}, {e(t['penerbit'])}")
+    lines = [f"🔬 <b>Hasil penelusuran Halio</b>", "", f"{icon} <b>{e(sapaan)}, {e(fam.get('judul') or rep['status_label'])}</b>", "",
+             f"Kabar yang diperiksa: “{e(rep['klaim'][:200])}”"]
+    points = fam.get("poin") or [s["teks"] for s in (rep.get("laporan") or {}).get("ringkasan", [])]
+    if points:
+        lines += ["", "<b>Yang perlu diketahui:</b>"] + [f"• {e(p[:280])}" for p in points[:3]]
+    if fam.get("sejak"):
+        lines += ["", f"🕰 {e(fam['sejak'])}"]
     refs = [b for b in rep.get("bukti", []) if b["hubungan"] in ("refutes", "claimreview")][:3]
     if refs:
-        lines += ["", "📚 <b>Bantahan</b>:"] + [f'  [{b["no"]}] <a href="{html.escape(b["url"])}">{e(b["penerbit"])}</a>' for b in refs]
-    lines += ["", f"Dicari: {m.get('kueri', 0)} kueri · {m.get('kandidat', 0)} kandidat · {m.get('dibuka', 0)} halaman dibuka · {m.get('detik', 0)} detik"]
+        lines += ["", "🛡 <b>Yang sudah membantah:</b> " + ", ".join(f'<a href="{html.escape(b["url"])}">{e(b["penerbit"])}</a>' for b in refs)]
+    if rep.get("gambar"):
+        g = rep["gambar"]
+        first = g.get("paling_awal")
+        lines += ["", f"🖼 Foto yang sama ditemukan di {g['halaman_sama'] + g['halaman_mirip']} halaman"
+                      + (f"; paling awal {e(first['tanggal'])} di {e(first['host'])}." if first else ".")]
+    lines += ["", f"👉 <b>Sebaiknya:</b> {e(fam.get('saran', ''))}", "",
+              f"<i>Halio membuka {m.get('dibuka', 0)} halaman dari {m.get('kandidat', 0)} kandidat dalam {m.get('detik', 0)} detik.</i>"]
     url = _report_link(job_id)
-    lines.append(f'📄 <a href="{html.escape(url)}">Buka laporan lengkap</a> (linimasa, semua bukti, titik buta)' if url else
+    lines.append(f'📄 <a href="{html.escape(url)}">Laporan lengkap</a> (semua bukti, linimasa, asal-usul; untuk yang ingin tahu rinciannya)' if url else
                  "Laporan lengkap tersedia di situs Halio.")
     return "\n".join(lines)
 
@@ -137,7 +143,7 @@ def _follow_job(chat_id: int, job_id: str, message_id: int | None) -> None:
         except (httpx.HTTPError, ValueError):
             continue
         if job.get("status") == "selesai" and job.get("laporan"):
-            tg("sendMessage", json={"chat_id": chat_id, "text": investigation_summary(job["laporan"], job_id), "parse_mode": "HTML",
+            tg("sendMessage", json={"chat_id": chat_id, "text": investigation_summary(job["laporan"], job_id, sapaan_by_chat.get(chat_id, "Bapak, Ibu")), "parse_mode": "HTML",
                                     "disable_web_page_preview": True})
             return
         if job.get("status") == "gagal":
@@ -152,10 +158,28 @@ def _follow_job(chat_id: int, job_id: str, message_id: int | None) -> None:
     tg("sendMessage", json={"chat_id": chat_id, "text": "Penelusuran terlalu lama. Buka laporannya nanti: " + (_report_link(job_id) or "situs Halio")})
 
 
-def start_investigation(chat_id: int, text: str = "", check_id: str | None = None) -> None:
+photo_refs: dict[str, tuple[str, str, str]] = {}   # short key -> (Telegram file_id, mime, text read from the photo)
+PHOTO_ONLY = "Foto tanpa tulisan yang diteruskan pengguna"
+
+
+def _remember_photo(file_id: str, mime: str, text: str) -> str:
+    import uuid
+
+    if len(photo_refs) > 500:
+        photo_refs.pop(next(iter(photo_refs)))
+    key = uuid.uuid4().hex[:12]
+    photo_refs[key] = (file_id, mime, text)
+    return key
+
+
+def start_investigation(chat_id: int, text: str = "", check_id: str | None = None, image: tuple[bytes, str] | None = None) -> None:
+    import base64
+
     body = {"text": text or "x" * 10, "channel": "telegram", "reporter": f"tg:{chat_id}"}
     if check_id:
         body["check_id"] = check_id
+    if image:
+        body["image_b64"], body["mime"] = base64.b64encode(image[0]).decode(), image[1]
     try:
         r = httpx.post(f"{API_URL}/api/investigate", json=body, headers=CHANNEL_HEADERS, timeout=15)
     except httpx.HTTPError:
@@ -246,9 +270,14 @@ def handle_media(chat_id: int, ref: tuple[str, str], reply_to: int | None = None
         log.warning("Media check failed for chat %s: %s", chat_id, type(exc).__name__)
         tg("sendMessage", json={"chat_id": chat_id, "text": BUSY})
         return
+    photo = mime.startswith("image/")
     if not result.get("readable", True):
-        tg("sendMessage", json={"chat_id": chat_id, "text": result["message"]})
+        markup = {"inline_keyboard": [[{"text": "🔬 Cari asal foto ini di internet", "callback_data": f"teli:{_remember_photo(file_id, mime, '')}"}]]} if photo else None
+        tg("sendMessage", json={"chat_id": chat_id, "text": result["message"] + ("\nHalio tetap bisa mencari di mana foto ini pernah muncul." if photo else ""),
+                                **({"reply_markup": markup} if markup else {})})
         return
+    if photo:
+        result["_photo_key"] = _remember_photo(file_id, mime, result.get("claim", ""))
     note = "Halio membaca tulisan/ucapan di berkas Anda. Halio <b>tidak menilai apakah fotonya asli</b>, hanya isinya."
     if result["media"].get("looks_edited"):
         note += "\n⚠️ Ada tanda foto ini sudah disunting."
@@ -344,6 +373,19 @@ def handle_callback(cb: dict) -> None:
         text = "Banding dicatat. Tim akan meninjau ulang sumbernya. Terima kasih sudah kritis!"
     elif action == "tel":
         start_investigation(chat_id, check_id=check_id)
+        return
+    elif action == "teli":
+        ref = photo_refs.get(check_id)
+        if not ref:
+            tg("sendMessage", json={"chat_id": chat_id, "text": "Fotonya sudah tidak tersimpan. Kirim ulang fotonya, ya."})
+            return
+        try:
+            info = tg("getFile", json={"file_id": ref[0]})["result"]
+            raw = httpx.get(f"https://api.telegram.org/file/bot{TOKEN}/{info['file_path']}", timeout=40).content
+        except (httpx.HTTPError, KeyError, TypeError):
+            tg("sendMessage", json={"chat_id": chat_id, "text": BUSY})
+            return
+        start_investigation(chat_id, text=ref[2] if len(ref[2]) >= 10 else PHOTO_ONLY, image=(raw, ref[1]))
         return
     elif action == "trik":
         r = httpx.get(f"{API_URL}/api/check/{check_id}", timeout=10)

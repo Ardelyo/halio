@@ -24,7 +24,7 @@ from ..pii import scrub
 from ..source_verifier import SourceError, fetch_page
 from ..store import WIB
 from ..textnorm import tokens
-from . import dossier, origin, planner
+from . import dossier, keluarga, origin, planner, roles
 from .tools import Toolbox
 
 log = logging.getLogger(__name__)
@@ -35,6 +35,9 @@ BLIND_SPOTS = [
     "Halaman yang hanya tampil dengan JavaScript, berbayar, atau menolak program (HTTP 403): tidak terbaca.",
     "Keaslian foto/video (rekayasa AI, deepfake) tidak dinilai.",
 ]
+
+
+PHOTO_ONLY = "Foto tanpa tulisan yang diteruskan pengguna"
 
 
 @dataclass
@@ -110,6 +113,10 @@ class _Run:
         self.reviews: list[dict] = []
         self.queries: list[str] = []
         self.core = claim
+        self.image: tuple[bytes, str] | None = None
+        self.vision: dict | None = None
+        self.agent_queries: dict[str, int] = {}
+        self.agent_hits: dict[str, int] = {}
 
     def left(self) -> float:
         return self.b.seconds - (self.clock() - self.t0)
@@ -120,29 +127,35 @@ class _Run:
                 "detik": round(self.clock() - self.t0, 1)}
 
     # -- candidates --------------------------------------------------------------------------------------------
-    def add(self, hits: list[dict]) -> None:
+    def add(self, hits: list[dict], agent: str = "umum") -> None:
         for h in hits:
             uri = h.get("uri", "")
             if not uri.startswith("https://") or outlets.is_not_a_source(uri) and "vertexaisearch" not in uri:
                 continue
             key = evidence._canonical(uri)
-            c = self.cands.setdefault(key, {"uri": uri, "title": h.get("title", ""), "via": set(), "hits": 0})
+            c = self.cands.setdefault(key, {"uri": uri, "title": h.get("title", ""), "via": set(), "agen": set(), "hits": 0})
             c["via"].add(h.get("via", "?"))
+            c["agen"].add(agent)
             c["hits"] += 1
             c["title"] = c["title"] or h.get("title", "")
+            self.agent_hits[agent] = self.agent_hits.get(agent, 0) + 1
 
-    def gather(self, queries: list[str], first: bool) -> None:
-        self.queries += queries
+    def gather(self, tasks: list[tuple[str, str]], first: bool) -> None:
+        """tasks: (agent, query). All agents search at the same time; their hits land in one shared candidate pool."""
+        self.queries += [q for _, q in tasks]
+        for agent, _ in tasks:
+            self.agent_queries[agent] = self.agent_queries.get(agent, 0) + 1
         self.say(stage="mencari", **self.stats())
-        with ThreadPoolExecutor(max_workers=6) as pool:
-            jobs = [pool.submit(self.tools.search, q) for q in queries]
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            jobs = {pool.submit(self.tools.search, q): agent for agent, q in tasks}
             if first:
-                jobs += [pool.submit(self.tools.sensor, self.claim), pool.submit(self.tools.claimreview, self.claim),
-                         pool.submit(self.tools.gdelt, self.claim)]
+                jobs[pool.submit(self.tools.sensor, self.core)] = "arsip"
+                jobs[pool.submit(self.tools.claimreview, self.core)] = "cek_fakta"
+                jobs[pool.submit(self.tools.gdelt, self.core)] = "arsip"
             try:
                 for f in as_completed(jobs, timeout=max(5.0, self.left() - 30)):
                     hits = f.result() or []
-                    self.add(hits)
+                    self.add(hits, jobs[f])
                     self.side += [h for h in hits if h.get("via") in ("sensor", "gdelt", "claimreview")]
                     self.reviews += [h for h in hits if h.get("via") == "claimreview"]
                     self.say(stage="mencari", **self.stats())
@@ -199,7 +212,8 @@ class _Run:
         host = urlparse(page.final_url).hostname or ""
         self.pages.append({"url": page.final_url, "host": host, "judul": page.title or c.get("title") or host, "penerbit": publisher,
                            "tingkat": tier, "tingkat_label": origin.KIND_LABEL[tier], "tanggal": (page.published or "")[:10],
-                           "relevan": bool(found), "via": sorted(c["via"]), "grup": group})
+                           "relevan": bool(found), "via": sorted(c["via"]), "agen": sorted(c.get("agen", [])), "grup": group,
+                           "gambar_sama": "gambar" in c.get("agen", ())})
         for text in found:
             self.passages.append(evidence.Passage(id=0, text=text, url=page.final_url, host=host, tier=tier, publisher=publisher,
                                                   group=group, published=evidence.parse_date(page.published), title=page.title))
@@ -233,18 +247,30 @@ class _Run:
 
 def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: Budget | None = None, toolbox=None,
         fetch=fetch_page, judge=evidence.gemini_judge, plan_ask=planner._ask, dossier_ask=dossier._ask,
-        today: date | None = None, clock=time.monotonic) -> dict:
+        today: date | None = None, clock=time.monotonic, image: tuple[bytes, str] | None = None) -> dict:
     from ..pipeline import STATUS_LABEL
 
     budget = budget or Budget()
     today = today or datetime.now(WIB).date()
     claim = claims.extract(text).text
     r = _Run(claim, cfg, budget, toolbox or Toolbox(cfg), fetch, judge, progress, clock)
+    r.image = image
+    if image:  # the picture first: for a photo without words, what the web says about it IS the claim to investigate
+        r.say(stage="mencari", **r.stats())
+        try:
+            r.vision = r.tools.reverse_image(image)
+        except Exception as exc:
+            r.vision = {"aktif": False, "galat": f"tidak_tersedia ({type(exc).__name__})", "hits": []}
+        r.agent_queries["gambar"] = 1
+        r.add(r.vision.get("hits", []), "gambar")
+        if r.vision.get("aktif") and (len(set(tokens(claim))) < 3 or claim.startswith(PHOTO_ONLY)):
+            claim = " ".join([*r.vision.get("label", []), *r.vision.get("entitas", [])[:4]])[:200] or claim
+            r.claim = r.core = claim
 
     r.say(stage="merencanakan", **r.stats())
     queries, core = planner.plan(claim, cfg, limit=budget.queries, ask=plan_ask)
     r.core = core or claim
-    r.gather(queries, first=True)
+    r.gather([("umum", q) for q in queries] + roles.tasks(r.core), first=True)
     r.read()
     r.judge_new()
 
@@ -253,7 +279,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         found = sorted((p for p in r.pages if p["relevan"]), key=lambda p: p["tanggal"] or "9999")
         more = planner.follow_up(claim, found, r.queries, cfg, limit=budget.followups, ask=plan_ask)
         if more:
-            r.gather(more, first=False)
+            r.gather([("asal", q) for q in more], first=False)
             r.read()
             r.judge_new()
 
@@ -278,7 +304,9 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
 
     # timeline: pages with a date, side hits with a date, and the first archive capture of the earliest relevant pages
     events = [{"tanggal": p["tanggal"], "judul": p["judul"], "url": p["url"], "penerbit": p["penerbit"], "tingkat": p["tingkat"],
-               "asal": "halaman", "catatan": "membahas klaim" if p["relevan"] else ""} for p in r.pages if p["relevan"]]
+               "asal": "gambar" if p["gambar_sama"] and not p["relevan"] else "halaman",
+               "catatan": ("memuat gambar yang sama; " if p["gambar_sama"] else "") + ("membahas klaim" if p["relevan"] else "")}
+              for p in r.pages if p["relevan"] or p["gambar_sama"]]
     events += [{"tanggal": h.get("seen") or h.get("tanggal", ""), "judul": h.get("title", ""), "url": h["uri"],
                 "penerbit": h.get("penerbit") or h.get("domain") or urlparse(h["uri"]).hostname, "tingkat": _tier(h["uri"]),
                 "asal": h["via"], "catatan": h.get("penilaian", "")} for h in r.side]
@@ -302,9 +330,18 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         spots.append("GDELT tidak memberi hasil atau tidak tersedia; cakupan berita internasional terbatas.")
     if r.failed.get("http_403"):
         spots.append(f"{r.failed['http_403']} situs menolak dibuka otomatis (HTTP 403).")
+    if image and not (r.vision or {}).get("aktif"):
+        spots.append("Pencarian gambar terbalik tidak berjalan: " + ((r.vision or {}).get("galat") or "tidak tersedia") + ".")
+    gambar = None
+    if r.vision and r.vision.get("aktif"):
+        img_pages = sorted((p for p in r.pages if p["gambar_sama"]), key=lambda p: p["tanggal"] or "9999")
+        gambar = {"label": r.vision["label"], "entitas": r.vision["entitas"], "halaman_sama": r.vision["sama"],
+                  "halaman_mirip": r.vision["mirip"], "dibuka": len(img_pages),
+                  "paling_awal": img_pages[0] if img_pages and img_pages[0]["tanggal"] else None,
+                  "catatan": "Menunjukkan di mana gambar ini pernah muncul, bukan apakah gambar itu asli atau hasil rekayasa."}
 
     reading = sorted((p for p in r.pages if p["relevan"]), key=lambda p: ("ABCD".index(p["tingkat"]), p["tanggal"] or "9999"))
-    return {
+    rep = {
         "klaim": claim,
         "inti": r.core if r.core != claim else "",
         "klaim_lain": [c for c in (scrub(u) for u in claims.split_units(text)) if c.strip() and c.strip() != claim][:3],
@@ -323,4 +360,8 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         "dibuat": datetime.now(WIB).isoformat(timespec="seconds"),
         "catatan": "Vonis berasal dari aturan kode atas kutipan yang disalin kode. AI hanya mencari, menilai hubungan kutipan bernomor, "
                    "dan menulis kalimat yang kemudian diperiksa ulang oleh kode.",
+        "agen": roles.summary(r.agent_queries, r.agent_hits, r.pages),
+        "gambar": gambar,
     }
+    rep["keluarga"] = keluarga.build(rep)
+    return rep

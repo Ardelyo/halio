@@ -235,7 +235,7 @@ function render(result, original) {
       ${match && !many ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
       ${result.llm?.kutipan ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
       ${processPanel(result)}
-      ${window.HALIO_STATIC_DEMO ? "" : `<div class="telusur-cta"><a class="action-button" href="laporan.html?mulai=1&q=${encodeURIComponent(result.claim || original || "")}">🔬 Telusuri mendalam</a><small>Laporan analis: puluhan sumber, linimasa, asal-usul yang ditemukan. 1–3 menit.</small></div>`}
+      ${window.HALIO_STATIC_DEMO ? "" : `<div class="telusur-cta"><a class="action-button" href="laporan.html?mulai=1&tampilan=keluarga&q=${encodeURIComponent(result.claim || original || "")}">🔬 Telusuri mendalam</a><small>Laporan analis: puluhan sumber, linimasa, asal-usul yang ditemukan. 1–3 menit.</small></div>`}
       ${readingPanel(result)}
       <div class="next-steps"><h3>Yang bisa Anda lakukan</h3><ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></div>
       ${warnings.map((warning) => `<p class="warning">${esc(warning)}</p>`).join("")}

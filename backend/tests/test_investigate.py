@@ -243,7 +243,7 @@ def test_telegram_telusur_command_and_summary(monkeypatch):
            "bukti": [{"no": 1, "hubungan": "refutes", "url": "https://komdigi.go.id/x", "penerbit": "Komdigi"}],
            "metode": {"kueri": 12, "kandidat": 40, "dibuka": 30, "detik": 70}}
     out = t.investigation_summary(rep, "a" * 32)
-    assert "<script>" not in out and "&lt;b&gt;" in out and "2023-08-05" in out and "[1]" in out
+    assert "<script>" not in out and "&lt;b&gt;" in out and "Nenek" in t.investigation_summary(rep, "a" * 32, "Nenek")
 
 
 def test_every_message_answer_offers_deep_investigation():
@@ -251,3 +251,119 @@ def test_every_message_answer_offers_deep_investigation():
 
     rows = t.keyboard_for({"id": "x" * 32, "offer_human_review": False, "manipulation": {"techniques": []}, "status": "belum_ada_pemeriksaan"})
     assert any(b["callback_data"].startswith("tel:") for row in rows for b in row)
+
+
+def test_swarm_agents_search_in_parallel_and_are_credited():
+    rep = run()
+    ids = {a["id"] for a in rep["agen"]}
+    assert {"umum", "cek_fakta", "resmi", "arsip"} <= ids
+    assert any(a["halaman_relevan"] for a in rep["agen"])
+
+
+def test_family_view_is_plain_and_built_from_the_report():
+    rep = run()
+    fam = rep["keluarga"]
+    assert fam["judul"] and fam["saran"] and "[" not in fam["suara"]
+    assert fam["sejak"].startswith("Kabar seperti ini sudah muncul di internet sejak")
+    assert "TurnBackHoax" in " ".join(fam["pembantah"]) or fam["pembantah"]
+
+
+def test_reverse_image_pages_join_the_pool_and_inactive_vision_is_a_blind_spot():
+    class ImgTools(FakeTools):
+        def reverse_image(self, image):
+            return {"aktif": True, "label": ["prabowo bantuan"], "entitas": ["Prabowo"], "sama": 1, "mirip": 0,
+                    "hits": [{"uri": "https://blog.example/d", "title": "Bantuan tunai Presiden", "via": "gambar", "gambar_sama": True}]}
+
+    rep = investigate.run(CLAIM, Settings(), toolbox=ImgTools(), fetch=fetch, judge=judge, plan_ask=plan_ask,
+                          dossier_ask=dossier_ask, today=date(2025, 3, 10), image=(b"img", "image/jpeg"))
+    assert rep["gambar"]["halaman_sama"] == 1 and rep["gambar"]["paling_awal"]["url"] == "https://blog.example/d"
+
+    class OffTools(FakeTools):
+        def reverse_image(self, image):
+            return {"aktif": False, "galat": "Cloud Vision API belum diaktifkan di proyek ini", "hits": []}
+
+    rep = investigate.run(CLAIM, Settings(), toolbox=OffTools(), fetch=fetch, judge=judge, plan_ask=plan_ask,
+                          dossier_ask=dossier_ask, today=date(2025, 3, 10), image=(b"img", "image/jpeg"))
+    assert rep["gambar"] is None and any("Cloud Vision API belum diaktifkan" in s for s in rep["titik_buta"])
+
+
+def test_vision_client_reports_disabled_api_and_parses_matches():
+    import httpx
+
+    from halio.investigate import reverse_image
+
+    off = reverse_image.web_detection(b"x", Settings(), token=lambda: "t", transport=httpx.MockTransport(lambda r: httpx.Response(403, json={})))
+    assert off["aktif"] is False and "belum diaktifkan" in off["galat"]
+    body = {"responses": [{"webDetection": {"bestGuessLabels": [{"label": "banjir jakarta"}],
+                                            "pagesWithMatchingImages": [{"url": "https://a.com/1", "pageTitle": "<b>Banjir</b> 2020", "fullMatchingImages": [{}]},
+                                                                        {"url": "http://b.com/2", "pageTitle": "x"}]}}]}
+    on = reverse_image.web_detection(b"x", Settings(), token=lambda: "t", transport=httpx.MockTransport(lambda r: httpx.Response(200, json=body)))
+    assert on["aktif"] and on["sama"] == 1 and on["hits"][0]["title"] == "Banjir 2020" and len(on["hits"]) == 1
+
+
+def test_family_headline_for_similar_debunk_names_who():
+    from halio.investigate import keluarga
+
+    h = keluarga.headline({"status": "tidak_yakin", "reason": "dibantah_versi_mirip"}, ["Komdigi", "Kompas.com Cek Fakta"])
+    assert "Komdigi" in h and "tidak benar" in h
+
+
+def _rows():
+    t = "2026-11-07T05:00:00+00:00"
+    return [
+        {"source_id": "antara-terkini", "title": "TNI AD buka rekrutmen Bintara 2026, pendaftaran gratis", "url": "https://antaranews.com/1", "published": "", "first_seen": t},
+        {"source_id": "detik-news", "title": "Rekrutmen Bintara TNI AD 2026 dibuka, pendaftaran tidak dipungut biaya", "url": "https://detik.com/2", "published": "", "first_seen": t},
+        {"source_id": "turnbackhoax", "title": "[HOAKS] Link pendaftaran rekrutmen Bintara TNI AD 2026 lewat WhatsApp", "url": "https://turnbackhoax.id/3", "published": "", "first_seen": t},
+        {"source_id": "detik-news", "title": "Harga cabai naik menjelang akhir tahun", "url": "https://detik.com/4", "published": "", "first_seen": t},
+    ]
+
+
+def test_brief_clusters_tni_narratives_only():
+    from datetime import datetime, timezone
+
+    from halio.investigate import brief
+
+    kinds = {"antara-terkini": "berita", "detik-news": "berita", "turnbackhoax": "cek_fakta"}
+    out = brief.clusters(_rows(), kinds, {}, "tni", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    assert out and all("cabai" not in c["judul"].lower() for c in out)
+    top = out[0]
+    assert top["jumlah_sumber"] >= 2 and top["berbau_hoaks"] and "cek_fakta" in top["jenis_sumber"]
+    umum = brief.clusters(_rows(), kinds, {}, "umum", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    assert len(umum) == 1 and umum[0]["jenis_sumber"] == ["cek_fakta"]
+
+
+def test_brief_build_and_latest_merge_investigations(tmp_path, monkeypatch):
+    from datetime import datetime, timezone
+
+    from halio.ingest.store import SensorStore
+    from halio.investigate import brief
+
+    cfg = _cfg(tmp_path)
+    monkeypatch.setattr(SensorStore, "items_since", lambda self, since, limit=3000: _rows())
+
+    class FakeJobs:
+        def submit(self, text, reporter, channel):
+            return "j" * 32
+
+        def get(self, job_id):
+            return {"status": "selesai", "tahap": "selesai", "laporan": {"status": "tidak_yakin", "status_label": "Halio tidak yakin",
+                    "laporan": {"ringkasan": [{"teks": "Pendaftaran gratis.", "sumber": [1]}]}, "bukti": [{}], "metode": {"dibuka": 9}}}
+
+    b = brief.Briefs(cfg)
+    built = b.build("tni", FakeJobs(), now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    assert built["narasi"] and built["narasi"][0]["investigasi"] == "j" * 32
+    got = b.latest("tni", FakeJobs())
+    assert got["narasi"][0]["hasil"]["ringkasan"] == ["Pendaftaran gratis."] and b.has_today("tni")
+
+
+def test_brief_api_needs_radar_token(monkeypatch):
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from halio import api
+
+    monkeypatch.setattr(api, "settings", replace(api.settings, radar_token="rahasia"))
+    client = TestClient(api.app)
+    assert client.get("/api/brief?topic=tni").status_code == 401
+    assert client.post("/api/brief/run?topic=tni").status_code == 401

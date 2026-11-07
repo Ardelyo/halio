@@ -56,6 +56,8 @@ class Settings:
     # Halio Telusur (investigation agent): needs HALIO_LLM=1. Each run costs real model calls; these are hard daily caps.
     agent_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_AGENT_DAILY_CAP", "60")))
     agent_per_reporter: int = field(default_factory=lambda: int(os.getenv("HALIO_AGENT_PER_REPORTER", "8")))
+    # Daily analyst brief (investigate/brief.py): built each morning from 06:00 WIB when on; needs the sensor and HALIO_LLM=1.
+    brief_enabled: bool = field(default_factory=lambda: _bool("HALIO_BRIEF"))
     media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-3.5-flash-lite"))
     # Open the links users forward and report what is there (halio/link_check.py).
     link_check_enabled: bool = field(default_factory=lambda: os.getenv("HALIO_LINK_CHECK", "1") != "0")
