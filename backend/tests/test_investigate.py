@@ -367,3 +367,10 @@ def test_brief_api_needs_radar_token(monkeypatch):
     client = TestClient(api.app)
     assert client.get("/api/brief?topic=tni").status_code == 401
     assert client.post("/api/brief/run?topic=tni").status_code == 401
+
+
+def test_dates_are_normalised_before_ordering():
+    assert origin.iso_date("2012/12/18") == "2012-12-18" and origin.iso_date("18/12/2012") == "2012-12-18"
+    assert origin.iso_date("2025-01-24T10:00:00+07:00") == "2025-01-24" and origin.iso_date("kemarin") == ""
+    line = origin.timeline([{"tanggal": "2025/01/24", "url": "a", "judul": ""}, {"tanggal": "2025-01-05", "url": "b", "judul": ""}])
+    assert [e["url"] for e in line] == ["b", "a"] and line[1]["tanggal"] == "2025-01-24"

@@ -211,12 +211,12 @@ class _Run:
         found = found[:3]
         host = urlparse(page.final_url).hostname or ""
         self.pages.append({"url": page.final_url, "host": host, "judul": page.title or c.get("title") or host, "penerbit": publisher,
-                           "tingkat": tier, "tingkat_label": origin.KIND_LABEL[tier], "tanggal": (page.published or "")[:10],
+                           "tingkat": tier, "tingkat_label": origin.KIND_LABEL[tier], "tanggal": origin.iso_date(page.published),
                            "relevan": bool(found), "via": sorted(c["via"]), "agen": sorted(c.get("agen", [])), "grup": group,
                            "gambar_sama": "gambar" in c.get("agen", ())})
         for text in found:
             self.passages.append(evidence.Passage(id=0, text=text, url=page.final_url, host=host, tier=tier, publisher=publisher,
-                                                  group=group, published=evidence.parse_date(page.published), title=page.title))
+                                                  group=group, published=evidence.parse_date(origin.iso_date(page.published)), title=page.title))
 
     # -- judging -----------------------------------------------------------------------------------------------
     def judge_new(self) -> None:

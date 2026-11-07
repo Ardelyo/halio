@@ -5,9 +5,33 @@
 
 from __future__ import annotations
 
+import re
+from datetime import date
+
 from ..textnorm import tokens
 
 KIND_LABEL = {"A": "Sumber resmi", "B": "Pemeriksa fakta", "C": "Media", "D": "Situs lain"}
+
+
+_YMD = re.compile(r"(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})")
+_DMY = re.compile(r"(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})")
+
+
+def iso_date(raw: str) -> str:
+    """'2012/12/18', '2025-01-24T10:00', '18/12/2012' -> '2012-12-18'; anything else -> ''. Mixed formats would misorder the timeline."""
+    raw = (raw or "").strip()
+    m = _YMD.search(raw[:25])
+    if m:
+        y, mo, d = m.groups()
+    else:
+        m = _DMY.search(raw[:25])
+        if not m:
+            return ""
+        d, mo, y = m.groups()
+    try:
+        return date(int(y), int(mo), int(d)).isoformat()
+    except ValueError:
+        return ""
 
 
 def _jaccard(a: set[str], b: set[str]) -> float:
@@ -19,8 +43,8 @@ def timeline(events: list[dict], limit: int = 25) -> list[dict]:
     Dated events in date order, one per URL (its earliest date); undated ones are dropped from the timeline."""
     best: dict[str, dict] = {}
     for e in events:
-        d = (e.get("tanggal") or "")[:10]
-        if len(d) != 10 or not d[:4].isdigit():
+        d = iso_date(e.get("tanggal") or "")
+        if not d or d > date.today().isoformat() or d < "1995-01-01":   # bad page metadata, not history
             continue
         cur = best.get(e["url"])
         if cur is None or d < cur["tanggal"]:
