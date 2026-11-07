@@ -5,6 +5,7 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
@@ -43,9 +44,35 @@ async def lifespan(_: FastAPI):
     if settings.sensor_enabled:
         poller = Poller(sensor, settings.sensor_user_agent, settings.sensor_tick_s, settings.sensor_workers)
         poller.start()
+    stop = threading.Event()
+    if settings.brief_enabled and settings.llm_enabled:
+        threading.Thread(target=_brief_loop, args=(stop,), daemon=True, name="brief").start()
     yield
+    stop.set()
     if poller:
         poller.stop()
+
+
+def _brief_loop(stop: threading.Event) -> None:
+    """Every 30 minutes: after 06:00 WIB, build today's brief for each topic once."""
+    from datetime import datetime
+
+    from .investigate.brief import TOPICS, Briefs
+    from .store import WIB
+
+    briefs = Briefs(settings)
+    while not stop.wait(30 if not stop.is_set() else 0):
+        if datetime.now(WIB).hour < 6:
+            stop.wait(1800)
+            continue
+        for topic in TOPICS:
+            try:
+                if not briefs.has_today(topic):
+                    briefs.build(topic, jobs())
+                    log.info("brief built: %s", topic)
+            except Exception:
+                log.exception("brief %s failed", topic)
+        stop.wait(1800)
 
 
 app = FastAPI(title="Halio API", version=__version__, lifespan=lifespan)
@@ -208,6 +235,93 @@ def api_escalate(body: EscalateIn) -> dict:
         "ticket": ticket,
         "message": "Pertanyaan Anda masuk antrean pemeriksa. Simpan nomor tiket ini; balasan dikirim bila kanal mendukungnya.",
     }
+
+
+class InvestigateIn(BaseModel):
+    text: str = Field(min_length=10, max_length=100_000)
+    channel: str = Field(default="web", pattern="^(web|telegram|whatsapp|extension|demo)$")
+    reporter: str | None = Field(default=None, max_length=128)
+    check_id: str | None = Field(default=None, min_length=32, max_length=32)
+    image_b64: str | None = Field(default=None, max_length=12_000_000)
+    mime: str | None = Field(default=None, max_length=40)
+
+    @field_validator("text")
+    @classmethod
+    def _cut(cls, v: str) -> str:
+        return v[: settings.max_input_chars]
+
+
+_jobs = None
+
+
+def jobs():
+    global _jobs
+    if _jobs is None:
+        from .investigate.jobs import Jobs
+
+        _jobs = Jobs(settings)
+    return _jobs
+
+
+@app.post("/api/investigate", status_code=202)
+def api_investigate(body: InvestigateIn, request: Request) -> dict:
+    """Start a deep investigation (1-3 minutes). Poll GET /api/investigate/{id} for progress and the report."""
+    from .investigate.jobs import LimitReached
+
+    if not (settings.llm_enabled and settings.llm_provider == "google"):
+        raise HTTPException(503, "Penelusuran mendalam membutuhkan AI (HALIO_LLM=1) dan sedang tidak aktif di server ini.")
+    text = body.text
+    if body.check_id:  # "investigate this answer": reuse the text the user already sent
+        text = _cached(body.check_id).get("claim") or text
+    image = None
+    if body.image_b64:
+        import base64
+
+        if (body.mime or "") not in ("image/jpeg", "image/png", "image/webp"):
+            raise HTTPException(415, "Foto harus JPG, PNG, atau WebP.")
+        try:
+            image = (base64.b64decode(body.image_b64, validate=True), body.mime)
+        except ValueError:
+            raise HTTPException(400, "Berkas foto rusak.")
+    try:
+        job_id = jobs().submit(text, reporter_for(request, settings, body.reporter), body.channel, image=image)
+    except LimitReached as exc:
+        raise HTTPException(429, str(exc))
+    return {"id": job_id, "url": f"/laporan.html?id={job_id}", "status": "antre"}
+
+
+@app.get("/api/investigate/{job_id}")
+def api_investigate_get(job_id: str) -> dict:
+    if len(job_id) != 32 or not job_id.isalnum():
+        raise HTTPException(404, "Laporan tidak ditemukan.")
+    job = jobs().get(job_id)
+    if not job:
+        raise HTTPException(404, "Laporan tidak ditemukan.")
+    return job
+
+
+@app.get("/api/brief")
+def api_brief(request: Request, topic: str = "tni", authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization, request)
+    from .investigate.brief import TOPICS, Briefs
+
+    if topic not in TOPICS:
+        raise HTTPException(404, "Topik tidak dikenal.")
+    brief = Briefs(settings).latest(topic, jobs())
+    return {"topik": topic, "label": TOPICS[topic][0], "brief": brief, "otomatis": settings.brief_enabled,
+            "topik_tersedia": {k: v[0] for k, v in TOPICS.items()}}
+
+
+@app.post("/api/brief/run")
+def api_brief_run(request: Request, topic: str = "tni", authorization: str | None = Header(default=None)) -> dict:
+    _require_radar_token(authorization, request)
+    from .investigate.brief import TOPICS, Briefs
+
+    if topic not in TOPICS:
+        raise HTTPException(404, "Topik tidak dikenal.")
+    use_jobs = jobs() if settings.llm_enabled and settings.llm_provider == "google" else None
+    brief = Briefs(settings).build(topic, use_jobs)
+    return {"ok": True, "id": brief["id"], "narasi": len(brief["narasi"])}
 
 
 def _require_radar_token(authorization: str | None, request: Request) -> None:

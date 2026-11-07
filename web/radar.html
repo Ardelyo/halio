@@ -18,6 +18,7 @@
     <div class="workspace-label"><span>Ruang kerja</span><b>Radar analis</b></div>
     <nav class="radar-nav" aria-label="Ruang kerja analis">
       <button class="nav-item active" data-view="overview" type="button" aria-current="page"><span class="nav-icon" aria-hidden="true">⌁</span>Ringkasan<span class="nav-arrow" aria-hidden="true">→</span></button>
+      <button class="nav-item" data-view="brief" type="button"><span class="nav-icon" aria-hidden="true">✦</span>Brief harian<span class="nav-arrow" aria-hidden="true">→</span></button>
       <button class="nav-item" data-view="queue" type="button"><span class="nav-icon" aria-hidden="true">□</span>Antrean<span id="nav-queue-count" class="nav-count">0</span></button>
       <button class="nav-item" data-view="emerging" type="button"><span class="nav-icon" aria-hidden="true">↗</span>Kabar baru<span class="nav-arrow" aria-hidden="true">→</span></button>
       <button class="nav-item" data-view="coverage" type="button"><span class="nav-icon" aria-hidden="true">◎</span>Cakupan<span class="nav-arrow" aria-hidden="true">→</span></button>
@@ -47,6 +48,14 @@
             <p class="evidence-note">Hanya hitungan per hari, tanpa isi pesan. Alasan teratas menunjukkan apa yang perlu diperbaiki lebih dulu.</p></section>
         </div>
         <section class="queue-callout"><div><p class="section-kicker">Perlu tindakan manusia</p><h2 id="queue-callout-title">Antrean menunggu.</h2><p>Buka klaim, periksa konteksnya, lalu catat respons yang bisa dipertanggungjawabkan.</p></div><button class="primary-button" type="button" data-go-queue>Buka antrean <span aria-hidden="true">→</span></button></section>
+      </section>
+
+      <section id="view-brief" class="dashboard-view hidden" aria-labelledby="brief-title">
+        <div class="page-heading compact"><div><p class="section-kicker">Swarm Halio Telusur</p><h1 id="brief-title">Narasi yang naik,<br><em>sudah ditelusuri.</em></h1><p class="page-description">Setiap pagi Halio mengelompokkan berita dan cek fakta 48 jam terakhir, memberi skor tiap narasi, lalu menelusuri tiga teratas dengan tujuh agen paralel. Narasi dan klaim, bukan orang.</p></div>
+          <div class="brief-actions"><div class="period-control" id="brief-topics"><button type="button" data-topic="tni" class="active" aria-pressed="true">TNI AD</button><button type="button" data-topic="umum" aria-pressed="false">Umum</button></div><button id="brief-run" class="secondary-button" type="button">Susun brief sekarang</button></div></div>
+        <p id="brief-meta" class="brief-meta"></p>
+        <div id="brief-list" class="brief-list"></div>
+        <p class="panel-footnote" id="brief-note"></p>
       </section>
 
       <section id="view-queue" class="dashboard-view hidden" aria-labelledby="queue-title">

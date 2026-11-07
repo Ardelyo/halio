@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halio — Saring dulu, baru sharing</title>
+<link rel="stylesheet" href="../../web/fonts/fonts.css">
+<style>
+:root{
+  --blue:#014BAA; --blue-2:#0A5BC9; --blue-deep:#022E6B; --blue-soft:#E6EEF9;
+  --cream:#F8F3F0; --cream-2:#EFE8E3; --ink:#0E1726; --ink-2:#3A4456; --muted:#5B6475;
+  --sun:#FFC83D; --sun-soft:#FFF1C2; --sky:#9CC3EB; --line:#E7E1DC;
+  --salah:#B42318; --salah-bg:#FEF3F2; --ragu:#B54708; --ragu-bg:#FFFAEB;
+  --belum:#475467; --belum-bg:#F2F4F7; --ok:#067647; --ok-bg:#ECFDF3; --media:#0A5BC9; --media-bg:#E6EEF9;
+  --serif:"Instrument Serif",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --display:"Archivo","Inter",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0b1220}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+.deck{width:1920px;transform-origin:0 0}
+.slide{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--cream);padding:96px 120px;display:flex;flex-direction:column;page-break-after:always;break-after:page}
+.slide.blue{background:var(--blue);color:#fff}
+.slide.deep{background:linear-gradient(160deg,var(--blue-deep),var(--blue) 70%);color:#fff}
+.slide.white{background:#fff}
+.blob{position:absolute;border-radius:50%;pointer-events:none}
+.kicker{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue)}
+.blue .kicker,.deep .kicker{color:var(--sun)}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.02;letter-spacing:-.01em}
+h2{font-size:104px;margin-top:22px;max-width:1500px}
+h2 em,h1 em{font-style:italic;color:var(--blue)}
+.blue h2 em,.deep h2 em,.blue h1 em,.deep h1 em{color:var(--sun)}
+.lede{font-size:40px;line-height:1.35;color:var(--ink-2);max-width:1250px;margin-top:34px}
+.blue .lede,.deep .lede{color:#DCE8F8}
+.foot{position:absolute;left:120px;right:120px;bottom:48px;display:flex;justify-content:space-between;font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.06em;color:var(--muted)}
+.blue .foot,.deep .foot{color:#9FBDE6}
+.foot b{color:var(--blue)}.blue .foot b,.deep .foot b{color:var(--sun)}
+.logo{display:inline-flex;align-items:center;gap:20px;font-family:var(--display);font-weight:800;font-size:38px;letter-spacing:-.01em}
+.logo i{display:block;width:56px;height:56px;border-radius:16px;background:var(--sun);position:relative}
+.logo i:after{content:"";position:absolute;inset:14px;border:6px solid var(--blue);border-radius:50%}
+.row{display:flex;gap:40px}.grow{flex:1}.center{align-items:center}.col{display:flex;flex-direction:column}
+.card{background:#fff;border-radius:32px;padding:44px 48px;box-shadow:0 2px 0 var(--line),0 24px 60px -30px rgba(1,75,170,.25);border:1px solid var(--line)}
+.blue .card,.deep .card{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);box-shadow:none}
+.card h3{font-family:var(--display);font-weight:800;font-size:42px;line-height:1.15;margin-bottom:14px}
+.card p{font-size:32px;line-height:1.4;color:var(--ink-2)}
+.blue .card p,.deep .card p{color:#DCE8F8}
+.big{font-family:var(--serif);font-size:210px;line-height:.9;color:var(--blue)}
+.pill{display:inline-flex;align-items:center;gap:14px;padding:14px 30px;border-radius:999px;font-family:var(--display);font-weight:700;font-size:32px}
+.dot{width:20px;height:20px;border-radius:50%;display:inline-block}
+.marq{font-family:var(--serif);font-style:italic;font-size:66px;line-height:1.18;color:var(--ink)}
+/* status rows */
+.st{display:flex;align-items:center;gap:32px;padding:16px 38px;border-radius:26px;margin-bottom:14px}
+.st .ic{width:74px;height:74px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:44px;color:#fff;font-family:var(--display);font-weight:800}
+.st h4{font-family:var(--display);font-weight:800;font-size:40px;line-height:1}
+.st p{font-size:27px;color:var(--ink-2);margin-top:6px;line-height:1.25}
+/* chat */
+.phone{width:620px;height:900px;border-radius:64px;background:#0E1726;padding:18px;box-shadow:0 50px 90px -40px rgba(0,0,0,.6);flex:none}
+.screen{color:var(--ink);width:100%;height:100%;border-radius:48px;background:#E8EEF5;overflow:hidden;display:flex;flex-direction:column}
+.bar{background:var(--blue);color:#fff;padding:26px 30px;font-family:var(--display);font-weight:700;font-size:28px;display:flex;align-items:center;gap:16px}
+.bar i{width:46px;height:46px;border-radius:50%;background:var(--sun);display:block}
+.msgs{padding:24px;display:flex;flex-direction:column;gap:18px;flex:1}
+.m{max-width:90%;padding:22px 26px;border-radius:26px;font-size:27px;line-height:1.35}
+.m.me{align-self:flex-end;background:#D4E6FF;border-bottom-right-radius:8px}
+.m.bot{align-self:flex-start;background:#fff;border-bottom-left-radius:8px}
+.m .tag{display:inline-block;font-family:var(--display);font-weight:800;font-size:24px;color:var(--salah);background:var(--salah-bg);padding:6px 14px;border-radius:12px;margin-bottom:10px}
+.m .src{display:block;margin-top:10px;color:var(--blue);font-weight:600;font-size:22px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btns span{font-size:22px;font-weight:600;padding:10px 16px;border-radius:14px;background:var(--blue-soft);color:var(--blue)}
+.redact{background:var(--ink);color:var(--ink);border-radius:6px;padding:0 6px;user-select:none}
+/* flow */
+.node{border-radius:32px;padding:38px 40px;flex:1}
+.arrow{align-self:center;font-family:var(--display);font-weight:800;font-size:64px;color:var(--sun)}
+/* strength */
+.meter{display:flex;gap:12px;margin-top:10px}.meter b{flex:1;height:22px;border-radius:12px;background:var(--cream-2)}.meter b.on{background:var(--blue)}.onblue .meter b{background:rgba(255,255,255,.22)}.onblue .meter b.on{background:var(--sun)}
+.blue .meter b,.deep .meter b{background:rgba(255,255,255,.2)}.blue .meter b.on,.deep .meter b.on{background:var(--sun)}
+/* bars */
+.bars{display:flex;align-items:flex-end;gap:18px;height:300px}
+.bars div{flex:1;border-radius:14px 14px 0 0;background:linear-gradient(180deg,var(--sun),#E5A800)}
+.bars div.a{background:linear-gradient(180deg,#5FA0F0,var(--blue-2))}
+ul.clean{list-style:none}ul.clean li{font-size:36px;line-height:1.35;padding:24px 0 24px 64px;position:relative;color:var(--ink-2);border-bottom:1px solid var(--line)}
+ul.clean li:before{content:"";position:absolute;left:0;top:36px;width:30px;height:30px;border-radius:50%;background:var(--blue)}
+.blue ul.clean li,.deep ul.clean li{color:#DCE8F8;border-color:rgba(255,255,255,.16)}
+.blue ul.clean li:before,.deep ul.clean li:before{background:var(--sun)}
+ul.clean li b{color:var(--ink)}.blue ul.clean li b,.deep ul.clean li b{color:#fff}
+.note{font-size:24px;color:var(--muted);margin-top:18px}
+.blue .note,.deep .note{color:#9FBDE6}
+.steps{display:flex;gap:40px;margin-top:60px}
+.step{flex:1;border-radius:40px;padding:56px 50px;background:#fff;color:var(--ink)}
+.step .n{font-family:var(--serif);font-size:200px;line-height:.85;color:var(--blue)}
+.step h3{font-family:var(--display);font-weight:800;font-size:64px;margin-top:12px}
+.step.sun{background:var(--sun)}.step.sun .n{color:var(--blue-deep)}
+/* screen nav */
+@media screen{
+  body{overflow:hidden}
+  .deck{position:fixed;left:0;top:0}
+  .slide{position:absolute;left:0;top:0;visibility:hidden}
+  .slide.on{visibility:visible}
+  .hud{position:fixed;bottom:14px;right:18px;color:#9FBDE6;font:600 14px Inter,sans-serif;z-index:9;opacity:.7}
+}
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{background:none}
+  .hud{display:none}
+  .slide{visibility:visible!important;position:relative}
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<section class="slide blue">
+  <div class="blob" style="width:1100px;height:1100px;right:-300px;top:-300px;background:radial-gradient(circle,#1F6FE0 0,transparent 68%)"></div>
+  <div class="blob" style="width:520px;height:520px;right:180px;bottom:-200px;background:var(--sun);opacity:.95"></div>
+  <div class="logo"><i></i>Halio</div>
+  <div class="col grow" style="justify-content:center">
+    <div class="kicker">Kartika Cyber Hackathon 2026 · Siber Sosial</div>
+    <h1 style="font-size:230px;margin-top:30px;max-width:1400px">Saring dulu,<br><em>baru sharing.</em></h1>
+    <p class="lede" style="max-width:1200px">Satu mesin bukti, <b style="color:#fff">dua pintu</b>: keluarga yang ingin jawaban sederhana, dan analis yang butuh investigasi.</p>
+  </div>
+  <div class="foot"><span>Prototipe hidup · diperbarui 8 Nov 2026</span><span></span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">01 · Masalahnya</div>
+  <h2>Pesan masuk <em>setiap hari.</em></h2>
+  <div class="row" style="margin-top:80px;gap:34px">
+    <div class="card grow"><div class="pill" style="background:var(--salah-bg);color:var(--salah)">Sebarkan!</div><p style="margin-top:22px">“Sebarkan sebelum terlambat!”</p></div>
+    <div class="card grow"><div class="pill" style="background:var(--sun-soft);color:var(--ragu)">Bantuan uang</div><p style="margin-top:22px">“Daftar sekarang, kuota terbatas.”</p></div>
+    <div class="card grow"><div class="pill" style="background:var(--ok-bg);color:var(--ok)">Obat ajaib</div><p style="margin-top:22px">“Sembuh dalam tiga hari.”</p></div>
+    <div class="card grow"><div class="pill" style="background:var(--media-bg);color:var(--blue)">Gempa besar</div><p style="margin-top:22px">“Besok malam, segera mengungsi.”</p></div>
+  </div>
+  <div class="col" style="margin-top:90px">
+    <div class="marq" style="font-size:76px">Kita meneruskannya karena <b style="font-style:normal;color:var(--blue)">peduli</b>, bukan karena bodoh.</div>
+    <p class="lede" style="margin-top:22px">Nenek tidak bodoh. <b style="color:var(--ink)">Pesannya yang licik.</b></p>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>02</b> / 20</span></div>
+</section>
+
+<section class="slide deep">
+  <div class="kicker">02 · Akibatnya nyata</div>
+  <h2>Satu pesan salah, <em>akibat nyata.</em></h2>
+  <div class="row" style="margin-top:80px;gap:40px;flex:1;margin-bottom:70px">
+    <div class="card" style="flex:1.1;display:flex;flex-direction:column;justify-content:center">
+      <div class="big" style="color:var(--sun);font-size:200px">Rp310<span style="font-size:90px"> juta</span></div>
+      <h3 style="margin-top:20px">Surat kelulusan palsu rekrutmen TNI</h3>
+      <p>Kerugian korban di Kulon Progo, terdokumentasi.</p>
+      <p class="note">Sumber: Metro TV</p>
+    </div>
+    <div class="col" style="flex:1;gap:40px"><div class="card grow" style="display:flex;flex-direction:column;justify-content:center"><h3>Keluarga panik</h3><p>Saling menakuti lewat pesan berantai yang belum tentu benar.</p></div>
+      <div class="card grow" style="display:flex;flex-direction:column;justify-content:center"><h3>Prajurit disebut provokator</h3><p>Kabar palsu seputar demo 2025 yang menyeret nama institusi.</p><p class="note">Sumber: Metro TV</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>03</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">03 · Pertanyaan kami</div>
+  <h2>Tiga pertanyaan yang <em>kami pegang.</em></h2>
+  <div class="col" style="margin-top:56px;gap:26px">
+    <div class="card row center" style="gap:44px;padding:36px 48px"><div class="big" style="font-size:120px;width:100px">1</div><p style="font-size:42px;color:var(--ink);line-height:1.25">Mengapa orang yang <b style="color:var(--blue)">paling peduli</b> justru paling sering terkena?</p></div>
+    <div class="card row center" style="gap:44px;padding:36px 48px"><div class="big" style="font-size:120px;width:100px">2</div><p style="font-size:42px;color:var(--ink);line-height:1.25">Bagaimana kalau orang yang kita khawatirkan <b style="color:var(--blue)">menjadi guru</b> kita?</p></div>
+    <div class="card row center" style="gap:44px;padding:36px 48px"><div class="big" style="font-size:120px;width:100px">3</div><p style="font-size:42px;color:var(--ink);line-height:1.25">Apakah <b style="color:var(--blue)">“belum tahu”</b> bisa menjadi jawaban yang baik?</p></div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>04</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">04 · Halio itu apa</div>
+  <h2>Satu mesin bukti, <em>dua pintu.</em></h2>
+  <div class="row" style="margin-top:56px;gap:30px;align-items:stretch;flex:1;margin-bottom:70px">
+    <div class="card" style="flex:1;border-top:10px solid var(--sun);display:flex;flex-direction:column">
+      <div class="kicker" style="font-size:22px;color:var(--ragu)">Pintu 1 · Keluarga</div>
+      <h3 style="margin-top:12px;font-size:46px">Teman cek pesan</h3>
+      <p>Telegram dan web. Teruskan pesan, foto, atau suara. Dapat jawaban bahasa sehari-hari, suara, dan kartu untuk grup keluarga.</p>
+      <p class="note" style="margin-top:auto">Untuk Nenek, orang tua, dan siapa saja.</p>
+    </div>
+    <div class="arrow" style="color:var(--blue)">⇄</div>
+    <div class="card" style="flex:1.1;background:var(--blue);color:#fff;border-color:transparent;display:flex;flex-direction:column">
+      <div class="kicker" style="font-size:22px;color:var(--sun)">Mesin Bukti</div>
+      <h3 style="margin-top:12px;font-size:46px;color:#fff">AI mencari. Kode memutuskan.</h3>
+      <p style="color:#DCE8F8">Kutipan disalin kata per kata oleh kode. Vonis ditetapkan aturan atas tingkat sumber. "Belum tahu" adalah jawaban yang sah.</p>
+      <p class="note" style="margin-top:auto;color:#9FBDE6">Bukan sekadar pendeteksi hoaks: ia menyusun bukti.</p>
+    </div>
+    <div class="arrow" style="color:var(--blue)">⇄</div>
+    <div class="card" style="flex:1;border-top:10px solid var(--blue);display:flex;flex-direction:column">
+      <div class="kicker" style="font-size:22px">Pintu 2 · Analis</div>
+      <h3 style="margin-top:12px;font-size:46px">Telusur dan Radar</h3>
+      <p>Swarm agen menelusuri satu klaim jadi laporan bernomor, dengan linimasa dan asal-usul. Radar menyusun brief harian narasi TNI AD.</p>
+      <p class="note" style="margin-top:auto">Narasi dan klaim, bukan orang.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>05</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">05 · Cara pakai</div>
+  <h2>Kirim ke Halio, <em>dapat jawaban sederhana.</em></h2>
+  <div class="row" style="margin-top:50px;gap:34px;align-items:stretch">
+    <div class="card grow"><div class="big" style="font-size:90px">1</div><h3 style="margin-top:14px">Teruskan</h3><p>Pesan, foto, atau pesan suara yang meragukan ke Halio di Telegram.</p></div>
+    <div class="arrow" style="color:var(--blue)">→</div>
+    <div class="card grow"><div class="big" style="font-size:90px">2</div><h3 style="margin-top:14px">Baca jawabannya</h3><p>Bahasa sehari-hari, dengan sumber yang bisa dibuka.</p></div>
+    <div class="arrow" style="color:var(--blue)">→</div>
+    <div class="card grow"><div class="big" style="font-size:90px">3</div><h3 style="margin-top:14px">Bagikan kartunya</h3><p>Kartu untuk grup keluarga, atau pesan suara dengan suara manusia.</p></div>
+  </div>
+  <div class="card" style="margin-top:40px;background:var(--blue-soft);border-color:transparent;box-shadow:none"><p style="font-size:34px;color:var(--blue-deep)"><b>Halio teman bertanya,</b> bukan pengganti penilaian Anda. Ingin tahu lebih jauh? Satu tombol <b>🔬 Telusuri mendalam</b>.</p></div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>06</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">06 · Jawaban yang jujur</div>
+  <h2 style="font-size:84px;margin-top:10px">Lima jawaban. <em>Tidak ada tebakan.</em></h2>
+  <div class="col" style="margin-top:28px">
+    <div class="st" style="background:var(--salah-bg)"><div class="ic" style="background:var(--salah)">✕</div><div><h4 style="color:var(--salah)">Terbukti salah</h4><p>Sudah dibantah sumber resmi atau pemeriksa fakta.</p></div></div>
+    <div class="st" style="background:var(--ok-bg)"><div class="ic" style="background:var(--ok)">✓</div><div><h4 style="color:var(--ok)">Sejalan dengan sumber</h4><p>Sumber resmi yang masih baru mendukungnya.</p></div></div>
+    <div class="st" style="background:var(--media-bg)"><div class="ic" style="background:var(--media)">≡</div><div><h4 style="color:var(--media)">Dilaporkan media</h4><p>Beberapa media berbeda melaporkannya. Ini bukan pemeriksaan fakta.</p></div></div>
+    <div class="st" style="background:var(--ragu-bg)"><div class="ic" style="background:var(--ragu)">?</div><div><h4 style="color:var(--ragu)">Tidak yakin</h4><p>Bukti bertentangan, atau belum cukup.</p></div></div>
+    <div class="st" style="background:var(--belum-bg);margin-bottom:0"><div class="ic" style="background:var(--belum)">…</div><div><h4 style="color:var(--belum)">Belum ada pemeriksaan</h4><p>Halio tidak menebak.</p></div></div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>07</b> / 20</span></div>
+</section>
+
+<section class="slide deep">
+  <div class="row center" style="gap:90px;height:100%">
+    <div class="col" style="flex:1">
+      <div class="kicker">07 · Contoh nyata</div>
+      <h2 style="font-size:96px">Contoh di <em>Telegram.</em></h2>
+      <ul class="clean" style="margin-top:44px">
+        <li><b>Pesan buatan</b> tentang video presiden bagi-bagi bantuan tunai.</li>
+        <li>Halio menjawab <b>Terbukti salah</b>, dengan sumber yang bisa dibuka.</li>
+        <li><b>Nomor telepon dihapus</b> sebelum diproses.</li>
+        <li>Ada tombol <b>Dengarkan</b>, <b>Kenali triknya</b>, <b>Tanya pemeriksa manusia</b>.</li>
+      </ul>
+    </div>
+    <div class="phone"><div class="screen">
+      <div class="bar"><i></i>Halio</div>
+      <div class="msgs">
+        <div class="m me">Bapak ibu, ada video Pak Presiden bagi-bagi bantuan tunai! Daftar lewat WA <span class="redact">0812-3456-7890</span>, bayar biaya admin 150rb. SEBARKAN!!</div>
+        <div class="m bot"><span class="tag">🔴 Terbukti salah</span><br>Tidak ada program bantuan tunai seperti ini. Meminta biaya admin lewat WhatsApp adalah ciri penipuan.<span class="src">Sumber resmi · buka tautan →</span>
+          <div class="btns"><span>🔊 Dengarkan</span><span>Kenali triknya</span><span>Tanya manusia</span></div></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="foot"><span>Tampilan contoh · pesan buatan, bukan dari grup nyata</span><span><b>08</b> / 20</span></div>
+</section>
+
+<section class="slide deep">
+  <div class="kicker">08 · Halio Telusur</div>
+  <h2>Tujuh agen, <em>bekerja bersamaan.</em></h2>
+  <div class="row" style="margin-top:36px;gap:20px;flex-wrap:wrap">
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Perencana</h3><p style="font-size:22px">Menyusun kueri pencarian yang beragam.</p></div>
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Pemeriksa fakta</h3><p style="font-size:22px">TurnBackHoax, Kompas, Liputan6, Tempo.</p></div>
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Sumber resmi</h3><p style="font-size:22px">.go.id, .mil.id, situs TNI AD dan Kemhan.</p></div>
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Media</h3><p style="font-size:22px">Pemberitaan dan salinan kantor berita.</p></div>
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Arsip</h3><p style="font-size:22px">Bantahan lama dan feed sensor waktu nyata.</p></div>
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Asal-usul</h3><p style="font-size:22px">Kemunculan paling awal dan salinan Wayback.</p></div>
+    <div class="card" style="flex:1 1 22%;padding:22px 28px"><h3 style="font-size:30px">Gambar</h3><p style="font-size:22px">Pencarian gambar terbalik (Cloud Vision).</p></div>
+  </div>
+  <div class="row" style="margin-top:28px;gap:30px">
+    <div class="card grow" style="text-align:center;padding:22px"><div class="big" style="color:var(--sun);font-size:96px">±40<span style="font-size:40px"> detik</span></div><p style="font-size:24px">median satu penelusuran</p></div>
+    <div class="card grow" style="text-align:center;padding:22px"><div class="big" style="color:var(--sun);font-size:96px">±38</div><p style="font-size:24px">halaman dibuka per klaim</p></div>
+    <div class="card grow" style="text-align:center;padding:22px"><div class="big" style="color:var(--sun);font-size:96px">1</div><p style="font-size:24px">kumpulan bukti bersama, tanpa duplikat</p></div>
+  </div>
+  <p class="note" style="margin-top:14px;font-size:20px">Terukur pada 18 klaim nyata di server, 7 Nov 2026. Angka tepat di eval/AGENT_RESULTS.md. Pencarian gambar aktif setelah Cloud Vision dinyalakan.</p>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>09</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">09 · Laporan untuk analis</div>
+  <h2>Bukan vonis. <em>Dosir yang bisa diaudit.</em></h2>
+  <div class="row" style="margin-top:36px;gap:32px;align-items:flex-start;margin-bottom:0">
+    <div class="card" style="flex:1.15;padding:30px 40px">
+      <div class="kicker" style="font-size:20px">Laporan Halio Telusur</div>
+      <p style="font-family:var(--serif);font-size:44px;line-height:1.2;color:var(--ink);margin:14px 0">“Ada jalur khusus masuk TNI AD dijamin lulus dengan membayar uang.”</p>
+      <div class="pill" style="background:var(--ragu-bg);color:var(--ragu);font-size:26px;padding:10px 24px">🟠 Tidak yakin · dibantah untuk versi yang mirip</div>
+      <div style="margin-top:26px;border-left:4px solid var(--salah);padding-left:20px"><p style="font-size:26px"><b style="color:var(--ink)">[1] Kompas.com</b> · membantah<br><i>“…telah berulang kali mengingatkan bahwa tidak ada jalur khusus…”</i></p></div>
+      <div style="margin-top:14px;border-left:4px solid var(--salah);padding-left:20px"><p style="font-size:26px"><b style="color:var(--ink)">[2] Jawa Pos</b> · membantah<br><i>“…tidak benar jika ada yang mengatakan bahwa menjadi prajurit TNI AD harus membayar…”</i></p></div>
+      <p class="note">Potongan kata per kata dari hasil nyata di server (7 Nov 2026), disalin oleh kode. Nomor sumber mengarah ke tautan yang bisa dibuka.</p>
+    </div>
+    <div class="col" style="flex:1;gap:16px">
+      <div class="card" style="padding:20px 34px"><h3 style="font-size:30px">Linimasa</h3><p style="font-size:26px">Urutan tanggal dari halaman, sensor, GDELT, dan tangkapan pertama Internet Archive.</p></div>
+      <div class="card" style="padding:20px 34px"><h3 style="font-size:30px">Kemunculan paling awal yang <u>ditemukan</u></h3><p style="font-size:26px">Batas bawah, bukan klaim asal-usul pasti.</p></div>
+      <div class="card" style="padding:20px 34px"><h3 style="font-size:30px">Versi kalimat</h3><p style="font-size:26px">Bagaimana klaim bermutasi atau disalin antarsitus.</p></div>
+      <div class="card" style="padding:20px 34px;background:var(--sun-soft);border-color:transparent"><h3 style="font-size:30px;color:var(--ragu)">Titik buta</h3><p style="font-size:26px;color:var(--ink)">Grup WhatsApp privat, media sosial, halaman berbayar, situs yang memblokir.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>10</b> / 20</span></div>
+</section>
+
+<section class="slide deep">
+  <div class="row center" style="gap:90px;height:100%">
+    <div class="col" style="flex:1">
+      <div class="kicker">10 · Untuk Nenek</div>
+      <h2 style="font-size:96px">Hasil yang <em>mudah didengar.</em></h2>
+      <ul class="clean" style="margin-top:40px">
+        <li><b>Huruf besar</b>, satu kalimat jawaban di atas.</li>
+        <li>Tombol <b>🔊 Dengarkan</b> dengan suara Indonesia alami.</li>
+        <li>Sapaan sesuai pilihan: <b>“Nenek, …”</b></li>
+        <li><b>Saran</b> yang jelas: tahan dulu, tanyakan ke cucu.</li>
+      </ul>
+      <p class="note">Tampilan keluarga dibangun dari laporan analis yang sama, tanpa fakta baru.</p>
+    </div>
+    <div class="phone"><div class="screen">
+      <div class="bar"><i></i>Halio</div>
+      <div class="msgs">
+        <div class="m bot" style="font-size:31px"><span class="tag" style="background:var(--ragu-bg);color:var(--ragu)">🟠 Nenek, belum pasti</span><br><b>Kabar yang sangat mirip sudah dinyatakan tidak benar oleh Kompas.com.</b><br><br>Sudah beredar sejak Maret 2025.<br><br><b>Sebaiknya:</b> tahan dulu, jangan diteruskan. Tanyakan ke anak atau cucu.
+          <div class="btns"><span>🔊 Dengarkan</span><span>🔬 Telusuri</span></div></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="foot"><span>Tampilan contoh dari hasil nyata · kalimat disederhanakan</span><span><b>11</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">11 · Cara kerja</div>
+  <h2><em>AI menafsirkan.</em> Kode memutuskan.</h2>
+  <div class="row" style="margin-top:70px;gap:28px;align-items:stretch">
+    <div class="node card" style="background:var(--blue-soft);border-color:transparent;box-shadow:none"><div class="kicker" style="font-size:22px">Langkah 1</div><h3 style="margin-top:14px">AI mencari & menilai</h3><p>Apakah kutipan ini mendukung, membantah, atau tidak berkaitan dengan klaim?</p></div>
+    <div class="arrow" style="color:var(--blue)">→</div>
+    <div class="node card" style="background:var(--sun-soft);border-color:transparent;box-shadow:none"><div class="kicker" style="font-size:22px;color:var(--ragu)">Langkah 2</div><h3 style="margin-top:14px">Kode menyalin kutipan</h3><p>Kutipan diambil kata per kata dari halaman. AI tidak boleh mengarang.</p></div>
+    <div class="arrow" style="color:var(--blue)">→</div>
+    <div class="node card" style="background:var(--blue);border-color:transparent;box-shadow:none;color:#fff"><div class="kicker" style="font-size:22px;color:var(--sun)">Langkah 3</div><h3 style="margin-top:14px;color:#fff">Aturan menetapkan hasil</h3><p style="color:#DCE8F8">Hasil ditentukan tingkat sumber, bukan perasaan model.</p></div>
+  </div>
+  <div class="card" style="margin-top:46px"><p style="font-size:34px;color:var(--ink)"><b>Halaman web tidak bisa menyuruh Halio</b> memutuskan sesuatu. Dan setiap kalimat laporan diperiksa ulang oleh kode: yang tidak didukung kutipan dibuang.</p></div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>12</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">12 · Sumber</div>
+  <h2>Sumber dipilih <em>dengan adil.</em></h2>
+  <div class="row" style="margin-top:56px;gap:36px;align-items:stretch">
+    <div class="col" style="flex:1.15;gap:24px">
+      <div class="card" style="padding:32px 44px"><h3 style="color:var(--blue)">Dasar vonis</h3><p>Sumber resmi dan pemeriksa fakta.</p></div>
+      <div class="card" style="padding:32px 44px"><h3 style="color:var(--media)">Bukti pelaporan</h3><p>Media yang dikenal. Bukti bahwa ini dilaporkan, <b>bukan</b> bukti bahwa ini benar.</p></div>
+      <div class="card" style="padding:32px 44px"><h3 style="color:var(--ragu)">Satu suara</h3><p>Dua media satu grup, atau salinan kantor berita yang sama, dihitung satu.</p></div>
+    </div>
+    <div class="card onblue" style="flex:1;background:var(--blue);color:#fff;border-color:transparent">
+      <div class="kicker" style="color:var(--sun)">Kekuatan bukti</div>
+      <div class="big" style="color:var(--sun);font-size:260px;margin:14px 0">0–4</div>
+      <p style="color:#DCE8F8">Skor yang bisa dijelaskan, bukan angka ajaib.</p>
+      <div style="margin-top:34px;font-size:26px;color:#DCE8F8;display:grid;gap:18px">
+        <div>Sumber resmi, baru<div class="meter"><b class="on"></b><b class="on"></b><b class="on"></b><b class="on"></b></div></div>
+        <div>Beberapa media berbeda<div class="meter"><b class="on"></b><b class="on"></b><b></b><b></b></div></div>
+        <div>Satu media saja<div class="meter"><b class="on"></b><b></b><b></b><b></b></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>13</b> / 20</span></div>
+</section>
+
+<section class="slide deep">
+  <div class="kicker">13 · Privasi</div>
+  <h2>Privasi <em>sejak awal.</em></h2>
+  <div class="row center" style="margin-top:80px;gap:36px">
+    <div class="card grow"><p class="note" style="margin:0 0 14px">Yang Anda kirim</p><p style="font-size:30px;color:#fff;line-height:1.5">Hubungi 0812-3456-7890, email budi@mail.com, NIK 3301…</p></div>
+    <div class="arrow">→</div>
+    <div class="card grow" style="background:#fff"><p class="note" style="margin:0 0 14px;color:var(--muted)">Yang diproses Halio</p><p style="font-size:30px;color:var(--ink);line-height:1.5">Hubungi <span class="redact">[telepon]</span>, email <span class="redact">[email]</span>, NIK <span class="redact">[NIK]</span></p></div>
+  </div>
+  <ul class="clean" style="margin-top:70px">
+    <li>Nomor telepon, NIK, email, dan tautan <b>dihapus sebelum diproses</b>.</li>
+    <li>Tren dihitung <b>tanpa isi pesan dan tanpa identitas</b>.</li>
+    <li>Kabar baru tampil hanya bila dikirim <b>banyak orang berbeda</b>.</li>
+  </ul>
+  <div class="foot"><span>Halio hanya membaca yang Anda kirim</span><span><b>14</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">14 · Untuk unit siber</div>
+  <h2>Brief harian, <em>bukan pengawasan.</em></h2>
+  <div class="row" style="margin-top:44px;gap:36px;align-items:stretch;flex:1;margin-bottom:70px">
+    <div class="card" style="flex:1.2;padding:34px 44px">
+      <div class="kicker" style="font-size:20px">Radar · Brief harian TNI AD</div>
+      <p class="note" style="margin:8px 0 18px">Setiap pagi 06.00 WIB · 1.512 berita dibaca dalam 48 jam · 65 cocok topik</p>
+      <div class="st" style="background:var(--belum-bg);padding:14px 26px"><div class="ic" style="background:var(--blue);width:58px;height:58px;font-size:30px">1</div><div><h4 style="font-size:30px">Ragam hoaks menerpa TNI</h4><p style="font-size:22px">skor 9 · pemeriksa fakta terlibat · ditelusuri</p></div></div>
+      <div class="st" style="background:var(--belum-bg);padding:14px 26px"><div class="ic" style="background:var(--blue);width:58px;height:58px;font-size:30px">2</div><div><h4 style="font-size:30px">Menhan kumpulkan pejabat Kemhan</h4><p style="font-size:22px">skor 8 · 2 sumber · ditelusuri</p></div></div>
+      <div class="st" style="background:var(--belum-bg);padding:14px 26px"><div class="ic" style="background:var(--blue);width:58px;height:58px;font-size:30px">3</div><div><h4 style="font-size:30px">Lahan eks tambang ke Kopassus</h4><p style="font-size:22px">skor 8 · 2 sumber · ditelusuri</p></div></div>
+      <p class="note">Tampilan dari brief nyata di server (7 Nov 2026). Tiga narasi teratas ditelusuri swarm otomatis.</p>
+    </div>
+    <div class="col" style="flex:1;gap:22px">
+      <div class="card" style="padding:28px 38px"><h3 style="font-size:34px">Sensor 23 sumber publik</h3><p style="font-size:27px">Berita, pemeriksa fakta, dan situs resmi (termasuk tniad.mil.id dan Kemhan), dengan panel cakupan dan titik buta.</p></div>
+      <div class="card" style="padding:28px 38px"><h3 style="font-size:34px">Antrean triase</h3><p style="font-size:27px">Untuk pemeriksa manusia. Tiket ditutup setelah balasan terkirim.</p></div>
+      <div class="card" style="padding:28px 38px;background:var(--sun-soft);border-color:transparent"><h3 style="font-size:34px;color:var(--ragu)">Narasi, bukan orang</h3><p style="font-size:27px;color:var(--ink)">Tidak ada pelacakan akun, warga, atau prajurit tertentu.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>15</b> / 20</span></div>
+</section>
+
+<section class="slide blue">
+  <div class="kicker">15 · Pengaman</div>
+  <h2>Yang <em>tidak akan</em> dilakukan Halio.</h2>
+  <div class="row" style="margin-top:60px;gap:36px;flex:1;margin-bottom:70px">
+    <ul class="clean" style="flex:1.2">
+      <li>Memantau <b>individu, akun, atau prajurit</b>. Yang dipantau: narasi dan sumber publik.</li>
+      <li>Menilai <b>pendapat politik</b> atau melabeli kritik sebagai hoaks.</li>
+      <li>Menurunkan konten atau membuat <b>kontra-narasi otomatis</b>.</li>
+      <li>Mengklaim <b>mendeteksi bot</b> atau deepfake: datanya tidak ada.</li>
+      <li>Bertindak tanpa <b>persetujuan manusia</b>.</li>
+    </ul>
+    <div class="card" style="flex:.9;display:flex;flex-direction:column;justify-content:center">
+      <h3 style="color:#fff">Yang dilakukan</h3>
+      <p>Bukti bernomor dan tingkat keyakinan di setiap kesimpulan.</p>
+      <p style="margin-top:14px">Data pribadi dihapus sebelum diproses; statistik agregat.</p>
+      <p style="margin-top:14px">Metodologi, batas, dan titik buta ditulis di setiap laporan.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Selaras dengan UU PDP dan prinsip ketahanan informasi</span><span><b>16</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">16 · Hasil uji, apa adanya</div>
+  <h2>Diukur di server, <em>dengan web sungguhan.</em></h2>
+  <div class="row" style="margin-top:50px;gap:30px;align-items:stretch">
+    <div class="card grow" style="text-align:center"><div class="big" style="font-size:150px">0<span style="font-size:60px"> / 10</span></div><p style="font-size:28px">berita benar dituduh hoaks</p></div>
+    <div class="card grow" style="text-align:center"><div class="big" style="font-size:150px">0<span style="font-size:60px"> / 8</span></div><p style="font-size:28px">hoaks yang keluar hijau</p></div>
+    <div class="card grow" style="text-align:center;background:var(--ragu-bg);border-color:transparent"><div class="big" style="font-size:150px;color:var(--ragu)">1<span style="font-size:60px"> / 8</span></div><p style="font-size:28px">hoaks yang sampai merah</p></div>
+    <div class="card grow" style="text-align:center"><div class="big" style="font-size:150px">5<span style="font-size:60px"> / 50</span></div><p style="font-size:28px">kalimat laporan dibuang pemeriksa</p></div>
+  </div>
+  <div class="card" style="margin-top:34px;padding:30px 44px"><p style="font-size:30px;color:var(--ink)"><b>Artinya:</b> Halio aman, tetapi masih <b>terlalu hati-hati</b>. Hoaks yang jelas sering berhenti di “tidak yakin, dibantah untuk versi yang mirip”, karena bantahannya datang dari media, bukan sumber resmi. Kami lebih memilih ini daripada menuduh kabar benar.</p></div>
+  <p class="note" style="margin-top:14px">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). 0 / 66 dari uji tim terdahulu pada data buatan sendiri. Bukan evaluasi independen.</p>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>17</b> / 20</span></div>
+</section>
+
+<section class="slide blue">
+  <div class="kicker">17 · Jujur soal batas</div>
+  <h2>Yang <em>belum</em> bisa kami janjikan.</h2>
+  <ul class="clean" style="margin-top:60px">
+    <li>Masih <b>prototipe</b>. Belum ada pengguna nyata; pilot keluarga akan dicatat apa adanya.</li>
+    <li>Korpus bantahan kurasi <b>baru 7 entri</b>; arsip judul cek fakta ±6.000 dan bertambah.</li>
+    <li>Sekitar <b>sepertiga halaman</b> menolak dibaca server; sebagian dibaca dari salinan arsip dan diberi label.</li>
+    <li>“Kemunculan paling awal” berarti <b>yang kami temukan</b> di web terbuka, bukan asal pesan WhatsApp.</li>
+    <li>Halio membaca <b>isi</b> foto; tidak menilai asli atau tidaknya. <b>Video</b> belum didukung.</li>
+  </ul>
+  <div class="foot"><span>Lebih baik jujur belum tahu daripada asal bicara</span><span><b>18</b> / 20</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">18 · Langkah berikutnya</div>
+  <h2>Dari prototipe <em>ke pilot.</em></h2>
+  <div class="row" style="margin-top:60px;gap:26px;align-items:stretch;flex:1;margin-bottom:70px">
+    <div class="card grow" style="border-top:10px solid var(--blue)"><div class="kicker" style="font-size:20px">Segera</div><h3 style="margin-top:12px;font-size:36px">Arsip bantahan penuh</h3><p style="font-size:26px">Riwayat pemeriksa fakta dan dataset BRIN; pencocokan klaim dengan embedding.</p></div>
+    <div class="card grow" style="border-top:10px solid var(--blue-2)"><div class="kicker" style="font-size:20px">Berikutnya</div><h3 style="margin-top:12px;font-size:36px">Pilot kecil</h3><p style="font-size:26px">Keluarga dan satu unit siber, dengan evaluasi independen.</p></div>
+    <div class="card grow" style="border-top:10px solid var(--sky)"><div class="kicker" style="font-size:20px">Lalu</div><h3 style="margin-top:12px;font-size:36px">Asal usul gambar</h3><p style="font-size:26px">Cloud Vision, hash gambar, Content Credentials.</p></div>
+    <div class="card grow" style="border-top:10px solid var(--sun)"><div class="kicker" style="font-size:20px">Juga</div><h3 style="margin-top:12px;font-size:36px">Taksonomi DISARM</h3><p style="font-size:26px">Label teknik di brief analis, bahasa keyakinan bergaya intelijen.</p></div>
+    <div class="card grow" style="border-top:10px solid #3F7D26"><div class="kicker" style="font-size:20px">Kemudian</div><h3 style="margin-top:12px;font-size:36px">Mode on-premise</h3><p style="font-size:26px">Model lokal untuk Radar internal; WhatsApp setelah verifikasi.</p></div>
+  </div>
+  <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>19</b> / 20</span></div>
+</section>
+
+<section class="slide blue">
+  <div class="blob" style="width:900px;height:900px;left:-300px;bottom:-400px;background:radial-gradient(circle,#1F6FE0 0,transparent 70%)"></div>
+  <div class="blob" style="width:460px;height:460px;right:-120px;top:-140px;background:var(--sun)"></div>
+  <div class="logo"><i></i>Halio</div>
+  <div class="col grow" style="justify-content:center">
+    <div class="steps" style="margin-top:0">
+      <div class="step"><div class="n">1</div><h3>Berhenti.</h3></div>
+      <div class="step"><div class="n">2</div><h3>Tanya Halio.</h3></div>
+      <div class="step sun"><div class="n">3</div><h3>Baru bagikan.</h3></div>
+    </div>
+    <p class="lede" style="margin-top:56px;max-width:none;font-size:42px">Coba di Telegram: cari <b style="color:#fff">Halio</b>. &nbsp;<span style="color:var(--sun);font-family:var(--serif);font-style:italic;font-size:56px">Saring dulu, baru sharing.</span></p>
+  </div>
+  <div class="foot"><span>Terima kasih</span><span><b>20</b> / 20</span></div>
+</section>
+</div>
+<div class="hud">← → · F layar penuh</div>
+<script>
+(function(){
+  var deck=document.getElementById('deck'),s=[].slice.call(document.querySelectorAll('.slide')),i=0;
+  if(matchMedia('print').matches)return;
+  function fit(){var k=Math.min(innerWidth/1920,innerHeight/1080);deck.style.transform='scale('+k+')';deck.style.left=((innerWidth-1920*k)/2)+'px';deck.style.top=((innerHeight-1080*k)/2)+'px'}
+  function show(n){i=Math.max(0,Math.min(s.length-1,n));s.forEach(function(x,j){x.classList.toggle('on',j===i)});try{history.replaceState(null,'','#'+(i+1))}catch(e){}}
+  addEventListener('resize',fit);
+  addEventListener('keydown',function(e){
+    if(['ArrowRight','PageDown',' ','Enter'].includes(e.key))show(i+1);
+    else if(['ArrowLeft','PageUp','Backspace'].includes(e.key))show(i-1);
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(s.length-1);
+    else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+  });
+  addEventListener('click',function(e){show(e.clientX<innerWidth/3?i-1:i+1)});
+  fit();show((parseInt(location.hash.slice(1))||1)-1);
+})();
+</script>
+</body>
+</html>
