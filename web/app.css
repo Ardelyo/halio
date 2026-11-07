@@ -36,3 +36,6 @@
 .claim-list{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:12px}.claim-row{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:12px 14px;border:1px solid var(--line);border-left-width:4px;border-radius:8px;background:var(--surface)}
 .claim-row.terbukti_salah{border-left-color:#B42318}.claim-row.sejalan_dengan_sumber{border-left-color:#067647}.claim-row.dilaporkan_media{border-left-color:#014BAA}.claim-row.tidak_yakin{border-left-color:#B54708}.claim-row.belum_ada_pemeriksaan{border-left-color:#98A2B3}
 .claim-no{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#E6EEF9;color:#014BAA;font-size:12px;font-weight:700}.claim-row p{margin:4px 0 0;font-size:13px;line-height:1.6}.claim-text{color:#3A4456}
+
+.version-line { display: block; opacity: .65; margin-top: .25rem; }
+.attribution { margin: .75rem 0; }
