@@ -22,6 +22,7 @@ REASON = {
     "sumber_resmi_tanpa_tanggal_atau_lama": "Ada sumber resmi yang mendukung, tetapi tanggalnya tidak jelas atau sudah lama.",
     "berita_media_dikenal": "Belum ada pemeriksa fakta yang membahas berita ini, dan itu wajar untuk berita biasa.",
     "kumpulan_judul": "Gambar ini berisi beberapa judul, bukan satu kabar.",
+    "dibantah_versi_mirip": "Sumber resmi atau pemeriksa fakta membantah klaim yang sangat mirip. Baca kutipan bantahannya sebelum menyimpulkan.",
     "pemeriksa_fakta_membahas_topik_ini": "Ada pemeriksa fakta yang menulis tentang topik ini sebagai hoaks. Baca artikelnya di bawah dulu sebelum memutuskan.",
     "tidak_ada_bantahan": "Belum ada pemeriksa fakta yang membahas kabar ini.",
     "mirip_tapi_tidak_sama": "Topiknya mirip dengan kabar yang pernah dicek, tetapi isinya tidak sama persis.",

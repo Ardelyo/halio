@@ -212,11 +212,18 @@ def _groups(items: list[Item]) -> list[str]:
     return sorted({i.passage.group for i in items})
 
 
+_HOAX_WORDS = re.compile(r"\bhoa[xk]s?\b|tidak benar|disinformasi|misinformasi|penipuan|\bkeliru\b", re.I)
+
+
 def decide(items: list[Item], today: date) -> Decision:
     """Tier policy. Only supports/refutes judged to cover the whole claim count; everything else is context."""
     counted = [i for i in items if i.relation in ("supports", "refutes") and i.covers_all]
     ref = [i for i in counted if i.relation == "refutes"]
-    sup = [i for i in counted if i.relation == "supports"]
+    # A sentence from a page that calls the topic a hoax cannot "support" the claim, whatever the judge said
+    # (fact-check pages quote the hoax they debunk; a police page linking a fact-check is not a confirmation).
+    sup = [i for i in counted if i.relation == "supports" and not _HOAX_WORDS.search(f"{i.passage.text} {i.passage.title}")]
+    # Any refutation by an official source or fact-checker blocks green, even one that does not cover the whole claim.
+    any_ab_ref = [i for i in items if i.relation == "refutes" and i.passage.tier in "AB"]
     ab_ref = [i for i in ref if i.passage.tier in "AB"]
     ab_sup = [i for i in sup if i.passage.tier in "AB"]
     c_ref = [i for i in ref if i.passage.tier == "C"]
@@ -230,6 +237,11 @@ def decide(items: list[Item], today: date) -> Decision:
         who = "sumber resmi" if has_a else "pemeriksa fakta"
         return Decision("terbukti_salah", "dibantah_" + ("resmi" if has_a else "pemeriksa_fakta"), 4 if has_a else 3,
                         f"Dibantah oleh {who} dengan kutipan dari halamannya.", ab_ref)
+    if any_ab_ref:
+        has_a = any(i.passage.tier == "A" for i in any_ab_ref)
+        return Decision("tidak_yakin", "dibantah_versi_mirip", 2,
+                        f"{'Sumber resmi' if has_a else 'Pemeriksa fakta'} membantah klaim yang sangat mirip, tetapi tidak ada kutipan "
+                        "yang memuat seluruh klaim ini. Baca kutipan bantahannya sebelum menyimpulkan.", any_ab_ref)
     if ab_sup:
         fresh = [i for i in ab_sup if (d := _days(i.passage.published, today)) is not None and 0 <= d <= FRESH_OFFICIAL_DAYS]
         if c_ref:
