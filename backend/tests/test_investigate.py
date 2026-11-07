@@ -435,3 +435,17 @@ def test_archive_tool_returns_candidates_with_the_archive_role(tmp_path):
     archive._cache.clear()
     out = Toolbox(cfg).archive("Video Prabowo Gibran bagi bantuan daftar lewat WhatsApp")
     assert out and out[0]["via"] == "arsip" and out[0]["uri"].startswith("https://www.liputan6.com")
+
+
+def test_archive_file_drops_rows_that_are_not_debunks(tmp_path):
+    from halio import archive
+
+    f = tmp_path / "arsip.jsonl"
+    f.write_text("\n".join([
+        '{"klaim": "[SALAH] Kakek penjual keripik ditendang oleh Satpol PP viral di media sosial", "url": "https://turnbackhoax.id/articles/1", "label": "salah"}',
+        '{"klaim": "[BENAR] Pendaftaran Bintara TNI AD gratis lewat situs resmi tniad", "url": "https://turnbackhoax.id/articles/2", "label": "benar"}',
+        '{"klaim": "rusak tanpa url dan tanpa label", "url": "http://x"}',
+        "bukan json",
+    ]), encoding="utf-8")
+    got = archive.from_file(f)
+    assert len(got) == 1 and "keripik" in got[0].klaim and got[0].sumber[0]["jenis"] == "cek_fakta"
