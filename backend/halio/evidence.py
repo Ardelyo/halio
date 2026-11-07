@@ -364,6 +364,41 @@ def _canonical(url: str) -> str:
     return p._replace(query=q, fragment="").geturl()
 
 
+READ_LABEL = {"A": "Situs resmi", "B": "Pemeriksa fakta", "C": "Media", "D": "Situs lain"}
+READ_KIND = {"A": "resmi", "B": "cek_fakta", "C": "media", "D": "lainnya"}
+_SOFT_404 = re.compile(r"^\s*(error\s*)?404\b|\b404\s*[-:|]|tidak ditemukan|not found|halaman tidak (ada|tersedia)", re.I)
+
+
+def reading_list(claim, pages, rejected, opened, cands, limit: int = 5) -> dict:
+    """Every page our code really opened, with its title and kind, so the user can read it. Not evidence by itself.
+
+    'buka_sendiri' = pages the site refused to give to a program (HTTP 403): possibly good reading, but we could not check them.
+    """
+    items, seen = [], set()
+    distinct = {t for t in tokens(claim) if len(t) >= 5}
+    for page in pages:
+        tier, publisher, _ = classify(page.final_url)
+        key = _canonical(page.final_url)
+        if key in seen or _SOFT_404.search(page.title or ""):
+            continue
+        # Reading must be about THIS claim: at least half of the claim's distinctive words (5+ letters) are on the page,
+        # and at least two. Common words ("seorang", "anak", "orang") would match almost any article.
+        if distinct:
+            hit = len(distinct & set(tokens(f"{page.title} {page.text[:6000]}")))
+            if hit < min(2, len(distinct)) or hit / len(distinct) < 0.5:
+                continue
+        seen.add(key)
+        host = urlparse(page.final_url).hostname or ""
+        items.append({"title": page.title or host, "url": page.final_url, "host": host, "kind": READ_KIND[tier],
+                      "kind_label": READ_LABEL[tier], "publisher": publisher, "tanggal": page.published[:10] if page.published else ""})
+    items.sort(key=lambda i: "resmi cek_fakta media lainnya".split().index(i["kind"]))
+    blocked = []
+    for (page, err, host), c in zip(opened, cands):
+        if page is None and err == "http_403" and not outlets.is_not_a_source(c["uri"]):
+            blocked.append({"title": c.get("title") or host, "url": c["uri"], "host": host})
+    return {"items": items[:limit], "disaring": max(0, len(cands) - len(items)), "buka_sendiri": blocked[:2]}
+
+
 def investigate_v2(
     claim: str, cfg: Settings, seed_urls=(), discover: Discover = gemini_discover, fetch: Fetch = fetch_page,
     judge: JudgeFn = gemini_judge, today: date | None = None, extra_candidates: Callable[[str, Settings], list[dict]] = sensor_candidates,
@@ -415,14 +450,23 @@ def investigate_v2(
             log.warning("Evidence judging unavailable: %s", type(exc).__name__)
             return None
     d = decide(items, today)
+    bacaan = reading_list(claim, pages, rejected, opened, cands)
+    alasan = d.alasan
+    if d.reason == "tidak_ada_sumber_relevan":
+        n = sum(1 for page, _, _ in opened if page is not None)
+        alasan = (
+            f"Halio mencari di web dan membuka {n} halaman, tetapi tidak menemukan laporan dari sumber resmi, pemeriksa fakta, atau media dikenal yang menyatakan hal ini."
+            if n else "Halio mencari di web, tetapi tidak ada halaman yang bisa dibuka untuk dibaca."
+        )
     shown = sorted(d.used or [i for i in items if i.relation in ("supports", "refutes")][:3] or items[:2],
                    key=lambda i: ("ABCD".index(i.passage.tier), i.passage.id))[:4]
     return EvidenceResult(
-        status=d.status, reason=d.reason, kekuatan=d.kekuatan, alasan=d.alasan,
+        status=d.status, reason=d.reason, kekuatan=d.kekuatan, alasan=alasan,
         items=[{"penerbit": i.passage.publisher, "tingkat": i.passage.tier, "tingkat_label": TIER_LABEL[i.passage.tier],
                 "tanggal": i.passage.published.isoformat() if i.passage.published else "", "kutipan": i.passage.text,
                 "url": i.passage.url, "hubungan": i.relation, "grup": i.passage.group} for i in shown],
         dicari=queries, dibuka=sum(1 for page, _, _ in opened if page is not None), relevan=relevant, ditolak=rejected[:6],
+        bacaan=bacaan,
     )
 
 

@@ -18,11 +18,11 @@ ICON = {
 REASON = {
     "satu_media_melaporkan": "Baru satu kelompok media yang melaporkan; belum cukup untuk dikatakan terkonfirmasi.",
     "laporan_media_tanpa_tanggal_baru": "Ada laporan media, tetapi tanggalnya tidak jelas atau sudah lama.",
-    "tidak_ada_sumber_relevan": "Halio membuka beberapa halaman, tetapi tidak ada yang menyatakan klaim ini secara utuh.",
     "media_melaporkan_bantahan": "Media melaporkan adanya bantahan, tetapi belum ada pemeriksa fakta atau sumber resmi yang memeriksanya.",
     "sumber_resmi_tanpa_tanggal_atau_lama": "Ada sumber resmi yang mendukung, tetapi tanggalnya tidak jelas atau sudah lama.",
     "berita_media_dikenal": "Belum ada pemeriksa fakta yang membahas berita ini, dan itu wajar untuk berita biasa.",
     "kumpulan_judul": "Gambar ini berisi beberapa judul, bukan satu kabar.",
+    "pemeriksa_fakta_membahas_topik_ini": "Ada pemeriksa fakta yang menulis tentang topik ini sebagai hoaks. Baca artikelnya di bawah dulu sebelum memutuskan.",
     "tidak_ada_bantahan": "Belum ada pemeriksa fakta yang membahas kabar ini.",
     "mirip_tapi_tidak_sama": "Topiknya mirip dengan kabar yang pernah dicek, tetapi isinya tidak sama persis.",
     "inti_klaim_tidak_ada": "Topiknya mirip dengan kabar yang pernah dicek, tetapi inti klaimnya berbeda.",
@@ -126,7 +126,9 @@ def reply_text(result: dict, html: bool = False) -> str:
     elif not plain:
         lines.append(e(match["sederhana"]) if match else e(result["voice_script"]))
     reason = REASON.get(result.get("reason", ""))
-    if reason and not match:
+    voice = result.get("voice_script", "")
+    ev_why = (result.get("evidence") or {}).get("alasan", "")
+    if reason and not match and reason not in voice and ev_why not in voice:
         lines += ["", f"📌 {e(reason)}"]
     techs = result["manipulation"]["techniques"]
     if techs:
@@ -151,15 +153,27 @@ def reply_text(result: dict, html: bool = False) -> str:
             lines.append(f"  • {head}\n    “{e(quote)}”")
         lines.append("  " + e(ev["alasan"]))
         lines.append("  Kutipan disalin langsung dari halaman oleh kode; AI hanya menilai hubungannya.")
-    items = (result.get("reading") or {}).get("items", [])[:3]
+    reading = result.get("reading") or {}
+    items = reading.get("items", [])[:4]
     if items:
-        lines += ["", "📖 " + b("Bahan bacaan") + " (tautan sudah dibuka dan bisa diakses)"]
+        lines += ["", "📖 " + b("Halaman yang Halio buka dan bisa Anda baca") + " (sudah dicek, bukan halaman error)"]
         for it in items:
+            when = f", {_date(it['tanggal'])}" if it.get("tanggal") else ""
             if html:
-                lines.append(f'  • <a href="{escape(it["url"])}">{e(it["title"][:70])}</a> ({e(it["kind_label"])})')
+                lines.append(f'  • <a href="{escape(it["url"])}">{e(it["title"][:80])}</a>\n    {e(it["kind_label"])} · {e(it["host"])}{e(when)}')
             else:
-                lines.append(f"  • {it['title'][:70]} ({it['kind_label']}): {it['url']}")
-        lines.append("  Bacaan ini pelengkap, bukan dasar vonis.")
+                lines.append(f"  • {it['title'][:80]} ({it['kind_label']}, {it['host']}{when}): {it['url']}")
+        lines.append("  Ini bahan bacaan, bukan dasar vonis. Halio tidak menyatakan isinya benar.")
+    for it in reading.get("buka_sendiri", [])[:2]:
+        lines.append(f'  • <a href="{escape(it["url"])}">{e(it["title"][:70])}</a> (situs menolak dibuka otomatis; buka sendiri)' if html
+                     else f"  • {it['title'][:70]} (situs menolak dibuka otomatis; buka sendiri): {it['url']}")
+    if not items and result.get("evidence") and status in ("belum_ada_pemeriksaan", "tidak_yakin"):
+        lines += ["", "📖 " + b("Bahan bacaan") + ": tidak ada halaman relevan yang bisa dibuka."]
+    finds = result.get("cari_sendiri") or []
+    if finds:
+        lines += ["", "🧭 " + b("Cari sendiri")]
+        for f in finds:
+            lines.append(f'  • <a href="{escape(f["url"])}">{e(f["nama"])}</a>' if html else f"  • {f['nama']}: {f['url']}")
     lines += ["", "👉 " + b("Sebaiknya") + ": " + e(ACTION_BY_REASON.get(result.get("reason", ""), ACTION[status]))]
     if result["offer_human_review"]:
         lines.append("Tekan 🙋 di bawah untuk bertanya ke pemeriksa manusia.")
