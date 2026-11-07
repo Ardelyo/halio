@@ -218,7 +218,7 @@ class _Run:
         host = urlparse(page.final_url).hostname or ""
         self.pages.append({"url": page.final_url, "host": host, "judul": page.title or c.get("title") or host, "penerbit": publisher,
                            "tingkat": tier, "tingkat_label": origin.KIND_LABEL[tier], "tanggal": origin.iso_date(page.published),
-                           "relevan": bool(found), "via": sorted(c["via"]), "agen": sorted(c.get("agen", [])), "grup": group,
+                           "relevan": bool(found), "via": sorted(c["via"]), "agen": sorted(c.get("agen", [])), "grup": group, "salinan": page.archived,
                            "gambar_sama": "gambar" in c.get("agen", ())})
         for text in found:
             self.passages.append(evidence.Passage(id=0, text=text, url=page.final_url, host=host, tier=tier, publisher=publisher,
@@ -336,6 +336,9 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         spots.append("GDELT tidak memberi hasil atau tidak tersedia; cakupan berita internasional terbatas.")
     if r.failed.get("http_403"):
         spots.append(f"{r.failed['http_403']} situs menolak dibuka otomatis (HTTP 403).")
+    from_archive = sum(1 for p in r.pages if p.get("salinan"))
+    if from_archive:
+        spots.append(f"{from_archive} halaman menolak dibuka program dan dibaca dari salinan Internet Archive (tanggal salinan tertera); isinya bisa berbeda dari situs saat ini.")
     if image and not (r.vision or {}).get("aktif"):
         spots.append("Pencarian gambar terbalik tidak berjalan: " + ((r.vision or {}).get("galat") or "tidak tersedia") + ".")
     gambar = None

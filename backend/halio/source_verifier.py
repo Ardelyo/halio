@@ -42,6 +42,7 @@ class Page:
     title: str = ""
     published: str = ""
     site_name: str = ""
+    archived: str = ""      # ISO date of the Internet Archive copy this text was read from ("" = read from the live site)
 
 
 _META = {
@@ -161,7 +162,41 @@ def ensure_public_url(url: str) -> None:
         raise SourceError("alamat_jaringan_tidak_publik")
 
 
-def fetch_page(url: str, transport: httpx.BaseTransport | None = None, max_redirects: int = 4) -> Page:
+BLOCKED = {"http_403", "http_429", "http_451", "http_503", "http_202"}
+
+
+def fetch_page(url: str, transport: httpx.BaseTransport | None = None, max_redirects: int = 4, wayback: bool = True) -> Page:
+    """Live page first; when the site refuses a program (403 and similar), the Internet Archive's copy of the SAME url.
+
+    We never disguise ourselves as a browser. The archived copy is labelled (Page.archived) so a report can say "read from
+    an archive copy dated X"; the page's own publication date is still taken from its content."""
+    try:
+        return _fetch_live(url, transport, max_redirects)
+    except SourceError as exc:
+        if not wayback or str(exc) not in BLOCKED or transport is not None:
+            raise
+    return _fetch_wayback(url)
+
+
+def _fetch_wayback(url: str) -> Page:
+    try:
+        meta = httpx.get("https://archive.org/wayback/available", params={"url": url}, timeout=10,
+                         headers={"User-Agent": "HalioEvidence/0.1 (verifikasi kutipan sumber publik)"}).json()
+        snap = (meta.get("archived_snapshots") or {}).get("closest") or {}
+    except (httpx.HTTPError, ValueError):
+        snap = {}
+    if not snap.get("available") or not str(snap.get("url", "")).startswith(("http://web.archive.org/", "https://web.archive.org/")):
+        raise SourceError("diblokir_dan_tidak_ada_salinan_arsip")
+    copy_url = snap["url"].replace("http://", "https://", 1)
+    # id_ asks the archive for the original bytes without its toolbar; the text then matches the live page.
+    copy_url = re.sub(r"/web/(\d+)/", r"/web/\1id_/", copy_url, count=1)
+    page = _fetch_live(copy_url, None, 4)
+    ts = str(snap.get("timestamp", ""))
+    day = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) >= 8 else ""
+    return Page(page.text, url, page.title, page.published, page.site_name, archived=day)
+
+
+def _fetch_live(url: str, transport: httpx.BaseTransport | None = None, max_redirects: int = 4) -> Page:
     """Public https pages only, no scripts, size-capped; redirects are followed by hand and each hop is re-checked."""
     current = url
     with httpx.Client(

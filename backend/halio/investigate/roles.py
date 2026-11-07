@@ -5,6 +5,8 @@ Each agent is a search strategy with its own queries, not a free-running model: 
 
 from __future__ import annotations
 
+import re
+
 from ..textnorm import tokens
 
 AGENTS = {
@@ -26,17 +28,30 @@ def keywords(core: str, n: int = 6) -> str:
     return " ".join(seen[:n])
 
 
+TNI_TOPIC = re.compile(r"\b(tni|tentara|kodam|korem|kodim|koramil|kostrad|kopassus|kasad|dispenad|akmil|bintara|tamtama|taruna|prajurit|"
+                       r"rekrutmen tni|penerimaan tni|angkatan darat|kemhan|menhan|panglima)\b", re.I)
+
+
 def tasks(core: str) -> list[tuple[str, str]]:
     k = keywords(core)
     if len(k.split()) < 2:
         return []
-    return [
+    out = [
         ("cek_fakta", f"{k} site:turnbackhoax.id"),
         ("cek_fakta", f"{k} cek fakta site:kompas.com OR site:liputan6.com OR site:tempo.co"),
         ("resmi", f"{k} site:go.id"),
         ("resmi", f"{k} site:mil.id"),
         ("media", f"{k} berita terbaru"),
     ]
+    if TNI_TOPIC.search(core):
+        # Anything about the army is first checked against the army's own channels: they are the authority on recruitment
+        # rules, impersonation warnings and announcements.
+        out += [
+            ("resmi", f"{k} site:tniad.mil.id"),
+            ("resmi", f"{k} site:rekrutmen-tni.mil.id OR site:penerimaan.tniad.mil.id"),
+            ("resmi", f"{k} site:kemhan.go.id OR site:tni.mil.id"),
+        ]
+    return out
 
 
 def summary(queries: dict[str, int], hits: dict[str, int], pages: list[dict]) -> list[dict]:

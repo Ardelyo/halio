@@ -183,7 +183,7 @@ function renderReport(r, job) {
   }
   if ((r.bacaan || []).length) {
     html.push(`<section class="lp-sec"><h2>Halaman relevan untuk dibaca (${r.bacaan.length})</h2><ul class="lp-list">${r.bacaan.map((p) =>
-      `<li>${link(p.url, p.judul)} <span class="lp-muted">· ${esc(p.tingkat_label)} · ${esc(p.host)}${p.tanggal ? " · " + esc(p.tanggal) : ""}</span></li>`).join("")}</ul></section>`);
+      `<li>${link(p.url, p.judul)} <span class="lp-muted">· ${esc(p.tingkat_label)} · ${esc(p.host)}${p.tanggal ? " · " + esc(p.tanggal) : ""}${p.salinan ? " · salinan arsip " + esc(p.salinan) : ""}</span></li>`).join("")}</ul></section>`);
   }
   html.push(`<section class="lp-sec"><h2>Titik buta</h2><ul class="lp-list">${(r.titik_buta || []).map((s) => `<li>${esc(s)}</li>`).join("")}</ul></section>`);
   const k = m.kalimat || {};

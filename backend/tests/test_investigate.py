@@ -449,3 +449,75 @@ def test_archive_file_drops_rows_that_are_not_debunks(tmp_path):
     ]), encoding="utf-8")
     got = archive.from_file(f)
     assert len(got) == 1 and "keripik" in got[0].klaim and got[0].sumber[0]["jenis"] == "cek_fakta"
+
+
+def test_army_claims_also_query_the_army_s_own_channels():
+    from halio.investigate import roles
+
+    army = [q for _, q in roles.tasks("Ada jalur khusus masuk TNI AD dijamin lulus dengan membayar uang")]
+    assert any("site:tniad.mil.id" in q for q in army) and any("rekrutmen-tni.mil.id" in q for q in army)
+    other = [q for _, q in roles.tasks("Video Presiden bagi bantuan tunai lewat WhatsApp dengan biaya admin")]
+    assert not any("tniad.mil.id" in q for q in other)
+
+
+def test_voice_prefers_cloud_tts_and_falls_back_to_gtts(monkeypatch):
+    import base64
+
+    import httpx
+
+    from halio import voice
+
+    ok = httpx.MockTransport(lambda r: httpx.Response(200, json={"audioContent": base64.b64encode(b"MP3DATA").decode()}))
+    assert voice._cloud("Nenek, kabar ini tidak benar.", token=lambda: "t", transport=ok) == b"MP3DATA"
+    off = httpx.MockTransport(lambda r: httpx.Response(403, json={}))
+    try:
+        voice._cloud("x", token=lambda: "t", transport=off)
+        assert False, "expected VoiceUnavailable"
+    except voice.VoiceUnavailable:
+        pass
+    monkeypatch.setattr(voice, "_cloud", lambda s: (_ for _ in ()).throw(RuntimeError("no creds")))
+    monkeypatch.setattr(voice, "_gtts", lambda s: b"GTTS")
+    assert voice.synthesize("halo") == b"GTTS"
+
+
+def test_blocked_page_is_read_from_an_archive_copy_and_labelled(monkeypatch):
+    import httpx
+
+    from halio import source_verifier as sv
+
+    def live(url, transport=None, max_redirects=4):
+        if "web.archive.org" in url:
+            assert "20250101123456id_/https://berita.example/a" in url
+            return sv.Page("Isi artikel asli.", url, "Judul", "2025-01-01")
+        raise sv.SourceError("http_403")
+
+    class FakeResp:
+        def json(self):
+            return {"archived_snapshots": {"closest": {"available": True, "timestamp": "20250101123456",
+                                                       "url": "http://web.archive.org/web/20250101123456/https://berita.example/a"}}}
+
+    monkeypatch.setattr(sv, "_fetch_live", live)
+    monkeypatch.setattr(httpx, "get", lambda *a, **k: FakeResp())
+    page = sv.fetch_page("https://berita.example/a")
+    assert page.archived == "2025-01-01" and page.final_url == "https://berita.example/a" and page.text == "Isi artikel asli."
+
+
+def test_blocked_page_without_archive_copy_still_fails_honestly(monkeypatch):
+    import httpx
+
+    from halio import source_verifier as sv
+
+    monkeypatch.setattr(sv, "_fetch_live", lambda *a, **k: (_ for _ in ()).throw(sv.SourceError("http_403")))
+    monkeypatch.setattr(httpx, "get", lambda *a, **k: type("R", (), {"json": lambda self: {"archived_snapshots": {}}})())
+    try:
+        sv.fetch_page("https://berita.example/a")
+        assert False, "expected SourceError"
+    except sv.SourceError as exc:
+        assert str(exc) == "diblokir_dan_tidak_ada_salinan_arsip"
+
+    monkeypatch.setattr(sv, "_fetch_live", lambda *a, **k: (_ for _ in ()).throw(sv.SourceError("http_404")))
+    try:
+        sv.fetch_page("https://berita.example/gone")
+        assert False
+    except sv.SourceError as exc:
+        assert str(exc) == "http_404"      # a missing page is not "blocked": no archive fallback
