@@ -18,7 +18,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
-from . import claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
+from . import attribution, claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
 from .dates import human_date
 from .pii import extract_domains
@@ -396,6 +396,13 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
     if status == "sejalan_dengan_sumber" and _factcheck_warns(reading_out):
         # A fact-checker wrote about this very topic as a hoax: a green light next to that article would mislead.
         status, reason = "tidak_yakin", "pemeriksa_fakta_membahas_topik_ini"
+    attrib = None
+    if shown is not None:
+        d = shown.debunk
+        attrib = attribution.mismatch(text, f"{d.klaim} {d.fakta} {d.sederhana}")
+        if attrib and status == "sejalan_dengan_sumber":
+            # An official page supports a claim about ITS OWN statement; the message names someone else. Never green.
+            status, reason = "tidak_yakin", "sumber_berbeda_dari_pesan"
     check_id = uuid.uuid4().hex
     return {
         "id": check_id,
@@ -411,6 +418,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         "engine_fallback": engine_fallback,
         "reading": reading_out,
         "cari_sendiri": _search_links(claim.text) if status in ("belum_ada_pemeriksaan", "tidak_yakin") else [],
+        "attribution": attrib,
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
         "kind": kind,

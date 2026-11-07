@@ -172,3 +172,21 @@ def test_green_is_lowered_when_a_factchecker_covers_the_topic_as_hoax():
     assert pipeline._factcheck_warns({"items": [{"kind": "cek_fakta", "title": "[HOAKS] Pendaftaran CPNS 2026 Sudah Dibuka"}]})
     assert not pipeline._factcheck_warns({"items": [{"kind": "media", "title": "Hoaks CPNS"}]})
     assert not pipeline._factcheck_warns({"items": [{"kind": "cek_fakta", "title": "Cek Fakta: BMKG jelaskan gempa hari ini"}]})
+
+
+def test_attribution_mismatch_is_flagged_but_content_verdict_kept():
+    from halio import pipeline
+    from halio.channels.format import reply_text
+
+    r = pipeline.check("WASPADA!!! Menurut PMI akan terjadi gempa besar dan tsunami tanggal 12 bulan depan. Segera siapkan tas siaga!", Settings())
+    assert r["status"] == "terbukti_salah"
+    assert r["attribution"] and "PMI" in r["attribution"]["pesan"] and "BMKG" in r["attribution"]["bantahan"]
+    assert "Sumber yang disebut berbeda" in reply_text(r, html=True)
+
+
+def test_no_attribution_note_when_same_agency_or_none():
+    from halio import pipeline
+
+    same = pipeline.check("Menurut BMKG akan terjadi gempa besar dan tsunami tanggal 12 bulan depan, segera siapkan tas siaga!", Settings())
+    none = pipeline.check("Akan terjadi gempa besar dan tsunami tanggal 12 bulan depan, segera siapkan tas siaga!", Settings())
+    assert same["attribution"] is None and none["attribution"] is None

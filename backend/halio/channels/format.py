@@ -130,6 +130,8 @@ def reply_text(result: dict, html: bool = False) -> str:
     ev_why = (result.get("evidence") or {}).get("alasan", "")
     if reason and not match and reason not in voice and ev_why not in voice:
         lines += ["", f"📌 {e(reason)}"]
+    if result.get("attribution"):
+        lines += ["", "⚠️ " + b("Sumber yang disebut berbeda") + ": " + e(result["attribution"]["catatan"])]
     techs = result["manipulation"]["techniques"]
     if techs:
         lines += ["", "⚠️ " + b("Trik dalam pesan") + ": " + e(", ".join(t["label"].lower() for t in techs[:3]))]
