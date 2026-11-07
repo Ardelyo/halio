@@ -14,6 +14,10 @@ from pathlib import Path
 HERE = Path(__file__).parent
 old = (HERE / "halio_deck.html").read_text(encoding="utf-8")
 head = old[: old.index('<div class="deck" id="deck">') + len('<div class="deck" id="deck">')]
+# The screen script scales the deck to the window (transform on .deck). A headless print runs that script first with a small
+# window, so without this the printed pages hold the slide at ~40% size in the top-left corner. Printing must ignore it.
+PRINT_FIX = "@media print{.deck{transform:none!important;position:static!important;left:auto!important;top:auto!important;width:1920px!important}}"
+head = head.replace("</style>", PRINT_FIX + "\n</style>", 1)
 tail = old[old.index('</div>\n<div class="hud">'):]
 old_slides = re.findall(r"<section class=\"slide.*?</section>", old, flags=re.S)
 assert len(old_slides) == 14, len(old_slides)
