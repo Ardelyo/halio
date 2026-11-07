@@ -20,6 +20,7 @@ from urllib.parse import urlparse
 
 from .. import claims, evidence, outlets
 from ..config import Settings
+from ..pii import scrub
 from ..source_verifier import SourceError, fetch_page
 from ..store import WIB
 from ..textnorm import tokens
@@ -306,7 +307,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
     return {
         "klaim": claim,
         "inti": r.core if r.core != claim else "",
-        "klaim_lain": [u for u in claims.split_units(text) if u.strip() and u.strip() != claim][:3],
+        "klaim_lain": [c for c in (scrub(u) for u in claims.split_units(text)) if c.strip() and c.strip() != claim][:3],
         "status": d.status, "status_label": status_label, "reason": d.reason, "kekuatan": d.kekuatan, "alasan": d.alasan,
         "laporan": text_out,
         "bukti": numbered,

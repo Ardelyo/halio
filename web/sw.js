@@ -1,5 +1,5 @@
 // Cache the interface only. API calls and external sources always go to the network.
-const SHELL = "halio-shell-v8";
+const SHELL = "halio-shell-v9";
 const FILES = [
   "./", "index.html", "cek.html", "radar.html", "coverage.html", "landing.css", "landing.js", "style.css", "app.css", "app.js", "static-demo.js", "dashboard-demo.js", "radar.css", "radar.js", "coverage.js",
   "icons/icon.svg", "manifest.webmanifest", "brand.css", "fonts/fonts.css",

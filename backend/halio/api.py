@@ -210,6 +210,57 @@ def api_escalate(body: EscalateIn) -> dict:
     }
 
 
+class InvestigateIn(BaseModel):
+    text: str = Field(min_length=10, max_length=100_000)
+    channel: str = Field(default="web", pattern="^(web|telegram|whatsapp|extension|demo)$")
+    reporter: str | None = Field(default=None, max_length=128)
+    check_id: str | None = Field(default=None, min_length=32, max_length=32)
+
+    @field_validator("text")
+    @classmethod
+    def _cut(cls, v: str) -> str:
+        return v[: settings.max_input_chars]
+
+
+_jobs = None
+
+
+def jobs():
+    global _jobs
+    if _jobs is None:
+        from .investigate.jobs import Jobs
+
+        _jobs = Jobs(settings)
+    return _jobs
+
+
+@app.post("/api/investigate", status_code=202)
+def api_investigate(body: InvestigateIn, request: Request) -> dict:
+    """Start a deep investigation (1-3 minutes). Poll GET /api/investigate/{id} for progress and the report."""
+    from .investigate.jobs import LimitReached
+
+    if not (settings.llm_enabled and settings.llm_provider == "google"):
+        raise HTTPException(503, "Penelusuran mendalam membutuhkan AI (HALIO_LLM=1) dan sedang tidak aktif di server ini.")
+    text = body.text
+    if body.check_id:  # "investigate this answer": reuse the text the user already sent
+        text = _cached(body.check_id).get("claim") or text
+    try:
+        job_id = jobs().submit(text, reporter_for(request, settings, body.reporter), body.channel)
+    except LimitReached as exc:
+        raise HTTPException(429, str(exc))
+    return {"id": job_id, "url": f"/laporan.html?id={job_id}", "status": "antre"}
+
+
+@app.get("/api/investigate/{job_id}")
+def api_investigate_get(job_id: str) -> dict:
+    if len(job_id) != 32 or not job_id.isalnum():
+        raise HTTPException(404, "Laporan tidak ditemukan.")
+    job = jobs().get(job_id)
+    if not job:
+        raise HTTPException(404, "Laporan tidak ditemukan.")
+    return job
+
+
 def _require_radar_token(authorization: str | None, request: Request) -> None:
     if settings.radar_token:
         if not hmac.compare_digest(authorization or "", f"Bearer {settings.radar_token}"):

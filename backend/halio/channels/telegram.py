@@ -11,6 +11,7 @@ import html
 import json
 import logging
 import os
+import threading
 import time
 
 import httpx
@@ -84,7 +85,91 @@ def keyboard_for(result: dict) -> list[list[dict]]:
         rows.append([{"text": "🧠 Kenali triknya", "callback_data": f"trik:{result['id']}"}])
     if result["status"] in ("terbukti_salah", "sejalan_dengan_sumber"):
         rows.append([{"text": "⚖️ Ajukan banding", "callback_data": f"app:{result['id']}"}])
+    if result.get("kind", "pesan") == "pesan":
+        rows.append([{"text": "🔬 Telusuri mendalam (laporan analis)", "callback_data": f"tel:{result['id']}"}])
     return rows
+
+
+PUBLIC_URL = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
+STAGE_LABEL = {
+    "antre": "menunggu giliran", "merencanakan": "merencanakan kueri", "mencari": "mencari di web dan arsip",
+    "membuka": "membuka halaman dan menyalin kutipan", "menilai": "AI menilai kutipan bernomor",
+    "menelusuri_asal": "menelusuri asal-usul", "menyusun": "menyusun laporan", "selesai": "selesai",
+}
+
+
+def _report_link(job_id: str) -> str:
+    return f"{PUBLIC_URL}/laporan.html?id={job_id}" if PUBLIC_URL.startswith("https://") else ""
+
+
+def investigation_summary(rep: dict, job_id: str) -> str:
+    e = lambda s: html.escape(str(s), quote=False)  # noqa: E731
+    icon = {"terbukti_salah": "🔴", "sejalan_dengan_sumber": "🟢", "dilaporkan_media": "🔵", "tidak_yakin": "🟠"}.get(rep["status"], "⚪")
+    m = rep.get("metode", {})
+    lines = [f"🔬 <b>Laporan Telusur</b>", f"{icon} <b>{e(rep['status_label'])}</b> · kekuatan bukti {rep.get('kekuatan', 0)}/4", "",
+             f"“{e(rep['klaim'][:200])}”", ""]
+    for s in (rep.get("laporan") or {}).get("ringkasan", [])[:3]:
+        lines.append(f"• {e(s['teks'][:300])} " + "".join(f"[{n}]" for n in s["sumber"]))
+    a = rep.get("asal")
+    if a:
+        f = a["pertama"]
+        lines += ["", f"🕰 <b>Kemunculan paling awal yang ditemukan</b>: {e(f['tanggal'])}, {e(f['penerbit'])}"]
+        if a.get("tanggapan_pertama"):
+            t = a["tanggapan_pertama"]
+            lines.append(f"🛡 Tanggapan resmi/pemeriksa fakta pertama: {e(t['tanggal'])}, {e(t['penerbit'])}")
+    refs = [b for b in rep.get("bukti", []) if b["hubungan"] in ("refutes", "claimreview")][:3]
+    if refs:
+        lines += ["", "📚 <b>Bantahan</b>:"] + [f'  [{b["no"]}] <a href="{html.escape(b["url"])}">{e(b["penerbit"])}</a>' for b in refs]
+    lines += ["", f"Dicari: {m.get('kueri', 0)} kueri · {m.get('kandidat', 0)} kandidat · {m.get('dibuka', 0)} halaman dibuka · {m.get('detik', 0)} detik"]
+    url = _report_link(job_id)
+    lines.append(f'📄 <a href="{html.escape(url)}">Buka laporan lengkap</a> (linimasa, semua bukti, titik buta)' if url else
+                 "Laporan lengkap tersedia di situs Halio.")
+    return "\n".join(lines)
+
+
+def _follow_job(chat_id: int, job_id: str, message_id: int | None) -> None:
+    """Edit one progress message while the job runs, then send the summary. Runs in its own thread."""
+    last = ""
+    for _ in range(150):
+        time.sleep(3)
+        try:
+            job = httpx.get(f"{API_URL}/api/investigate/{job_id}", timeout=10).json()
+        except (httpx.HTTPError, ValueError):
+            continue
+        if job.get("status") == "selesai" and job.get("laporan"):
+            tg("sendMessage", json={"chat_id": chat_id, "text": investigation_summary(job["laporan"], job_id), "parse_mode": "HTML",
+                                    "disable_web_page_preview": True})
+            return
+        if job.get("status") == "gagal":
+            tg("sendMessage", json={"chat_id": chat_id, "text": "Maaf, penelusuran berhenti di tengah jalan. Coba lagi sebentar lagi."})
+            return
+        p = job.get("progres") or {}
+        now = (f"🔬 Menelusuri… <b>{STAGE_LABEL.get(job.get('tahap'), job.get('tahap'))}</b>\n"
+               f"{p.get('kueri', 0)} kueri · {p.get('kandidat', 0)} kandidat · {p.get('dibuka', 0)} halaman · {p.get('kutipan', 0)} kutipan")
+        if message_id and now != last:
+            tg("editMessageText", json={"chat_id": chat_id, "message_id": message_id, "text": now, "parse_mode": "HTML"})
+            last = now
+    tg("sendMessage", json={"chat_id": chat_id, "text": "Penelusuran terlalu lama. Buka laporannya nanti: " + (_report_link(job_id) or "situs Halio")})
+
+
+def start_investigation(chat_id: int, text: str = "", check_id: str | None = None) -> None:
+    body = {"text": text or "x" * 10, "channel": "telegram", "reporter": f"tg:{chat_id}"}
+    if check_id:
+        body["check_id"] = check_id
+    try:
+        r = httpx.post(f"{API_URL}/api/investigate", json=body, headers=CHANNEL_HEADERS, timeout=15)
+    except httpx.HTTPError:
+        tg("sendMessage", json={"chat_id": chat_id, "text": BUSY})
+        return
+    if r.status_code != 202:
+        detail = (r.json() if r.headers.get("content-type", "").startswith("application/json") else {}).get("detail") or BUSY
+        tg("sendMessage", json={"chat_id": chat_id, "text": str(detail)})
+        return
+    job_id = r.json()["id"]
+    sent = tg("sendMessage", json={"chat_id": chat_id, "parse_mode": "HTML",
+                                   "text": "🔬 Mulai menelusuri. Halio akan mencari puluhan sumber dan menyusun laporan (1–3 menit)."})
+    message_id = (sent.get("result") or {}).get("message_id")
+    threading.Thread(target=_follow_job, args=(chat_id, job_id, message_id), daemon=True).start()
 
 
 def send_result(chat_id: int, result: dict, reply_to: int | None = None) -> None:
@@ -183,6 +268,13 @@ def handle_message(msg: dict) -> None:
     if text.startswith("/bantuan"):
         tg("sendMessage", json={"chat_id": chat_id, "text": HELP, "parse_mode": "HTML"})
         return
+    if text.startswith("/telusur"):
+        claim = text.removeprefix("/telusur").strip()
+        if len(claim) < 10:
+            tg("sendMessage", json={"chat_id": chat_id, "text": "Tulis klaimnya setelah perintah, contoh:\n/telusur Video Presiden bagi-bagi bantuan tunai lewat WhatsApp"})
+            return
+        start_investigation(chat_id, text=claim)
+        return
     if text.startswith("/privasi"):
         tg("sendMessage", json={"chat_id": chat_id, "text": PRIVACY, "parse_mode": "HTML"})
         return
@@ -239,7 +331,7 @@ def handle_callback(cb: dict) -> None:
     chat_id = cb["message"]["chat"]["id"]
     tg("answerCallbackQuery", json={"callback_query_id": cb["id"]})
     expired = "Maaf, hasil cek ini sudah kedaluwarsa dan pesan aslinya tidak bisa dibaca lagi. Kirim ulang pesannya, ya."
-    if action in ("esc", "trik", "app") and httpx.get(f"{API_URL}/api/check/{check_id}", timeout=10).status_code == 404:
+    if action in ("esc", "trik", "app", "tel") and httpx.get(f"{API_URL}/api/check/{check_id}", timeout=10).status_code == 404:
         check_id = _recover(cb, chat_id) or ""
         if not check_id:
             tg("sendMessage", json={"chat_id": chat_id, "text": expired})
@@ -250,6 +342,9 @@ def handle_callback(cb: dict) -> None:
     elif action == "app":
         httpx.post(f"{API_URL}/api/appeal", json={"check_id": check_id, "reason": "banding dari telegram"}, timeout=10)
         text = "Banding dicatat. Tim akan meninjau ulang sumbernya. Terima kasih sudah kritis!"
+    elif action == "tel":
+        start_investigation(chat_id, check_id=check_id)
+        return
     elif action == "trik":
         r = httpx.get(f"{API_URL}/api/check/{check_id}", timeout=10)
         techs = r.json()["manipulation"]["techniques"] if r.status_code == 200 else []

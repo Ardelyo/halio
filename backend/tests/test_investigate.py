@@ -165,3 +165,89 @@ def test_page_about_a_hoax_cannot_support():
     items = [_item("supports", "A", "Presiden membagikan bantuan tunai lewat WhatsApp", True, title="[HOAKS] Video Presiden bagi bantuan",
                    published=date(2025, 3, 1))]
     assert decide(items, date(2025, 3, 10)).status != "sejalan_dengan_sumber"
+
+
+def _cfg(tmp_path, **kw):
+    from dataclasses import replace
+
+    return replace(Settings(), db_path=tmp_path / "t.db", **kw)
+
+
+def test_jobs_run_store_report_and_enforce_caps(tmp_path):
+    from halio.investigate.jobs import Jobs, LimitReached
+
+    def runner(text, progress):
+        progress(stage="membuka", dibuka=3)
+        return {"klaim": text, "status": "belum_ada_pemeriksaan"}
+
+    j = Jobs(_cfg(tmp_path, agent_daily_cap=2, agent_per_reporter=1), runner=runner)
+    a = j.submit("klaim pertama yang cukup panjang", "tg:1", "telegram")
+    done = j.wait(a)
+    assert done["status"] == "selesai" and done["laporan"]["klaim"].startswith("klaim pertama")
+    import pytest
+
+    with pytest.raises(LimitReached):
+        j.submit("klaim kedua yang cukup panjang", "tg:1", "telegram")      # per reporter
+    j.submit("klaim ketiga yang cukup panjang", "tg:2", "telegram")
+    with pytest.raises(LimitReached):
+        j.submit("klaim keempat yang cukup panjang", "tg:3", "telegram")    # daily total
+
+
+def test_failed_job_is_recorded_not_lost(tmp_path):
+    from halio.investigate.jobs import Jobs
+
+    def boom(text, progress):
+        raise RuntimeError("model down")
+
+    j = Jobs(_cfg(tmp_path), runner=boom)
+    assert j.wait(j.submit("klaim yang cukup panjang sekali", None, "web"))["status"] == "gagal"
+
+
+def test_api_investigate_requires_llm_and_returns_job(tmp_path, monkeypatch):
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from halio import api
+    from halio.investigate.jobs import Jobs
+
+    client = TestClient(api.app)
+    monkeypatch.setattr(api, "settings", replace(api.settings, llm_enabled=False))
+    assert client.post("/api/investigate", json={"text": "Klaim yang cukup panjang untuk diperiksa"}).status_code == 503
+    monkeypatch.setattr(api, "settings", replace(api.settings, llm_enabled=True, llm_provider="google"))
+    monkeypatch.setattr(api, "_jobs", Jobs(_cfg(tmp_path), runner=lambda t, p: {"klaim": t, "status": "tidak_yakin"}))
+    r = client.post("/api/investigate", json={"text": "Klaim yang cukup panjang untuk diperiksa"})
+    assert r.status_code == 202 and r.json()["url"].startswith("/laporan.html?id=")
+    job_id = r.json()["id"]
+    api._jobs.wait(job_id)
+    assert client.get(f"/api/investigate/{job_id}").json()["status"] == "selesai"
+    assert client.get("/api/investigate/../../etc").status_code == 404
+
+
+def test_telegram_telusur_command_and_summary(monkeypatch):
+    from halio.channels import telegram as t
+
+    sent = []
+    monkeypatch.setattr(t, "tg", lambda method, **kw: sent.append((method, kw)) or {"ok": True, "result": {"message_id": 5}})
+    t.handle_message({"chat": {"id": 1}, "text": "/telusur pendek"})
+    assert "Tulis klaimnya" in sent[-1][1]["json"]["text"]
+
+    started = []
+    monkeypatch.setattr(t, "start_investigation", lambda chat_id, text="", check_id=None: started.append(text))
+    t.handle_message({"chat": {"id": 1}, "text": "/telusur Video Presiden bagi-bagi bantuan tunai lewat WhatsApp"})
+    assert started == ["Video Presiden bagi-bagi bantuan tunai lewat WhatsApp"]
+
+    rep = {"status": "tidak_yakin", "status_label": "Halio tidak yakin", "kekuatan": 2, "klaim": "Klaim <script>",
+           "laporan": {"ringkasan": [{"teks": "Komdigi membantah <b>ini</b>.", "sumber": [1]}]},
+           "asal": {"pertama": {"tanggal": "2023-08-05", "penerbit": "ANTARA"}, "tanggapan_pertama": None},
+           "bukti": [{"no": 1, "hubungan": "refutes", "url": "https://komdigi.go.id/x", "penerbit": "Komdigi"}],
+           "metode": {"kueri": 12, "kandidat": 40, "dibuka": 30, "detik": 70}}
+    out = t.investigation_summary(rep, "a" * 32)
+    assert "<script>" not in out and "&lt;b&gt;" in out and "2023-08-05" in out and "[1]" in out
+
+
+def test_every_message_answer_offers_deep_investigation():
+    from halio.channels import telegram as t
+
+    rows = t.keyboard_for({"id": "x" * 32, "offer_human_review": False, "manipulation": {"techniques": []}, "status": "belum_ada_pemeriksaan"})
+    assert any(b["callback_data"].startswith("tel:") for row in rows for b in row)

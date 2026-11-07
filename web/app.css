@@ -39,3 +39,7 @@
 
 .version-line { display: block; opacity: .65; margin-top: .25rem; }
 .attribution { margin: .75rem 0; }
+
+.telusur-cta { margin: 1rem 0; display: flex; flex-direction: column; gap: .3rem; }
+.telusur-cta a { text-decoration: none; align-self: flex-start; }
+.telusur-cta small { opacity: .75; }
