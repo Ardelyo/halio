@@ -24,10 +24,12 @@ log = logging.getLogger(__name__)
 
 TOPICS = {
     "tni": ("TNI AD dan pertahanan", re.compile(
-        r"\b(tni|tentara|prajurit|kodam|korem|kodim|koramil|babinsa|kostrad|kopassus|kasad|ksad|panglima|dispenad|akmil|bintara|"
-        r"tamtama|taruna|yonif|batalyon|alutsista|mabes|pangdam|danrem|dandim|militer|angkatan darat|kemhan|pertahanan)\b", re.I)),
+        r"\b(tni|tentara nasional|kodam|korem|kodim|koramil|babinsa|kostrad|kopassus|kasad|ksad|dispenad|akmil|bintara|"
+        r"tamtama|yonif|pangdam|danrem|dandim|angkatan darat|kemhan|menhan|wamenhan|kementerian pertahanan)\b", re.I)),
     "umum": ("Hoaks dan klaim yang sedang diperiksa", None),
 }
+# Official feeds that belong to a topic whatever their headline says ("Prajurit Yonif ... bantu warga").
+TOPIC_SOURCES = {"tni": {"tniad", "kemhan"}}
 _HOAX = re.compile(r"\bhoa[xk]s?\b|cek fakta|tidak benar|keliru|disinformasi|penipuan|\bpalsu\b|catut|mencatut", re.I)
 _PREFIX = re.compile(r"^\s*(\[[^\]]{2,20}\]|hoaks?!?:?|cek fakta:?|klarifikasi:?)\s*", re.I)
 
@@ -45,7 +47,8 @@ def clusters(rows: list[dict], kinds: dict[str, str], names: dict[str, str], top
              threshold: float = 0.34) -> list[dict]:
     now = now or datetime.now(timezone.utc)
     rx = TOPICS[topic][1]
-    picked = [r for r in rows if (rx.search(r["title"]) if rx else kinds.get(r["source_id"]) == "cek_fakta")]
+    own = TOPIC_SOURCES.get(topic, set())
+    picked = [r for r in rows if r["source_id"] in own or (rx.search(r["title"]) if rx else kinds.get(r["source_id"]) == "cek_fakta")]
     groups: list[dict] = []
     for r in picked:
         toks = set(tokens(_PREFIX.sub("", r["title"])))
