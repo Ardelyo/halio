@@ -13,6 +13,7 @@ Semua jawaban Nenek di bawah adalah **contoh**. Ganti dengan cerita Nenek sendir
 Pesan berantai masuk ke HP keluarga setiap hari. Orang yang kita sayang meneruskannya karena **peduli**, bukan karena bodoh. Satu pesan yang salah bisa membuat keluarga panik, atau kehilangan uang.
 
 **Tiga pertanyaan besar (pegang terus):**
+
 1. Mengapa orang yang paling peduli justru yang paling sering terkena?
 2. Bagaimana kalau orang yang kita khawatirkan jadi **guru** kita?
 3. Apakah "belum tahu" bisa menjadi jawaban yang baik? *(Halio berani bilang belum tahu.)*
@@ -20,7 +21,9 @@ Pesan berantai masuk ke HP keluarga setiap hari. Orang yang kita sayang menerusk
 **Peran Nenek: guru, bukan korban.** Nenek bercerita, belajar sebentar, lalu **mengajar balik**. Jangan pernah menampilkannya seolah mudah ditipu.
 
 **Arah rasa:** hangat → cemas → lega → bangga.
+
 **Gaya:** dekat dan tenang. Cahaya jendela, suara asli, **tanpa musik saat wawancara**. Musik lembut hanya saat layar ponsel muncul.
+
 **Aturan tiga langkah (tulis di kertas besar, tunjukkan ke kamera):**
 > **1. Berhenti.  2. Tanya Halio.  3. Baru bagikan.**   *(Saring dulu, baru sharing.)*
 
