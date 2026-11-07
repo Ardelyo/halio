@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Halio: lembar contekan</title>
+<link rel="stylesheet" href="../web/fonts/fonts.css">
+<style>
+:root{--blue:#014BAA;--blue-soft:#E6EEF9;--cream:#F8F3F0;--ink:#0E1726;--ink2:#3A4456;--muted:#5B6475;--line:#E7E1DC;--sun:#FFC83D;--sun-soft:#FFF1C2;--salah:#B42318;--salah-bg:#FEF3F2;--ragu:#B54708;--ragu-bg:#FFFAEB;--ok:#067647;--ok-bg:#ECFDF3;--belum:#475467;--belum-bg:#F2F4F7}
+@page{size:A4;margin:12mm}
+*{box-sizing:border-box}
+body{margin:0;font:11pt/1.45 "Inter",system-ui,sans-serif;color:var(--ink);background:#fff}
+h1{font:400 34pt/1.05 "Instrument Serif",Georgia,serif;margin:0 0 4pt}
+h1 em{color:var(--blue)}
+h2{font:800 14pt "Archivo","Inter",sans-serif;margin:16pt 0 6pt;color:var(--blue)}
+h3{font:700 11.5pt "Archivo","Inter",sans-serif;margin:0 0 3pt}
+p{margin:0 0 6pt}
+.sub{color:var(--muted);margin-bottom:10pt}
+.hero{background:var(--blue);color:#fff;border-radius:12pt;padding:14pt 16pt;margin:8pt 0}
+.hero b{color:var(--sun)}.hero p{margin:0;font-size:12.5pt;line-height:1.4}
+.grid{display:grid;gap:8pt}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+.card{border:1px solid var(--line);border-radius:9pt;padding:9pt 11pt;background:#fff;break-inside:avoid}
+.card.sun{background:var(--sun-soft);border-color:transparent}.card.blue{background:var(--blue-soft);border-color:transparent}
+.tag{display:inline-block;font:700 9pt "Archivo",sans-serif;padding:2pt 8pt;border-radius:99pt;margin-bottom:4pt}
+table{width:100%;border-collapse:collapse;font-size:10pt}
+td,th{border-bottom:1px solid var(--line);padding:4pt 6pt;text-align:left;vertical-align:top}
+th{font:700 9pt "Archivo",sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.q{border-left:4px solid var(--blue);padding:2pt 0 2pt 9pt;margin:0 0 7pt;break-inside:avoid}
+.q b{display:block;color:var(--ink)}
+.big{font:400 26pt "Instrument Serif",serif;color:var(--blue);line-height:1}
+.num{text-align:center}.num small{display:block;color:var(--muted);font-size:9pt}
+.warn{background:var(--salah-bg);color:var(--salah);border-radius:9pt;padding:8pt 11pt}
+.pb{break-before:page}
+code{background:var(--belum-bg);padding:0 3pt;border-radius:3pt;font-size:9.5pt}
+ul{margin:2pt 0 6pt 14pt;padding:0}li{margin:1pt 0}
+</style>
+</head>
+<body>
+
+<h1>Halio, <em>lembar contekan.</em></h1>
+<p class="sub">Kartika Cyber Hackathon 2026 · Siber Sosial · diperbarui 8 Nov 2026</p>
+
+<div class="hero"><p><b>Halio bukan sekadar pendeteksi hoaks.</b> Halio adalah <b>mesin yang menyusun bukti</b>. Pintu pertama: keluarga dan Nenek bertanya lewat Telegram, dapat jawaban sederhana dan bersuara. Pintu kedua: analis (TNI AD) mendapat <b>laporan investigasi</b> lengkap dan <b>brief harian</b> tentang narasi yang sedang naik.</p></div>
+
+<h2>1. Halio itu apa, dalam satu napas</h2>
+<div class="grid g2">
+  <div class="card"><h3>Pendeteksi hoaks biasa</h3><p>Menempel label “hoaks” atau “bukan hoaks” pada pesan. Biasanya hanya benar-salah, tanpa menunjukkan dari mana kesimpulannya.</p></div>
+  <div class="card blue"><h3>Halio</h3><p>Mencari bukti di internet, <b>menyalin kutipan kata per kata</b>, menunjukkan tautannya, menyusun <b>linimasa</b> (sejak kapan kabar ini ada), lalu berkata jujur: <b>“belum tahu”</b> bila memang belum ada buktinya.</p></div>
+</div>
+<p style="margin-top:6pt"><b>Prinsip inti:</b> <b>AI mencari dan menilai, kode yang memutuskan.</b> AI tidak boleh mengarang kutipan atau memberi vonis sendiri. Program biasa (kode) yang menyalin kalimat dari halaman asli dan menetapkan hasilnya dengan aturan tetap.</p>
+
+<h2>2. Untuk siapa</h2>
+<div class="grid g3">
+  <div class="card sun"><h3>Keluarga & Nenek</h3><p>Teruskan pesan, foto, atau suara ke bot Telegram. Dapat jawaban bahasa sehari-hari, suara, dan kartu yang bisa dikirim ke grup keluarga.</p></div>
+  <div class="card blue"><h3>Analis siber</h3><p>Halaman laporan: bukti bernomor, linimasa, kemunculan paling awal, titik buta. Bisa dicetak ke PDF.</p></div>
+  <div class="card"><h3>Unit TNI AD</h3><p>Radar: brief harian narasi TNI AD (rekrutmen, pencatutan nama, kabar palsu) yang otomatis ditelusuri.</p></div>
+</div>
+
+<h2>3. Cara kerjanya (analogi “wartawan teliti”)</h2>
+<table>
+<tr><th style="width:26%">Langkah</th><th>Apa yang terjadi</th><th style="width:22%">Siapa</th></tr>
+<tr><td>1. Mencari</td><td>Tujuh “agen” mencari <b>bersamaan</b>: pemeriksa fakta, situs resmi, media, arsip bantahan lama, asal-usul, gambar.</td><td>AI + program</td></tr>
+<tr><td>2. Membaca</td><td>Program membuka puluhan halaman, menyalin kalimat yang relevan <b>apa adanya</b>.</td><td><b>Kode</b></td></tr>
+<tr><td>3. Menilai hubungan</td><td>AI hanya menjawab per kutipan: mendukung, membantah, atau cuma konteks.</td><td>AI</td></tr>
+<tr><td>4. Memutuskan</td><td>Aturan tetap: sumber resmi / pemeriksa fakta bobotnya paling tinggi; media hanya bukti “dilaporkan”.</td><td><b>Kode</b></td></tr>
+<tr><td>5. Menulis laporan</td><td>AI menulis kalimat, lalu kode <b>membuang</b> kalimat yang tidak didukung kutipan.</td><td>AI + <b>kode</b></td></tr>
+</table>
+
+<h2>4. Lima hasil yang mungkin (arti warnanya)</h2>
+<table>
+<tr><td style="width:30%"><span class="tag" style="background:var(--salah-bg);color:var(--salah)">🔴 Terbukti salah</span></td><td>Sudah dibantah sumber resmi atau pemeriksa fakta.</td></tr>
+<tr><td><span class="tag" style="background:var(--ok-bg);color:var(--ok)">🟢 Sejalan dengan sumber</span></td><td>Sumber resmi yang masih baru mendukungnya. Syaratnya ketat.</td></tr>
+<tr><td><span class="tag" style="background:#E6EEF9;color:var(--blue)">🔵 Dilaporkan media</span></td><td>Beberapa media berbeda melaporkannya. Itu <b>bukan</b> pemeriksaan fakta.</td></tr>
+<tr><td><span class="tag" style="background:var(--ragu-bg);color:var(--ragu)">🟠 Tidak yakin</span></td><td>Bukti kurang atau bertentangan. Termasuk “dibantah untuk versi yang mirip”.</td></tr>
+<tr><td><span class="tag" style="background:var(--belum-bg);color:var(--belum)">⚪ Belum ada pemeriksaan</span></td><td>Halio <b>tidak menebak</b>. Ini jawaban yang sah, bukan kegagalan.</td></tr>
+</table>
+
+<h2 class="pb">5. Angka yang boleh disebut (semua terukur)</h2>
+<div class="grid g3" style="grid-template-columns:repeat(4,1fr)">
+  <div class="card num"><div class="big">0 / 10</div><small>berita benar dituduh hoaks</small></div>
+  <div class="card num"><div class="big">0 / 8</div><small>hoaks keluar hijau</small></div>
+  <div class="card num" style="background:var(--ragu-bg)"><div class="big" style="color:var(--ragu)">1 / 8</div><small>hoaks sampai merah</small></div>
+  <div class="card num"><div class="big">±40 dtk</div><small>satu penelusuran</small></div>
+  <div class="card num"><div class="big">±38</div><small>halaman dibuka per klaim</small></div>
+  <div class="card num"><div class="big">7</div><small>agen bekerja bersamaan</small></div>
+  <div class="card num"><div class="big">23</div><small>sumber publik dipantau sensor</small></div>
+  <div class="card num"><div class="big">226</div><small>tes otomatis lulus</small></div>
+</div>
+<p class="sub" style="margin-top:6pt">Sumber: <code>eval/AGENT_RESULTS.md</code>, evaluasi di server dengan web sungguhan (7 Nov 2026). Set uji kecil dan buatan tim: <b>bukan evaluasi independen</b>.</p>
+<div class="warn"><b>Kelemahan yang harus diakui sendiri sebelum juri menemukannya:</b> hanya 1 dari 8 hoaks sampai 🔴. Sisanya berhenti di 🟠 karena bantahannya datang dari media, bukan sumber resmi. Ini disengaja: lebih baik hati-hati daripada menuduh kabar benar sebagai hoaks.</div>
+
+<h2>6. Kamus istilah</h2>
+<table>
+<tr><td style="width:24%"><b>Mesin Bukti</b></td><td>Otak Halio: mencari, menyalin kutipan, memutuskan hasil.</td></tr>
+<tr><td><b>Telusur</b> / swarm</td><td>Mode penyelidikan mendalam: 7 agen mencari bersamaan lalu menyusun laporan.</td></tr>
+<tr><td><b>Radar</b></td><td>Dasbor analis (butuh token): tren, antrean tiket, brief harian, cakupan sensor.</td></tr>
+<tr><td><b>Brief harian</b></td><td>Setiap pagi: narasi TNI AD yang sedang naik, tiga teratas otomatis ditelusuri.</td></tr>
+<tr><td><b>Sensor</b></td><td>Pembaca 23 sumber publik (berita, cek fakta, situs resmi) tiap beberapa menit.</td></tr>
+<tr><td><b>Arsip</b></td><td>Daftar judul bantahan pemeriksa fakta (±6.000), dipakai sebagai petunjuk awal.</td></tr>
+<tr><td><b>Kutipan bernomor</b></td><td>Kalimat asli dari halaman, diberi nomor [1], [2] agar bisa diperiksa.</td></tr>
+<tr><td><b>Titik buta</b></td><td>Hal yang tidak bisa dijangkau Halio (grup WhatsApp, media sosial, situs yang memblokir).</td></tr>
+<tr><td><b>Kemunculan paling awal</b></td><td>Tanggal paling lama yang <i>ditemukan</i> di web terbuka. Bukan asal pesan yang pasti.</td></tr>
+</table>
+
+<h2>7. Tanya jawab juri (jawaban jujur)</h2>
+<div class="q"><b>“Apa bedanya dengan chatbot AI biasa?”</b>Chatbot sering mengarang kutipan dan tautan. Di Halio kutipan disalin <i>kode</i> dari halaman asli, dan vonis ditetapkan aturan, bukan perasaan model.</div>
+<div class="q"><b>“Kenapa banyak hasilnya ‘tidak yakin’?”</b>Karena kami memilih tidak menuduh kabar benar. Bantahan dari media tidak cukup untuk 🔴; perlu sumber resmi atau pemeriksa fakta. Itu kebijakan, bukan kekurangan pencarian.</div>
+<div class="q"><b>“Bagaimana kalau AI salah?”</b>AI tidak memutuskan apa pun. Kalimat laporan yang tidak didukung kutipan dibuang oleh kode (5 dari 50 dibuang pada uji). Setiap kesimpulan bisa dicek lewat tautan.</div>
+<div class="q"><b>“Apakah ini memantau warga?”</b>Tidak. Yang dipantau narasi dan sumber publik. Tidak ada profil akun atau orang; data pribadi dihapus sebelum diproses; statistik agregat; keputusan akhir di manusia.</div>
+<div class="q"><b>“Sudah ada pengguna nyata?”</b>Belum. Pilot dengan keluarga akan dijalankan dan dicatat apa adanya.</div>
+<div class="q"><b>“Mengapa Telegram, bukan WhatsApp?”</b>WhatsApp Business butuh verifikasi Meta dan berbayar per pesan. Kartu dan halaman keluarga bisa dibagikan ke WhatsApp.</div>
+<div class="q"><b>“Bisa menilai foto asli atau palsu?”</b>Tidak. Halio membaca <i>isi</i> foto dan mencari asal gambar (pencarian gambar terbalik, setelah Cloud Vision aktif). Deteksi deepfake tidak dijanjikan.</div>
+<div class="q"><b>“Situs yang memblokir bagaimana?”</b>Kami tidak menyamar sebagai peramban. Bila diblokir, dicoba salinan Internet Archive dan diberi label; selebihnya dicatat sebagai titik buta.</div>
+
+<h2 class="pb">8. Demo (6 menit) dan tautan</h2>
+<table>
+<tr><th style="width:15%">Waktu</th><th>Apa yang ditunjukkan</th></tr>
+<tr><td>0:00</td><td>Masalah: satu hoaks nyata tentang TNI AD atau bantuan, dan mengapa Nenek meneruskannya (karena peduli).</td></tr>
+<tr><td>0:45</td><td><b>Telegram</b>: teruskan pesan bansos. 🔴 dengan sumber, suara, kartu. Kirim lagi (instan). Lalu kabar benar: Halio tidak menuduh.</td></tr>
+<tr><td>2:00</td><td><b>Telusur</b> (🔬): klaim baru. Bukti bernomor, linimasa, titik buta. Bila “tidak yakin”, tegaskan itu <i>fitur</i>.</td></tr>
+<tr><td>3:30</td><td><b>Radar</b>: brief harian TNI AD, tiga narasi yang sudah ditelusuri.</td></tr>
+<tr><td>4:30</td><td>Slide pengaman: apa yang <b>tidak</b> dilakukan Halio.</td></tr>
+<tr><td>5:15</td><td>Angka jujur (0/10, 0/8, 1/8), batas, dan rencana pilot.</td></tr>
+</table>
+<p style="margin-top:6pt"><b>Cadangan:</b> pesan demo yang sudah dicek: bansos (🔴), Suramadu (⚪), pendaftaran Bintara TNI AD (🟠). Siapkan rekaman layar; jangan menjalankan lebih dari satu kasus segar.</p>
+<div class="grid g2" style="margin-top:6pt">
+  <div class="card"><h3>Tautan</h3><ul>
+    <li>Situs: <code>34-101-109-211.sslip.io/cek.html</code></li>
+    <li>Bot: <code>@halioid_bot</code> (cek <code>/versi</code>)</li>
+    <li>Telusur: <code>…/laporan.html</code></li>
+    <li>Radar: <code>…/radar.html</code> (token ada di berkas <code>.env</code>)</li>
+    <li>Kode: <code>github.com/Ardelyo/halio</code></li></ul></div>
+  <div class="card sun"><h3>Jangan katakan</h3><ul>
+    <li>“Akurasi 99%”: tidak pernah diukur.</li>
+    <li>“Bisa deteksi deepfake / bot”: tidak.</li>
+    <li>“Melacak asal pesan WhatsApp”: tidak bisa.</li>
+    <li>“Sudah dipakai ribuan orang”: belum ada pengguna nyata.</li></ul></div>
+</div>
+
+<h2>9. Yang belum selesai (agar tidak kaget)</h2>
+<ul>
+  <li><b>Cloud Vision</b> belum aktif, jadi pencarian gambar terbalik mati.</li>
+  <li><b>Arsip bantahan</b> masih dangkal; dataset BRIN menunggu persetujuan akses Hugging Face.</li>
+  <li><b>Telegram asli</b> belum diuji dari ponsel Nenek: coba <code>/start</code>, <code>/versi</code>, satu pesan, dan satu foto sebelum demo.</li>
+  <li>Tidak ada dukungan <b>video</b>, <b>WhatsApp</b>, atau penilaian keaslian foto.</li>
+</ul>
+</body>
+</html>
