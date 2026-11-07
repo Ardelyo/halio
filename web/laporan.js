@@ -15,7 +15,7 @@ const STAGES = [
 ];
 const STATUS_ICON = { terbukti_salah: "🔴", sejalan_dengan_sumber: "🟢", dilaporkan_media: "🔵", tidak_yakin: "🟠", belum_ada_pemeriksaan: "⚪" };
 const REL = { refutes: "membantah", supports: "mendukung", context: "konteks", claimreview: "ClaimReview" };
-const VIA = { halaman: "halaman", sensor: "sensor Halio", gdelt: "GDELT", claimreview: "ClaimReview", wayback: "Internet Archive" };
+const VIA = { halaman: "halaman", arsip: "arsip pemeriksa fakta", gambar: "pencarian gambar", sensor: "sensor Halio", gdelt: "GDELT", claimreview: "ClaimReview", wayback: "Internet Archive" };
 
 function show(id) { for (const s of ["#start", "#progress", "#error", "#report"]) $(s).classList.toggle("hidden", s !== id); }
 

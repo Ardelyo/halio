@@ -38,6 +38,9 @@ class FakeTools:
     def sensor(self, claim):
         return [{"uri": "https://www.kompas.com/c", "title": "Video bantuan tunai beredar", "via": "sensor", "seen": "2025-02-28"}]
 
+    def archive(self, claim):
+        return []
+
     def claimreview(self, q):
         return []
 
@@ -385,3 +388,50 @@ def test_same_article_through_two_redirects_is_read_once():
                           dossier_ask=dossier_ask, today=date(2025, 3, 10))
     texts = [b["kutipan"] for b in rep["bukti"]]
     assert len(texts) == len(set(texts))
+
+
+def test_archive_keeps_only_headlines_that_call_the_claim_false():
+    from halio import archive
+
+    assert archive.says_false("[SALAH] Video Presiden bagikan bantuan tunai lewat WhatsApp")
+    assert archive.says_false("Hoaks! Gempa besar akan terjadi tanggal 12 bulan depan")
+    assert not archive.says_false("[BENAR] Pendaftaran Bintara TNI AD 2026 gratis")
+    assert not archive.says_false("[FAKTA] BMKG tidak pernah memprediksi tanggal gempa")
+    assert not archive.says_false("Menhan Sjafrie kumpulkan pejabat Kemhan")
+    assert archive.claim_of("[SALAH] Video Presiden bagikan bantuan tunai") == "Video Presiden bagikan bantuan tunai"
+
+
+def test_archive_match_is_only_a_lead_for_the_engine(tmp_path, monkeypatch):
+    from halio import archive
+    from halio.ingest.store import SensorStore
+
+    cfg = _cfg(tmp_path)
+    store = SensorStore(cfg.db_path)
+    with store._conn() as c:
+        for i, (title, url) in enumerate([
+            ("[SALAH] Video Presiden Prabowo bagikan bantuan tunai lewat WhatsApp dengan biaya administrasi", "https://turnbackhoax.id/articles/1"),
+            ("[BENAR] Pendaftaran Bintara TNI AD 2026 dibuka gratis lewat situs resmi", "https://turnbackhoax.id/articles/2"),
+            ("Harga cabai naik menjelang akhir tahun di pasar induk", "https://turnbackhoax.id/articles/3"),
+        ]):
+            c.execute("INSERT INTO sensor_items (source_id, guid, title, url, fingerprint, first_seen) VALUES (?,?,?,?,?,?)",
+                      ("turnbackhoax", str(i), title, url, str(i), "2026-11-01T00:00:00+00:00"))
+    archive._cache.clear()
+    hits = archive.search("Ada video Presiden Prabowo bagi-bagi bantuan tunai lewat WhatsApp, bayar biaya administrasi dulu", cfg)
+    assert hits and hits[0].debunk.sumber[0]["url"] == "https://turnbackhoax.id/articles/1"
+    assert all("Bintara" not in m.debunk.klaim for m in hits)          # [BENAR] never enters the archive
+    assert archive.size(cfg) == 1
+
+
+def test_archive_tool_returns_candidates_with_the_archive_role(tmp_path):
+    from halio import archive
+    from halio.ingest.store import SensorStore
+    from halio.investigate.tools import Toolbox
+
+    cfg = _cfg(tmp_path)
+    with SensorStore(cfg.db_path)._conn() as c:
+        c.execute("INSERT INTO sensor_items (source_id, guid, title, url, fingerprint, first_seen) VALUES (?,?,?,?,?,?)",
+                  ("liputan6-cekfakta", "1", "Cek Fakta: Tidak Benar Video Prabowo Gibran Bagi Bantuan dengan Daftar Lewat WhatsApp",
+                   "https://www.liputan6.com/cek-fakta/1", "1", "2026-11-01T00:00:00+00:00"))
+    archive._cache.clear()
+    out = Toolbox(cfg).archive("Video Prabowo Gibran bagi bantuan daftar lewat WhatsApp")
+    assert out and out[0]["via"] == "arsip" and out[0]["uri"].startswith("https://www.liputan6.com")

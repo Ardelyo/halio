@@ -18,7 +18,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
-from . import attribution, claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
+from . import archive, attribution, claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
 from .dates import human_date
 from .pii import extract_domains
@@ -329,6 +329,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
             for source in candidate.debunk.sumber
             if source.get("jenis") in {"resmi", "cek_fakta"}
         ][:3]
+        # "Already checked" leads: fact-check articles about a very similar claim. They are only URLs for the engine to open and
+        # quote; the archive never decides anything by itself.
+        seed_urls += [m.debunk.sumber[0]["url"] for m in archive.search(claim.text, cfg, k=3) if m.debunk.sumber[0]["url"] not in seed_urls]
         ev = evidence.investigate_v2(claim.text, cfg, seed_urls=seed_urls) if cfg.evidence_engine == "v2" else None
         if ev is not None:
             method.append("bukti_v2")

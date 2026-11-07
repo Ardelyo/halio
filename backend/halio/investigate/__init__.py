@@ -151,13 +151,14 @@ class _Run:
             jobs = {pool.submit(self.tools.search, q): agent for agent, q in tasks}
             if first:
                 jobs[pool.submit(self.tools.sensor, self.core)] = "arsip"
+                jobs[pool.submit(self.tools.archive, self.core)] = "arsip"
                 jobs[pool.submit(self.tools.claimreview, self.core)] = "cek_fakta"
                 jobs[pool.submit(self.tools.gdelt, self.core)] = "arsip"
             try:
                 for f in as_completed(jobs, timeout=max(5.0, self.left() - 30)):
                     hits = f.result() or []
                     self.add(hits, jobs[f])
-                    self.side += [h for h in hits if h.get("via") in ("sensor", "gdelt", "claimreview")]
+                    self.side += [h for h in hits if h.get("via") in ("sensor", "gdelt", "claimreview", "arsip")]
                     self.reviews += [h for h in hits if h.get("via") == "claimreview"]
                     self.say(stage="mencari", **self.stats())
             except FutureTimeout:

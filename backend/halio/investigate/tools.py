@@ -65,6 +65,18 @@ class Toolbox:
         return [{"uri": r["url"], "title": r["title"], "via": "sensor", "seen": (r.get("published") or r.get("first_seen") or "")[:10],
                  "source_id": r["source_id"]} for _, r in scored[:limit]]
 
+    def archive(self, claim: str, limit: int = 8) -> list[dict]:
+        """Fact-check articles about a very similar claim (archive.py): leads that the evidence engine will open."""
+        from .. import archive
+
+        try:
+            hits = archive.search(claim, self.cfg, k=limit, floor=0.28)
+        except Exception as exc:
+            log.info("archive unavailable: %s", type(exc).__name__)
+            return []
+        return [{"uri": m.debunk.sumber[0]["url"], "title": m.debunk.klaim, "via": "arsip",
+                 "seen": m.debunk.sumber[0].get("tanggal", ""), "mirip": m.score} for m in hits]
+
     def claimreview(self, query: str) -> list[dict]:
         key = self.cfg.google_factcheck_key
         if not key:

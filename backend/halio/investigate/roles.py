@@ -12,7 +12,7 @@ AGENTS = {
     "cek_fakta": ("Penelusur pemeriksa fakta", "TurnBackHoax/Mafindo, Kompas, Liputan6, Tempo Cek Fakta, AFP, ClaimReview."),
     "resmi": ("Penelusur sumber resmi", "Situs .go.id dan .mil.id: klarifikasi, rilis, pengumuman."),
     "media": ("Penelusur media", "Pemberitaan media nasional dan salinan kantor berita."),
-    "arsip": ("Penelusur arsip", "Arsip sensor Halio (feed realtime) dan GDELT."),
+    "arsip": ("Penelusur arsip", "Arsip pemeriksa fakta yang sudah pernah membahas klaim serupa, arsip sensor realtime, dan GDELT."),
     "asal": ("Penelusur asal-usul", "Putaran kedua: kemunculan paling awal, versi lama, nama asli foto/video."),
     "gambar": ("Penelusur gambar", "Pencarian gambar terbalik (Cloud Vision): halaman yang memuat gambar sama."),
 }
