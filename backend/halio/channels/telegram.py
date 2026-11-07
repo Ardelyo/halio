@@ -297,6 +297,14 @@ def handle_message(msg: dict) -> None:
     if text.startswith("/bantuan"):
         tg("sendMessage", json={"chat_id": chat_id, "text": HELP, "parse_mode": "HTML"})
         return
+    if text.startswith("/tanpaai"):
+        claim = text.removeprefix("/tanpaai").strip()
+        if len(claim) < 5:
+            tg("sendMessage", json={"chat_id": chat_id, "text": "Tulis pesannya setelah perintah, contoh:\n/tanpaai Ada jalur khusus masuk TNI AD dengan membayar"})
+            return
+        text, no_ai = claim, True
+    else:
+        no_ai = False
     if text.startswith("/telusur"):
         claim = text.removeprefix("/telusur").strip()
         if len(claim) < 10:
@@ -324,7 +332,7 @@ def handle_message(msg: dict) -> None:
     try:
         resp = httpx.post(f"{API_URL}/api/check", timeout=80, headers=CHANNEL_HEADERS, json={
             "text": text, "channel": "telegram", "reporter": f"tg:{chat_id}",
-            "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"),
+            "sapaan": sapaan_by_chat.get(chat_id, "Bapak, Ibu"), "mode": "tanpa_ai" if no_ai else "penuh",
         })
         if resp.status_code == 429:
             tg("sendMessage", json={"chat_id": chat_id, "text": "Terlalu banyak pesan dalam waktu singkat. Tunggu sebentar, lalu kirim lagi, ya."})

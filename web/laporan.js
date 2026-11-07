@@ -171,7 +171,7 @@ function renderReport(r, job) {
   if ((r.bukti || []).length) {
     html.push(`<section class="lp-sec"><h2>Bukti bernomor (${r.bukti.length})</h2><p class="lp-muted">Kutipan disalin langsung dari halaman oleh kode. Hubungan dinilai AI; status diputuskan aturan kode.</p><ol class="lp-ev">${r.bukti.map((b) =>
       `<li id="b${b.no}" class="${esc(b.hubungan)}"><span class="who">[${b.no}] ${esc(b.penerbit)}</span><span class="rel">${esc(REL[b.hubungan] || b.hubungan)}</span>
-       <div class="meta">${esc(b.tingkat_label)}${b.tanggal ? " · " + esc(b.tanggal) : ""} · ${link(b.url, b.host || b.url)}</div><blockquote>“${esc(b.kutipan)}”</blockquote></li>`).join("")}</ol></section>`);
+       <div class="meta">${esc(b.tingkat_label)}${b.tanggal ? " · " + esc(b.tanggal) : ""} · ${link(b.url_sorot || b.url, b.host || b.url)} <span class="lp-muted">(kalimatnya disorot di halaman asli)</span></div><blockquote>“${esc(b.kutipan)}”</blockquote></li>`).join("")}</ol></section>`);
   }
   if ((r.varian || []).length) {
     html.push(`<section class="lp-sec"><h2>Versi kalimat yang beredar</h2><ul class="lp-list">${r.varian.map((v) =>

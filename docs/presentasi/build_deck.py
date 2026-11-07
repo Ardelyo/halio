@@ -188,14 +188,18 @@ etika = f'''<section class="slide blue">
 hasil = f'''<section class="slide">
   <div class="kicker">## · Hasil uji, apa adanya</div>
   <h2>Diukur di server, <em>dengan web sungguhan.</em></h2>
-  <div class="row" style="margin-top:50px;gap:30px;align-items:stretch">
-    <div class="card grow" style="text-align:center"><div class="big" style="font-size:150px">0<span style="font-size:60px"> / 10</span></div><p style="font-size:28px">berita benar dituduh hoaks</p></div>
-    <div class="card grow" style="text-align:center"><div class="big" style="font-size:150px">0<span style="font-size:60px"> / 8</span></div><p style="font-size:28px">hoaks yang keluar hijau</p></div>
-    <div class="card grow" style="text-align:center;background:var(--ragu-bg);border-color:transparent"><div class="big" style="font-size:150px;color:var(--ragu)">1<span style="font-size:60px"> / 8</span></div><p style="font-size:28px">hoaks yang sampai merah</p></div>
-    <div class="card grow" style="text-align:center"><div class="big" style="font-size:150px">5<span style="font-size:60px"> / 50</span></div><p style="font-size:28px">kalimat laporan dibuang pemeriksa</p></div>
+  <div class="row" style="margin-top:30px;gap:26px;align-items:stretch">
+    <div class="card grow" style="text-align:center"><div class="big" style="font-size:104px">0<span style="font-size:44px"> / 10</span></div><p style="font-size:24px">berita benar dituduh hoaks</p></div>
+    <div class="card grow" style="text-align:center"><div class="big" style="font-size:104px">0<span style="font-size:44px"> / 8</span></div><p style="font-size:24px">hoaks yang keluar hijau</p></div>
+    <div class="card grow" style="text-align:center;background:var(--ragu-bg);border-color:transparent"><div class="big" style="font-size:104px;color:var(--ragu)">1<span style="font-size:44px"> / 8</span></div><p style="font-size:24px">hoaks yang sampai merah</p></div>
+    <div class="card grow" style="text-align:center"><div class="big" style="font-size:104px">5<span style="font-size:44px"> / 50</span></div><p style="font-size:24px">kalimat laporan dibuang pemeriksa</p></div>
   </div>
-  <div class="card" style="margin-top:34px;padding:30px 44px"><p style="font-size:30px;color:var(--ink)"><b>Artinya:</b> Halio aman, tetapi masih <b>terlalu hati-hati</b>. Hoaks yang jelas sering berhenti di “tidak yakin, dibantah untuk versi yang mirip”, karena bantahannya datang dari media, bukan sumber resmi. Kami lebih memilih ini daripada menuduh kabar benar.</p></div>
-  <p class="note" style="margin-top:14px">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). 0 / 66 dari uji tim terdahulu pada data buatan sendiri. Bukan evaluasi independen.</p>
+  <div class="card" style="margin-top:22px;padding:20px 36px"><p style="font-size:25px;color:var(--ink)"><b>Artinya:</b> Halio aman, tetapi masih <b>terlalu hati-hati</b>. Hoaks yang jelas sering berhenti di “tidak yakin, dibantah untuk versi yang mirip”, karena bantahannya datang dari media, bukan sumber resmi. Kami lebih memilih ini daripada menuduh kabar benar.</p></div>
+  <div class="row" style="margin-top:18px;gap:22px">
+    <div class="card grow" style="padding:16px 26px;background:var(--blue);border-color:transparent"><p style="font-size:22px;line-height:1.3;color:#fff"><b style="color:var(--sun)">Coba sendiri:</b> halaman <b style="color:#fff">/uji</b> menjalankan tiga uji hidup: halaman yang menyuruh AI berbohong, alamat palsu mirip situs pemerintah, dan kalimat karangan AI.</p></div>
+    <div class="card grow" style="padding:16px 26px;background:var(--blue);border-color:transparent"><p style="font-size:22px;line-height:1.3;color:#fff"><b style="color:var(--sun)">Lihat sendiri:</b> klik nomor sumber di laporan, halaman asli terbuka dengan <b style="color:#fff">kalimat yang disalin disorot</b>. Dan satu saklar mematikan AI untuk membuktikan Halio tetap menjawab.</p></div>
+  </div>
+  <p class="note" style="margin-top:10px;font-size:18px;line-height:1.3">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). 0 / 66 dari uji tim terdahulu pada data buatan sendiri. Bukan evaluasi independen.</p>
   {FOOT}
 </section>'''
 
@@ -251,5 +255,14 @@ for i, part in enumerate(parts):
     num = len([p for p in out if p.startswith("<section")]) + 1
     part = re.sub(r"<b>(?:@@|\d\d)</b> / (?:@@|14)", f"<b>{num:02d}</b> / {n_total:02d}", part)
     out.append(part)
-(HERE / "halio_deck_v2.html").write_text(head + "\n\n" + "".join(out) + "\n" + tail, encoding="utf-8")
+html_out = head + "\n\n" + "".join(out) + "\n" + tail
+# The real site logo (web/icons/icon.svg), embedded so the deck and its PDF carry exactly the logo the website uses.
+import base64
+
+svg = (HERE.parent.parent / "web" / "icons" / "icon.svg").read_bytes()
+logo = '<img class="real-logo" alt="" src="data:image/svg+xml;base64,' + base64.b64encode(svg).decode() + '">'
+assert html_out.count('<div class="logo"><i></i>Halio</div>') == 2
+html_out = html_out.replace('<div class="logo"><i></i>Halio</div>', '<div class="logo">' + logo + 'Halio</div>')
+html_out = html_out.replace("</style>", ".real-logo{width:64px;height:64px;display:block;border-radius:18px;box-shadow:0 8px 24px -10px rgba(0,0,0,.45)}\n</style>", 1)
+(HERE / "halio_deck_v2.html").write_text(html_out, encoding="utf-8")
 print("slides:", n_total, "->", HERE / "halio_deck_v2.html")

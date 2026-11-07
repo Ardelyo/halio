@@ -81,7 +81,7 @@ async function check(text) {
     } else {
       const response = await fetch(`${API}/api/check`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, channel: "web", sapaan: $("#sapaan").value, reporter: deviceId() }),
+        body: JSON.stringify({ text, channel: "web", sapaan: $("#sapaan").value, reporter: deviceId(), mode: $("#noai")?.checked ? "tanpa_ai" : "penuh" }),
       });
       const data = await response.json();
       if (!response.ok) throw Object.assign(new Error(response.statusText), { http: response.status });
@@ -225,6 +225,7 @@ function render(result, original) {
 
   $("#result").innerHTML = `
     <article class="verdict-card ${esc(result.status)}">
+      ${result.mode === "tanpa_ai" ? '<p class="mode-banner">🔌 <b>Mode tanpa AI.</b> Jawaban ini hanya dari korpus dan arsip bantahan; tidak ada model yang dipanggil.</p>' : ""}
       <div class="result-kicker"><span>Hasil pemeriksaan</span><span>${window.HALIO_STATIC_DEMO ? "Simulasi lokal" : "Halio"}</span></div>
       <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(LABEL_BY_REASON[result.reason] || result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
       ${infoPanel(result)}
@@ -362,8 +363,8 @@ function evidencePanel(result) {
   const bar = "■".repeat(ev.kekuatan) + "□".repeat(4 - ev.kekuatan);
   const rows = [...ev.items].sort((a, b) => (TIER_ORDER[a.tingkat] ?? 9) - (TIER_ORDER[b.tingkat] ?? 9)).slice(0, 4).map((it) => {
     const when = longDate(it.tanggal);
-    return `<li><a href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener">${esc(it.penerbit)}</a> <span class="tier">${esc(it.tingkat_label)}${when ? ` · ${esc(when)}` : ""}</span>
-      <blockquote>“${esc(it.kutipan.length > 240 ? it.kutipan.slice(0, 237) + "…" : it.kutipan)}”</blockquote></li>`;
+    return `<li><a href="${esc(safeUrl(it.url_sorot || it.url))}" target="_blank" rel="noopener" title="Membuka halaman asli dengan kalimat ini disorot">${esc(it.penerbit)}</a> <span class="tier">${esc(it.tingkat_label)}${when ? ` · ${esc(when)}` : ""}</span>
+      <blockquote>“${esc(it.kutipan.length > 240 ? it.kutipan.slice(0, 237) + "…" : it.kutipan)}”</blockquote><small class="hl-note">Klik nama sumber: halaman asli terbuka dengan kalimat ini disorot.</small></li>`;
   }).join("");
   return `<div class="fact-block evidence-block"><h3>Yang Halio temukan <span class="meter" title="Kekuatan bukti 0 sampai 4">${bar} ${ev.kekuatan}/4</span></h3>
     <ul class="evidence-list">${rows}</ul><p>${esc(ev.alasan)}</p>
@@ -494,6 +495,8 @@ async function showVersion() {
 
 function init() {
   showVersion();
+  // The no-AI switch is a demo control, shown with ?demo=1 so ordinary visitors are not confused by it.
+  if (new URLSearchParams(location.search).has("demo") && !window.HALIO_STATIC_DEMO) $("#noai-row")?.classList.remove("hidden");
   if (window.HALIO_STATIC_DEMO) $("#static-notice").classList.remove("hidden");
   const sapaan = $("#sapaan");
   sapaan.value = store.get("halio.sapaan", "Bapak, Ibu");

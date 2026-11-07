@@ -521,3 +521,101 @@ def test_blocked_page_without_archive_copy_still_fails_honestly(monkeypatch):
         assert False
     except sv.SourceError as exc:
         assert str(exc) == "http_404"      # a missing page is not "blocked": no archive fallback
+
+
+def test_text_fragment_link_points_at_the_copied_sentence():
+    from urllib.parse import unquote
+
+    from halio.textfrag import fragment_url
+
+    short = fragment_url("https://x.id/a?b=1", "Brigjen Wahyu memastikan tidak benar")
+    assert short == "https://x.id/a?b=1#:~:text=Brigjen%20Wahyu%20memastikan%20tidak%20benar"
+    long_q = "Brigjen Wahyu memastikan, tidak benar jika ada yang mengatakan bahwa menjadi prajurit TNI AD harus membayar atau keluar uang"
+    url = fragment_url("https://x.id/a#lama", long_q)
+    assert url.startswith("https://x.id/a#:~:text=") and "#lama" not in url
+    start, end = url.split("#:~:text=")[1].split(",", 1)[0], url.rsplit(",", 1)[1]
+    assert unquote(start).startswith("Brigjen Wahyu memastikan%2C".replace("%2C", ",")) and unquote(end).endswith("keluar uang")
+    # "," and "-" inside the quote must not break the "start,end" syntax
+    assert fragment_url("https://x.id/", "tidak-benar, kata dia & lainnya ya").count(",") == 0
+    assert "%2D" in fragment_url("https://x.id/", "tidak-benar kata dia") and "%26" in fragment_url("https://x.id/", "a & b c")
+    assert fragment_url("javascript:alert(1)", "satu dua tiga empat") == "javascript:alert(1)"
+    assert fragment_url("https://x.id/a", "terlalu pendek") == "https://x.id/a"
+
+
+def test_every_evidence_item_carries_a_highlight_link():
+    from halio.evidence import Passage
+    from halio.textfrag import fragment_url
+
+    p = Passage(id=1, text="Pangdam telah berulang kali mengingatkan bahwa tidak ada jalur khusus masuk TNI AD", url="https://kompas.com/x",
+                host="kompas.com", tier="C", publisher="Kompas.com", group="Kompas", published=None, title="")
+    assert fragment_url(p.url, p.text).startswith("https://kompas.com/x#:~:text=")
+
+
+def test_no_ai_mode_never_calls_a_model_for_that_request(monkeypatch):
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from halio import api, evidence, google_agent
+
+    def boom(*a, **k):
+        raise AssertionError("a model was called in tanpa_ai mode")
+
+    monkeypatch.setattr(api, "settings", replace(api.settings, llm_enabled=True, llm_provider="google"))
+    monkeypatch.setattr(evidence, "investigate_v2", boom)
+    monkeypatch.setattr(google_agent, "investigate", boom)
+    c = TestClient(api.app)
+    text = "Bapak ibu, ada video Presiden bagi-bagi bantuan tunai, bayar biaya admin 150rb lewat WA. SEBARKAN!!"
+    r = c.post("/api/check", json={"text": text, "mode": "tanpa_ai"}).json()
+    assert r["mode"] == "tanpa_ai" and r["status"] == "terbukti_salah" and "bukti_v2" not in r["method"]
+    assert c.post("/api/check", json={"text": text, "mode": "ngawur"}).status_code == 422
+
+
+def test_no_ai_mode_is_labelled_in_the_chat_reply():
+    from dataclasses import replace
+
+    from halio import pipeline
+    from halio.channels.format import reply_text
+
+    r = pipeline.check("Video Presiden bagi-bagi bantuan tunai, bayar biaya admin 150rb lewat WA. SEBARKAN!!", Settings())
+    r["mode"] = "tanpa_ai"
+    assert "Mode tanpa AI" in reply_text(r, html=True)
+
+
+def test_live_safety_tests_that_need_no_model():
+    from halio import selftest
+
+    a = selftest.domain_palsu()
+    assert a["lulus"] is True and len(a["langkah"]) == 5
+    b = selftest.kalimat_dikarang()
+    assert b["lulus"] is True and "2 dibuang" in b["catatan"] and "dibuang oleh pemeriksa" in b["catatan"]
+
+
+def test_injection_test_reports_honestly_without_ai_and_with_a_fooled_model(monkeypatch):
+    from dataclasses import replace
+
+    from halio import evidence, selftest
+
+    off = selftest.injeksi(replace(Settings(), llm_enabled=False))
+    assert off["lulus"] is None and "tidak aktif" in off["catatan"]
+
+    on = replace(Settings(), llm_enabled=True, llm_provider="google")
+    fooled = lambda claim, passages, cfg: [evidence.Judgement(p.id, "supports", True) for p in passages]  # a model that obeys the trap
+    monkeypatch.setattr(evidence, "gemini_judge", fooled)
+    out = selftest.injeksi(on)
+    assert out["lulus"] is False                      # the test must be able to FAIL when the model is fooled
+    wise = lambda claim, passages, cfg: [evidence.Judgement(1, "context", False), evidence.Judgement(2, "refutes", True)]
+    monkeypatch.setattr(evidence, "gemini_judge", wise)
+    assert selftest.injeksi(on)["lulus"] is True
+
+
+def test_uji_api_lists_and_runs(monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from halio import api
+
+    c = TestClient(api.app)
+    assert {t["nama"] for t in c.get("/api/uji").json()} == {"injeksi", "domain_palsu", "kalimat_dikarang"}
+    r = c.post("/api/uji/domain_palsu").json()
+    assert r["lulus"] is True and r["judul"]
+    assert c.post("/api/uji/tidak_ada").status_code == 404

@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel
 
 from . import outlets
+from .textfrag import fragment_url
 from .config import Settings
 from .source_verifier import Page, SourceError, fetch_page, source_kind
 from .store import WIB
@@ -476,7 +477,7 @@ def investigate_v2(
         status=d.status, reason=d.reason, kekuatan=d.kekuatan, alasan=alasan,
         items=[{"penerbit": i.passage.publisher, "tingkat": i.passage.tier, "tingkat_label": TIER_LABEL[i.passage.tier],
                 "tanggal": i.passage.published.isoformat() if i.passage.published else "", "kutipan": i.passage.text,
-                "url": i.passage.url, "hubungan": i.relation, "grup": i.passage.group} for i in shown],
+                "url": i.passage.url, "url_sorot": fragment_url(i.passage.url, i.passage.text), "hubungan": i.relation, "grup": i.passage.group} for i in shown],
         dicari=queries, dibuka=sum(1 for page, _, _ in opened if page is not None), relevan=relevant, ditolak=rejected[:6],
         bacaan=bacaan,
     )
