@@ -23,6 +23,7 @@ from ..config import Settings
 from ..pii import scrub
 from ..source_verifier import SourceError, fetch_page
 from ..store import WIB
+from ..textfrag import fragment_url
 from ..textnorm import tokens
 from . import dossier, keluarga, origin, planner, roles
 from .tools import Toolbox
@@ -300,7 +301,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         p = i.passage
         numbered.append({"penerbit": p.publisher, "tingkat": p.tier, "tingkat_label": origin.KIND_LABEL[p.tier],
                          "tanggal": p.published.isoformat() if p.published else "", "kutipan": p.text, "url": p.url,
-                         "host": p.host, "hubungan": i.relation, "grup": p.group})
+                         "host": p.host, "hubungan": i.relation, "grup": p.group, "url_sorot": fragment_url(p.url, p.text)})
     for rv in r.reviews[:5]:
         numbered.append({"penerbit": rv["penerbit"] or urlparse(rv["uri"]).hostname, "tingkat": "B", "tingkat_label": "Pemeriksa fakta",
                          "tanggal": rv.get("tanggal", ""), "kutipan": f"Penilaian: {rv['penilaian']}. Klaim yang diperiksa: {rv['klaim']}",

@@ -43,3 +43,8 @@
 .telusur-cta { margin: 1rem 0; display: flex; flex-direction: column; gap: .3rem; }
 .telusur-cta a { text-decoration: none; align-self: flex-start; }
 .telusur-cta small { opacity: .75; }
+
+.hl-note { display: block; opacity: .65; margin-top: .25rem; }
+
+.noai-row { display: flex; gap: .5rem; align-items: center; margin: .6rem 0; font-size: .95rem; color: var(--ink-2); }
+.mode-banner { background: var(--sun-soft, #FFF1C2); border-radius: 12px; padding: .6rem .9rem; margin: 0 0 .8rem; }

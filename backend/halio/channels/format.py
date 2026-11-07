@@ -138,6 +138,8 @@ def reply_text(result: dict, html: bool = False) -> str:
         lines += ["", "⚠️ " + b("Trik dalam pesan") + ": " + e(", ".join(t["label"].lower() for t in techs[:3]))]
     for w in result["links"]["warnings"][:2]:
         lines.append(f"🔗 {e(w)}")
+    if result.get("mode") == "tanpa_ai":
+        lines += ["", "🔌 " + b("Mode tanpa AI") + ": jawaban ini hanya dari korpus dan arsip bantahan, tanpa memanggil model apa pun."]
     lines += ["", "🔎 " + b("Cara Halio memeriksa")] + [f"  ✓ {e(x)}" for x in _how(result)]
     if match:
         if html:
@@ -152,10 +154,10 @@ def reply_text(result: dict, html: bool = False) -> str:
         for it in ev["items"][:3]:
             who = f"{it['penerbit']} ({it['tingkat_label']})" + (f", {_date(it['tanggal'])}" if it.get("tanggal") else "")
             quote = it["kutipan"] if len(it["kutipan"]) <= 220 else it["kutipan"][:217].rsplit(" ", 1)[0] + "…"
-            head = f'<a href="{escape(it["url"])}">{e(who)}</a>' if html else f"{who}: {it['url']}"
+            head = f'<a href="{escape(it.get("url_sorot") or it["url"])}">{e(who)}</a>' if html else f"{who}: {it.get('url_sorot') or it['url']}"
             lines.append(f"  • {head}\n    “{e(quote)}”")
         lines.append("  " + e(ev["alasan"]))
-        lines.append("  Kutipan disalin langsung dari halaman oleh kode; AI hanya menilai hubungannya.")
+        lines.append("  Kutipan disalin langsung dari halaman oleh kode; AI hanya menilai hubungannya. Ketuk nama sumber: kalimatnya disorot di halaman asli.")
     reading = result.get("reading") or {}
     items = reading.get("items", [])[:4]
     if items:

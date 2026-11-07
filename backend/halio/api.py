@@ -104,6 +104,7 @@ class CheckIn(BaseModel):
     channel: str = Field(default="web", pattern="^(web|telegram|whatsapp|extension|demo)$")
     sapaan: str = Field(default="Bapak, Ibu", max_length=30)
     reporter: str | None = Field(default=None, max_length=128, description="Trusted only from our own bots (HALIO_CHANNEL_KEY)")
+    mode: str = Field(default="penuh", pattern="^(penuh|tanpa_ai)$", description="tanpa_ai: this request never calls a model (demo of the fallback)")
 
     @field_validator("text")
     @classmethod
@@ -138,7 +139,12 @@ def _public(result: dict) -> dict:
 
 
 def run_check(body: CheckIn, reporter: str | None) -> dict:
-    result = pipeline.check(body.text, settings, sapaan=body.sapaan)
+    from dataclasses import replace
+
+    # "tanpa_ai" turns the model off for THIS request only: the answer then comes from the curated corpus and the archive alone.
+    cfg = replace(settings, llm_enabled=False) if body.mode == "tanpa_ai" else settings
+    result = pipeline.check(body.text, cfg, sapaan=body.sapaan)
+    result["mode"] = body.mode
     result["card_url"] = f"/api/card/{result['id']}.png"
     result["voice_url"] = f"/api/voice/{result['id']}.mp3"
     cached = {**result, "_channel": body.channel, "_reporter": reporter}
@@ -235,6 +241,35 @@ def api_escalate(body: EscalateIn) -> dict:
         "ticket": ticket,
         "message": "Pertanyaan Anda masuk antrean pemeriksa. Simpan nomor tiket ini; balasan dikirim bila kanal mendukungnya.",
     }
+
+
+_uji_cache: dict[str, tuple[float, dict]] = {}
+
+
+@app.post("/api/uji/{nama}")
+def api_uji(nama: str) -> dict:
+    """Run one live safety test (halio/selftest.py). Cached for five minutes: the injection test calls the real model."""
+    import time as _t
+
+    from . import selftest
+
+    if nama not in selftest.TESTS:
+        raise HTTPException(404, "Uji tidak dikenal.")
+    hit = _uji_cache.get(nama)
+    if hit and _t.monotonic() - hit[0] < 300:
+        return {**hit[1], "dari_cache": True}
+    title, fn = selftest.TESTS[nama]
+    result = {"nama": nama, "judul": title, **fn(settings)}
+    if result["lulus"] is not None:
+        _uji_cache[nama] = (_t.monotonic(), result)
+    return result
+
+
+@app.get("/api/uji")
+def api_uji_list() -> list[dict]:
+    from . import selftest
+
+    return [{"nama": k, "judul": v[0]} for k, v in selftest.TESTS.items()]
 
 
 class InvestigateIn(BaseModel):
