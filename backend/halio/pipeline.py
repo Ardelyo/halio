@@ -18,7 +18,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
-from . import claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
+from . import attribution, claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
 from .dates import human_date
 from .pii import extract_domains
@@ -371,6 +371,13 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         status, reason = "belum_ada_pemeriksaan", "kumpulan_judul"
 
     shown = best if status not in ("belum_ada_pemeriksaan", "dilaporkan_media") and reason != "bukan_klaim_faktual" else None
+    attrib = None
+    if shown is not None:
+        d = shown.debunk
+        attrib = attribution.mismatch(text, f"{d.klaim} {d.fakta} {d.sederhana}")
+        if attrib and status == "sejalan_dengan_sumber":
+            # An official page supports a claim about ITS OWN statement; the message names someone else. Never green.
+            status, reason = "tidak_yakin", "sumber_berbeda_dari_pesan"
     check_id = uuid.uuid4().hex
     return {
         "id": check_id,
@@ -385,6 +392,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         "evidence": evidence_out,
         "engine_fallback": engine_fallback,
         "reading": (llm_note or {}).get("bacaan", {"items": [], "disaring": 0}),
+        "attribution": attrib,
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
         "kind": kind,

@@ -128,6 +128,8 @@ def reply_text(result: dict, html: bool = False) -> str:
     reason = REASON.get(result.get("reason", ""))
     if reason and not match:
         lines += ["", f"📌 {e(reason)}"]
+    if result.get("attribution"):
+        lines += ["", "⚠️ " + b("Sumber yang disebut berbeda") + ": " + e(result["attribution"]["catatan"])]
     techs = result["manipulation"]["techniques"]
     if techs:
         lines += ["", "⚠️ " + b("Trik dalam pesan") + ": " + e(", ".join(t["label"].lower() for t in techs[:3]))]

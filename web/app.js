@@ -220,6 +220,7 @@ function render(result, original) {
       <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(LABEL_BY_REASON[result.reason] || result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
       ${infoPanel(result)}
       ${plain ? "" : `<p class="answer-lead">${esc(match && !many ? match.sederhana : result.voice_script)}</p>`}
+      ${result.attribution ? `<p class="warning attribution"><b>Sumber yang disebut berbeda.</b> ${esc(result.attribution.catatan)}</p>` : ""}
       ${claimsPanel(result)}
       ${many ? "" : evidencePanel(result)}
       ${match && !many ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
@@ -471,7 +472,18 @@ function pauseBeforeShare(button, original) {
   tick();
 }
 
+async function showVersion() {
+  const el = $("#version");
+  if (!el) return;
+  if (window.HALIO_STATIC_DEMO) { el.textContent = "Demo statis di browser (tanpa server)"; return; }
+  try {
+    const h = await (await fetch(`${API}/health`)).json();
+    el.textContent = `Halio v${h.version} · build ${h.build || "lokal"} · AI web: ${h.llm ? "aktif" : "mati"}`;
+  } catch { el.textContent = "Versi server tidak terbaca"; }
+}
+
 function init() {
+  showVersion();
   if (window.HALIO_STATIC_DEMO) $("#static-notice").classList.remove("hidden");
   const sapaan = $("#sapaan");
   sapaan.value = store.get("halio.sapaan", "Bapak, Ibu");
