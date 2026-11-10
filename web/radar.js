@@ -85,6 +85,10 @@ async function loadDashboard() {
         request("/api/sensor/items?limit=8"),
       ]);
       Object.assign(state, { radar, coverage, recent });
+      // Seeded demo rows (channel "demo") sit beside real ones on a server; say so whenever any are in the window.
+      const demoEvents = Number(radar.demo_events || 0);
+      $("#seed-notice").classList.toggle("hidden", demoEvents <= 0);
+      $("#seed-count").textContent = `${demoEvents} dari ${radar.total_checks} cek`;
       state.reviews = { escalations, appeals };
     }
     renderAll();
@@ -126,6 +130,7 @@ function renderOverview() {
   $("#queue-callout-title").textContent = openTotal ? `${openTotal} tiket menunggu tindakan.` : "Tidak ada tiket terbuka.";
   $("#trend-total").textContent = `${data.total_checks} cek`;
   renderTrend(data);
+  renderTni(data.catut_tni);
   renderStatus(data);
   renderBars("#categories", data.by_kategori.map((item) => ({ label: KATEGORI[item.kategori] || item.kategori, n: item.n })));
   renderBars("#techniques", Object.entries(data.techniques).map(([key, n]) => ({ label: TECH[key] || key, n })));
@@ -163,6 +168,19 @@ function renderEvidenceHealth(t) {
     + (t.mesin_cadangan ? ` Mesin cadangan dipakai ${t.mesin_cadangan} kali karena pencarian atau penilaian gagal.` : "");
   renderBars("#evidence-rejections", t.ditolak.map((r) => ({ label: REJECT[r.alasan] || r.alasan, n: r.n })));
   renderBars("#evidence-results", t.hasil.map((r) => ({ label: OUTCOME[r.alasan] || r.alasan, n: r.n })));
+}
+
+function renderTni(t) {
+  const panel = $("#tni-panel");
+  if (!t) { panel.classList.add("hidden"); return; }   // static demo data has no such series
+  panel.classList.remove("hidden");
+  const num = (n) => (typeof n === "number" ? n : 1);       // a suppressed cell ("<3") draws as a minimal bar
+  const max = Math.max(1, ...t.harian.map((d) => num(d.n)));
+  $("#tni-bars").innerHTML = t.harian.map((d) => `<span class="tni-col" title="${esc(d.day)}: ${esc(d.n)}"><i class="${d.n === 0 ? "zero" : ""}" style="height:${d.n === 0 ? 2 : Math.max(8, num(d.n) / max * 100)}%"></i></span>`).join("");
+  const up = t.status === "naik";
+  $("#tni-badge").textContent = up ? "Naik hari ini" : "Tenang";
+  $("#tni-badge").className = `panel-badge ${up ? "tni-up" : ""}`;
+  $("#tni-note").textContent = `Hari ini ${t.hari_ini} cek, rata-rata hari sebelumnya ${String(t.rata_rata_sebelumnya).replace(".", ",")}. "Naik" berarti paling sedikit 3 cek hari ini dan dua kali rata-rata sebelumnya. Hanya cek yang terbukti salah; pesan benar yang topiknya mirip tidak dihitung.`;
 }
 
 function renderBars(selector, rows) {
@@ -388,7 +406,12 @@ function renderBrief(data) {
   }
   $("#brief-meta").textContent = `${b.label} · disusun ${formatDate(b.dibuat, true)} · ${b.berita_dibaca.toLocaleString("id-ID")} berita dibaca dalam ${b.jendela_jam} jam, ${b.berita_cocok_topik.toLocaleString("id-ID")} cocok topik, ${b.narasi.length} narasi.`;
   $("#brief-note").textContent = b.catatan;
-  if (!b.narasi.length) { $("#brief-list").innerHTML = '<p class="brief-meta">Tidak ada narasi yang cocok dengan topik ini dalam jendela waktu.</p>'; return; }
+  // Official releases on the topic: the army's own public account, listed for context and never investigated.
+  const context = (b.konteks_resmi || []).length
+    ? `<article class="brief-card"><span class="brief-rank">KONTEKS RESMI · TIDAK DITELUSURI</span><h3>Rilis resmi terbaru pada topik ini</h3>
+      <ul class="brief-heads">${b.konteks_resmi.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber.join(", "))}</small></li>`).join("")}</ul></article>`
+    : "";
+  if (!b.narasi.length) { $("#brief-list").innerHTML = '<p class="brief-meta">Tidak ada narasi dengan tanda hoaks, pemeriksa fakta, atau banyak sumber pada topik ini dalam jendela waktu.</p>' + context; return; }
   $("#brief-list").innerHTML = b.narasi.map((n, i) => {
     const h = n.hasil;
     let result = "";
@@ -402,7 +425,7 @@ function renderBrief(data) {
     return `<article class="brief-card"><span class="brief-rank">NARASI ${i + 1} · SKOR ${esc(n.skor)}</span><h3>${esc(n.judul)}</h3>
       <div class="brief-tags"><span>${esc(n.jumlah_berita)} berita</span><span>${esc(n.jumlah_sumber)} sumber</span>${n.jenis_sumber.includes("cek_fakta") ? '<span class="hot">pemeriksa fakta terlibat</span>' : ""}${n.berbau_hoaks ? '<span class="hot">kata hoaks/penipuan</span>' : ""}<span>pertama ${esc(formatDate(n.pertama, true))}</span></div>
       <ul class="brief-heads">${n.berita.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber)}</small></li>`).join("")}</ul>${result}</article>`;
-  }).join("");
+  }).join("") + context;
 }
 
 async function runBrief() {

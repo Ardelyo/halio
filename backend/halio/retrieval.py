@@ -24,7 +24,12 @@ _DEFUSED = re.compile(r"^[\s:,-]{0,3}(\w+\s){0,1}(gratis|nol rupiah|rp ?0\b|tida
 # The message talks ABOUT a hoax or scam instead of making the claim: a warning or a correction.
 _CORRECTION = re.compile(
     r"\b(hoaks|hoax|kabar bohong|berita bohong|disinformasi|misinformasi|tidak benar|membantah|dibantah|bantahan|"
-    r"klarifikasi|tidak ada bukti|tidak terbukti|belum terbukti|modus penipuan|adalah (penipu|penipuan|calo)|itu (penipu|penipuan)|waspada (calo|penipu|penipuan|modus))\b")
+    r"klarifikasi|tidak ada bukti|tidak terbukti|belum terbukti|modus penipuan|adalah (penipu|penipuan|calo)|itu (penipu|penipuan)|waspada (calo|penipu|penipuan|modus)|"
+    # Warnings people forward ("hati-hati penipuan bansos memakai video palsu", "jangan percaya calo", "polisi menangkap calo").
+    r"(hati-hati|hati hati|awas|waspadai) (terhadap )?(penipuan|penipu|calo|modus|hoaks|hoax|video palsu|akun palsu|tautan palsu)|"
+    r"(memakai|menggunakan|pakai|berupa) (video|foto|akun|suara) (palsu|rekayasa|deepfake)|"
+    r"jangan (mudah )?(percaya|tertipu|terkecoh)( (pada|kepada|dengan|sama))? (calo|penipu|oknum|tautan|link|pesan berantai)|"
+    r"(menangkap|meringkus|membekuk|memburu|menindak) (oknum |para |seorang )?(calo|penipu|pelaku penipuan|komplotan penipu))\b")
 _NOT_A_CORRECTION = re.compile(r"\b(bukan|tidak|gak|nggak|bkn) (hoaks|hoax)\b")
 
 

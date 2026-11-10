@@ -96,3 +96,79 @@ def test_small_cells_are_suppressed(store):
     store.record({"status": "terbukti_salah", "claim": "x", "match": {"debunk_id": "a", "kategori": "kesehatan"},
                   "manipulation": {"techniques": []}}, "web", None)
     assert store.radar()["by_kategori"][0]["n"] == "<3"
+
+
+def test_store_retention_days_is_configurable(tmp_path):
+    import sqlite3
+
+    from halio.store import Store
+
+    s = Store(tmp_path / "r.db", retention_days=3)
+    with sqlite3.connect(tmp_path / "r.db") as c:
+        c.execute("INSERT INTO appeals (created, check_id, status) VALUES ('2000-01-01T00:00:00+07:00','x','baru')")
+    s.prune()
+    assert sqlite3.connect(tmp_path / "r.db").execute("SELECT COUNT(*) FROM appeals").fetchone()[0] == 0
+
+
+def test_radar_reports_seeded_demo_rows_and_the_page_labels_them(tmp_path):
+    """Seeded rows (channel 'demo') are counted, and radar.js shows a banner for them; real rows alone do not."""
+    from pathlib import Path
+
+    from halio.store import Store
+
+    s = Store(tmp_path / "d.db", k_anonymity=2)
+    real = {"status": "belum_ada_pemeriksaan", "manipulation": {"techniques": []}, "reason": "x"}
+    s.record(real, "web", None)
+    assert s.radar(7)["demo_events"] == 0
+    s.record(real, "demo", None)
+    assert s.radar(7)["demo_events"] == 1
+
+    web = Path(__file__).resolve().parents[2] / "web"
+    js, page = (web / "radar.js").read_text(encoding="utf-8"), (web / "radar.html").read_text(encoding="utf-8")
+    assert 'id="seed-notice"' in page and "radar.demo_events" in js and '"#seed-notice"' in js
+
+
+def test_radar_categories_count_only_proven_false_checks(store):
+    """A true message that merely resembles the TNI recruitment hoax (status 'tidak_yakin') is not 'Penipuan mencatut TNI'."""
+    tni = {"debunk_id": "rekrutmen-tni-ad-berbayar", "kategori": "penipuan_catut_tni"}
+    for _ in range(3):
+        store.record({"status": "tidak_yakin", "reason": "inti_klaim_tidak_ada", "claim": "x", "match": tni,
+                      "manipulation": {"techniques": []}}, "web", None)
+    radar = store.radar()
+    assert radar["by_kategori"] == [] and radar["top_debunks"] == []
+    assert radar["by_status"]["tidak_yakin"] == 3
+    for _ in range(3):
+        store.record({"status": "terbukti_salah", "claim": "x", "match": tni, "manipulation": {"techniques": []}}, "web", None)
+    radar = store.radar()
+    assert radar["by_kategori"] == [{"kategori": "penipuan_catut_tni", "n": 3}]
+    assert radar["top_debunks"][0]["debunk_id"] == "rekrutmen-tni-ad-berbayar"
+
+
+def _tni_check(store, day, n):
+    for _ in range(n):
+        store.record({"status": "terbukti_salah", "claim": "x", "match": {"debunk_id": "rekrutmen-tni-ad-berbayar", "kategori": "penipuan_catut_tni"},
+                      "manipulation": {"techniques": []}}, "demo", None, day=day)
+
+
+def test_radar_flags_a_spike_in_scams_that_use_the_army_name(store):
+    from datetime import date, timedelta
+
+    base = date.fromisoformat(__import__("halio.store", fromlist=["today"]).today())
+    for back in range(1, 7):                      # a quiet week: 1 a day
+        _tni_check(store, (base - timedelta(days=back)).isoformat(), 1)
+    quiet = store.radar(7)["catut_tni"]
+    assert quiet["status"] == "tenang" and len(quiet["harian"]) == 7
+
+    _tni_check(store, base.isoformat(), 9)         # today: 9, against about 1 a day before
+    spike = store.radar(7)["catut_tni"]
+    assert spike["status"] == "naik" and spike["hari_ini"] == 9 and spike["rata_rata_sebelumnya"] == 1.0
+    assert spike["harian"][-1] == {"day": base.isoformat(), "n": 9}
+
+
+def test_tni_spike_needs_enough_checks_to_mean_anything(store):
+    from datetime import date
+
+    today = __import__("halio.store", fromlist=["today"]).today()
+    _tni_check(store, today, 2)                    # 2 against nothing: below the small-cell floor, not a spike
+    r = store.radar(7)["catut_tni"]
+    assert r["status"] == "tenang" and r["hari_ini"] == "<3"

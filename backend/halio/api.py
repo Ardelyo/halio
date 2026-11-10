@@ -21,7 +21,7 @@ from .ingest import coverage
 from .ingest.fetcher import Poller
 from .ingest.store import SensorStore, utcnow
 from .netguard import client_ip, is_direct_local, reporter_for
-from .security import RateLimiter, valid_meta_signature
+from .security import DailyBudget, RateLimiter, valid_meta_signature
 from .store import ResultCache, Store
 
 logging.basicConfig(level=logging.INFO)
@@ -29,9 +29,20 @@ log = logging.getLogger("halio.api")
 
 cache = ResultCache()
 seen_wa_messages = ResultCache(max_items=10000, ttl=86400)
-store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
+store = Store(settings.db_path, k_anonymity=settings.k_anonymity, retention_days=settings.retention_days)
 sensor = SensorStore(settings.db_path)
 limiter = RateLimiter(settings.rate_limit_per_minute)
+llm_budget = DailyBudget(settings.llm_daily_cap)
+media_budget = DailyBudget(settings.media_daily_cap)
+MAX_BODY_BYTES = settings.max_body_mb * 1024 * 1024
+# Every page loads its own scripts, fonts and images from this origin. Inline styles stay allowed (style attributes in
+# generated markup); the one inline script (index.html, the `js` class) is allowed by its hash. test_hardening checks both.
+INDEX_INLINE_SCRIPT_HASH = "sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw="
+CSP = ("default-src 'self'; "
+       f"script-src 'self' '{INDEX_INLINE_SCRIPT_HASH}'; "
+       "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; "
+       "connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; "
+       "form-action 'self'; frame-ancestors 'none'")
 
 
 @asynccontextmanager
@@ -88,6 +99,9 @@ if settings.cors_origins:
 @app.middleware("http")
 async def protect(request: Request, call_next):
     if request.url.path.startswith(("/api/", "/webhook/")):
+        size = request.headers.get("content-length")
+        if size is not None and (not size.isdigit() or int(size) > MAX_BODY_BYTES):
+            return JSONResponse({"detail": f"Kiriman terlalu besar (maksimal {MAX_BODY_BYTES // (1024 * 1024)} MB)."}, status_code=413)
         client = client_ip(request, settings)
         if not limiter.allow(f"{client}:{request.url.path}"):
             return JSONResponse({"detail": "Terlalu banyak permintaan. Coba lagi satu menit lagi."}, status_code=429)
@@ -95,6 +109,10 @@ async def protect(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["X-Frame-Options"] = "DENY"
+    if settings.csp_mode in ("enforce", "report"):
+        name = "Content-Security-Policy" if settings.csp_mode == "enforce" else "Content-Security-Policy-Report-Only"
+        response.headers[name] = CSP
     return response
 
 
@@ -142,9 +160,15 @@ def run_check(body: CheckIn, reporter: str | None) -> dict:
     from dataclasses import replace
 
     # "tanpa_ai" turns the model off for THIS request only: the answer then comes from the curated corpus and the archive alone.
-    cfg = replace(settings, llm_enabled=False) if body.mode == "tanpa_ai" else settings
+    mode = body.mode
+    # Past the daily AI budget the check still runs, from the corpus and archive only, and says so.
+    if mode == "penuh" and settings.llm_enabled and not llm_budget.take():
+        mode = "tanpa_ai"
+    cfg = replace(settings, llm_enabled=False) if mode == "tanpa_ai" else settings
     result = pipeline.check(body.text, cfg, sapaan=body.sapaan)
-    result["mode"] = body.mode
+    result["mode"] = mode
+    if mode != body.mode:
+        result["batas_ai_harian"] = "Batas harian pemeriksaan dengan AI di server ini sudah tercapai. Jawaban ini hanya dari bantahan yang sudah dikurasi."
     result["card_url"] = f"/api/card/{result['id']}.png"
     result["voice_url"] = f"/api/voice/{result['id']}.mp3"
     cached = {**result, "_channel": body.channel, "_reporter": reporter}
@@ -191,6 +215,8 @@ def api_check_media(body: MediaIn, request: Request) -> dict:
         data = base64.b64decode(body.data_b64, validate=True)
     except ValueError:
         raise HTTPException(400, "Berkas rusak.")
+    if not media_budget.take():
+        raise HTTPException(429, "Batas harian membaca foto dan suara di server ini sudah tercapai. Tolong ketik atau salin teksnya, atau coba lagi besok.")
     reading = media.read_media(data, body.mime, settings)
     if reading is None:
         raise HTTPException(503, "Halio belum bisa membaca foto atau suara sekarang. Tolong ketik atau salin teksnya.")

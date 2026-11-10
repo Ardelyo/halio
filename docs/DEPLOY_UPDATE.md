@@ -20,6 +20,10 @@ Cek: `git log --oneline -1` harus menunjukkan commit terbaru, dan `git status` b
 | `HALIO_LLM_MODEL` / `HALIO_MEDIA_MODEL` | `gemini-3.5-flash-lite` |
 | `GOOGLE_CLOUD_PROJECT` / `GOOGLE_CLOUD_LOCATION` | `gemma4good-494311` / `global` |
 | `HALIO_SENSOR` | `1` (arsip pemeriksa fakta untuk kandidat bukti, dan panel Cakupan) |
+| `HALIO_AGENT_DAILY_CAP` | `200` selama penjurian 16–24 Nov (bawaan 60), agar juri tidak ditolak |
+| `HALIO_LLM_DAILY_CAP` / `HALIO_MEDIA_DAILY_CAP` | pagar biaya, mis. `1500` / `300`; `0` = tanpa batas. Lewat batas: cek tetap jalan dari korpus (berlabel "mode tanpa AI"), foto/suara dijawab 429 |
+| `HALIO_RETENTION_DAYS` | `30` (retensi data, lihat `docs/PRIVACY.md`) |
+| `HALIO_MAX_BODY_MB` | `16`; samakan dengan `request_body max_size` di Caddy (`deploy/Caddyfile.example`) |
 
 Pastikan di proyek GCP: **Vertex AI API aktif**, dan akun layanan VM punya peran `Vertex AI User` (VM dibuat dengan `--scopes cloud-platform`).
 
@@ -54,7 +58,7 @@ Hasilnya di `/opt/halio/eval/LIVE_RESULTS.md`; **berita benar dituduh salah haru
 - Pages hanya berisi **demo simulasi** dan **diperbarui otomatis** oleh workflow `pages.yml` ketika `main` berubah di `web/**`. Jadi situs publik baru berubah **setelah PR digabung ke `main`**.
 - Bila tidak mau menunggu: Actions → "Deploy GitHub Pages" → *Run workflow* (dari `main`).
 - Versi sungguhan (bukti web, kartu, suara, Radar) ada di server: `https://<HOST>/cek.html`, `/radar`, `/coverage`. Radar dari luar butuh `Authorization: Bearer <RADAR_TOKEN>`; halaman Radar memintanya.
-- Cache: cache layanan (`halio-shell-v6`) sudah dinaikkan; bila halaman lama masih tampil, muat ulang paksa (Ctrl+Shift+R) atau hapus data situs.
+- Cache: cache layanan (`halio-shell-v14`) sudah dinaikkan; bila halaman lama masih tampil, muat ulang paksa (Ctrl+Shift+R) atau hapus data situs.
 
 ## G. Yang lain
 | Hal | Tindakan |
@@ -63,6 +67,25 @@ Hasilnya di `/opt/halio/eval/LIVE_RESULTS.md`; **berita benar dituduh salah haru
 | Menu bot | @BotFather → `/setcommands`: `start`, `bantuan`, `sapaan`, `privasi`, `versi` (uraian: sebut "Halio memberi bukti, bukan vonis") |
 | Video demo dan story | Masih menampilkan empat keadaan; belum menampilkan 🔵 Dilaporkan media dan pesan berisi beberapa klaim. Render ulang hanya bila diperlukan (`python video/tools/render_all.py`) |
 | Dokumen juri | `docs/PLAN_VERIFIKASI_AI.md` (status 2b), `eval/LIVE_RESULTS.md` setelah dijalankan |
+
+## H2. Lapis jaringan: batasi lalu lintas keluar proses Halio (SSRF)
+
+**Celah (sudah ditutup di kode).** `link_check.py` dan `source_verifier.py` dulu memeriksa bahwa nama situs mengarah ke IP publik, lalu `httpx` me-resolve nama itu **lagi** saat terhubung, sehingga DNS rebinding bisa mengarahkan koneksi ke alamat internal. Sekarang keduanya memakai `PinnedTransport` (`backend/halio/safefetch.py`): nama di-resolve sekali, permintaan ditolak bila **salah satu** jawaban bukan alamat global, lalu koneksi dibuat ke IP itu juga, dengan Host dan SNI tetap nama aslinya (sertifikat tetap diverifikasi terhadap nama itu; diuji dengan mengarahkan `www.bmkg.go.id` ke IP lain: ditolak "Hostname mismatch"). 9 tes baru, dan halaman nyata BMKG, Liputan6, Kompas TV, dan Investortrust tetap terbaca.
+
+Firewall di bawah tetap dianjurkan sebagai lapis kedua (pertahanan berlapis), bukan lagi satu-satunya penutup.
+
+**Mitigasi yang dianjurkan (dijalankan pemilik di VM):** tolak lalu lintas keluar pengguna `halio` ke rentang privat. Loopback (bot → API) dan server metadata (token ADC untuk Vertex AI dan Cloud TTS) **tetap dibuka**, karena keduanya dibutuhkan.
+
+```bash
+gcloud compute ssh halio --zone asia-southeast2-a --command 'sudo bash -c "
+for net in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 169.254.0.0/16; do
+  [ \$net = 169.254.0.0/16 ] && iptables -A OUTPUT -m owner --uid-owner halio -d 169.254.169.254 -j ACCEPT
+  iptables -A OUTPUT -m owner --uid-owner halio -d \$net -j REJECT
+done
+iptables -L OUTPUT -n --line-numbers"'
+```
+
+Aturan `iptables` di atas hilang saat VM di-reboot. Untuk permanen, pasang `iptables-persistent` (`sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save`). Setelah dipasang, uji: `/health` tetap `"llm":true`, satu cek dengan bukti web berhasil, dan `/versi` di Telegram menjawab.
 
 ## H. Mundur bila ada masalah
 ```bash

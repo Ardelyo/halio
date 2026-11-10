@@ -22,6 +22,7 @@ Dokumen ini memisahkan pekerjaan teknis yang sudah diverifikasi dari risiko yang
 | Tinggi | Rate limit dan cache lokal hanya berlaku per proses | Batas pada reverse proxy/gateway dan strategi cache bersama sebelum multi-instance |
 | Tinggi | UI analis memakai satu token Radar bersama, bukan akun individual | Akun dan peran individual, rotasi token, audit terikat identitas, kontrol akses server dan prosedur operasional |
 | Tinggi | K-anonimitas bukan jaminan anonimitas | Tinjauan privasi, uji korelasi/serangan komposisi, persetujuan dan minimisasi data tambahan |
+| Sedang | Egress server belum dibatasi di firewall VM (lapis kedua setelah `PinnedTransport` menutup DNS rebinding di kode) | Aturan egress di `docs/DEPLOY_UPDATE.md` §H2 dipasang dan diuji |
 | Sedang | Akurasi NudeNet dan kompatibilitas DOM belum diukur | Safe-set seimbang, bias/false-positive report, uji situs nyata, model berversi dan deklarasi Chrome Web Store |
 | Sedang | Aksesibilitas lansia belum diuji pengguna | Audit WCAG dan sesi usability dengan pengguna lansia Indonesia |
 | Sedang | Operasi produksi belum dibuktikan | Load test, HTTPS edge, monitoring alert, backup/restore, rollback dan latihan insiden |

@@ -255,6 +255,13 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
             f"{sapaan}, pesan ini tampaknya justru memperingatkan soal kabar bohong, bukan menyebarkannya. "
             f"Yang sudah dicek: {match.debunk.sederhana}"
         )
+    if status == "tidak_yakin" and match and reason == "inti_klaim_tidak_ada" and not match.debunk.is_positive:
+        # Same topic as a known hoax, but the hoax's core (the payment, the date, the link...) is not in this message.
+        # Often a true message: never tell the family to hold it back as if it were the hoax.
+        return (
+            f"{sapaan}, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian "
+            f"yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: {match.debunk.sederhana}"
+        )
     if status == "tidak_yakin" and match:
         topic = "informasi dari sumber resmi" if match.debunk.is_positive else "kabar bohong yang pernah beredar"
         return (
@@ -275,6 +282,23 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
     )
 
 
+def _search_sentences(index, claim_text: str, k: int = 3, min_tokens: int = 5) -> list:
+    """Score the claim as a whole AND each of its sentences, keeping each debunk's best score.
+
+    A scam line followed by a call to action ("... transfer 75 juta ke orang dalam Kodam. Hubungi Pak Budi segera.") dilutes
+    the whole-claim score below the threshold. Every guard (correction, core claim, negation) still runs on the full message,
+    so this only changes how well a matching sentence is recognised. Eval: 0 false accusations on both sets before and after.
+    """
+    best = {m.debunk.id: m for m in index.search(claim_text, k=len(index.debunks))}
+    parts = [p for p in claims.sentences(claim_text) if len(tokens(p)) >= min_tokens]
+    if len(parts) >= 2:
+        for part in parts:
+            for m in index.search(part, k=len(index.debunks)):
+                if m.debunk.id not in best or m.score > best[m.debunk.id].score:
+                    best[m.debunk.id] = m
+    return sorted(best.values(), key=lambda m: m.score, reverse=True)[:k]
+
+
 def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0) -> dict:
     claim = claims.extract(text)
     manip = manipulation.analyze(text)
@@ -284,7 +308,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
     kind, info = _kind_and_info(text, checked_links, manip)
 
     index = get_index(cfg.corpus_path)
-    candidates = index.search(claim.text, k=3)
+    candidates = _search_sentences(index, claim.text)
     method = ["lokal"]
     if cfg.google_factcheck_key:
         remote = factcheck_api.search(claim.text, cfg.google_factcheck_key)
@@ -298,6 +322,13 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         kind, info = "pesan", None
     if kind == "pesan" and _depth == 0 and not _URL.search(text):
         units = claims.split_units(text)
+        # Sentences that only TOGETHER match a known hoax are one claim ("bagi uang tunai lewat video!" + "daftar di WhatsApp,
+        # bayar admin"): split, each half is too weak. A message with a hoax in one part and other claims is still split.
+        if len(units) >= 2 and best and best.score >= cfg.match_threshold and not best.debunk.is_positive \
+                and best.debunk.core_present(text) and not is_correction(text):
+            alone = [next((m.score for m in _search_sentences(index, u) if m.debunk.id == best.debunk.id), 0.0) for u in units]
+            if max(alone) < cfg.match_threshold:
+                units = []
         if len(units) >= 2:
             return _check_many(text, units, cfg, sapaan, manip, domains)
     correction = is_correction(text)

@@ -56,6 +56,14 @@ class Settings:
     # Halio Telusur (investigation agent): needs HALIO_LLM=1. Each run costs real model calls; these are hard daily caps.
     agent_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_AGENT_DAILY_CAP", "60")))
     agent_per_reporter: int = field(default_factory=lambda: int(os.getenv("HALIO_AGENT_PER_REPORTER", "8")))
+    # Cost guards for /api/check and /api/check-media, per process per day. 0 = no limit (the default keeps today's behaviour).
+    # Past the LLM cap a check answers from the curated corpus only (labelled); past the media cap photos/voice get a 429.
+    llm_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_LLM_DAILY_CAP", "0")))
+    media_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_MEDIA_DAILY_CAP", "0")))
+    # Requests with a larger Content-Length are refused with 413 before the body is read.
+    max_body_mb: int = field(default_factory=lambda: int(os.getenv("HALIO_MAX_BODY_MB", "16")))
+    # Content-Security-Policy: enforce (default), report (report-only, for debugging a page) or off.
+    csp_mode: str = field(default_factory=lambda: os.getenv("HALIO_CSP", "enforce").strip().lower())
     # Daily analyst brief (investigate/brief.py): built each morning from 06:00 WIB when on; needs the sensor and HALIO_LLM=1.
     brief_enabled: bool = field(default_factory=lambda: _bool("HALIO_BRIEF"))
     media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-3.5-flash-lite"))
@@ -67,6 +75,8 @@ class Settings:
     # Without a token the Radar answers only localhost, unless this is set (public demo; data is aggregate).
     radar_public: bool = field(default_factory=lambda: _bool("HALIO_RADAR_PUBLIC"))
     k_anonymity: int = field(default_factory=lambda: int(os.getenv("HALIO_K_ANON", "5")))
+    # Days kept for unknown claims, appeals, closed tickets, review audit and investigations (docs/PRIVACY.md).
+    retention_days: int = field(default_factory=lambda: max(1, int(os.getenv("HALIO_RETENTION_DAYS", "30"))))
 
     # Sensor: polls public news / fact-check feeds (docs/ARCHITECTURE_SENSOR.md). Off by default.
     sensor_enabled: bool = field(default_factory=lambda: _bool("HALIO_SENSOR"))

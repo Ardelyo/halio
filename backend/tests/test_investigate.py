@@ -619,3 +619,107 @@ def test_uji_api_lists_and_runs(monkeypatch):
     r = c.post("/api/uji/domain_palsu").json()
     assert r["lulus"] is True and r["judul"]
     assert c.post("/api/uji/tidak_ada").status_code == 404
+
+
+def test_jobs_keep_no_raw_reporter_id_and_still_limit_per_reporter(tmp_path):
+    import sqlite3
+
+    from halio.investigate.jobs import Jobs, LimitReached
+
+    j = Jobs(_cfg(tmp_path, agent_per_reporter=1), runner=lambda t, p: {"klaim": t})
+    j.wait(j.submit("klaim pertama yang cukup panjang", "tg:123456", "telegram"))
+    stored = sqlite3.connect(tmp_path / "t.db").execute("SELECT reporter FROM investigations").fetchone()[0]
+    assert stored and "123456" not in stored and not stored.startswith("tg:")
+    import pytest
+
+    with pytest.raises(LimitReached):
+        j.submit("klaim kedua yang cukup panjang", "tg:123456", "telegram")
+
+
+def test_jobs_prune_old_finished_investigations_but_not_running_ones(tmp_path):
+    import sqlite3
+
+    from halio.investigate.jobs import Jobs
+
+    j = Jobs(_cfg(tmp_path, retention_days=30), runner=lambda t, p: {"klaim": t})
+    with sqlite3.connect(tmp_path / "t.db") as c:
+        c.executemany(
+            "INSERT INTO investigations (id, created, day, status) VALUES (?,?,?,?)",
+            [("lama", "2020-01-01T00:00:00+07:00", "2020-01-01", "selesai"),
+             ("gagal-lama", "2020-01-01T00:00:00+07:00", "2020-01-01", "gagal"),
+             ("baru", "2099-01-01T00:00:00+07:00", "2099-01-01", "selesai")],
+        )
+    j.prune()
+    left = {r[0] for r in sqlite3.connect(tmp_path / "t.db").execute("SELECT id FROM investigations")}
+    assert left == {"baru"}
+
+
+def test_jobs_prune_runs_on_submit(tmp_path):
+    import sqlite3
+
+    from halio.investigate.jobs import Jobs
+
+    j = Jobs(_cfg(tmp_path, retention_days=30), runner=lambda t, p: {"klaim": t})
+    with sqlite3.connect(tmp_path / "t.db") as c:
+        c.execute("INSERT INTO investigations (id, created, day, status) VALUES ('lama','2020-01-01T00:00:00+07:00','2020-01-01','selesai')")
+    j.wait(j.submit("klaim yang cukup panjang sekali", None, "web"))
+    assert sqlite3.connect(tmp_path / "t.db").execute("SELECT COUNT(*) FROM investigations WHERE id='lama'").fetchone()[0] == 0
+
+
+def _brief_rows():
+    def row(src, title, h):
+        return {"source_id": src, "title": title, "url": f"https://x/{abs(hash(title))}", "first_seen": f"2026-11-07T0{h}:00:00+00:00"}
+    return [
+        row("turnbackhoax", "[SALAH] Panglima TNI Sebut Komnas HAM sebagai Musuh dalam Selimut", 1),
+        row("cekfakta", "[SALAH] Panglima TNI Sebut Komnas HAM sebagai Musuh dalam Selimut", 2),
+        row("tniad", "Majalah Palagan Edisi September 2026", 3),
+        row("tniad", "Buku Potret TMMD ke-129", 4),
+        row("tniad", "Kasad Pimpin Pemakaman Militer Kapten Anumerta", 5),
+        row("liputan6-cekfakta", "Ragam Hoaks Menerpa TNI, Simak Faktanya", 6),
+    ]
+
+
+def test_brief_recognises_fact_check_labels_and_investigates_only_signalled_narratives(tmp_path, monkeypatch):
+    from datetime import datetime, timezone
+
+    from halio.ingest.store import SensorStore
+    from halio.investigate import brief
+
+    kinds = {"turnbackhoax": "cek_fakta", "cekfakta": "cek_fakta", "liputan6-cekfakta": "cek_fakta", "tniad": "resmi"}
+    out = brief.clusters(_brief_rows(), kinds, {}, "tni", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    top = out[0]
+    assert top["judul"].startswith("Panglima TNI") and top["berbau_hoaks"] and top["perlu_ditelusuri"]
+    routine = [c for c in out if c["judul"].startswith("Majalah Palagan")][0]
+    assert not routine["perlu_ditelusuri"]
+
+    monkeypatch.setattr(SensorStore, "items_since", lambda self, since, limit=3000: _brief_rows())
+    submitted = []
+
+    class FakeJobs:
+        def submit(self, text, reporter, channel):
+            submitted.append(text)
+            return "j" * 32
+
+    built = brief.Briefs(_cfg(tmp_path)).build("tni", FakeJobs(), now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    assert submitted and not any("Majalah" in s or "Buku Potret" in s for s in submitted)   # no investigation spent on routine releases
+    assert all(n["perlu_ditelusuri"] for n in built["narasi"])
+    assert any("Majalah Palagan" in k["judul"] for k in built["konteks_resmi"])
+
+
+def test_tni_topic_ignores_foreign_defence_ministers_but_keeps_indonesian_ones():
+    from datetime import datetime, timezone
+
+    from halio.investigate import brief
+
+    def row(i, title):
+        return {"source_id": "detik-news", "title": title, "url": f"https://x/{i}", "first_seen": "2026-11-07T01:00:00+00:00"}
+
+    rows = [row(1, "Menhan AS Akui Tak Khawatirkan Upaya Pemakzulan Dirinya"),
+            row(2, "Trump 'Pasang Badan' Bela Menhan Hegseth yang Terancam Dimakzulkan"),
+            row(3, "Wamenhan Hadiri Remembrance Day, Perkuat Diplomasi Pertahanan RI"),
+            row(4, "Dituding Dirikan Barak Militer di Kawasan PIK 2, TNI Bantah: Itu Tenda Sementara"),
+            row(5, "Menhan Rusia dan TNI bahas kerja sama latihan bersama")]   # foreign word, but TNI is named: kept
+    out = brief.clusters(rows, {"detik-news": "berita"}, {}, "tni", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    titles = " | ".join(c["judul"] for c in out)
+    assert "Hegseth" not in titles and "Menhan AS" not in titles
+    assert "Wamenhan" in titles and "Barak Militer" in titles and "Menhan Rusia dan TNI" in titles

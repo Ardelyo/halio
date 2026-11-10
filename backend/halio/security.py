@@ -34,3 +34,33 @@ class RateLimiter:
             if len(self._hits) > 10000:
                 self._hits = {k: v for k, v in self._hits.items() if v and now - v[-1] < 60}
             return True
+
+
+class DailyBudget:
+    """A per-process daily counter for calls that cost money (model, media). cap <= 0 means no limit.
+
+    Resets at midnight WIB. Per process only: with several workers each one has its own budget (docs/LAUNCH_READINESS.md).
+    """
+
+    def __init__(self, cap: int):
+        self.cap = cap
+        self._day = ""
+        self._used = 0
+        self._lock = threading.Lock()
+
+    def take(self, day: str | None = None) -> bool:
+        if self.cap <= 0:
+            return True
+        if day is None:
+            from datetime import datetime
+
+            from .store import WIB
+
+            day = datetime.now(WIB).date().isoformat()
+        with self._lock:
+            if day != self._day:
+                self._day, self._used = day, 0
+            if self._used >= self.cap:
+                return False
+            self._used += 1
+            return True

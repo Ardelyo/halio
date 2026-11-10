@@ -83,9 +83,22 @@ class ResultCache:
             return item[1]
 
 
+def daily_salt(c: sqlite3.Connection, day: str) -> str:
+    """Today's random salt; earlier days' salts are deleted, so yesterday's pseudonyms cannot be linked to an ID any more."""
+    c.execute("CREATE TABLE IF NOT EXISTS daily_salt (day TEXT PRIMARY KEY, salt TEXT NOT NULL)")
+    row = c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()
+    if row:
+        return row[0]
+    c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))
+    # OR IGNORE: Store and Jobs share the table; whoever inserts first wins and both read the same salt back.
+    c.execute("INSERT OR IGNORE INTO daily_salt VALUES (?,?)", (day, secrets.token_hex(16)))
+    return c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()[0]
+
+
 class Store:
-    def __init__(self, path: Path, k_anonymity: int = 5, min_cell: int = 3):
+    def __init__(self, path: Path, k_anonymity: int = 5, min_cell: int = 3, retention_days: int = 30):
         self.path = str(path)
+        self.retention_days = retention_days
         self.k = k_anonymity
         self.min_cell = min_cell
         self._lock = threading.Lock()
@@ -104,15 +117,10 @@ class Store:
         return conn
 
     def _salt(self, c: sqlite3.Connection, day: str) -> str:
-        row = c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()
-        if row:
-            return row["salt"]
-        salt = secrets.token_hex(16)
-        c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))
-        c.execute("INSERT INTO daily_salt VALUES (?,?)", (day, salt))
-        return salt
+        return daily_salt(c, day)
 
-    def prune(self, retention_days: int = 30) -> None:
+    def prune(self, retention_days: int | None = None) -> None:
+        retention_days = self.retention_days if retention_days is None else retention_days
         cutoff = (datetime.now(WIB) - timedelta(days=retention_days)).isoformat(timespec="seconds")
         day_cutoff = (date.fromisoformat(today()) - timedelta(days=retention_days)).isoformat()
         with self._lock, self._conn() as c:
@@ -125,7 +133,9 @@ class Store:
 
     def record(self, result: dict, channel: str, reporter: str | None, day: str | None = None) -> None:
         day = day if day and channel == "demo" else today()
-        match = result.get("match") or {}
+        # Only a proven-false check counts toward a debunk and its category. A message that merely resembles one
+        # (unsure, or a true message on the same topic) would otherwise inflate e.g. "Penipuan mencatut TNI".
+        match = (result.get("match") or {}) if result.get("status") == "terbukti_salah" else {}
         techniques = ",".join(t["id"] for t in result["manipulation"]["techniques"])
         with self._lock, self._conn() as c:
             c.execute(
@@ -251,6 +261,26 @@ class Store:
     def _suppress(self, n: int) -> int | str:
         return n if n >= self.min_cell else f"<{self.min_cell}"
 
+    def _tni_trend(self, rows, days: int) -> dict:
+        """Daily proven-false checks of scams that use the army's name, and whether today stands out from the days before.
+
+        "naik" needs at least min_cell checks today AND at least double the average of the earlier days in the window (a first
+        burst after a quiet spell counts). Shown numbers follow the small-cell rule; the flag itself is only a yes/no.
+        """
+        end = date.fromisoformat(today())
+        counts = {r["day"]: r["n"] for r in rows}
+        series = [(end - timedelta(days=i)).isoformat() for i in range(days - 1, -1, -1)]
+        earlier = [counts.get(d, 0) for d in series[:-1]]
+        avg = round(sum(earlier) / len(earlier), 1) if earlier else 0.0
+        now = counts.get(series[-1], 0)
+        spike = now >= self.min_cell and now >= 2 * max(avg, 0.5)
+        return {
+            "status": "naik" if spike else "tenang",
+            "hari_ini": self._suppress(now),
+            "rata_rata_sebelumnya": avg,
+            "harian": [{"day": d, "n": self._suppress(counts.get(d, 0)) if counts.get(d, 0) else 0} for d in series],
+        }
+
     def radar(self, days: int = 14) -> dict:
         since = (date.fromisoformat(today()) - timedelta(days=days - 1)).isoformat()
         with self._conn() as c:
@@ -259,6 +289,7 @@ class Store:
             by_kategori = q("SELECT kategori, COUNT(*) n FROM events WHERE day>=? AND kategori IS NOT NULL GROUP BY kategori ORDER BY n DESC")
             top_debunks = q("SELECT debunk_id, kategori, COUNT(*) n FROM events WHERE day>=? AND debunk_id IS NOT NULL GROUP BY debunk_id ORDER BY n DESC LIMIT 10")
             daily = q("SELECT day, status, COUNT(*) n FROM events WHERE day>=? GROUP BY day, status ORDER BY day")
+            tni_rows = q("SELECT day, COUNT(*) n FROM events WHERE day>=? AND kategori='penipuan_catut_tni' GROUP BY day ORDER BY day")
             tech_rows = q("SELECT techniques FROM events WHERE day>=? AND techniques<>''")
             emerging = q("SELECT hash, first_seen, last_seen, count, text FROM unknown_claims WHERE last_seen>=? AND text IS NOT NULL ORDER BY count DESC LIMIT 10")
             demo = q("SELECT COUNT(*) n FROM events WHERE day>=? AND channel='demo'")[0]["n"]
@@ -273,6 +304,7 @@ class Store:
 
         total = sum(r["n"] for r in by_status)
         return {
+            "catut_tni": self._tni_trend(tni_rows, days),
             "window_days": days,
             "since": since,
             "total_checks": total,

@@ -47,6 +47,10 @@ def test_true_same_topic_statements_are_not_called_hoax(text):
     "Pesan prediksi gempa besar minggu depan itu hoaks, BMKG sudah membantahnya",
     "Jasa Marga membantah membagikan saldo e-toll gratis lewat link, itu penipuan",
     "Tidak ada bukti air kelapa dan garam menyembuhkan covid, kata Kementerian Kesehatan",
+    # Warnings found by the pre-submission stress test (Nov 2026): both were called hoaxes before.
+    "Hati-hati penipuan bansos memakai video palsu Presiden. Bantuan resmi tidak pernah meminta biaya administrasi. Cek di situs resmi Kemensos.",
+    "Kodam XV Pattimura menangkap calo penerimaan prajurit. Masyarakat diminta melapor bila ada yang meminta uang. Seleksi TNI AD tidak dipungut biaya.",
+    "Jangan percaya calo yang menjanjikan lulus masuk TNI AD dengan bayar uang, semua tes resmi gratis",
 ])
 def test_forwarded_corrections_are_recognised(text):
     r = pipeline.check(text, CFG)
@@ -237,3 +241,95 @@ def test_radar_stays_closed_behind_a_same_host_proxy():
         for hdr in ({"x-forwarded-for": "203.0.113.9"}, {"cf-connecting-ip": "203.0.113.9"}, {"forwarded": "for=203.0.113.9"}):
             assert proxied.get(path, headers=hdr).status_code == 401, (path, hdr)
     assert proxied.get("/api/radar").status_code == 200  # a developer hitting the app directly still works
+
+
+# --- cost and load guards (pre-submission, Nov 2026) ---------------------------------------------
+
+def test_daily_budget_zero_means_unlimited_and_resets_each_day():
+    from halio.security import DailyBudget
+
+    unlimited = DailyBudget(0)
+    assert all(unlimited.take() for _ in range(1000))
+    b = DailyBudget(2)
+    assert b.take(day="2026-11-16") and b.take(day="2026-11-16") and not b.take(day="2026-11-16")
+    assert b.take(day="2026-11-17")
+
+
+def test_llm_daily_cap_falls_back_to_local_answer_with_a_label(monkeypatch):
+    from halio.security import DailyBudget
+
+    seen = []
+    real_check = pipeline.check
+
+    def spy(text, cfg, sapaan="Bapak, Ibu"):
+        seen.append(cfg.llm_enabled)
+        return real_check(text, replace(cfg, llm_enabled=False, google_factcheck_key=None), sapaan=sapaan)
+
+    monkeypatch.setattr(api, "settings", replace(api.settings, llm_enabled=True))
+    monkeypatch.setattr(api, "llm_budget", DailyBudget(1))
+    monkeypatch.setattr(api.pipeline, "check", spy)
+    text = "Jalur khusus masuk tentara, pasti lulus, bayar ke orang dalam"
+    first = client.post("/api/check", json={"text": text}).json()
+    second = client.post("/api/check", json={"text": text}).json()
+    assert seen == [True, False]
+    assert first["mode"] == "penuh" and second["mode"] == "tanpa_ai" and second.get("batas_ai_harian")
+    assert second["status"] == first["status"] == "terbukti_salah"   # the curated corpus still answers
+
+
+def test_media_daily_cap_answers_429_with_plain_advice(monkeypatch):
+    from halio.security import DailyBudget
+
+    monkeypatch.setattr(api, "media_budget", DailyBudget(1))
+    assert api.media_budget.take()
+    r = client.post("/api/check-media", json={"data_b64": "A" * 200, "mime": "image/png"})
+    assert r.status_code == 429 and "ketik" in r.json()["detail"]
+
+
+def test_oversized_body_is_refused_before_parsing(monkeypatch):
+    monkeypatch.setattr(api, "MAX_BODY_BYTES", 1000)
+    r = client.post("/api/check", content=b"x" * 2000, headers={"Content-Type": "application/json"})
+    assert r.status_code == 413
+    ok = client.post("/api/check", json={"text": "Halo apa kabar semuanya"})
+    assert ok.status_code == 200
+
+
+def test_pages_get_csp_and_frame_denial_and_the_inline_script_hash_matches():
+    import base64
+    import re
+
+    r = client.get("/cek.html")
+    assert r.headers["X-Frame-Options"] == "DENY"
+    csp = r.headers["Content-Security-Policy"]
+    assert "frame-ancestors 'none'" in csp and "object-src 'none'" in csp and "'unsafe-eval'" not in csp
+    # Any inline <script> in web/*.html must be allowed by hash, or the page silently breaks under the CSP.
+    for page in (ROOT / "web").glob("*.html"):
+        for body in re.findall(r"<script>(.*?)</script>", page.read_text(encoding="utf-8"), re.S):
+            digest = "sha256-" + base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()
+            assert digest in csp, f"{page.name}: inline script not allowed by the CSP ({digest})"
+
+
+def test_scam_line_followed_by_a_call_to_action_is_still_recognised():
+    """The TNI AD recruitment scam with a trailing 'call Pak Budi' line fell just under the threshold (0.398) before."""
+    text = ("Info penting! Ada jalur titipan masuk TNI AD 2026, dijamin lulus Tamtama, cukup transfer 75 juta ke orang dalam Kodam. "
+            "Hubungi Pak Budi segera, kuota terbatas.")
+    r = pipeline.check(text, CFG)
+    assert r["status"] == "terbukti_salah" and r["match"]["debunk_id"] == "rekrutmen-tni-ad-berbayar"
+
+
+def test_a_known_hoax_written_in_two_sentences_is_not_split_into_two_weak_claims():
+    text = "Pak Prabowo bagi-bagi uang tunai 10 juta lewat video resmi! Daftar di WhatsApp, bayar admin 300 ribu dulu. Buruan sebelum ditutup."
+    r = pipeline.check(text, CFG)
+    assert r["status"] == "terbukti_salah" and r["reason"] == "cocok_dengan_bantahan" and not r.get("claims")
+
+
+def test_genuinely_different_claims_are_still_split():
+    text = ("BMKG memprediksi gempa magnitudo 9 akan terjadi tanggal 3 Desember di Jawa. "
+            "Pemerintah membuka pendaftaran beasiswa kuliah gratis 2026 untuk seluruh siswa SMA di Indonesia.")
+    assert pipeline.check(text, CFG)["reason"] == "beberapa_klaim"
+
+
+def test_true_message_on_a_hoax_topic_is_not_told_to_be_held_back():
+    text = "Pendaftaran Tamtama TNI AD 2026 dilakukan secara online melalui situs resmi penerimaan TNI AD dan seluruh tahapannya tidak dipungut biaya."
+    r = pipeline.check(text, CFG)
+    assert r["status"] == "tidak_yakin" and r["reason"] == "inti_klaim_tidak_ada"
+    assert "tidak memuat bagian yang bohong" in r["voice_script"] and "ditahan" not in r["voice_script"]
