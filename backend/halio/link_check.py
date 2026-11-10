@@ -17,6 +17,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 
 from . import outlets
+from .safefetch import PinnedTransport
 from .source_verifier import source_kind
 
 URL_RE = re.compile(r"https?://[^\s<>\"')\]]+", re.I)
@@ -80,7 +81,8 @@ def check_link(url: str, transport: httpx.BaseTransport | None = None) -> dict:
            "site_name": "", "description": "", "published": "", "outlet": "", "outlet_group": ""}
     current, hops = url, 0
     try:
-        with httpx.Client(timeout=httpx.Timeout(10.0, connect=5.0), follow_redirects=False, transport=transport,
+        # PinnedTransport connects to the address that passed the public-address check (no DNS rebinding in between).
+        with httpx.Client(timeout=httpx.Timeout(10.0, connect=5.0), follow_redirects=False, transport=transport or PinnedTransport(),
                           headers={"User-Agent": "Mozilla/5.0 (compatible; HalioLinkCheck/0.1; +cek tautan, tanpa menjalankan skrip)"}) as client:
             while hops <= 5:
                 parsed = urlparse(current)

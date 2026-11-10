@@ -12,6 +12,8 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
+from .safefetch import PinnedTransport
+
 MAX_BYTES = 2_000_000
 OFFICIAL_DOMAINS = (".go.id", ".mil.id", ".who.int")
 
@@ -178,20 +180,35 @@ def fetch_page(url: str, transport: httpx.BaseTransport | None = None, max_redir
     return _fetch_wayback(url)
 
 
-def _fetch_wayback(url: str) -> Page:
+def _wayback_snapshot(url: str) -> tuple[str, str]:
+    """(archive url, timestamp) of a capture, or ("", ""). The availability endpoint sometimes answers empty for pages that
+    are archived, so the CDX index (reliable, one row per capture) is the second opinion."""
+    headers = {"User-Agent": "HalioEvidence/0.1 (verifikasi kutipan sumber publik)"}
     try:
-        meta = httpx.get("https://archive.org/wayback/available", params={"url": url}, timeout=10,
-                         headers={"User-Agent": "HalioEvidence/0.1 (verifikasi kutipan sumber publik)"}).json()
+        meta = httpx.get("https://archive.org/wayback/available", params={"url": url}, timeout=10, headers=headers).json()
         snap = (meta.get("archived_snapshots") or {}).get("closest") or {}
+        if snap.get("available") and str(snap.get("url", "")).startswith(("http://web.archive.org/", "https://web.archive.org/")):
+            return snap["url"].replace("http://", "https://", 1), str(snap.get("timestamp", ""))
     except (httpx.HTTPError, ValueError):
-        snap = {}
-    if not snap.get("available") or not str(snap.get("url", "")).startswith(("http://web.archive.org/", "https://web.archive.org/")):
+        pass
+    try:
+        rows = httpx.get("https://web.archive.org/cdx/search/cdx", timeout=12, headers=headers,
+                         params={"url": url, "output": "json", "limit": -1, "fl": "timestamp", "filter": "statuscode:200"}).json()
+        stamps = [r[0] for r in rows[1:] if r and str(r[0]).isdigit()]
+        if stamps:
+            return f"https://web.archive.org/web/{stamps[0]}/{url}", stamps[0]
+    except (httpx.HTTPError, ValueError, IndexError, TypeError, KeyError):
+        pass
+    return "", ""
+
+
+def _fetch_wayback(url: str) -> Page:
+    copy_url, ts = _wayback_snapshot(url)
+    if not copy_url:
         raise SourceError("diblokir_dan_tidak_ada_salinan_arsip")
-    copy_url = snap["url"].replace("http://", "https://", 1)
     # id_ asks the archive for the original bytes without its toolbar; the text then matches the live page.
     copy_url = re.sub(r"/web/(\d+)/", r"/web/\1id_/", copy_url, count=1)
     page = _fetch_live(copy_url, None, 4)
-    ts = str(snap.get("timestamp", ""))
     day = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) >= 8 else ""
     return Page(page.text, url, page.title, page.published, page.site_name, archived=day)
 
@@ -203,7 +220,8 @@ def _fetch_live(url: str, transport: httpx.BaseTransport | None = None, max_redi
         timeout=httpx.Timeout(12.0, connect=6.0),
         follow_redirects=False,
         headers={"User-Agent": "HalioEvidence/0.1 (verifikasi kutipan sumber publik)"},
-        transport=transport,
+        # Connect to the address ensure_public_url approved, not to whatever a second DNS lookup returns.
+        transport=transport or PinnedTransport(),
     ) as client:
         for _ in range(max_redirects + 1):
             ensure_public_url(current)

@@ -263,3 +263,26 @@ def test_live_eval_strips_fact_check_prefixes_and_builds_both_sets():
     news, hoax = m.build_sets(rows, {"cekfakta": "cek_fakta", "detik-news": "berita"}, 10, 10)
     assert news == ["Pertamina Dukung Pembinaan Pembalap Muda Lewat Mandalika Racing Series"]
     assert hoax == ["Pemerintah akan hapus BPJS Kesehatan"]
+
+
+def test_wayback_falls_back_to_cdx_when_the_availability_api_answers_empty(monkeypatch):
+    """The availability endpoint intermittently returns no snapshot for pages that are archived; CDX is the reliable index."""
+    import httpx
+
+    from halio import source_verifier as sv
+
+    calls = []
+
+    def fake_get(url, **kw):
+        calls.append(url)
+        if "wayback/available" in url:
+            return httpx.Response(200, json={"archived_snapshots": {}}, request=httpx.Request("GET", url))
+        return httpx.Response(200, json=[["timestamp", "statuscode"], ["20210411061957", "200"]], request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(sv.httpx, "get", fake_get)
+    fetched = []
+    monkeypatch.setattr(sv, "_fetch_live", lambda u, t=None, r=4: fetched.append(u) or sv.Page("teks", u, "judul", "", ""))
+    page = sv._fetch_wayback("https://example.org/a")
+    assert page.archived == "2021-04-11"
+    assert fetched == ["https://web.archive.org/web/20210411061957id_/https://example.org/a"]
+    assert any("cdx" in c for c in calls)

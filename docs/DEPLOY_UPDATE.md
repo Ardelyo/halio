@@ -71,12 +71,9 @@ Hasilnya di `/opt/halio/eval/LIVE_RESULTS.md`; **berita benar dituduh salah haru
 
 ## H2. Lapis jaringan: batasi lalu lintas keluar proses Halio (SSRF)
 
-**Celah yang diketahui.** `link_check.py` dan `source_verifier.py` memeriksa bahwa nama situs mengarah ke IP publik, lalu `httpx` me-resolve nama itu **lagi** saat terhubung. Situs jahat dengan DNS yang berganti cepat (*DNS rebinding*) bisa lolos pemeriksaan pertama, lalu diarahkan ke alamat internal pada koneksi kedua. Perbaikan di kode (menyambung ke IP hasil pemeriksaan dengan SNI/Host asli) belum dikerjakan karena berisiko regresi sebelum freeze.
+**Celah (sudah ditutup di kode).** `link_check.py` dan `source_verifier.py` dulu memeriksa bahwa nama situs mengarah ke IP publik, lalu `httpx` me-resolve nama itu **lagi** saat terhubung, sehingga DNS rebinding bisa mengarahkan koneksi ke alamat internal. Sekarang keduanya memakai `PinnedTransport` (`backend/halio/safefetch.py`): nama di-resolve sekali, permintaan ditolak bila **salah satu** jawaban bukan alamat global, lalu koneksi dibuat ke IP itu juga, dengan Host dan SNI tetap nama aslinya (sertifikat tetap diverifikasi terhadap nama itu; diuji dengan mengarahkan `www.bmkg.go.id` ke IP lain: ditolak "Hostname mismatch"). 9 tes baru, dan halaman nyata BMKG, Liputan6, Kompas TV, dan Investortrust tetap terbaca.
 
-**Mengapa dampaknya terbatas saat ini:**
-- Server metadata GCE (`169.254.169.254`) menolak permintaan tanpa header `Metadata-Flavor: Google`, dan Halio tidak pernah mengirim header itu.
-- Di VM, `HALIO_TRUST_PROXY=1`, jadi Radar dan antrean tetap meminta `RADAR_TOKEN` walaupun permintaan datang dari `127.0.0.1` (`netguard.is_direct_local`).
-- `source_verifier` hanya membuka `https` di port 443. `link_check` hanya mengembalikan status, judul, dan meta halaman.
+Firewall di bawah tetap dianjurkan sebagai lapis kedua (pertahanan berlapis), bukan lagi satu-satunya penutup.
 
 **Mitigasi yang dianjurkan (dijalankan pemilik di VM):** tolak lalu lintas keluar pengguna `halio` ke rentang privat. Loopback (bot → API) dan server metadata (token ADC untuk Vertex AI dan Cloud TTS) **tetap dibuka**, karena keduanya dibutuhkan.
 
