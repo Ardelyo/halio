@@ -392,7 +392,12 @@ function renderBrief(data) {
   }
   $("#brief-meta").textContent = `${b.label} · disusun ${formatDate(b.dibuat, true)} · ${b.berita_dibaca.toLocaleString("id-ID")} berita dibaca dalam ${b.jendela_jam} jam, ${b.berita_cocok_topik.toLocaleString("id-ID")} cocok topik, ${b.narasi.length} narasi.`;
   $("#brief-note").textContent = b.catatan;
-  if (!b.narasi.length) { $("#brief-list").innerHTML = '<p class="brief-meta">Tidak ada narasi yang cocok dengan topik ini dalam jendela waktu.</p>'; return; }
+  // Official releases on the topic: the army's own public account, listed for context and never investigated.
+  const context = (b.konteks_resmi || []).length
+    ? `<article class="brief-card"><span class="brief-rank">KONTEKS RESMI · TIDAK DITELUSURI</span><h3>Rilis resmi terbaru pada topik ini</h3>
+      <ul class="brief-heads">${b.konteks_resmi.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber.join(", "))}</small></li>`).join("")}</ul></article>`
+    : "";
+  if (!b.narasi.length) { $("#brief-list").innerHTML = '<p class="brief-meta">Tidak ada narasi dengan tanda hoaks, pemeriksa fakta, atau banyak sumber pada topik ini dalam jendela waktu.</p>' + context; return; }
   $("#brief-list").innerHTML = b.narasi.map((n, i) => {
     const h = n.hasil;
     let result = "";
@@ -406,7 +411,7 @@ function renderBrief(data) {
     return `<article class="brief-card"><span class="brief-rank">NARASI ${i + 1} · SKOR ${esc(n.skor)}</span><h3>${esc(n.judul)}</h3>
       <div class="brief-tags"><span>${esc(n.jumlah_berita)} berita</span><span>${esc(n.jumlah_sumber)} sumber</span>${n.jenis_sumber.includes("cek_fakta") ? '<span class="hot">pemeriksa fakta terlibat</span>' : ""}${n.berbau_hoaks ? '<span class="hot">kata hoaks/penipuan</span>' : ""}<span>pertama ${esc(formatDate(n.pertama, true))}</span></div>
       <ul class="brief-heads">${n.berita.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber)}</small></li>`).join("")}</ul>${result}</article>`;
-  }).join("");
+  }).join("") + context;
 }
 
 async function runBrief() {

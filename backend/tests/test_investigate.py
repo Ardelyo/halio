@@ -664,3 +664,43 @@ def test_jobs_prune_runs_on_submit(tmp_path):
         c.execute("INSERT INTO investigations (id, created, day, status) VALUES ('lama','2020-01-01T00:00:00+07:00','2020-01-01','selesai')")
     j.wait(j.submit("klaim yang cukup panjang sekali", None, "web"))
     assert sqlite3.connect(tmp_path / "t.db").execute("SELECT COUNT(*) FROM investigations WHERE id='lama'").fetchone()[0] == 0
+
+
+def _brief_rows():
+    def row(src, title, h):
+        return {"source_id": src, "title": title, "url": f"https://x/{abs(hash(title))}", "first_seen": f"2026-11-07T0{h}:00:00+00:00"}
+    return [
+        row("turnbackhoax", "[SALAH] Panglima TNI Sebut Komnas HAM sebagai Musuh dalam Selimut", 1),
+        row("cekfakta", "[SALAH] Panglima TNI Sebut Komnas HAM sebagai Musuh dalam Selimut", 2),
+        row("tniad", "Majalah Palagan Edisi September 2026", 3),
+        row("tniad", "Buku Potret TMMD ke-129", 4),
+        row("tniad", "Kasad Pimpin Pemakaman Militer Kapten Anumerta", 5),
+        row("liputan6-cekfakta", "Ragam Hoaks Menerpa TNI, Simak Faktanya", 6),
+    ]
+
+
+def test_brief_recognises_fact_check_labels_and_investigates_only_signalled_narratives(tmp_path, monkeypatch):
+    from datetime import datetime, timezone
+
+    from halio.ingest.store import SensorStore
+    from halio.investigate import brief
+
+    kinds = {"turnbackhoax": "cek_fakta", "cekfakta": "cek_fakta", "liputan6-cekfakta": "cek_fakta", "tniad": "resmi"}
+    out = brief.clusters(_brief_rows(), kinds, {}, "tni", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    top = out[0]
+    assert top["judul"].startswith("Panglima TNI") and top["berbau_hoaks"] and top["perlu_ditelusuri"]
+    routine = [c for c in out if c["judul"].startswith("Majalah Palagan")][0]
+    assert not routine["perlu_ditelusuri"]
+
+    monkeypatch.setattr(SensorStore, "items_since", lambda self, since, limit=3000: _brief_rows())
+    submitted = []
+
+    class FakeJobs:
+        def submit(self, text, reporter, channel):
+            submitted.append(text)
+            return "j" * 32
+
+    built = brief.Briefs(_cfg(tmp_path)).build("tni", FakeJobs(), now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    assert submitted and not any("Majalah" in s or "Buku Potret" in s for s in submitted)   # no investigation spent on routine releases
+    assert all(n["perlu_ditelusuri"] for n in built["narasi"])
+    assert any("Majalah Palagan" in k["judul"] for k in built["konteks_resmi"])

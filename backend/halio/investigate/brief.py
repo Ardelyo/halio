@@ -30,7 +30,9 @@ TOPICS = {
 }
 # Official feeds that belong to a topic whatever their headline says ("Prajurit Yonif ... bantu warga").
 TOPIC_SOURCES = {"tni": {"tniad", "kemhan"}}
-_HOAX = re.compile(r"\bhoa[xk]s?\b|cek fakta|tidak benar|keliru|disinformasi|penipuan|\bpalsu\b|catut|mencatut", re.I)
+# Fact-checkers label headlines "[SALAH]", "[HOAKS]", "[PENIPUAN]", "[MISLEADING]"...: the strongest signal of all.
+_HOAX = re.compile(r"\bhoa[xk]s?\b|cek fakta|tidak benar|keliru|disinformasi|penipuan|\bpalsu\b|catut|mencatut|menyesatkan|"
+                   r"\[\s*(salah|hoaks?|penipuan|misleading|menyesatkan|disinformasi|fitnah|satire|konten palsu)\s*\]", re.I)
 _PREFIX = re.compile(r"^\s*(\[[^\]]{2,20}\]|hoaks?!?:?|cek fakta:?|klarifikasi:?)\s*", re.I)
 
 SCHEMA = """
@@ -67,15 +69,18 @@ def clusters(rows: list[dict], kinds: dict[str, str], names: dict[str, str], top
         hoaxy = any(_HOAX.search(r["title"]) for r in items)
         recent = sum(1 for r in items if r["first_seen"] >= (now - timedelta(hours=12)).isoformat(timespec="seconds"))
         score = 2 * len(sources) + len(items) + (3 if "cek_fakta" in kinds_in else 0) + (2 if hoaxy else 0) + recent
+        # Worth a swarm investigation only with a disinformation signal: hoax words, a fact-checker, or several outlets.
+        # A single official release ("Majalah Palagan edisi ...") is context, not a narrative to investigate.
+        worth = hoaxy or "cek_fakta" in kinds_in or len(sources) >= 2
         rep = min(items, key=lambda r: len(r["title"]))
         out.append({
             "judul": _PREFIX.sub("", rep["title"]).strip(), "skor": score, "jumlah_berita": len(items), "jumlah_sumber": len(sources),
-            "sumber": [names.get(s, s) for s in sources], "jenis_sumber": kinds_in, "berbau_hoaks": hoaxy,
+            "sumber": [names.get(s, s) for s in sources], "jenis_sumber": kinds_in, "berbau_hoaks": hoaxy, "perlu_ditelusuri": worth,
             "pertama": items[0]["first_seen"], "terakhir": items[-1]["first_seen"],
             "berita": [{"judul": r["title"], "url": r["url"], "sumber": names.get(r["source_id"], r["source_id"]), "waktu": r["first_seen"]}
                        for r in items[-6:]],
         })
-    return sorted(out, key=lambda c: -c["skor"])
+    return sorted(out, key=lambda c: (not c["perlu_ditelusuri"], -c["skor"]))
 
 
 class Briefs:
@@ -98,7 +103,10 @@ class Briefs:
         kinds = {s.id: s.kind for s in SOURCES}
         names = {s.id: s.name for s in SOURCES}
         found = clusters(rows, kinds, names, topic, now)
-        narratives = found[:8]
+        narratives = [c for c in found if c["perlu_ditelusuri"]][:8]
+        # Official releases on the topic, shown beside the narratives as the army's own public account (not investigated).
+        context = [{"judul": c["judul"], "sumber": c["sumber"], "pertama": c["pertama"], "url": c["berita"][-1]["url"]}
+                   for c in found if not c["perlu_ditelusuri"] and "resmi" in c["jenis_sumber"]][:6]
         for n in narratives[:top]:
             n["investigasi"] = None
             if jobs is not None:
@@ -110,6 +118,7 @@ class Briefs:
             "id": uuid.uuid4().hex, "dibuat": datetime.now(WIB).isoformat(timespec="seconds"), "topik": topic,
             "label": TOPICS[topic][0], "jendela_jam": hours, "berita_dibaca": len(rows),
             "berita_cocok_topik": sum(c["jumlah_berita"] for c in found), "narasi": narratives,
+            "konteks_resmi": context,
             "catatan": "Disusun dari feed berita, pemeriksa fakta, dan situs resmi yang publik. Narasi dan klaim, bukan orang: "
                        "tidak ada akun, warga, atau prajurit yang diprofilkan. Skor = jumlah sumber berbeda, keterlibatan pemeriksa fakta, "
                        "kata hoaks, dan kebaruan; skor bukan vonis.",
