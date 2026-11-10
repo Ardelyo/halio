@@ -1,7 +1,7 @@
 # Halio Suara server-side TTS (MP3 voice notes). Needs internet access.
 gTTS==2.5.4
 # T2 grounded LLM verdict (HALIO_LLM=1, HALIO_LLM_PROVIDER=google).
-google-genai==1.75.0
+google-genai==3.0.0
 # Legacy provider (HALIO_LLM_PROVIDER=anthropic).
 anthropic==0.84.0
 # Tests
