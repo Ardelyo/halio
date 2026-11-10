@@ -113,7 +113,7 @@ Thresholds: match >= 0.4, unsure >= 0.26. Mode: retrieval only (no LLM, no Claim
 | ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.46 | Kemensos mengingatkan bansos tidak pernah dipungut biaya dan tidak did |
 | ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.42 | Hati-hati video Presiden bagi-bagi uang itu hoaks buatan AI, jangan tr |
 | ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.502 | Pendaftaran Tamtama TNI AD gelombang 2 dibuka mulai 1 Juli, seluruh ta |
-| ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.316 | Kodam XV Pattimura memburu oknum calo penerimaan prajurit yang merugik |
+| ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.316 | Kodam XV Pattimura memburu oknum calo penerimaan prajurit yang merugik |
 | ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.348 | Awas penipuan rekrutmen TNI AD, siapa pun yang menjanjikan pasti lulus |
 | ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.341 | Seleksi Bintara TNI AD meliputi tes kesehatan, jasmani, psikologi, dan |
 | ✅ | not_debunked | tidak_yakin | inti_klaim_tidak_ada | 0.407 | BMKG: gempa M4,8 guncang Sukabumi pukul 03.15 WIB, tidak berpotensi ts |

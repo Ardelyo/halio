@@ -47,6 +47,10 @@ def test_true_same_topic_statements_are_not_called_hoax(text):
     "Pesan prediksi gempa besar minggu depan itu hoaks, BMKG sudah membantahnya",
     "Jasa Marga membantah membagikan saldo e-toll gratis lewat link, itu penipuan",
     "Tidak ada bukti air kelapa dan garam menyembuhkan covid, kata Kementerian Kesehatan",
+    # Warnings found by the pre-submission stress test (Nov 2026): both were called hoaxes before.
+    "Hati-hati penipuan bansos memakai video palsu Presiden. Bantuan resmi tidak pernah meminta biaya administrasi. Cek di situs resmi Kemensos.",
+    "Kodam XV Pattimura menangkap calo penerimaan prajurit. Masyarakat diminta melapor bila ada yang meminta uang. Seleksi TNI AD tidak dipungut biaya.",
+    "Jangan percaya calo yang menjanjikan lulus masuk TNI AD dengan bayar uang, semua tes resmi gratis",
 ])
 def test_forwarded_corrections_are_recognised(text):
     r = pipeline.check(text, CFG)
@@ -302,3 +306,23 @@ def test_pages_get_csp_and_frame_denial_and_the_inline_script_hash_matches():
         for body in re.findall(r"<script>(.*?)</script>", page.read_text(encoding="utf-8"), re.S):
             digest = "sha256-" + base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()
             assert digest in csp, f"{page.name}: inline script not allowed by the CSP ({digest})"
+
+
+def test_scam_line_followed_by_a_call_to_action_is_still_recognised():
+    """The TNI AD recruitment scam with a trailing 'call Pak Budi' line fell just under the threshold (0.398) before."""
+    text = ("Info penting! Ada jalur titipan masuk TNI AD 2026, dijamin lulus Tamtama, cukup transfer 75 juta ke orang dalam Kodam. "
+            "Hubungi Pak Budi segera, kuota terbatas.")
+    r = pipeline.check(text, CFG)
+    assert r["status"] == "terbukti_salah" and r["match"]["debunk_id"] == "rekrutmen-tni-ad-berbayar"
+
+
+def test_a_known_hoax_written_in_two_sentences_is_not_split_into_two_weak_claims():
+    text = "Pak Prabowo bagi-bagi uang tunai 10 juta lewat video resmi! Daftar di WhatsApp, bayar admin 300 ribu dulu. Buruan sebelum ditutup."
+    r = pipeline.check(text, CFG)
+    assert r["status"] == "terbukti_salah" and r["reason"] == "cocok_dengan_bantahan" and not r.get("claims")
+
+
+def test_genuinely_different_claims_are_still_split():
+    text = ("BMKG memprediksi gempa magnitudo 9 akan terjadi tanggal 3 Desember di Jawa. "
+            "Pemerintah membuka pendaftaran beasiswa kuliah gratis 2026 untuk seluruh siswa SMA di Indonesia.")
+    assert pipeline.check(text, CFG)["reason"] == "beberapa_klaim"
