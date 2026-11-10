@@ -130,6 +130,7 @@ function renderOverview() {
   $("#queue-callout-title").textContent = openTotal ? `${openTotal} tiket menunggu tindakan.` : "Tidak ada tiket terbuka.";
   $("#trend-total").textContent = `${data.total_checks} cek`;
   renderTrend(data);
+  renderTni(data.catut_tni);
   renderStatus(data);
   renderBars("#categories", data.by_kategori.map((item) => ({ label: KATEGORI[item.kategori] || item.kategori, n: item.n })));
   renderBars("#techniques", Object.entries(data.techniques).map(([key, n]) => ({ label: TECH[key] || key, n })));
@@ -167,6 +168,19 @@ function renderEvidenceHealth(t) {
     + (t.mesin_cadangan ? ` Mesin cadangan dipakai ${t.mesin_cadangan} kali karena pencarian atau penilaian gagal.` : "");
   renderBars("#evidence-rejections", t.ditolak.map((r) => ({ label: REJECT[r.alasan] || r.alasan, n: r.n })));
   renderBars("#evidence-results", t.hasil.map((r) => ({ label: OUTCOME[r.alasan] || r.alasan, n: r.n })));
+}
+
+function renderTni(t) {
+  const panel = $("#tni-panel");
+  if (!t) { panel.classList.add("hidden"); return; }   // static demo data has no such series
+  panel.classList.remove("hidden");
+  const num = (n) => (typeof n === "number" ? n : 1);       // a suppressed cell ("<3") draws as a minimal bar
+  const max = Math.max(1, ...t.harian.map((d) => num(d.n)));
+  $("#tni-bars").innerHTML = t.harian.map((d) => `<span class="tni-col" title="${esc(d.day)}: ${esc(d.n)}"><i class="${d.n === 0 ? "zero" : ""}" style="height:${d.n === 0 ? 2 : Math.max(8, num(d.n) / max * 100)}%"></i></span>`).join("");
+  const up = t.status === "naik";
+  $("#tni-badge").textContent = up ? "Naik hari ini" : "Tenang";
+  $("#tni-badge").className = `panel-badge ${up ? "tni-up" : ""}`;
+  $("#tni-note").textContent = `Hari ini ${t.hari_ini} cek, rata-rata hari sebelumnya ${String(t.rata_rata_sebelumnya).replace(".", ",")}. "Naik" berarti paling sedikit 3 cek hari ini dan dua kali rata-rata sebelumnya. Hanya cek yang terbukti salah; pesan benar yang topiknya mirip tidak dihitung.`;
 }
 
 function renderBars(selector, rows) {

@@ -704,3 +704,22 @@ def test_brief_recognises_fact_check_labels_and_investigates_only_signalled_narr
     assert submitted and not any("Majalah" in s or "Buku Potret" in s for s in submitted)   # no investigation spent on routine releases
     assert all(n["perlu_ditelusuri"] for n in built["narasi"])
     assert any("Majalah Palagan" in k["judul"] for k in built["konteks_resmi"])
+
+
+def test_tni_topic_ignores_foreign_defence_ministers_but_keeps_indonesian_ones():
+    from datetime import datetime, timezone
+
+    from halio.investigate import brief
+
+    def row(i, title):
+        return {"source_id": "detik-news", "title": title, "url": f"https://x/{i}", "first_seen": "2026-11-07T01:00:00+00:00"}
+
+    rows = [row(1, "Menhan AS Akui Tak Khawatirkan Upaya Pemakzulan Dirinya"),
+            row(2, "Trump 'Pasang Badan' Bela Menhan Hegseth yang Terancam Dimakzulkan"),
+            row(3, "Wamenhan Hadiri Remembrance Day, Perkuat Diplomasi Pertahanan RI"),
+            row(4, "Dituding Dirikan Barak Militer di Kawasan PIK 2, TNI Bantah: Itu Tenda Sementara"),
+            row(5, "Menhan Rusia dan TNI bahas kerja sama latihan bersama")]   # foreign word, but TNI is named: kept
+    out = brief.clusters(rows, {"detik-news": "berita"}, {}, "tni", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+    titles = " | ".join(c["judul"] for c in out)
+    assert "Hegseth" not in titles and "Menhan AS" not in titles
+    assert "Wamenhan" in titles and "Barak Militer" in titles and "Menhan Rusia dan TNI" in titles

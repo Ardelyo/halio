@@ -101,6 +101,7 @@ docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 - [Naskah demo & video](docs/DEMO_SCRIPT.md)
 - [Checklist pengumpulan](docs/SUBMISSION_CHECKLIST.md)
 - [Atribusi pihak ketiga & deklarasi](docs/THIRD_PARTY.md)
+- [Evaluasi Radar untuk TNI AD: berfungsi dan bermanfaatkah?](docs/EVALUASI_RADAR_TNI.md)
 - [Hasil evaluasi](eval/RESULTS.md)
 
 ## Hak kekayaan intelektual

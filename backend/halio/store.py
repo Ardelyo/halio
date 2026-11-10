@@ -261,6 +261,26 @@ class Store:
     def _suppress(self, n: int) -> int | str:
         return n if n >= self.min_cell else f"<{self.min_cell}"
 
+    def _tni_trend(self, rows, days: int) -> dict:
+        """Daily proven-false checks of scams that use the army's name, and whether today stands out from the days before.
+
+        "naik" needs at least min_cell checks today AND at least double the average of the earlier days in the window (a first
+        burst after a quiet spell counts). Shown numbers follow the small-cell rule; the flag itself is only a yes/no.
+        """
+        end = date.fromisoformat(today())
+        counts = {r["day"]: r["n"] for r in rows}
+        series = [(end - timedelta(days=i)).isoformat() for i in range(days - 1, -1, -1)]
+        earlier = [counts.get(d, 0) for d in series[:-1]]
+        avg = round(sum(earlier) / len(earlier), 1) if earlier else 0.0
+        now = counts.get(series[-1], 0)
+        spike = now >= self.min_cell and now >= 2 * max(avg, 0.5)
+        return {
+            "status": "naik" if spike else "tenang",
+            "hari_ini": self._suppress(now),
+            "rata_rata_sebelumnya": avg,
+            "harian": [{"day": d, "n": self._suppress(counts.get(d, 0)) if counts.get(d, 0) else 0} for d in series],
+        }
+
     def radar(self, days: int = 14) -> dict:
         since = (date.fromisoformat(today()) - timedelta(days=days - 1)).isoformat()
         with self._conn() as c:
@@ -269,6 +289,7 @@ class Store:
             by_kategori = q("SELECT kategori, COUNT(*) n FROM events WHERE day>=? AND kategori IS NOT NULL GROUP BY kategori ORDER BY n DESC")
             top_debunks = q("SELECT debunk_id, kategori, COUNT(*) n FROM events WHERE day>=? AND debunk_id IS NOT NULL GROUP BY debunk_id ORDER BY n DESC LIMIT 10")
             daily = q("SELECT day, status, COUNT(*) n FROM events WHERE day>=? GROUP BY day, status ORDER BY day")
+            tni_rows = q("SELECT day, COUNT(*) n FROM events WHERE day>=? AND kategori='penipuan_catut_tni' GROUP BY day ORDER BY day")
             tech_rows = q("SELECT techniques FROM events WHERE day>=? AND techniques<>''")
             emerging = q("SELECT hash, first_seen, last_seen, count, text FROM unknown_claims WHERE last_seen>=? AND text IS NOT NULL ORDER BY count DESC LIMIT 10")
             demo = q("SELECT COUNT(*) n FROM events WHERE day>=? AND channel='demo'")[0]["n"]
@@ -283,6 +304,7 @@ class Store:
 
         total = sum(r["n"] for r in by_status)
         return {
+            "catut_tni": self._tni_trend(tni_rows, days),
             "window_days": days,
             "since": since,
             "total_checks": total,

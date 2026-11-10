@@ -142,3 +142,33 @@ def test_radar_categories_count_only_proven_false_checks(store):
     radar = store.radar()
     assert radar["by_kategori"] == [{"kategori": "penipuan_catut_tni", "n": 3}]
     assert radar["top_debunks"][0]["debunk_id"] == "rekrutmen-tni-ad-berbayar"
+
+
+def _tni_check(store, day, n):
+    for _ in range(n):
+        store.record({"status": "terbukti_salah", "claim": "x", "match": {"debunk_id": "rekrutmen-tni-ad-berbayar", "kategori": "penipuan_catut_tni"},
+                      "manipulation": {"techniques": []}}, "demo", None, day=day)
+
+
+def test_radar_flags_a_spike_in_scams_that_use_the_army_name(store):
+    from datetime import date, timedelta
+
+    base = date.fromisoformat(__import__("halio.store", fromlist=["today"]).today())
+    for back in range(1, 7):                      # a quiet week: 1 a day
+        _tni_check(store, (base - timedelta(days=back)).isoformat(), 1)
+    quiet = store.radar(7)["catut_tni"]
+    assert quiet["status"] == "tenang" and len(quiet["harian"]) == 7
+
+    _tni_check(store, base.isoformat(), 9)         # today: 9, against about 1 a day before
+    spike = store.radar(7)["catut_tni"]
+    assert spike["status"] == "naik" and spike["hari_ini"] == 9 and spike["rata_rata_sebelumnya"] == 1.0
+    assert spike["harian"][-1] == {"day": base.isoformat(), "n": 9}
+
+
+def test_tni_spike_needs_enough_checks_to_mean_anything(store):
+    from datetime import date
+
+    today = __import__("halio.store", fromlist=["today"]).today()
+    _tni_check(store, today, 2)                    # 2 against nothing: below the small-cell floor, not a spike
+    r = store.radar(7)["catut_tni"]
+    assert r["status"] == "tenang" and r["hari_ini"] == "<3"

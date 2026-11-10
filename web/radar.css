@@ -20,6 +20,7 @@ dialog{color:var(--ink)}dialog::backdrop{background:#0A112085;backdrop-filter:bl
 .brief-rank { font: 700 .8rem var(--display); color: var(--blue); letter-spacing: .05em; }
 .brief-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0; }
 .brief-tags span { font-size: .78rem; padding: .15rem .6rem; border-radius: 99px; background: var(--cream-2); }
+.tni-bars{height:84px;display:flex;align-items:flex-end;gap:3px}.tni-col{flex:1;height:100%;display:flex;align-items:flex-end}.tni-col i{display:block;width:100%;border-radius:2px 2px 0 0;background:#6F7D93}.tni-col i.zero{background:#CBD2DD}.tni-col:last-child i{background:var(--blue)}.panel-badge.tni-up{background:var(--salah-bg);color:var(--salah)}.tni-panel{margin-bottom:18px}
 .brief-tags .hot { background: var(--salah-bg); color: var(--salah); }
 .brief-result { margin-top: .7rem; padding: .7rem .9rem; border-radius: 12px; background: var(--cream); }
 .brief-result b { display: block; margin-bottom: .2rem; }

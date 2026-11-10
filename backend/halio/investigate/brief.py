@@ -28,6 +28,9 @@ TOPICS = {
         r"tamtama|yonif|pangdam|danrem|dandim|angkatan darat|kemhan|menhan|wamenhan|kementerian pertahanan)\b", re.I)),
     "umum": ("Hoaks dan klaim yang sedang diperiksa", None),
 }
+# A foreign defence minister or army is not this topic, unless the headline also names an Indonesian service or place.
+_FOREIGN = re.compile(r"\b(as|amerika|trump|hegseth|pentagon|rusia|israel|china|tiongkok|inggris|ukraina|iran|korea|jepang|nato)\b", re.I)
+_INDONESIAN = re.compile(r"\b(tni|kodam|korem|kodim|koramil|babinsa|kasad|ksad|dispenad|indonesia|ri)\b", re.I)
 # Official feeds that belong to a topic whatever their headline says ("Prajurit Yonif ... bantu warga").
 TOPIC_SOURCES = {"tni": {"tniad", "kemhan"}}
 # Fact-checkers label headlines "[SALAH]", "[HOAKS]", "[PENIPUAN]", "[MISLEADING]"...: the strongest signal of all.
@@ -50,7 +53,10 @@ def clusters(rows: list[dict], kinds: dict[str, str], names: dict[str, str], top
     now = now or datetime.now(timezone.utc)
     rx = TOPICS[topic][1]
     own = TOPIC_SOURCES.get(topic, set())
-    picked = [r for r in rows if r["source_id"] in own or (rx.search(r["title"]) if rx else kinds.get(r["source_id"]) == "cek_fakta")]
+    def on_topic(title: str) -> bool:
+        return bool(rx.search(title)) and not (topic == "tni" and _FOREIGN.search(title) and not _INDONESIAN.search(title))
+
+    picked = [r for r in rows if r["source_id"] in own or (on_topic(r["title"]) if rx else kinds.get(r["source_id"]) == "cek_fakta")]
     groups: list[dict] = []
     for r in picked:
         toks = set(tokens(_PREFIX.sub("", r["title"])))
