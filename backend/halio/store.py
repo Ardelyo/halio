@@ -133,7 +133,9 @@ class Store:
 
     def record(self, result: dict, channel: str, reporter: str | None, day: str | None = None) -> None:
         day = day if day and channel == "demo" else today()
-        match = result.get("match") or {}
+        # Only a proven-false check counts toward a debunk and its category. A message that merely resembles one
+        # (unsure, or a true message on the same topic) would otherwise inflate e.g. "Penipuan mencatut TNI".
+        match = (result.get("match") or {}) if result.get("status") == "terbukti_salah" else {}
         techniques = ",".join(t["id"] for t in result["manipulation"]["techniques"])
         with self._lock, self._conn() as c:
             c.execute(

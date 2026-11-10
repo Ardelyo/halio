@@ -126,3 +126,19 @@ def test_radar_reports_seeded_demo_rows_and_the_page_labels_them(tmp_path):
     web = Path(__file__).resolve().parents[2] / "web"
     js, page = (web / "radar.js").read_text(encoding="utf-8"), (web / "radar.html").read_text(encoding="utf-8")
     assert 'id="seed-notice"' in page and "radar.demo_events" in js and '"#seed-notice"' in js
+
+
+def test_radar_categories_count_only_proven_false_checks(store):
+    """A true message that merely resembles the TNI recruitment hoax (status 'tidak_yakin') is not 'Penipuan mencatut TNI'."""
+    tni = {"debunk_id": "rekrutmen-tni-ad-berbayar", "kategori": "penipuan_catut_tni"}
+    for _ in range(3):
+        store.record({"status": "tidak_yakin", "reason": "inti_klaim_tidak_ada", "claim": "x", "match": tni,
+                      "manipulation": {"techniques": []}}, "web", None)
+    radar = store.radar()
+    assert radar["by_kategori"] == [] and radar["top_debunks"] == []
+    assert radar["by_status"]["tidak_yakin"] == 3
+    for _ in range(3):
+        store.record({"status": "terbukti_salah", "claim": "x", "match": tni, "manipulation": {"techniques": []}}, "web", None)
+    radar = store.radar()
+    assert radar["by_kategori"] == [{"kategori": "penipuan_catut_tni", "n": 3}]
+    assert radar["top_debunks"][0]["debunk_id"] == "rekrutmen-tni-ad-berbayar"
