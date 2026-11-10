@@ -237,3 +237,53 @@ def test_radar_stays_closed_behind_a_same_host_proxy():
         for hdr in ({"x-forwarded-for": "203.0.113.9"}, {"cf-connecting-ip": "203.0.113.9"}, {"forwarded": "for=203.0.113.9"}):
             assert proxied.get(path, headers=hdr).status_code == 401, (path, hdr)
     assert proxied.get("/api/radar").status_code == 200  # a developer hitting the app directly still works
+
+
+# --- cost and load guards (pre-submission, Nov 2026) ---------------------------------------------
+
+def test_daily_budget_zero_means_unlimited_and_resets_each_day():
+    from halio.security import DailyBudget
+
+    unlimited = DailyBudget(0)
+    assert all(unlimited.take() for _ in range(1000))
+    b = DailyBudget(2)
+    assert b.take(day="2026-11-16") and b.take(day="2026-11-16") and not b.take(day="2026-11-16")
+    assert b.take(day="2026-11-17")
+
+
+def test_llm_daily_cap_falls_back_to_local_answer_with_a_label(monkeypatch):
+    from halio.security import DailyBudget
+
+    seen = []
+    real_check = pipeline.check
+
+    def spy(text, cfg, sapaan="Bapak, Ibu"):
+        seen.append(cfg.llm_enabled)
+        return real_check(text, replace(cfg, llm_enabled=False, google_factcheck_key=None), sapaan=sapaan)
+
+    monkeypatch.setattr(api, "settings", replace(api.settings, llm_enabled=True))
+    monkeypatch.setattr(api, "llm_budget", DailyBudget(1))
+    monkeypatch.setattr(api.pipeline, "check", spy)
+    text = "Jalur khusus masuk tentara, pasti lulus, bayar ke orang dalam"
+    first = client.post("/api/check", json={"text": text}).json()
+    second = client.post("/api/check", json={"text": text}).json()
+    assert seen == [True, False]
+    assert first["mode"] == "penuh" and second["mode"] == "tanpa_ai" and second.get("batas_ai_harian")
+    assert second["status"] == first["status"] == "terbukti_salah"   # the curated corpus still answers
+
+
+def test_media_daily_cap_answers_429_with_plain_advice(monkeypatch):
+    from halio.security import DailyBudget
+
+    monkeypatch.setattr(api, "media_budget", DailyBudget(1))
+    assert api.media_budget.take()
+    r = client.post("/api/check-media", json={"data_b64": "A" * 200, "mime": "image/png"})
+    assert r.status_code == 429 and "ketik" in r.json()["detail"]
+
+
+def test_oversized_body_is_refused_before_parsing(monkeypatch):
+    monkeypatch.setattr(api, "MAX_BODY_BYTES", 1000)
+    r = client.post("/api/check", content=b"x" * 2000, headers={"Content-Type": "application/json"})
+    assert r.status_code == 413
+    ok = client.post("/api/check", json={"text": "Halo apa kabar semuanya"})
+    assert ok.status_code == 200

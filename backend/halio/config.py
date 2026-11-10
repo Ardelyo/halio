@@ -56,6 +56,12 @@ class Settings:
     # Halio Telusur (investigation agent): needs HALIO_LLM=1. Each run costs real model calls; these are hard daily caps.
     agent_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_AGENT_DAILY_CAP", "60")))
     agent_per_reporter: int = field(default_factory=lambda: int(os.getenv("HALIO_AGENT_PER_REPORTER", "8")))
+    # Cost guards for /api/check and /api/check-media, per process per day. 0 = no limit (the default keeps today's behaviour).
+    # Past the LLM cap a check answers from the curated corpus only (labelled); past the media cap photos/voice get a 429.
+    llm_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_LLM_DAILY_CAP", "0")))
+    media_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_MEDIA_DAILY_CAP", "0")))
+    # Requests with a larger Content-Length are refused with 413 before the body is read.
+    max_body_mb: int = field(default_factory=lambda: int(os.getenv("HALIO_MAX_BODY_MB", "16")))
     # Daily analyst brief (investigate/brief.py): built each morning from 06:00 WIB when on; needs the sensor and HALIO_LLM=1.
     brief_enabled: bool = field(default_factory=lambda: _bool("HALIO_BRIEF"))
     media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-3.5-flash-lite"))

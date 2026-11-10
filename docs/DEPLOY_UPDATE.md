@@ -21,6 +21,10 @@ Cek: `git log --oneline -1` harus menunjukkan commit terbaru, dan `git status` b
 | `HALIO_LLM_MODEL` / `HALIO_MEDIA_MODEL` | `gemini-3.5-flash-lite` |
 | `GOOGLE_CLOUD_PROJECT` / `GOOGLE_CLOUD_LOCATION` | `gemma4good-494311` / `global` |
 | `HALIO_SENSOR` | `1` (arsip pemeriksa fakta untuk kandidat bukti, dan panel Cakupan) |
+| `HALIO_AGENT_DAILY_CAP` | `200` selama penjurian 16–24 Nov (bawaan 60), agar juri tidak ditolak |
+| `HALIO_LLM_DAILY_CAP` / `HALIO_MEDIA_DAILY_CAP` | pagar biaya, mis. `1500` / `300`; `0` = tanpa batas. Lewat batas: cek tetap jalan dari korpus (berlabel "mode tanpa AI"), foto/suara dijawab 429 |
+| `HALIO_RETENTION_DAYS` | `30` (retensi data, lihat `docs/PRIVACY.md`) |
+| `HALIO_MAX_BODY_MB` | `16`; samakan dengan `request_body max_size` di Caddy (`deploy/Caddyfile.example`) |
 
 Pastikan di proyek GCP: **Vertex AI API aktif**, dan akun layanan VM punya peran `Vertex AI User` (VM dibuat dengan `--scopes cloud-platform`).
 
