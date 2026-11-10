@@ -255,6 +255,13 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
             f"{sapaan}, pesan ini tampaknya justru memperingatkan soal kabar bohong, bukan menyebarkannya. "
             f"Yang sudah dicek: {match.debunk.sederhana}"
         )
+    if status == "tidak_yakin" and match and reason == "inti_klaim_tidak_ada" and not match.debunk.is_positive:
+        # Same topic as a known hoax, but the hoax's core (the payment, the date, the link...) is not in this message.
+        # Often a true message: never tell the family to hold it back as if it were the hoax.
+        return (
+            f"{sapaan}, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian "
+            f"yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: {match.debunk.sederhana}"
+        )
     if status == "tidak_yakin" and match:
         topic = "informasi dari sumber resmi" if match.debunk.is_positive else "kabar bohong yang pernah beredar"
         return (

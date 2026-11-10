@@ -326,3 +326,10 @@ def test_genuinely_different_claims_are_still_split():
     text = ("BMKG memprediksi gempa magnitudo 9 akan terjadi tanggal 3 Desember di Jawa. "
             "Pemerintah membuka pendaftaran beasiswa kuliah gratis 2026 untuk seluruh siswa SMA di Indonesia.")
     assert pipeline.check(text, CFG)["reason"] == "beberapa_klaim"
+
+
+def test_true_message_on_a_hoax_topic_is_not_told_to_be_held_back():
+    text = "Pendaftaran Tamtama TNI AD 2026 dilakukan secara online melalui situs resmi penerimaan TNI AD dan seluruh tahapannya tidak dipungut biaya."
+    r = pipeline.check(text, CFG)
+    assert r["status"] == "tidak_yakin" and r["reason"] == "inti_klaim_tidak_ada"
+    assert "tidak memuat bagian yang bohong" in r["voice_script"] and "ditahan" not in r["voice_script"]
