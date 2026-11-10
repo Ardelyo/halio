@@ -31,6 +31,7 @@
     <header class="radar-topbar"><div><span class="connection-dot" id="connection-dot"></span><span id="connection-label">Menghubungkan</span></div><div class="topbar-actions"><span id="last-updated">Memuat data…</span><button id="access" class="quiet-button" type="button">Akses analis</button><button id="refresh" class="refresh-button" type="button" aria-label="Muat ulang data">↻ <span>Muat ulang</span></button></div></header>
     <div class="radar-content">
       <div id="demo-notice" class="dashboard-notice hidden" role="status"><b>Simulasi lokal.</b><span>Data dan tiket di halaman ini sintetis. Penyelesaian tiket hanya berlaku selama sesi dan tidak mengirim balasan.</span></div>
+      <div id="seed-notice" class="dashboard-notice hidden" role="status"><b>Berisi data simulasi.</b><span><span id="seed-count"></span> dalam rentang ini adalah data simulasi dari <code>scripts/seed_demo.py</code>, bukan cek warga sungguhan.</span></div>
       <div id="load-error" class="dashboard-error hidden" role="alert"></div>
 
       <section id="view-overview" class="dashboard-view" aria-labelledby="overview-title">

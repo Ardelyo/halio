@@ -55,7 +55,7 @@ Hasilnya di `/opt/halio/eval/LIVE_RESULTS.md`; **berita benar dituduh salah haru
 - Pages hanya berisi **demo simulasi** dan **diperbarui otomatis** oleh workflow `pages.yml` ketika `main` berubah di `web/**`. Jadi situs publik baru berubah **setelah PR digabung ke `main`**.
 - Bila tidak mau menunggu: Actions → "Deploy GitHub Pages" → *Run workflow* (dari `main`).
 - Versi sungguhan (bukti web, kartu, suara, Radar) ada di server: `https://<HOST>/cek.html`, `/radar`, `/coverage`. Radar dari luar butuh `Authorization: Bearer <RADAR_TOKEN>`; halaman Radar memintanya.
-- Cache: cache layanan (`halio-shell-v6`) sudah dinaikkan; bila halaman lama masih tampil, muat ulang paksa (Ctrl+Shift+R) atau hapus data situs.
+- Cache: cache layanan (`halio-shell-v12`) sudah dinaikkan; bila halaman lama masih tampil, muat ulang paksa (Ctrl+Shift+R) atau hapus data situs.
 
 ## G. Yang lain
 | Hal | Tindakan |

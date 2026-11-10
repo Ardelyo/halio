@@ -108,3 +108,21 @@ def test_store_retention_days_is_configurable(tmp_path):
         c.execute("INSERT INTO appeals (created, check_id, status) VALUES ('2000-01-01T00:00:00+07:00','x','baru')")
     s.prune()
     assert sqlite3.connect(tmp_path / "r.db").execute("SELECT COUNT(*) FROM appeals").fetchone()[0] == 0
+
+
+def test_radar_reports_seeded_demo_rows_and_the_page_labels_them(tmp_path):
+    """Seeded rows (channel 'demo') are counted, and radar.js shows a banner for them; real rows alone do not."""
+    from pathlib import Path
+
+    from halio.store import Store
+
+    s = Store(tmp_path / "d.db", k_anonymity=2)
+    real = {"status": "belum_ada_pemeriksaan", "manipulation": {"techniques": []}, "reason": "x"}
+    s.record(real, "web", None)
+    assert s.radar(7)["demo_events"] == 0
+    s.record(real, "demo", None)
+    assert s.radar(7)["demo_events"] == 1
+
+    web = Path(__file__).resolve().parents[2] / "web"
+    js, page = (web / "radar.js").read_text(encoding="utf-8"), (web / "radar.html").read_text(encoding="utf-8")
+    assert 'id="seed-notice"' in page and "radar.demo_events" in js and '"#seed-notice"' in js

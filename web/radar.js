@@ -85,6 +85,10 @@ async function loadDashboard() {
         request("/api/sensor/items?limit=8"),
       ]);
       Object.assign(state, { radar, coverage, recent });
+      // Seeded demo rows (channel "demo") sit beside real ones on a server; say so whenever any are in the window.
+      const demoEvents = Number(radar.demo_events || 0);
+      $("#seed-notice").classList.toggle("hidden", demoEvents <= 0);
+      $("#seed-count").textContent = `${demoEvents} dari ${radar.total_checks} cek`;
       state.reviews = { escalations, appeals };
     }
     renderAll();
