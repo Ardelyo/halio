@@ -15,7 +15,7 @@ Dokumen ini memisahkan pekerjaan teknis yang sudah diverifikasi dari risiko yang
 
 | Prioritas | Risiko yang tersisa | Bukti yang diperlukan |
 |---|---|---|
-| Kritis | Evaluasi hanya 32 kasus buatan tim dan tujuh bantahan | Set held-out independen, data nyata yang dianonimkan, metrik per kategori dan interval kepercayaan |
+| Kritis | Evaluasi hanya 108 item buatan tim (dev 52 + holdout 56: 66 pernyataan benar/belum dikenal, 32 parafrase hoaks, 10 opini/sapaan) dan tujuh bantahan | Set held-out independen, data nyata yang dianonimkan, metrik per kategori dan interval kepercayaan |
 | Kritis | Pemeriksaan hukum UU PDP belum dilakukan | Dasar pemrosesan, persetujuan, hak pengguna, prosesor pihak ketiga, respons insiden dan retensi ditinjau ahli hukum |
 | Tinggi | WhatsApp belum diuji dengan Meta | Uji sandbox signature, retry, deduplikasi, outbound media, kegagalan API dan izin bisnis |
 | Tinggi | LLM dan ClaimReview belum dievaluasi live | Ukur cakupan, kegagalan grounding, injeksi prompt, biaya dan latensi pada set independen |

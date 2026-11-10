@@ -1,34 +1,65 @@
-# Third-party Components & Declaration
+# Komponen Pihak Ketiga & Deklarasi
 
-Rulebook §G: third-party libraries, frameworks, APIs, AI models and tools are allowed **with attribution**; pre-existing work must be **declared clearly**. Keep this file complete. Verify licence terms before submission (task D-1).
+Rulebook §G: pustaka, framework, API, model AI, dan alat pihak ketiga boleh dipakai **dengan atribusi**, dan karya yang sudah ada sebelumnya wajib **dideklarasikan dengan jelas**. Berkas ini disusun dari kode di repo (per commit `78b865c`), bukan dari ingatan. Lisensi di bawah adalah yang tercantum pada halaman resmi/PyPI masing-masing; tim belum melakukan tinjauan hukum.
 
-## Declaration of pre-existing work
-The repository was created on 27 Oct 2026, within the programme period, from the team's own research report. No code from earlier projects was reused. *(Update this line if that changes.)*
+Lisensi karya Halio sendiri: [Apache 2.0](../LICENSE). HKI tetap milik tim (Rulebook §N).
 
-## Software
-| Component | Use | Licence (verify) |
+## Deklarasi karya yang sudah ada
+Repo dibuat pada 27 Okt 2026 (commit pertama), di dalam periode lomba, berangkat dari laporan riset tim sendiri. Tidak ada kode dari proyek sebelumnya yang dipakai ulang.
+
+## Deklarasi pengembangan dengan bantuan AI
+Sebagian besar kode, tes, dan dokumen ditulis bersama agen coding AI (Claude, melalui Claude Code). Angka dari riwayat git `main` per `78b865c` (48 commit non-merge):
+
+| | Jumlah |
+|---|---|
+| Commit berpenulis "Claude" | 19 |
+| Commit berpenulis Ardelyo yang memuat trailer `Co-Authored-By: Claude` | 22 |
+| Commit berpenulis Ardelyo tanpa trailer AI | 7 |
+
+Pembagian peran:
+- **Dikerjakan dengan bantuan AI:** penulisan kode backend, web, dan ekstensi; tes unit; set evaluasi awal; draf dokumen, slide, dan naskah.
+- **Keputusan dan tinjauan manusia (tim):** masalah yang dipilih dan pengguna sasarannya; aturan produk inti (vonis diputuskan kode, bukan model; abstain eksplisit; tanpa pemindaian chat); pemilihan dan pemeriksaan sumber korpus bantahan; persetujuan merge setiap PR; deploy server; syuting dan materi video; pengiriman karya.
+
+Model AI juga dipakai **di dalam produk** (bagian "Model & layanan" di bawah). Itu berbeda dari bantuan AI saat pengembangan.
+
+## Perangkat lunak
+| Komponen | Kegunaan | Lisensi |
 |---|---|---|
-| FastAPI, Starlette, Pydantic, Uvicorn | HTTP API | MIT / BSD |
-| HTTPX | HTTP client | BSD-3 |
-| Pillow | Halio Card rendering | MIT-CMU (HPND) |
-| gTTS (optional) | Server-side Indonesian TTS (calls Google Translate TTS) | MIT; check the terms of the underlying service |
-| anthropic SDK (optional) | T2 grounded LLM step | MIT |
-| pytest | Tests | MIT |
-| onnxruntime-web | On-device inference in the extension | MIT |
-| Instrument Serif, Archivo, Inter (Google Fonts) | Brand typography on the website, extension, Kartu Halio, thumbnail and video (`web/fonts`, `extension/fonts`, `backend/halio/fonts`, `video/fonts`) | SIL Open Font License 1.1 |
-| Playwright + Chromium, FFmpeg (libx264, libass) | Rendering the demo video frame by frame and burning subtitles (`video/tools`) | Apache-2.0 / BSD; FFmpeg LGPL/GPL (tooling only, not shipped) |
+| FastAPI, Starlette, Pydantic, Uvicorn | API HTTP | MIT / BSD |
+| HTTPX | Klien HTTP | BSD-3 |
+| Pillow | Render Kartu Halio | MIT-CMU (HPND) |
+| google-genai SDK (+ google-auth) | Panggilan Gemini via Vertex AI; kredensial VM untuk Cloud TTS dan Cloud Vision | Apache-2.0 |
+| gTTS (opsional, cadangan) | Suara bila Cloud TTS tidak tersedia (memanggil layanan Google Translate TTS) | MIT; ketentuan layanan di baliknya berlaku |
+| anthropic SDK (opsional, penyedia lama) | Konfirmasi kecocokan via Anthropic API | MIT |
+| pytest | Tes | MIT |
+| onnxruntime-web | Inferensi di perangkat pada ekstensi (dibundel lokal oleh `scripts/fetch_models.py`) | MIT |
+| Instrument Serif, Archivo, Inter (Google Fonts) | Tipografi merek di web, ekstensi, Kartu Halio, thumbnail, video | SIL Open Font License 1.1 |
+| Playwright + Chromium | Render frame video demo dan PDF presentasi (`video/tools`) | Apache-2.0 / BSD |
+| FFmpeg (libx264, libass) | Encode video dan subtitle (`video/tools`) | LGPL/GPL; hanya alat build, tidak didistribusikan |
 
-## Models & data
-| Component | Use | Licence / terms |
+## Model & layanan (dipakai saat produk berjalan)
+| Komponen | Kegunaan | Di kode | Ketentuan |
+|---|---|---|---|
+| Google Vertex AI: Gemini 3.5 Flash-Lite (`HALIO_LLM=1`) | Mencari bukti dan menilai relasi klaim–sumber; backend membuka dan memverifikasi setiap URL dan kutipan | `google_agent.py`, `llm_verdict.py` | Ketentuan Google Cloud |
+| Grounding Google Search (alat Gemini) | Menemukan halaman kandidat bukti | `google_agent.py` (`types.GoogleSearch`) | Ketentuan Google Cloud |
+| Gemini untuk foto & suara (`HALIO_MEDIA=1`) | Membaca teks/klaim dari gambar dan rekaman suara | `media.py` | Ketentuan Google Cloud |
+| Google Cloud Text-to-Speech, suara Chirp 3 HD (`id-ID-Chirp3-HD-Aoede`) | Pesan suara bahasa Indonesia | `voice.py` | Ketentuan Google Cloud |
+| Google Cloud Vision, WEB_DETECTION | Pencarian gambar terbalik di Telusur (aktif bila API dinyalakan di proyek) | `investigate/reverse_image.py` | Ketentuan Google Cloud |
+| Google Fact Check Tools API (opsional) | Pencarian ClaimReview | `factcheck_api.py`, `investigate/tools.py` | Ketentuan Google API; isi ClaimReview milik penerbitnya |
+| GDELT DOC 2.0 API | Lini masa kemunculan berita di Telusur | `investigate/tools.py` | Akses publik GDELT Project; sitasi GDELT diminta |
+| Internet Archive (Wayback availability + CDX) | Salinan arsip untuk halaman yang diblokir (diberi label) dan tanggal tangkapan pertama | `source_verifier.py`, `investigate/tools.py` | Ketentuan penggunaan Internet Archive |
+| Anthropic API (penyedia lama, opsional) | Konfirmasi kecocokan dengan verifikasi kutipan persis | `llm_verdict.py` | Ketentuan penyedia |
+| NudeNet 3.4 (ONNX 320n) | Penyaringan gambar dewasa di perangkat (opsional) | `extension/offscreen.js` | MIT (menurut PyPI) |
+| 23 feed RSS/Atom terbuka (`HALIO_SENSOR=1`) | Sensor tren; hanya judul, tautan, waktu | `ingest/` | Feed publik; daftar di `docs/ARCHITECTURE_SENSOR.md` |
+
+## Data
+| Data | Isi | Catatan |
 |---|---|---|
-| NudeNet 3.4 (320n ONNX) | Optional on-device adult-content screening | MIT (per PyPI listing) |
-| Google Fact Check Tools API (optional) | ClaimReview lookup | Google API ToS; ClaimReview content belongs to publishers |
-| Google Vertex AI, Gemini 3.5 Flash-Lite + Google Search (optional, `HALIO_LLM=1`) | Evidence discovery and claim/source relation; backend fetches and verifies every URL and quote | Provider terms |
-| Anthropic API (legacy optional provider) | Match confirmation with exact-quote verification | Provider terms |
-| Debunk corpus (`data/debunks.json`) | Summaries in our own words + links to sources | Sources: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (with Mafindo), MerahPutih, RRI, Kumparan. No article text copied |
+| Korpus bantahan `data/debunks.json` (7 entri) | Ringkasan kata sendiri + tautan sumber | Sumber: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (dengan Mafindo), MerahPutih, RRI, Kumparan. Tidak ada teks artikel yang disalin. Status tiap tautan: [VERIFIKASI_KORPUS.md](VERIFIKASI_KORPUS.md) |
+| Arsip judul cek fakta `data/arsip.jsonl` | Judul, tautan, dan metadata daftar dari turnbackhoax.id (Mafindo) | Dikumpulkan oleh `scripts/crawl_arsip.py`: `robots.txt` mengizinkan (diperiksa 7 Nov 2026), jeda 2 detik per permintaan, User-Agent beridentitas, tanpa teks artikel. Ketentuan penggunaan Mafindo **tidak ditemukan**, jadi berkas ini **tidak di-commit** (`.gitignore`). Untuk pemakaian di luar demo perlu kemitraan data dengan Mafindo |
 
-## Video assets
-All imagery in the demo video is generated by the team: grass-field backdrops (`video/tools/make_fields.py`), the Halio mark, and real screenshots of the running app. The background music is synthesised (`video/tools/make_music.py`). No stock photos, third-party logos or licensed music are used. The image references the team provided were used only as mood and style direction.
+## Aset video
+Semua gambar dalam video demo dibuat tim: latar padang rumput (`video/tools/make_fields.py`), logo Halio (`web/icons/icon.svg`), dan tangkapan layar asli aplikasi yang berjalan. Musik latar disintesis (`video/tools/make_music.py`). Tidak ada foto stok, logo pihak ketiga, atau musik berlisensi. Gambar rujukan dari tim hanya dipakai sebagai arahan suasana dan gaya. Rekaman Nenek dibuat dengan persetujuan tertulis yang disimpan di luar repo.
 
-## Research sources used in the narrative
-See the research report's source list (Liputan6, CODEPOLITAN, Katadata, detikNews, Kemhan Pothan, Martel & Rand 2024, Cambridge prebunking studies, and others).
+## Sumber riset dalam narasi
+Lihat daftar sumber laporan riset (Liputan6, CODEPOLITAN, Katadata, detikNews, Kemhan Pothan, Martel & Rand 2024, studi prebunking Cambridge, dan lainnya) di [RESEARCH_STANDOUT.md](RESEARCH_STANDOUT.md).

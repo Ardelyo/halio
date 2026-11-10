@@ -21,11 +21,13 @@ Dokumen teknis untuk Dewan Juri dan pengembang. Bagian bertanda **(estimasi)** b
  │  5. T2 (opsional): LLM hanya memilih kandidat + wajib kutipan persis → diverifikasi       │
  │  6. Vonis 3 keadaan + teks suara + trik manipulasi + peringatan tautan                    │
  │                                                                                           │
- │ /api/card/{id}.png  Kartu Halio (Pillow)     /api/voice/{id}.mp3  Halio Suara (gTTS)       │
+ │ /api/card/{id}.png  Kartu Halio (Pillow)     /api/voice/{id}.mp3  Halio Suara (Cloud TTS*) │
  │ /api/escalate, /api/appeal  antrean pemeriksa manusia                                      │
  │ /api/radar  agregat anonim (SQLite → Postgres)                                             │
  └───────────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+\* Suara: Google Cloud Text-to-Speech (Chirp 3 HD, `voice.py`) dengan kredensial VM. Bila tidak tersedia, cadangan gTTS; bila itu juga gagal, API menjawab 501 dan web memakai suara bawaan peramban.
 
 | Tingkat | Tempat | Fungsi | Latensi | Biaya |
 |---|---|---|---|---|
@@ -64,6 +66,21 @@ Tujuan: pemantauan ruang siber sosial (definisi kategori Siber Sosial) tanpa mem
 - Aturan kode jarak jauh MV3: runtime WASM dan bobot model dipaketkan lokal (`scripts/fetch_models.py`), tidak dimuat dari CDN saat berjalan.
 - Keterbatasan: DOM platform berubah-ubah; WebGPU tidak dipakai (WASM satu thread); NudeNet tidak mendeteksi kekerasan; belum ada angka akurasi publik. OCR banner judol ada di peta jalan.
 
+## 4a. Halio Telusur (investigasi untuk analis)
+
+Jalur kedua di samping `/api/check`, untuk analis di Radar (`/api/investigate`, `/api/brief`). Butuh `HALIO_LLM=1`. Kode ada di `backend/halio/investigate/`.
+
+1. **Arsip "sudah diperiksa"** (`archive.py`): klaim dicocokkan dulu dengan judul cek fakta dari sensor dan `data/arsip.jsonl`. Kecocokan hanya **petunjuk**: URL-nya tetap dibuka dan dikutip oleh mesin bukti.
+2. **Rencana kueri** (`planner.py`): model mengusulkan kueri; kode membatasi, membersihkan, dan menyediakan cadangan.
+3. **Swarm** (`roles.py`, `tools.py`): beberapa agen pencari berjalan bersamaan (Google via grounding Gemini, arsip sensor, ClaimReview, GDELT, gambar terbalik Cloud Vision) dan mengisi satu kolam bukti yang dideduplikasi. Tiap agen adalah strategi pencarian, bukan model yang bebas bertindak. Sumber yang mati dilaporkan sebagai titik buta.
+4. **Buka halaman dan kutip** (kode, fetch aman): kutipan disalin kode, bukan ditulis model. Halaman yang diblokir boleh diganti salinan Wayback, dengan label.
+5. **Model menilai relasi** klaim–kutipan per nomor bukti; **kode** yang memutuskan status (`evidence.decide`).
+6. **Asal-usul** (`origin.py`, tanpa model): lini masa, kemunculan paling awal yang *ditemukan* (bukan "asal"), dan varian kalimat.
+7. **Laporan** (`dossier.py`): model menulis kalimat; kode hanya menyimpan kalimat yang kata isi dan setiap angkanya ada di kutipan yang dirujuk. Jumlah kalimat yang dibuang ikut dilaporkan.
+8. **Versi keluarga** (`keluarga.py`) disusun dari laporan yang sudah diperiksa, tanpa panggilan model baru.
+
+Batas keras: kueri, halaman, detik per investigasi; `HALIO_AGENT_DAILY_CAP` per hari dan `HALIO_AGENT_PER_REPORTER` per pelapor. Pekerjaan disimpan di SQLite (`jobs.py`) sehingga bertahan saat restart. **Brief harian** (`brief.py`) mengelompokkan judul feed publik 48 jam terakhir (topik TNI AD/pertahanan atau feed cek fakta), lalu menjalankan Telusur pada narasi teratas. Yang diprofilkan hanya narasi dan klaim, bukan orang, akun, atau prajurit.
+
 ## 5. Penerapan di lingkungan satuan
 
 ```bash
@@ -71,7 +88,7 @@ docker compose up -d          # API + web + Radar di port 8000
 python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose)
 ```
 
-- Tanpa GPU, tanpa API berbayar (LLM & ClaimReview opsional). Dapat berjalan on-premise di server satuan.
+- Tanpa GPU, tanpa API berbayar (LLM & ClaimReview opsional). Dapat berjalan on-premise di server satuan; apa yang hilang tanpa cloud dijelaskan di [PROFIL_PENERAPAN.md](PROFIL_PENERAPAN.md).
 - Penyimpanan: SQLite (prototipe) → Postgres untuk produksi; skema kecil di `store.py`.
 - Korpus bantahan berupa JSON yang dapat diisi tim penerangan/pemeriksa fakta; setiap entri wajib bersumber.
 - Konfigurasi lewat variabel lingkungan (`.env.example`). Radar dapat dikunci dengan `RADAR_TOKEN`.
@@ -84,7 +101,7 @@ python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose
 
 ## 7. Keterbatasan yang kami akui
 
-- Korpus demo kecil (7 bantahan) dan set uji ditulis tim sendiri, sehingga hasilnya optimistis.
+- Korpus demo kecil (7 bantahan) dan kedua set uji (108 item: dev 52, holdout 56) ditulis tim sendiri, sehingga hasilnya optimistis.
 - Pencocokan bersifat leksikal; parafrase berat tanpa kata yang sama akan jatuh ke "belum ada pemeriksaan" (aman, tapi recall turun).
 - Kualitas LLM berbahasa Indonesia dan cakupan ClaimReview Indonesia belum diukur.
 - Tidak ada uji pengguna lansia Indonesia; efek label peringatan (~25% pengurangan berbagi) berasal dari studi laboratorium Barat (Martel & Rand 2024).

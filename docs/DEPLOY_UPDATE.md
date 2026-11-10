@@ -4,9 +4,8 @@ Sumber kebenaran: `deploy/deploy_gce.sh` mengemas folder **yang ada di laptop An
 checkout lokal berisi kode yang diinginkan.
 
 ## A. Dapatkan kode yang benar di laptop
-Pilih satu:
-- **Cepat (uji dulu):** `git fetch && git checkout ccr-9a966766-0ke2xe && git pull` (isi PR #7).
-- **Rapi:** gabungkan PR #7 ke `feat/media-links-gce`, lalu buat PR `feat/media-links-gce` → `main`, gabungkan, dan `git checkout main && git pull`.
+Deploy dari `main` setelah PR digabung: `git fetch && git checkout main && git pull`.
+Untuk menguji cabang PR yang belum digabung: `git checkout <nama-cabang> && git pull`, lalu kembali ke `main` setelah selesai.
 Cek: `git log --oneline -1` harus menunjukkan commit terbaru, dan `git status` bersih.
 
 ## B. Periksa `.env` di akar repo (nilai rahasia tetap di laptop, jangan di-commit)

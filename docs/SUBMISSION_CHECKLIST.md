@@ -1,35 +1,51 @@
-# Submission Checklist
+# Status Pengumpulan Karya
 
-Deadline: **15 Nov 2026, 23:59 WIB** (Rulebook §G). Internal target: **14 Nov 20:00 WIB**. Submit via the CODEPOLITAN platform (`codepolitan.com/dashboard/kartika-cyber-hackathon-2026`). One submission per team; updates allowed until the deadline; only the last one is judged.
+Batas: **15 Nov 2026, 23.59 WIB** (Rulebook §G). Target internal: **14 Nov 20.00 WIB**. Kirim lewat platform CODEPOLITAN (`codepolitan.com/dashboard/kartika-cyber-hackathon-2026`). Satu pengiriman per tim. Pembaruan boleh sampai batas waktu; hanya yang terakhir dinilai. Penjurian online 16 Nov, finalis diumumkan 20 Nov, final fisik 24 Nov di Jakarta (minimal satu perwakilan hadir).
 
-## Registration (Rulebook §E)
-- [ ] All members have active CODEPOLITAN accounts
-- [ ] Team name, member data (max 3), WhatsApp number, address/province/city, occupation, institution
-- [ ] Nama Karya: **Halio** · Deskripsi Karya (2–3 sentences, see below) · Kategori: **Siber Sosial**
-- [ ] WNI confirmation + T&C accepted
-- [ ] Joined the official WhatsApp group
+Aturan dokumen ini: hanya tandai **SELESAI** bila ada bukti yang bisa dibuka. Sisanya **BELUM TERVERIFIKASI** sampai pemilik tindakan mengisi buktinya.
 
-> Deskripsi Karya (draft): *Halio adalah asisten cek pesan untuk keluarga Indonesia. Pengguna cukup meneruskan pesan meragukan lewat Telegram atau web, lalu menerima jawaban bersumber dalam bahasa sederhana, kartu yang bisa dibagikan, dan pesan suara. Bila belum ada pemeriksaan, Halio jujur tidak menebak. Agregat anonimnya membentuk Radar Ketahanan Kognitif untuk mendeteksi dini kampanye disinformasi dan penipuan yang mencatut TNI AD.*
+Pemeriksaan terakhir: 10 Nov 2026, dari cabang `chore/pra-submission`.
 
-## Deliverables (Rulebook §G)
-| # | Item | Spec | Source in repo | Done |
-|---|---|---|---|---|
-| 1 | Link Karya | Public link judges can try | Hosted web URL + `t.me/<bot>` + GitHub repo link in README | [ ] |
-| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤500 KB | `python scripts/make_thumbnail.py` → `docs/submission/thumbnail.jpg` | [ ] |
-| 3 | Screenshots | Max 5 | 1) bot answer + card 2) web verdict 3) honest abstain 4) extension feed 5) Radar | [ ] |
-| 4 | Video | ≤10 min, YouTube | Follow `docs/DEMO_SCRIPT.md` §B | [ ] |
-| 5 | Slides | Features, architecture, tech, other info | Deck; export PDF too | [ ] |
+## Pendaftaran (Rulebook §E)
 
-## Rules compliance (Rulebook §G "Ketentuan Karya" & §N)
-- [ ] Pre-existing work declared (`docs/THIRD_PARTY.md` §Declaration)
-- [ ] All third-party libraries, APIs, models attributed (`docs/THIRD_PARTY.md`)
-- [ ] No pornography, SARA, hate speech, illegal content anywhere (repo, video, slides, demo feed)
-- [ ] No third-party personal data (fictional names, placeholder phone numbers only)
-- [ ] No component violating others' IP (debunk corpus uses own-words summaries + links)
+| Item | Status | Bukti/URL | Pemilik tindakan |
+|---|---|---|---|
+| Semua anggota punya akun CODEPOLITAN aktif | BELUM TERVERIFIKASI | | Ketua tim |
+| Nama tim, data anggota (maks. 3), nomor WhatsApp, alamat/provinsi/kota, pekerjaan, institusi | BELUM TERVERIFIKASI | | Ketua tim |
+| Nama Karya **Halio**, Kategori **Siber Sosial**, Deskripsi Karya | BELUM TERVERIFIKASI | Draf: [submission/DRAF_DESKRIPSI.md](submission/DRAF_DESKRIPSI.md) | Ketua tim |
+| Konfirmasi WNI dan persetujuan S&K | BELUM TERVERIFIKASI | | Semua anggota |
+| Bergabung di grup WhatsApp resmi | BELUM TERVERIFIKASI | | Semua anggota |
+| Usia anggota dicatat (Golden Ticket hanya untuk pemenang < 26 tahun, menurut Rulebook) | BELUM TERVERIFIKASI | | Ketua tim |
 
-## Final verification (14 Nov)
-- [ ] Open every submitted link in a private window on a phone and on a laptop
-- [ ] Forward a fresh message to the bot from a non-team phone
-- [ ] Radar loads; simulated-data banner visible
-- [ ] Video plays, is ≤10:00, audio audible, captions readable
-- [ ] Uptime monitor active through 24 Nov; no deploys 16–20 Nov
+## Berkas wajib (Rulebook §G)
+
+| # | Item | Spesifikasi | Status | Bukti/URL | Pemilik tindakan |
+|---|---|---|---|---|---|
+| 1 | Link Karya | Tautan publik yang bisa dicoba juri | SEBAGIAN: tautan hidup, tautan final belum dipilih | Server: `https://34-101-109-211.sslip.io/cek.html` (HTTP 200, `/health` build `441f73e`, `llm:true`, 10 Nov). Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: tentukan tautan utama yang diisi di form |
+| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI | `docs/submission/thumbnail.jpg`: 1200×630, JPEG, 183 KB | Pemilik: unggah |
+| 3 | Screenshot | Maks. 5 | BELUM TERVERIFIKASI | Usulan: 1) jawaban bot + kartu, 2) vonis web dengan kutipan disorot, 3) "tidak mau menebak", 4) laporan Telusur, 5) Radar berlabel simulasi | Pemilik: pilih dan simpan di `docs/submission/` |
+| 4 | Video | ≤ 10 menit, YouTube | BELUM TERVERIFIKASI | URL YouTube belum ada di repo | Pemilik: unggah, cek durasi, isi URL di sini |
+| 5 | Slide | Fitur, arsitektur, teknologi, info lain; PDF | SELESAI (berkas ada) | `docs/presentasi/Halio_Presentasi_v2.pdf` (20 halaman) | Pemilik: tinjau isi terakhir, unggah |
+
+## Kepatuhan aturan (Rulebook §G "Ketentuan Karya" dan §N)
+
+| Item | Status | Bukti | Pemilik tindakan |
+|---|---|---|---|
+| Karya yang sudah ada dideklarasikan | SELESAI | [THIRD_PARTY.md](THIRD_PARTY.md) §Deklarasi | |
+| Bantuan AI dalam pengembangan dideklarasikan | SELESAI | [THIRD_PARTY.md](THIRD_PARTY.md) §Deklarasi pengembangan dengan bantuan AI | |
+| Semua pustaka, API, model pihak ketiga diatribusi | SELESAI (diperiksa dari kode 10 Nov) | [THIRD_PARTY.md](THIRD_PARTY.md) | |
+| Lisensi dan HKI dinyatakan | SELESAI | [LICENSE](../LICENSE) (Apache-2.0), README §Hak kekayaan intelektual | |
+| Tidak ada pornografi, SARA, ujaran kebencian, konten ilegal (repo, video, slide, feed demo) | BELUM TERVERIFIKASI untuk video final | Repo dan slide tidak memuatnya menurut pemeriksaan tim; video final belum ditinjau | Pemilik: tonton ulang video final |
+| Tidak ada data pribadi pihak ketiga | SEBAGIAN | Nama Nenek disamarkan di repo (md + PDF); persetujuan tertulis disimpan di luar repo (menurut pemilik). Nama itu masih ada di riwayat git lama | Pemilik: pastikan video tidak menampilkan nomor/kontak/notifikasi orang lain |
+| Tidak melanggar HKI pihak lain | SELESAI untuk korpus | Korpus memakai ringkasan kata sendiri + tautan; arsip crawler tidak di-commit. Status tautan: [VERIFIKASI_KORPUS.md](VERIFIKASI_KORPUS.md) | |
+
+## Verifikasi akhir (14 Nov)
+
+| Item | Status | Pemilik tindakan |
+|---|---|---|
+| Buka setiap tautan di jendela privat, di ponsel dan laptop | BELUM | Pemilik |
+| Teruskan pesan baru ke bot dari ponsel non-tim | BELUM | Pemilik |
+| Radar terbuka; banner data simulasi tampil bila datanya simulasi | BELUM (perbaikan banner di Track B, perlu deploy) | Pemilik |
+| Video bisa diputar, ≤ 10.00, audio terdengar, teks terbaca | BELUM | Pemilik |
+| Proyek GCP `gemma4good-494311` aktif dan berbayar sampai 24 Nov; pemantau uptime aktif; tidak ada deploy 16–20 Nov | BELUM TERVERIFIKASI | Pemegang proyek GCP |
+| Hasil uji demo pada build final dicatat | Lihat [BUKTI_UJI_DEMO.md](BUKTI_UJI_DEMO.md) | |

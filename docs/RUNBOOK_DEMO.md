@@ -55,7 +55,7 @@ Bila API mati atau terlalu sibuk, bot **tetap membalas** dengan permintaan maaf 
 **Belum / terbatas:**
 - **Hanya teks.** Foto, tangkapan layar, pesan suara, dan video belum diperiksa (rencana: `PLAN_UNGGUL.md` bagian 3). Bila Nenek memotret layar, bot akan meminta teksnya.
 - **Belum diuji dengan Telegram asli dari sini.** Token tidak ada di lingkungan saya; yang diuji adalah seluruh logika bot terhadap API nyata. Uji pertama dengan akun Anda sendiri sebelum merekam.
-- Suara server (gTTS) butuh internet. Di halaman web, tombol "Dengarkan" memakai suara perangkat bila server gagal.
+- Suara server (Cloud TTS Chirp 3 HD, cadangan gTTS) butuh internet. Di halaman web, tombol "Dengarkan" memakai suara perangkat bila server gagal.
 - Sapaan (`/sapaan`) hilang saat bot dimulai ulang.
 - Bot mati bila laptop tidur atau jaringan putus. Matikan mode tidur saat merekam.
 - **Balasan tiket ke Telegram** hanya jalan bila `TELEGRAM_BOT_TOKEN` juga terisi pada proses API dan `HALIO_CHANNEL_KEY` sama di API dan bot.
@@ -63,7 +63,9 @@ Bila API mati atau terlalu sibuk, bot **tetap membalas** dengan permintaan maaf 
 - Web: buka `http://localhost:8000/cek.html` (API sungguhan: kartu, suara, Radar berisi data nyata). `ardelyo.github.io/halio` hanya simulasi di browser.
 - Docker: berkas `Dockerfile` dan `docker-compose.yml` ada, tetapi saya tidak bisa membangun image di lingkungan ini (tanpa daemon Docker), jadi belum terbukti.
 
-## 5. Merekam Nenek (Kania Wijayanti): hal yang perlu diperhatikan
+## 5. Merekam Nenek (nama disamarkan): hal yang perlu diperhatikan
+Nama asli Nenek sengaja tidak ditulis di repo publik. Persetujuan tertulis disimpan tim di luar repo.
+
 - **Persetujuan** Nenek untuk direkam dan dipublikasikan, lebih baik tertulis atau terekam di awal. Lomba melarang data pribadi pihak ketiga; wajah dan suara Nenek adalah data pribadinya, jadi izinnya harus jelas.
 - **Jangan tampilkan** nomor telepon, nama kontak, foto kontak, isi grup keluarga, atau notifikasi dari orang lain di layar ponsel Nenek. Aktifkan mode jangan ganggu, tutup aplikasi lain, dan gunakan akun Telegram yang bersih.
 - **Pakai pesan buatan** (tabel di atas), bukan pesan asli dari grup.
