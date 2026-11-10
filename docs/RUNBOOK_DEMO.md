@@ -55,7 +55,7 @@ Bila API mati atau terlalu sibuk, bot **tetap membalas** dengan permintaan maaf 
 **Belum / terbatas:**
 - **Hanya teks.** Foto, tangkapan layar, pesan suara, dan video belum diperiksa (rencana: `PLAN_UNGGUL.md` bagian 3). Bila Nenek memotret layar, bot akan meminta teksnya.
 - **Belum diuji dengan Telegram asli dari sini.** Token tidak ada di lingkungan saya; yang diuji adalah seluruh logika bot terhadap API nyata. Uji pertama dengan akun Anda sendiri sebelum merekam.
-- Suara server (gTTS) butuh internet. Di halaman web, tombol "Dengarkan" memakai suara perangkat bila server gagal.
+- Suara server (Cloud TTS Chirp 3 HD, cadangan gTTS) butuh internet. Di halaman web, tombol "Dengarkan" memakai suara perangkat bila server gagal.
 - Sapaan (`/sapaan`) hilang saat bot dimulai ulang.
 - Bot mati bila laptop tidur atau jaringan putus. Matikan mode tidur saat merekam.
 - **Balasan tiket ke Telegram** hanya jalan bila `TELEGRAM_BOT_TOKEN` juga terisi pada proses API dan `HALIO_CHANNEL_KEY` sama di API dan bot.
