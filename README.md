@@ -105,4 +105,6 @@ docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 
 ## Hak kekayaan intelektual
 
-Sesuai Rulebook §N, HKI atas karya ini milik tim. Lisensi sumber terbuka belum ditentukan.
+Sesuai Rulebook §N, HKI atas karya ini tetap milik tim. Kode dan dokumen di repo ini dirilis dengan [Lisensi Apache 2.0](LICENSE). Lisensi ini tidak mengalihkan HKI. Penyelenggara tetap berhak menampilkan dan memublikasikan karya untuk keperluan lomba, dan PUSSIBERAD dapat mengadopsi idenya melalui diskusi dengan tim (Rulebook §N).
+
+Komponen pihak ketiga (pustaka, API, model, font, sumber korpus) memakai lisensi masing-masing; lihat [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md). Isi artikel sumber bantahan tidak termasuk dalam lisensi ini: korpus hanya memuat ringkasan kata sendiri dan tautan.
