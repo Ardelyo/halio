@@ -69,6 +69,28 @@ Hasilnya di `/opt/halio/eval/LIVE_RESULTS.md`; **berita benar dituduh salah haru
 | Video demo dan story | Masih menampilkan empat keadaan; belum menampilkan 🔵 Dilaporkan media dan pesan berisi beberapa klaim. Render ulang hanya bila diperlukan (`python video/tools/render_all.py`) |
 | Dokumen juri | `docs/PLAN_VERIFIKASI_AI.md` (status 2b), `eval/LIVE_RESULTS.md` setelah dijalankan |
 
+## H2. Lapis jaringan: batasi lalu lintas keluar proses Halio (SSRF)
+
+**Celah yang diketahui.** `link_check.py` dan `source_verifier.py` memeriksa bahwa nama situs mengarah ke IP publik, lalu `httpx` me-resolve nama itu **lagi** saat terhubung. Situs jahat dengan DNS yang berganti cepat (*DNS rebinding*) bisa lolos pemeriksaan pertama, lalu diarahkan ke alamat internal pada koneksi kedua. Perbaikan di kode (menyambung ke IP hasil pemeriksaan dengan SNI/Host asli) belum dikerjakan karena berisiko regresi sebelum freeze.
+
+**Mengapa dampaknya terbatas saat ini:**
+- Server metadata GCE (`169.254.169.254`) menolak permintaan tanpa header `Metadata-Flavor: Google`, dan Halio tidak pernah mengirim header itu.
+- Di VM, `HALIO_TRUST_PROXY=1`, jadi Radar dan antrean tetap meminta `RADAR_TOKEN` walaupun permintaan datang dari `127.0.0.1` (`netguard.is_direct_local`).
+- `source_verifier` hanya membuka `https` di port 443. `link_check` hanya mengembalikan status, judul, dan meta halaman.
+
+**Mitigasi yang dianjurkan (dijalankan pemilik di VM):** tolak lalu lintas keluar pengguna `halio` ke rentang privat. Loopback (bot → API) dan server metadata (token ADC untuk Vertex AI dan Cloud TTS) **tetap dibuka**, karena keduanya dibutuhkan.
+
+```bash
+gcloud compute ssh halio --zone asia-southeast2-a --command 'sudo bash -c "
+for net in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 169.254.0.0/16; do
+  [ \$net = 169.254.0.0/16 ] && iptables -A OUTPUT -m owner --uid-owner halio -d 169.254.169.254 -j ACCEPT
+  iptables -A OUTPUT -m owner --uid-owner halio -d \$net -j REJECT
+done
+iptables -L OUTPUT -n --line-numbers"'
+```
+
+Aturan `iptables` di atas hilang saat VM di-reboot. Untuk permanen, pasang `iptables-persistent` (`sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save`). Setelah dipasang, uji: `/health` tetap `"llm":true`, satu cek dengan bukti web berhasil, dan `/versi` di Telegram menjawab.
+
 ## H. Mundur bila ada masalah
 ```bash
 # mesin lama saja (tanpa mengganti kode)
