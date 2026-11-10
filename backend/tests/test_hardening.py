@@ -287,3 +287,18 @@ def test_oversized_body_is_refused_before_parsing(monkeypatch):
     assert r.status_code == 413
     ok = client.post("/api/check", json={"text": "Halo apa kabar semuanya"})
     assert ok.status_code == 200
+
+
+def test_pages_get_csp_and_frame_denial_and_the_inline_script_hash_matches():
+    import base64
+    import re
+
+    r = client.get("/cek.html")
+    assert r.headers["X-Frame-Options"] == "DENY"
+    csp = r.headers["Content-Security-Policy"]
+    assert "frame-ancestors 'none'" in csp and "object-src 'none'" in csp and "'unsafe-eval'" not in csp
+    # Any inline <script> in web/*.html must be allowed by hash, or the page silently breaks under the CSP.
+    for page in (ROOT / "web").glob("*.html"):
+        for body in re.findall(r"<script>(.*?)</script>", page.read_text(encoding="utf-8"), re.S):
+            digest = "sha256-" + base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()
+            assert digest in csp, f"{page.name}: inline script not allowed by the CSP ({digest})"

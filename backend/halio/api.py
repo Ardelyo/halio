@@ -35,6 +35,14 @@ limiter = RateLimiter(settings.rate_limit_per_minute)
 llm_budget = DailyBudget(settings.llm_daily_cap)
 media_budget = DailyBudget(settings.media_daily_cap)
 MAX_BODY_BYTES = settings.max_body_mb * 1024 * 1024
+# Every page loads its own scripts, fonts and images from this origin. Inline styles stay allowed (style attributes in
+# generated markup); the one inline script (index.html, the `js` class) is allowed by its hash. test_hardening checks both.
+INDEX_INLINE_SCRIPT_HASH = "sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw="
+CSP = ("default-src 'self'; "
+       f"script-src 'self' '{INDEX_INLINE_SCRIPT_HASH}'; "
+       "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; "
+       "connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; "
+       "form-action 'self'; frame-ancestors 'none'")
 
 
 @asynccontextmanager
@@ -101,6 +109,10 @@ async def protect(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["X-Frame-Options"] = "DENY"
+    if settings.csp_mode in ("enforce", "report"):
+        name = "Content-Security-Policy" if settings.csp_mode == "enforce" else "Content-Security-Policy-Report-Only"
+        response.headers[name] = CSP
     return response
 
 

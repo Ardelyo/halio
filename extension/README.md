@@ -23,3 +23,6 @@ Lencana **"Perlu dicek?"** pada postingan yang memakai trik manipulasi, dan blur
 ## Status
 - Situs: Facebook, Instagram, X, TikTok, YouTube, localhost. Selektor generik (`[role=article]`, `article`); DOM platform bisa berubah.
 - Belum diuji: performa NudeNet di laptop kelas bawah, OCR banner judol (peta jalan).
+
+## Izin situs
+Saat dipasang, ekstensi hanya meminta akses ke enam platform di `content_scripts` (Facebook, Instagram, X/Twitter, TikTok, YouTube), CDN gambar mereka (agar mode `pintar` bisa membaca gambar di perangkat), `localhost`, dan server demo. Bila Anda mengisi alamat server Halio lain (HTTPS) di popup, Chrome akan meminta izin untuk alamat itu saja. Server `http://` selain `localhost` tidak didukung.

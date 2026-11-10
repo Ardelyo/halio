@@ -19,4 +19,15 @@ chrome.runtime.sendMessage({ type: "model-status" }, (r) => {
 
 $("badges").onchange = (e) => chrome.storage.sync.set({ badges: e.target.checked });
 $("blurMode").onchange = (e) => chrome.storage.sync.set({ blurMode: e.target.value });
-$("apiUrl").onchange = (e) => chrome.storage.sync.set({ apiUrl: e.target.value.trim() || DEFAULTS.apiUrl });
+// Only the platforms, their image CDNs, localhost and the demo server are granted at install. Another Halio server is asked
+// for here, when the user types its address (a user gesture), so the extension never holds access to every site.
+$("apiUrl").onchange = (e) => {
+  const apiUrl = e.target.value.trim() || DEFAULTS.apiUrl;
+  let origin;
+  try { origin = new URL(apiUrl).origin + "/*"; } catch { e.target.value = DEFAULTS.apiUrl; return; }
+  chrome.permissions.contains({ origins: [origin] }, (has) => {
+    const save = () => chrome.storage.sync.set({ apiUrl });
+    if (has || !origin.startsWith("https://")) return save();
+    chrome.permissions.request({ origins: [origin] }, (granted) => { if (granted) save(); });
+  });
+};

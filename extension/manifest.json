@@ -4,7 +4,15 @@
   "version": "0.1.0",
   "description": "Lencana 'Perlu dicek?' dan blur gambar sesuai aturan keluarga. Gambar diperiksa di perangkat; tidak ada gambar yang dikirim.",
   "permissions": ["storage", "offscreen"],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+    "https://*.facebook.com/*", "https://*.instagram.com/*", "https://x.com/*", "https://*.x.com/*",
+    "https://*.twitter.com/*", "https://*.tiktok.com/*", "https://*.youtube.com/*",
+    "https://*.fbcdn.net/*", "https://*.cdninstagram.com/*", "https://*.twimg.com/*",
+    "https://*.tiktokcdn.com/*", "https://*.tiktokcdn-us.com/*", "https://*.ibyteimg.com/*",
+    "https://*.ytimg.com/*", "https://*.ggpht.com/*",
+    "http://localhost/*", "http://127.0.0.1/*", "https://34-101-109-211.sslip.io/*"
+  ],
+  "optional_host_permissions": ["https://*/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {

@@ -62,6 +62,8 @@ class Settings:
     media_daily_cap: int = field(default_factory=lambda: int(os.getenv("HALIO_MEDIA_DAILY_CAP", "0")))
     # Requests with a larger Content-Length are refused with 413 before the body is read.
     max_body_mb: int = field(default_factory=lambda: int(os.getenv("HALIO_MAX_BODY_MB", "16")))
+    # Content-Security-Policy: enforce (default), report (report-only, for debugging a page) or off.
+    csp_mode: str = field(default_factory=lambda: os.getenv("HALIO_CSP", "enforce").strip().lower())
     # Daily analyst brief (investigate/brief.py): built each morning from 06:00 WIB when on; needs the sensor and HALIO_LLM=1.
     brief_enabled: bool = field(default_factory=lambda: _bool("HALIO_BRIEF"))
     media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-3.5-flash-lite"))
