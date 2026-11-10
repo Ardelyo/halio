@@ -1,4 +1,6 @@
-# Naskah Syuting: "Berhenti Sebentar" bersama Nenek Kania Wijayanti
+# Naskah Syuting: "Berhenti Sebentar" bersama Nenek (nama disamarkan)
+
+> Nama asli Nenek tidak dicantumkan di repo publik. Persetujuan tertulis Nenek untuk direkam dan dipublikasikan disimpan tim di luar repo.
 
 Durasi sasaran: **±2 menit 30 detik.** Bahasa: sehari-hari, pendek, mudah dihafal.
 Semua jawaban Nenek di bawah adalah **contoh**. Ganti dengan cerita Nenek sendiri. Biarkan Nenek bicara dengan kata-katanya; jangan dipaksa menghafal.
@@ -70,7 +72,7 @@ Pesan berantai masuk ke HP keluarga setiap hari. Orang yang kita sayang menerusk
 **Babak 1: cerita Nenek**
 
 1. **"Nek, perkenalkan diri Nenek dulu ya."**
-   > "Nama saya Kania Wijayanti. Saya nenek dari **[jumlah]** cucu. Saya senang **[kegiatan Nenek]**."
+   > "Nama saya **[nama Nenek]**. Saya nenek dari **[jumlah]** cucu. Saya senang **[kegiatan Nenek]**."
 
 2. **"Ceritakan, pesan apa yang sering masuk ke HP Nenek?"**
    > "Banyak sekali. Kabar gempa, bantuan uang, obat-obatan. Semuanya bilang: *sebarkan, sebarkan!*"
