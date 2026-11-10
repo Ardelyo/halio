@@ -97,6 +97,7 @@ docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 - [Riset agar Halio menonjol](docs/RESEARCH_STANDOUT.md): bukti ilmiah, peta kompetitor, protokol wawancara dan eksperimen, serta metrik dampak
 - [Arsitektur teknis](docs/ARCHITECTURE.md)
 - [Arsitektur sensor (pemantauan narasi)](docs/ARCHITECTURE_SENSOR.md)
+- [Profil penerapan: tanpa cloud vs cloud opsional, dan data apa yang keluar](docs/PROFIL_PENERAPAN.md)
 - [Privasi & aturan netral](docs/PRIVACY.md)
 - [Naskah demo & video](docs/DEMO_SCRIPT.md)
 - [Checklist pengumpulan](docs/SUBMISSION_CHECKLIST.md)
