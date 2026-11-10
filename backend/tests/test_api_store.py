@@ -96,3 +96,15 @@ def test_small_cells_are_suppressed(store):
     store.record({"status": "terbukti_salah", "claim": "x", "match": {"debunk_id": "a", "kategori": "kesehatan"},
                   "manipulation": {"techniques": []}}, "web", None)
     assert store.radar()["by_kategori"][0]["n"] == "<3"
+
+
+def test_store_retention_days_is_configurable(tmp_path):
+    import sqlite3
+
+    from halio.store import Store
+
+    s = Store(tmp_path / "r.db", retention_days=3)
+    with sqlite3.connect(tmp_path / "r.db") as c:
+        c.execute("INSERT INTO appeals (created, check_id, status) VALUES ('2000-01-01T00:00:00+07:00','x','baru')")
+    s.prune()
+    assert sqlite3.connect(tmp_path / "r.db").execute("SELECT COUNT(*) FROM appeals").fetchone()[0] == 0

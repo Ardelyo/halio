@@ -619,3 +619,48 @@ def test_uji_api_lists_and_runs(monkeypatch):
     r = c.post("/api/uji/domain_palsu").json()
     assert r["lulus"] is True and r["judul"]
     assert c.post("/api/uji/tidak_ada").status_code == 404
+
+
+def test_jobs_keep_no_raw_reporter_id_and_still_limit_per_reporter(tmp_path):
+    import sqlite3
+
+    from halio.investigate.jobs import Jobs, LimitReached
+
+    j = Jobs(_cfg(tmp_path, agent_per_reporter=1), runner=lambda t, p: {"klaim": t})
+    j.wait(j.submit("klaim pertama yang cukup panjang", "tg:123456", "telegram"))
+    stored = sqlite3.connect(tmp_path / "t.db").execute("SELECT reporter FROM investigations").fetchone()[0]
+    assert stored and "123456" not in stored and not stored.startswith("tg:")
+    import pytest
+
+    with pytest.raises(LimitReached):
+        j.submit("klaim kedua yang cukup panjang", "tg:123456", "telegram")
+
+
+def test_jobs_prune_old_finished_investigations_but_not_running_ones(tmp_path):
+    import sqlite3
+
+    from halio.investigate.jobs import Jobs
+
+    j = Jobs(_cfg(tmp_path, retention_days=30), runner=lambda t, p: {"klaim": t})
+    with sqlite3.connect(tmp_path / "t.db") as c:
+        c.executemany(
+            "INSERT INTO investigations (id, created, day, status) VALUES (?,?,?,?)",
+            [("lama", "2020-01-01T00:00:00+07:00", "2020-01-01", "selesai"),
+             ("gagal-lama", "2020-01-01T00:00:00+07:00", "2020-01-01", "gagal"),
+             ("baru", "2099-01-01T00:00:00+07:00", "2099-01-01", "selesai")],
+        )
+    j.prune()
+    left = {r[0] for r in sqlite3.connect(tmp_path / "t.db").execute("SELECT id FROM investigations")}
+    assert left == {"baru"}
+
+
+def test_jobs_prune_runs_on_submit(tmp_path):
+    import sqlite3
+
+    from halio.investigate.jobs import Jobs
+
+    j = Jobs(_cfg(tmp_path, retention_days=30), runner=lambda t, p: {"klaim": t})
+    with sqlite3.connect(tmp_path / "t.db") as c:
+        c.execute("INSERT INTO investigations (id, created, day, status) VALUES ('lama','2020-01-01T00:00:00+07:00','2020-01-01','selesai')")
+    j.wait(j.submit("klaim yang cukup panjang sekali", None, "web"))
+    assert sqlite3.connect(tmp_path / "t.db").execute("SELECT COUNT(*) FROM investigations WHERE id='lama'").fetchone()[0] == 0

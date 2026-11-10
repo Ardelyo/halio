@@ -29,7 +29,7 @@ log = logging.getLogger("halio.api")
 
 cache = ResultCache()
 seen_wa_messages = ResultCache(max_items=10000, ttl=86400)
-store = Store(settings.db_path, k_anonymity=settings.k_anonymity)
+store = Store(settings.db_path, k_anonymity=settings.k_anonymity, retention_days=settings.retention_days)
 sensor = SensorStore(settings.db_path)
 limiter = RateLimiter(settings.rate_limit_per_minute)
 

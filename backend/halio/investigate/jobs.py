@@ -1,11 +1,14 @@
 """Investigation jobs: queued, run in a small thread pool, progress and report kept in SQLite (survive a restart).
 
 Limits: HALIO_AGENT_DAILY_CAP investigations per day in total, HALIO_AGENT_PER_REPORTER per reporter per day.
+Privacy: the reporter is stored only as a pseudonym keyed by today's salt (store.daily_salt), enough to count today's runs,
+unlinkable once the salt is gone. Finished jobs are deleted after HALIO_RETENTION_DAYS (default 30).
 A job interrupted by a restart is marked 'gagal' on startup; the user can start it again.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import sqlite3
@@ -13,11 +16,11 @@ import threading
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Callable
 
 from ..config import Settings
-from ..store import WIB
+from ..store import WIB, daily_salt
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +44,7 @@ class Jobs:
         self._pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="telusur")
         self._lock = threading.Lock()
         self._last_write: dict[str, float] = {}
+        self._last_prune = ""
         with self._conn() as c:
             c.executescript(SCHEMA)
             c.execute("UPDATE investigations SET status='gagal', error='terhenti karena server dimulai ulang' "
@@ -58,10 +62,26 @@ class Jobs:
 
         return run(text, self.cfg, progress=progress, image=image)
 
+    def prune(self) -> None:
+        """Delete finished or failed investigations older than the retention window. Queued and running jobs stay."""
+        cutoff = (datetime.now(WIB).date() - timedelta(days=self.cfg.retention_days)).isoformat()
+        with self._conn() as c:
+            c.execute("DELETE FROM investigations WHERE day<? AND status NOT IN ('antre','berjalan')", (cutoff,))
+
+    @staticmethod
+    def _pseudonym(c: sqlite3.Connection, day: str, reporter: str | None) -> str | None:
+        if not reporter:
+            return None
+        return hashlib.sha256(f"{daily_salt(c, day)}|telusur|{reporter}".encode()).hexdigest()[:16]
+
     def submit(self, text: str, reporter: str | None, channel: str, image: tuple[bytes, str] | None = None) -> str:
         """The image (if any) stays in memory for the run only; it is never written to the database."""
         day = datetime.now(WIB).date().isoformat()
+        if self._last_prune != day:
+            self.prune()
+            self._last_prune = day
         with self._lock, self._conn() as c:
+            reporter = self._pseudonym(c, day, reporter)
             total = c.execute("SELECT COUNT(*) FROM investigations WHERE day=?", (day,)).fetchone()[0]
             if total >= self.cfg.agent_daily_cap:
                 raise LimitReached("Batas investigasi harian server sudah tercapai. Coba lagi besok.")

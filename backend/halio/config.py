@@ -67,6 +67,8 @@ class Settings:
     # Without a token the Radar answers only localhost, unless this is set (public demo; data is aggregate).
     radar_public: bool = field(default_factory=lambda: _bool("HALIO_RADAR_PUBLIC"))
     k_anonymity: int = field(default_factory=lambda: int(os.getenv("HALIO_K_ANON", "5")))
+    # Days kept for unknown claims, appeals, closed tickets, review audit and investigations (docs/PRIVACY.md).
+    retention_days: int = field(default_factory=lambda: max(1, int(os.getenv("HALIO_RETENTION_DAYS", "30"))))
 
     # Sensor: polls public news / fact-check feeds (docs/ARCHITECTURE_SENSOR.md). Off by default.
     sensor_enabled: bool = field(default_factory=lambda: _bool("HALIO_SENSOR"))

@@ -83,9 +83,22 @@ class ResultCache:
             return item[1]
 
 
+def daily_salt(c: sqlite3.Connection, day: str) -> str:
+    """Today's random salt; earlier days' salts are deleted, so yesterday's pseudonyms cannot be linked to an ID any more."""
+    c.execute("CREATE TABLE IF NOT EXISTS daily_salt (day TEXT PRIMARY KEY, salt TEXT NOT NULL)")
+    row = c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()
+    if row:
+        return row[0]
+    c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))
+    # OR IGNORE: Store and Jobs share the table; whoever inserts first wins and both read the same salt back.
+    c.execute("INSERT OR IGNORE INTO daily_salt VALUES (?,?)", (day, secrets.token_hex(16)))
+    return c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()[0]
+
+
 class Store:
-    def __init__(self, path: Path, k_anonymity: int = 5, min_cell: int = 3):
+    def __init__(self, path: Path, k_anonymity: int = 5, min_cell: int = 3, retention_days: int = 30):
         self.path = str(path)
+        self.retention_days = retention_days
         self.k = k_anonymity
         self.min_cell = min_cell
         self._lock = threading.Lock()
@@ -104,15 +117,10 @@ class Store:
         return conn
 
     def _salt(self, c: sqlite3.Connection, day: str) -> str:
-        row = c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()
-        if row:
-            return row["salt"]
-        salt = secrets.token_hex(16)
-        c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))
-        c.execute("INSERT INTO daily_salt VALUES (?,?)", (day, salt))
-        return salt
+        return daily_salt(c, day)
 
-    def prune(self, retention_days: int = 30) -> None:
+    def prune(self, retention_days: int | None = None) -> None:
+        retention_days = self.retention_days if retention_days is None else retention_days
         cutoff = (datetime.now(WIB) - timedelta(days=retention_days)).isoformat(timespec="seconds")
         day_cutoff = (date.fromisoformat(today()) - timedelta(days=retention_days)).isoformat()
         with self._lock, self._conn() as c:
