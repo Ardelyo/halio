@@ -15,10 +15,26 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 
 > Prototipe. Korpus demo masih kecil (7 bantahan bersumber) dan hasil evaluasi berasal dari set uji buatan tim. Lihat [Keterbatasan](docs/ARCHITECTURE.md#7-keterbatasan-yang-kami-akui).
 
+**Untuk Dewan Juri:** [Halio dalam lima menit](docs/submission/UNTUK_JURI.md) memetakan karya ini ke lima kriteria penilaian, lengkap dengan tautan bukti dan daftar hal yang belum kami buktikan.
+
+![Halio: berhenti sebentar, cek dulu](docs/submission/thumbnail_kolase.jpg)
+
+## Sekilas
+
+| | |
+|---|---|
+| Masalah | Pesan berantai dan penipuan yang mencatut nama TNI AD menyebar di grup keluarga, tempat bantahan resmi jarang sampai |
+| Solusi | Teman cek pesan lewat Telegram dan web: jawaban bersumber, kartu, dan suara, ditambah Radar tren anonim untuk analis |
+| Peran AI | Mencari dan membaca bukti. Vonis diputuskan kode dari kutipan yang benar-benar ada di halaman sumber |
+| Keselamatan | 0 dari 66 pernyataan benar yang salah dicap hoaks pada set uji tim ([hasil](eval/RESULTS.md)); "belum ada pemeriksaan" adalah jawaban yang sah |
+| Privasi | Nomor, NIK, email, rekening, tautan, dan @akun dihapus sebelum diproses; Radar memakai k-anonimitas |
+| Penerapan | Satu kontainer Docker; profil tanpa cloud untuk server satuan, cloud opsional ([profil](docs/PROFIL_PENERAPAN.md)) |
+
 ## Coba sekarang
 
 | Kanal | Tautan |
 |---|---|
+| Server publik (API, kartu, suara, dan Telusur berjalan sungguhan) | [Buka cek pesan](https://34-101-109-211.sslip.io/cek.html) · [uji keamanan](https://34-101-109-211.sslip.io/uji.html) |
 | Landing page | [ardelyo.github.io/halio](https://ardelyo.github.io/halio/) |
 | Demo cek pesan (PWA, mendukung menu *Bagikan*) | [Buka demo](https://ardelyo.github.io/halio/cek.html) |
 | Bot Telegram | [@halioid_bot](https://t.me/halioid_bot) (aktif selama proses bot dan API berjalan) |
@@ -32,13 +48,17 @@ GitHub Pages menjalankan skenario lokal berlabel simulasi tanpa mengirim pesan k
 
 "Semua berita, realtime" tidak mungkin. Halio memantau **23 feed terbuka** (berita, cek fakta, sumber resmi) hampir realtime, dan halaman **Cakupan** menunjukkan terus terang mana yang hidup, mana yang basi, dan titik buta yang diakui (WhatsApp privat, Meta, TikTok, X, dll.). Aktifkan dengan `HALIO_SENSOR=1`. Rancangan dan bukti riset: [docs/ARCHITECTURE_SENSOR.md](docs/ARCHITECTURE_SENSOR.md). Lapisan deteksi narasi (klaster, sinyal kecepatan, triase) belum dibangun.
 
-## Tiga keadaan vonis
+## Lima keadaan jawaban
 
 | | Status | Artinya |
 |---|---|---|
 | 🔴 | **Terbukti salah** | Sudah dibantah oleh pemeriksa fakta atau sumber resmi yang disebutkan |
-| 🟠 | **Halio tidak yakin** | Mirip kabar bohong tapi tidak sama persis, atau bukan klaim faktual |
-| ⚪ | **Belum ada pemeriksaan** | Belum ada bantahan; Halio tidak menebak |
+| 🟢 | **Sejalan dengan sumber** | Sumber resmi yang masih berlaku memuat kutipan yang mendukung seluruh klaim. Bukan stempel "pasti benar": cek tanggal dan konteksnya |
+| 🔵 | **Dilaporkan media** | Diberitakan media, tetapi ini bukan pemeriksaan fakta |
+| 🟠 | **Halio tidak yakin** | Mirip kabar bohong tapi tidak sama persis, bukti bertentangan atau kedaluwarsa, atau bukan klaim faktual |
+| ⚪ | **Belum ada pemeriksaan** | Belum ada sumber yang cocok; Halio tidak menebak |
+
+Alasan di balik lima keadaan ini ada di [Kalau informasinya benar, bagaimana?](docs/TRUE_INFORMATION.md). Bagian 2 pada dokumen arsitektur masih menjelaskan tiga keadaan awal dari jalur pencocokan lokal.
 
 ## Jalankan secara lokal
 
@@ -87,23 +107,55 @@ data/debunks.json   korpus bantahan bersumber
 eval/               set uji + evaluasi (tingkat salah tuduh hoaks)
 web/                PWA (index), Radar, feed simulasi
 extension/          ekstensi Chrome MV3 (lencana + blur di perangkat)
-scripts/            seed data simulasi, unduh model, thumbnail
+scripts/            seed data simulasi, unduh model, thumbnail, preflight, antrean review
+deploy/             skrip dan unit layanan untuk server (GCE, Caddy, systemd)
+video/              sumber video demo (naskah, panduan merek, aset)
 docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
+docs/submission/    materi pengumpulan: panduan juri, thumbnail, screenshot, draf deskripsi
+docs/presentasi/    slide presentasi (HTML dan PDF)
 ```
 
 ## Dokumen
 
-- [Rencana proyek](docs/PROJECT_PLAN.md): jadwal, peran, risiko, pemetaan ke kriteria penilaian
-- [Riset agar Halio menonjol](docs/RESEARCH_STANDOUT.md): bukti ilmiah, peta kompetitor, protokol wawancara dan eksperimen, serta metrik dampak
+**Mulai dari sini**
+
+- [Halio dalam lima menit (untuk Dewan Juri)](docs/submission/UNTUK_JURI.md): peta ke kriteria penilaian dan tautan bukti
+- [Draf deskripsi dan jawaban untuk pertanyaan juri](docs/submission/DRAF_DESKRIPSI.md)
+- [Checklist pengumpulan](docs/SUBMISSION_CHECKLIST.md)
+
+**Arsitektur dan penerapan**
+
 - [Arsitektur teknis](docs/ARCHITECTURE.md)
+- [Halio Telusur: investigasi untuk analis](docs/ARCHITECTURE_AGENT.md)
 - [Arsitektur sensor (pemantauan narasi)](docs/ARCHITECTURE_SENSOR.md)
 - [Profil penerapan: tanpa cloud vs cloud opsional, dan data apa yang keluar](docs/PROFIL_PENERAPAN.md)
 - [Privasi & aturan netral](docs/PRIVACY.md)
-- [Naskah demo & video](docs/DEMO_SCRIPT.md)
-- [Checklist pengumpulan](docs/SUBMISSION_CHECKLIST.md)
-- [Atribusi pihak ketiga & deklarasi](docs/THIRD_PARTY.md)
-- [Evaluasi Radar untuk TNI AD: berfungsi dan bermanfaatkah?](docs/EVALUASI_RADAR_TNI.md)
+- [Kalau informasinya benar, bagaimana?](docs/TRUE_INFORMATION.md)
+- [Kesiapan demo dan peluncuran](docs/LAUNCH_READINESS.md)
+- [Pembaruan deploy](docs/DEPLOY_UPDATE.md)
+
+**Bukti dan evaluasi**
+
 - [Hasil evaluasi](eval/RESULTS.md)
+- [Bukti uji demo di server publik](docs/BUKTI_UJI_DEMO.md)
+- [Bukti uji setelah perbaikan](docs/BUKTI_UJI_SETELAH_PERBAIKAN.md)
+- [Verifikasi tautan korpus](docs/VERIFIKASI_KORPUS.md)
+- [Evaluasi Radar untuk TNI AD: berfungsi dan bermanfaatkah?](docs/EVALUASI_RADAR_TNI.md)
+- [Analisis Radar dan TNI AD](docs/ANALISIS_RADAR_DAN_TNI.md)
+
+**Riset dan rencana**
+
+- [Rencana proyek](docs/PROJECT_PLAN.md): jadwal, peran, risiko, pemetaan ke kriteria penilaian
+- [Riset agar Halio menonjol](docs/RESEARCH_STANDOUT.md): bukti ilmiah, peta kompetitor, protokol wawancara dan eksperimen, serta metrik dampak
+- [Peta kompetitor](docs/COMPETITORS.md)
+- [Rencana Radar](docs/PLAN_RADAR.md) · [Rencana verifikasi AI](docs/PLAN_VERIFIKASI_AI.md) · [Rencana unggul](docs/PLAN_UNGGUL.md)
+
+**Demo dan video**
+
+- [Naskah demo & video](docs/DEMO_SCRIPT.md)
+- [Runbook demo](docs/RUNBOOK_DEMO.md)
+- [Naskah syuting bersama Nenek](docs/NASKAH_SYUTING_NENEK.md)
+- [Atribusi pihak ketiga & deklarasi](docs/THIRD_PARTY.md)
 
 ## Hak kekayaan intelektual
 

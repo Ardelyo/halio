@@ -22,8 +22,8 @@ Pemeriksaan terakhir: 10 Nov 2026, dari cabang `chore/pra-submission`.
 | # | Item | Spesifikasi | Status | Bukti/URL | Pemilik tindakan |
 |---|---|---|---|---|---|
 | 1 | Link Karya | Tautan publik yang bisa dicoba juri | SEBAGIAN: tautan hidup, tautan final belum dipilih | Server: `https://34-101-109-211.sslip.io/cek.html` (HTTP 200, `/health` build `441f73e`, `llm:true`, 10 Nov). Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: tentukan tautan utama yang diisi di form |
-| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI | `docs/submission/thumbnail.jpg`: 1200×630, JPEG, 183 KB | Pemilik: unggah |
-| 3 | Screenshot | Maks. 5 | BELUM TERVERIFIKASI | Usulan: 1) jawaban bot + kartu, 2) vonis web dengan kutipan disorot, 3) "tidak mau menebak", 4) laporan Telusur, 5) Radar berlabel simulasi | Pemilik: pilih dan simpan di `docs/submission/` |
+| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI | `docs/submission/thumbnail.jpg`: 1200×630, JPEG, 183 KB. Alternatif kolase foto (12 Nov): `docs/submission/thumbnail_kolase.jpg`, 1200×630, JPEG, 181 KB | Pemilik: pilih satu, unggah |
+| 3 | Screenshot | Maks. 5 | SELESAI (berkas ada, 12 Nov) | `docs/submission/screenshot_01.png` sampai `screenshot_05.png` (1920×1080, dari rekaman layar build `e16d354`): 1) tempel pesan, 2) jawaban bersumber, 3) suara, trik, dan kartu, 4) "tidak mau menebak", 5) Radar (angka simulasi, disebut di gambar) | Pemilik: tinjau, unggah |
 | 4 | Video | ≤ 10 menit, YouTube | BELUM TERVERIFIKASI | URL YouTube belum ada di repo | Pemilik: unggah, cek durasi, isi URL di sini |
 | 5 | Slide | Fitur, arsitektur, teknologi, info lain; PDF | SELESAI (berkas ada) | `docs/presentasi/Halio_Presentasi_v2.pdf` (20 halaman) | Pemilik: tinjau isi terakhir, unggah |
 
