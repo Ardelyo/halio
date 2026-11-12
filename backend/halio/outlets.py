@@ -3,7 +3,7 @@
 This is a working list, not a certification. It exists so Halio can say "this is an article from detikNews"
 instead of "this link is not a government site", and so that two reports from the same group are not counted
 as two independent confirmations. Review it against the Dewan Pers verified-media list before relying on it
-(docs/PLAN_VERIFIKASI_AI.md). Membership means "an established outlet that publishes under an editorial team",
+(docs/ARCHITECTURE_AGENT.md). Membership means "an established outlet that publishes under an editorial team",
 which says nothing about whether one particular article is accurate.
 """
 

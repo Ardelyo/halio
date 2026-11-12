@@ -68,8 +68,6 @@ Setiap dokumen punya baris kepala di bawah judulnya. Aturan lengkapnya ada di [R
 
 | Dokumen | Isi | Jenis |
 |---|---|---|
-| [PLAN_VERIFIKASI_AI.md](PLAN_VERIFIKASI_AI.md) | Rancangan dan alasan mesin bukti v2 | Catatan bertanggal |
-| [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | Garis besar pitch final (catatan panggung berbahasa Inggris) | Catatan bertanggal |
 | [NASKAH_SYUTING_NENEK.md](NASKAH_SYUTING_NENEK.md) | Naskah syuting bersama Nenek (dasar video yang terbit) | Catatan bertanggal |
 
 Berkas cetak: `CHEATSHEET_HALIO.pdf`, `LEMBAR_UJI_KELUARGA.pdf`, `NASKAH_SYUTING_NENEK.pdf`.
