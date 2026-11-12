@@ -21,7 +21,7 @@ Pemeriksaan terakhir: 10 Nov 2026, dari cabang `chore/pra-submission`.
 
 | # | Item | Spesifikasi | Status | Bukti/URL | Pemilik tindakan |
 |---|---|---|---|---|---|
-| 1 | Link Karya | Tautan publik yang bisa dicoba juri | SEBAGIAN: tautan hidup, tautan final belum dipilih | Server: `https://34-101-109-211.sslip.io/cek.html` (HTTP 200, `/health` build `441f73e`, `llm:true`, 10 Nov). Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: tentukan tautan utama yang diisi di form |
+| 1 | Link Karya | Tautan publik yang bisa dicoba juri | SEBAGIAN: tautan hidup, tautan final belum dipilih | Server: `https://34-101-109-211.sslip.io/cek.html` (HTTP 200, `/health` build `e16d354-20261110-1151`, `llm:true`, 10 Nov). Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: tentukan tautan utama yang diisi di form |
 | 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI | `docs/submission/thumbnail.jpg`: 1200×630, JPEG, 183 KB | Pemilik: unggah |
 | 3 | Screenshot | Maks. 5 | BELUM TERVERIFIKASI | Usulan: 1) jawaban bot + kartu, 2) vonis web dengan kutipan disorot, 3) "tidak mau menebak", 4) laporan Telusur, 5) Radar berlabel simulasi | Pemilik: pilih dan simpan di `docs/submission/` |
 | 4 | Video | ≤ 10 menit, YouTube | BELUM TERVERIFIKASI | URL YouTube belum ada di repo | Pemilik: unggah, cek durasi, isi URL di sini |
