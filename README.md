@@ -78,8 +78,9 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 
 | Angka | Arti | Sumber |
 |---|---|---|
-| **265** | Tes otomatis lulus, dijalankan CI pada setiap perubahan | [CI](.github/workflows/ci.yml) |
-| **0 dari 66** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim) | [eval/RESULTS.md](eval/RESULTS.md) |
+| **266** | Tes otomatis lulus, dijalankan CI pada setiap perubahan | [CI](.github/workflows/ci.yml) |
+| **0 dari 70** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim) | [eval/RESULTS.md](eval/RESULTS.md) |
+| **0 dari 1.043** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel publik yang tidak dipakai menyetel Halio (satu kesalahan ditemukan lalu diperbaiki, lihat catatan di laporan) | [eval/PUBLIC_RESULTS.md](eval/PUBLIC_RESULTS.md) |
 | **88%** | Recall parafrase hoaks pada set holdout | [eval/RESULTS.md](eval/RESULTS.md) |
 | **0,9 ms** | Median pencocokan lokal tanpa AI | [Arsitektur](docs/ARCHITECTURE.md) |
 | **23** | Feed terbuka yang dipantau sensor (opsional) | [Arsitektur sensor](docs/ARCHITECTURE_SENSOR.md) |
@@ -172,7 +173,7 @@ Halio dapat memantau **23 feed terbuka** (berita, cek fakta, sumber resmi) hampi
 ```
 backend/halio/       pipeline cek (klaim, PII, retrieval, mesin bukti, vonis), kartu, suara, Radar, kanal
 backend/halio/ingest/  sensor: polling feed terbuka dan laporan cakupan
-backend/tests/       265 tes otomatis
+backend/tests/       266 tes otomatis
 data/debunks.json    korpus bantahan bersumber
 eval/                set uji dan evaluasi (tingkat salah tuduh hoaks)
 web/                 PWA cek pesan, Radar, laporan analis, feed simulasi

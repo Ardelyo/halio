@@ -6,7 +6,7 @@ Batas: **15 Nov 2026, 23.59 WIB** (Rulebook §G). Target internal: **14 Nov 20.0
 
 Aturan dokumen ini: hanya tandai **SELESAI** bila ada bukti yang bisa dibuka. Sisanya **BELUM TERVERIFIKASI** sampai pemilik tindakan mengisi buktinya.
 
-Pemeriksaan terakhir: 12 Nov 2026, dari cabang `chore/submission-ready` (kode `main` build `e16d354`). Pada 12 Nov: 265 tes lulus, `eval/RESULTS.md` identik dengan hasil run baru, semua tautan publik di dokumen ini menjawab HTTP 200, dan `/health` server publik melaporkan build `e16d354`.
+Pemeriksaan terakhir: 12 Nov 2026, dari cabang `chore/submission-ready` (kode `main` build `e16d354`). Pada 12 Nov: 266 tes lulus, `eval/RESULTS.md` identik dengan hasil run baru, semua tautan publik di dokumen ini menjawab HTTP 200, dan `/health` server publik melaporkan build `e16d354`.
 
 ## Pendaftaran (Rulebook §E)
 

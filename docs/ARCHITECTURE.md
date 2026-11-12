@@ -102,12 +102,12 @@ python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose
 
 ## 6. Pengujian
 
-- `pytest` (backend/tests): 265 tes lulus per 12 Nov 2026, dijalankan CI pada setiap perubahan. Cakupan: PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
+- `pytest` (backend/tests): 266 tes lulus per 12 Nov 2026, dijalankan CI pada setiap perubahan. Cakupan: PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
 - `python eval/run_eval.py`: metrik jujur termasuk tingkat salah tuduh hoaks; `--sweep` untuk kalibrasi ambang.
 
 ## 7. Keterbatasan yang kami akui
 
-- Korpus demo kecil (7 bantahan) dan kedua set uji (108 item: dev 52, holdout 56) ditulis tim sendiri, sehingga hasilnya optimistis.
+- Korpus demo kecil (7 bantahan) dan kedua set uji (112 item: dev 56, holdout 56) ditulis tim sendiri, sehingga hasilnya optimistis. Evaluasi tambahan pada sampel publik: [PUBLIC_RESULTS.md](../eval/PUBLIC_RESULTS.md).
 - Pencocokan bersifat leksikal; parafrase berat tanpa kata yang sama akan jatuh ke "belum ada pemeriksaan" (aman, tapi recall turun).
 - Kualitas LLM berbahasa Indonesia dan cakupan ClaimReview Indonesia belum diukur.
 - Tidak ada uji pengguna lansia Indonesia; efek label peringatan (~25% pengurangan berbagi) berasal dari studi laboratorium Barat (Martel & Rand 2024).

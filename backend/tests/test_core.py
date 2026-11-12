@@ -68,3 +68,13 @@ def test_thresholds_are_respected():
     strict = replace(CFG, match_threshold=0.99, unsure_threshold=0.98)
     r = pipeline.check("air kelapa garam jeruk nipis menyembuhkan covid", strict)
     assert r["status"] == "belum_ada_pemeriksaan"
+
+def test_clarification_verbs_are_not_labelled_hoax():
+    """Found by the public-sample evaluation: a message that clarifies or denies a rumour must never be called a hoax."""
+    for text in (
+        "BMKG Papua Mengklarifikasi Isu Akan Terjadi Tsunami di Papua",
+        "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan",
+        "Kemenkes meluruskan isu air kelapa campur garam bisa menyembuhkan covid",
+        "Polres menyangkal kabar penculikan anak dengan mobil putih di Bekasi",
+    ):
+        assert pipeline.check(text, CFG)["status"] != "terbukti_salah", text
