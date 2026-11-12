@@ -6,7 +6,7 @@ Batas: **15 Nov 2026, 23.59 WIB** (Rulebook §G). Target internal: **14 Nov 20.0
 
 Aturan dokumen ini: hanya tandai **SELESAI** bila ada bukti yang bisa dibuka. Sisanya **BELUM TERVERIFIKASI** sampai pemilik tindakan mengisi buktinya.
 
-Pemeriksaan terakhir: 12 Nov 2026, dari cabang `chore/submission-ready` (kode `main` build `e16d354`). Pada 12 Nov: 266 tes lulus, `eval/RESULTS.md` identik dengan hasil run baru, semua tautan publik di dokumen ini menjawab HTTP 200, dan `/health` server publik melaporkan build `e16d354`.
+Pemeriksaan terakhir: 12 Nov 2026, dari `main` (kode dan server publik build `281dc9e`, rilis `v0.2.0-submission`). Pada 12 Nov: 266 tes lulus, `eval/RESULTS.md` identik dengan hasil run baru, semua tautan publik di dokumen ini menjawab HTTP 200, dan `/health` server publik melaporkan build `e16d354`.
 
 ## Pendaftaran (Rulebook §E)
 
@@ -23,7 +23,7 @@ Pemeriksaan terakhir: 12 Nov 2026, dari cabang `chore/submission-ready` (kode `m
 
 | # | Item | Spesifikasi | Status | Bukti/URL | Pemilik tindakan |
 |---|---|---|---|---|---|
-| 1 | Link Karya | Tautan publik yang bisa dicoba juri | SELESAI (12 Nov): tautan utama dipilih | **Dipakai di form:** `https://halio.ardelyo.com/cek.html` (HTTP 200, HTTPS valid, `/health` build `e16d354`, `llm:true`, `media:true`). Cadangan, mengikuti IP VM: `https://34-101-109-211.sslip.io/cek.html`. Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: isi tautan utama di form |
+| 1 | Link Karya | Tautan publik yang bisa dicoba juri | SELESAI (12 Nov): tautan utama dipilih | **Dipakai di form:** `https://halio.ardelyo.com/cek.html` (HTTP 200, HTTPS valid, `/health` build `281dc9e-20261112-1423`, `llm:true`, `media:true`). Cadangan, mengikuti IP VM: `https://34-101-109-211.sslip.io/cek.html`. Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: isi tautan utama di form |
 | 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI (resmi: kolase, 12 Nov) | **Dipakai:** `docs/submission/thumbnail_kolase.jpg`, 1200×630, JPEG, 181 KB (foto Nenek dan cucu, sama dengan gambar di README). Cadangan: `docs/submission/thumbnail.jpg`, 1200×630, JPEG, 183 KB | Pemilik: unggah |
 | 3 | Screenshot | Maks. 5 | SELESAI (berkas ada, 12 Nov) | `docs/submission/screenshot_01.png` sampai `screenshot_05.png` (1920×1080, dari rekaman layar build `e16d354`): 1) tempel pesan, 2) jawaban bersumber, 3) suara, trik, dan kartu, 4) "tidak mau menebak", 5) Radar (angka simulasi, disebut di gambar) | Pemilik: tinjau, unggah |
 | 4 | Video | ≤ 10 menit, YouTube | SELESAI (12 Nov) | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g): publik (bukan unlisted), durasi 5:01, tayang 12 Nov 2026 | Pemilik: tonton ulang (lihat baris verifikasi akhir) |

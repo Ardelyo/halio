@@ -103,3 +103,9 @@ Bila pencarian atau penilaian v2 gagal sendiri, sistem otomatis memakai agen lam
 - Contoh konfigurasi: `deploy/Caddyfile.example`. Setelah mengubah `/etc/caddy/Caddyfile`: `sudo caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile` lalu `sudo systemctl reload caddy`.
 - Record `@` dan `www` milik `ardelyo.com` tidak berhubungan dengan Halio; jangan diubah dan jangan menekan "Reset DNS record" di Hostinger.
 - Bot Telegram memakai polling, jadi tidak bergantung pada nama domain.
+
+## Catatan deploy terakhir
+- 12 Nov 2026: server diperbarui ke `281dc9e-20261112-1423` (perubahan perilaku: pola pelurusan di `retrieval.py`; dependensi tidak berubah). Dilakukan **tanpa** `deploy_gce.sh`: skrip itu menimpa `/opt/halio/.env.systemd` dari `.env` lokal, jadi untuk pembaruan kode saja gunakan prosedur ini.
+- Prosedur aman: cadangkan `backend data web deploy scripts eval .env.systemd` ke `/opt/halio-backups`, ekstrak tarball (`git archive HEAD backend data web deploy scripts eval`) ke `/opt/halio` tanpa menghapus `halio.db` dan `data/arsip.jsonl`, perbarui `HALIO_BUILD` di `.env.systemd`, `systemctl restart halio-api halio-bot`, uji `/health` dan dua pesan contoh, dan kembalikan cadangan bila gagal.
+- Cadangan sebelum deploy ini: `/opt/halio-backups/pre-281dc9e--20261112-142256.tgz` (hanya dapat dibaca root).
+- Selama penjurian (16-20 Nov) tidak ada deploy.
