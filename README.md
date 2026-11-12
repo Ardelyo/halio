@@ -97,7 +97,7 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 
 | Kanal | Tautan |
 |---|---|
-| Server publik (API, kartu, suara, dan Telusur berjalan sungguhan) | [Cek pesan](https://34-101-109-211.sslip.io/cek.html) · [Uji keamanan](https://34-101-109-211.sslip.io/uji.html) |
+| Server publik (API, kartu, suara, dan Telusur berjalan sungguhan) | [Cek pesan](https://halio.ardelyo.com/cek.html) · [Uji keamanan](https://halio.ardelyo.com/uji.html) |
 | Bot Telegram | [@halioid_bot](https://t.me/halioid_bot) (aktif selama proses bot dan API berjalan) |
 | Landing page | [ardelyo.github.io/halio](https://ardelyo.github.io/halio/) |
 | Demo di GitHub Pages (simulasi, tanpa server) | [Cek pesan](https://ardelyo.github.io/halio/cek.html) · [Radar](https://ardelyo.github.io/halio/radar.html) · [Cakupan sensor](https://ardelyo.github.io/halio/coverage.html) · [Feed untuk ekstensi](https://ardelyo.github.io/halio/demo-feed.html) |

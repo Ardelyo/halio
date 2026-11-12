@@ -10,6 +10,6 @@ gcloud compute instances describe "$VM" --project "$PROJECT" --zone "$ZONE" >/de
     --image-family debian-12 --image-project debian-cloud --boot-disk-size 20GB --scopes cloud-platform
 tar --exclude=.venv --exclude=.git --exclude=halio.db --exclude='__pycache__' -czf /tmp/halio.tgz backend data web deploy scripts eval
 gcloud compute scp /tmp/halio.tgz .env deploy/remote_install.sh "$VM":/tmp/ --project "$PROJECT" --zone "$ZONE"
-HOST=${HOST:-}   # public hostname behind Caddy, e.g. 34-101-109-211.sslip.io
+HOST=${HOST:-}   # public hostname behind Caddy, e.g. halio.ardelyo.com
 BUILD="$(git rev-parse --short HEAD 2>/dev/null || echo dev)-$(date -u +%Y%m%d-%H%M)"
 gcloud compute ssh "$VM" --project "$PROJECT" --zone "$ZONE" --command "sudo bash /tmp/remote_install.sh '$HOST' '$BUILD'"
