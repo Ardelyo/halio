@@ -10,7 +10,7 @@ so ordinary news always ended "0 lolos". Here a quote is verbatim by constructio
 dropped, a web page cannot talk its way into the decision, and news from independent outlets can be reported for
 what it is: reporting, not proof (status "dilaporkan_media").
 
-Design and policy: docs/PLAN_VERIFIKASI_AI.md.
+Design and policy: docs/ARCHITECTURE_AGENT.md (verdict safety rules).
 """
 
 from __future__ import annotations

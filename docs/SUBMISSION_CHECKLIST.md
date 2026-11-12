@@ -24,10 +24,10 @@ Pemeriksaan terakhir: 12 Nov 2026, dari cabang `chore/submission-ready` (kode `m
 | # | Item | Spesifikasi | Status | Bukti/URL | Pemilik tindakan |
 |---|---|---|---|---|---|
 | 1 | Link Karya | Tautan publik yang bisa dicoba juri | SEBAGIAN: tautan hidup, tautan final belum dipilih | Server: `https://34-101-109-211.sslip.io/cek.html` (HTTP 200, `/health` build `e16d354`, `llm:true`, `media:true`, 12 Nov). Pages (simulasi): `https://ardelyo.github.io/halio/` (200). Bot: `t.me/halioid_bot` (200). Repo publik: `github.com/Ardelyo/halio` (200) | Pemilik: tentukan tautan utama yang diisi di form |
-| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI | `docs/submission/thumbnail.jpg`: 1200×630, JPEG, 183 KB. Alternatif kolase foto (12 Nov): `docs/submission/thumbnail_kolase.jpg`, 1200×630, JPEG, 181 KB | Pemilik: pilih satu, unggah |
+| 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI (resmi: kolase, 12 Nov) | **Dipakai:** `docs/submission/thumbnail_kolase.jpg`, 1200×630, JPEG, 181 KB (foto Nenek dan cucu, sama dengan gambar di README). Cadangan: `docs/submission/thumbnail.jpg`, 1200×630, JPEG, 183 KB | Pemilik: unggah |
 | 3 | Screenshot | Maks. 5 | SELESAI (berkas ada, 12 Nov) | `docs/submission/screenshot_01.png` sampai `screenshot_05.png` (1920×1080, dari rekaman layar build `e16d354`): 1) tempel pesan, 2) jawaban bersumber, 3) suara, trik, dan kartu, 4) "tidak mau menebak", 5) Radar (angka simulasi, disebut di gambar) | Pemilik: tinjau, unggah |
 | 4 | Video | ≤ 10 menit, YouTube | SELESAI (12 Nov) | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g): publik (bukan unlisted), durasi 5:01, tayang 12 Nov 2026 | Pemilik: tonton ulang (lihat baris verifikasi akhir) |
-| 5 | Slide | Fitur, arsitektur, teknologi, info lain; PDF | SELESAI (berkas ada) | `docs/presentasi/Halio_Presentasi_v2.pdf` (20 halaman) | Pemilik: tinjau isi terakhir, unggah |
+| 5 | Slide | Fitur, arsitektur, teknologi, info lain; PDF | SELESAI (resmi: v2, 12 Nov) | **Dipakai:** `docs/presentasi/Halio_Presentasi_v2.pdf` (20 halaman), satu-satunya slide yang berasal dari repo dan sudah dicek terhadap angka kode | Pemilik: tinjau isi terakhir, unggah |
 
 ## Kepatuhan aturan (Rulebook §G "Ketentuan Karya" dan §N)
 

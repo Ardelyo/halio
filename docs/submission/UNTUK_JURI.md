@@ -41,7 +41,7 @@ Jawaban untuk sepuluh pertanyaan juri yang diduga ada di [DRAF_DESKRIPSI.md](DRA
 
 | Materi | Lokasi |
 |---|---|
-| Thumbnail (1200×630) | [thumbnail_kolase.jpg](thumbnail_kolase.jpg), alternatif [thumbnail.jpg](thumbnail.jpg) |
+| Thumbnail (1200×630) | [thumbnail_kolase.jpg](thumbnail_kolase.jpg) (cadangan: [thumbnail.jpg](thumbnail.jpg)) |
 | Screenshot alur penggunaan (5) | [01 Tempel pesan](screenshot_01.png) · [02 Jawaban bersumber](screenshot_02.png) · [03 Dengarkan dan bagikan](screenshot_03.png) · [04 Jujur saat belum tahu](screenshot_04.png) · [05 Radar](screenshot_05.png) |
 | Slide | [Halio_Presentasi_v2.pdf](../presentasi/Halio_Presentasi_v2.pdf) |
 | Video demo | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g) (YouTube, publik, 5:01) |
