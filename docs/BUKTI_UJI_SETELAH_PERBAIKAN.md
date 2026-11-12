@@ -1,4 +1,4 @@
-# Bukti Uji Setelah Perbaikan (kode lokal, belum dideploy)
+# Bukti Uji Setelah Perbaikan (kode lokal, lalu dideploy ke server publik)
 
 Tanggal: 10 Nov 2026. Melengkapi [BUKTI_UJI_DEMO.md](BUKTI_UJI_DEMO.md) (uji pada build publik `441f73e`, ada di PR #15). Semua angka di sini berasal dari kode cabang `fix/pra-submission-hardening` yang dijalankan lokal, mode `tanpa_ai` (pencocokan lokal tanpa web). **Dideploy ke server publik pada 10 Nov 2026 (build `e16d354-20261110-1151`); hasilnya ada di bagian terakhir.**
 
