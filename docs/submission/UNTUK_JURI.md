@@ -6,7 +6,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 
 **Satu kalimat:** Halio adalah teman cek pesan untuk keluarga Indonesia yang menjawab pesan berantai dengan sumber nyata, kartu, dan suara; AI hanya mencari dan membaca bukti, sedangkan vonis diputuskan kode.
 
-**Coba langsung:** [server publik](https://34-101-109-211.sslip.io/cek.html) (build `e16d354`) · [bot Telegram @halioid_bot](https://t.me/halioid_bot) · [uji keamanan langsung](https://34-101-109-211.sslip.io/uji.html) · [versi simulasi di GitHub Pages](https://ardelyo.github.io/halio/) · [video demo (5:01)](https://youtu.be/s2EMpZI2r4g)
+**Coba langsung:** [server publik](https://halio.ardelyo.com/cek.html) (build `e16d354`) · [bot Telegram @halioid_bot](https://t.me/halioid_bot) · [uji keamanan langsung](https://halio.ardelyo.com/uji.html) · [versi simulasi di GitHub Pages](https://ardelyo.github.io/halio/) · [video demo (5:01)](https://youtu.be/s2EMpZI2r4g)
 
 ## Peta ke kriteria penilaian
 

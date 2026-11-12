@@ -96,3 +96,10 @@ gcloud compute ssh halio --zone asia-southeast2-a --command "echo HALIO_ENGINE=v
 # atau deploy ulang dari commit sebelumnya: git checkout <commit> && bash deploy/deploy_gce.sh
 ```
 Bila pencarian atau penilaian v2 gagal sendiri, sistem otomatis memakai agen lama (`mesin cadangan` di panel Radar).
+
+## Domain dan HTTPS
+- Alamat utama: `https://halio.ardelyo.com` (record A `halio` di DNS Hostinger menuju IP statis `halio-ip` = `34.101.109.211`, TTL 300).
+- Caddy di VM melayani dua nama dalam satu blok: `halio.ardelyo.com` dan `34-101-109-211.sslip.io` (cadangan, mengikuti IP). Sertifikat Let's Encrypt diterbitkan dan diperbarui otomatis; porta 80 dan 443 harus tetap terbuka.
+- Contoh konfigurasi: `deploy/Caddyfile.example`. Setelah mengubah `/etc/caddy/Caddyfile`: `sudo caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile` lalu `sudo systemctl reload caddy`.
+- Record `@` dan `www` milik `ardelyo.com` tidak berhubungan dengan Halio; jangan diubah dan jangan menekan "Reset DNS record" di Hostinger.
+- Bot Telegram memakai polling, jadi tidak bergantung pada nama domain.

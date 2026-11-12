@@ -10,7 +10,7 @@
     "https://*.fbcdn.net/*", "https://*.cdninstagram.com/*", "https://*.twimg.com/*",
     "https://*.tiktokcdn.com/*", "https://*.tiktokcdn-us.com/*", "https://*.ibyteimg.com/*",
     "https://*.ytimg.com/*", "https://*.ggpht.com/*",
-    "http://localhost/*", "http://127.0.0.1/*", "https://34-101-109-211.sslip.io/*"
+    "http://localhost/*", "http://127.0.0.1/*", "https://halio.ardelyo.com/*", "https://34-101-109-211.sslip.io/*"
   ],
   "optional_host_permissions": ["https://*/*"],
   "background": { "service_worker": "background.js" },
