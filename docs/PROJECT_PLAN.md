@@ -1,5 +1,7 @@
 # Halio: Project Plan
 
+> **Catatan pembaca:** ini rencana awal bertanggal 27 Okt 2026 dan ditulis dalam bahasa Inggris. Tenggat dan status di dalamnya adalah catatan saat itu. Keadaan terbaru ada di [README](../README.md), [Checklist pengumpulan](SUBMISSION_CHECKLIST.md), dan [peta dokumen](README.md).
+
 **Kartika Cyber Hackathon 2026 · Siber Sosial · Plan v1, 27 Oct 2026**
 Inputs: the official Rulebook (PUSSIBERAD × CODEPOLITAN) and the team research report *"Halio: jadikan keluarga lini pertahanan kognitif"* (27 Oct 2026).
 

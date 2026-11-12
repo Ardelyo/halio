@@ -20,7 +20,7 @@ meluruskan kabar. Foto padang yang luas dan hening dipadukan dengan tipografi ed
 | Meadow | `#3F7D26` | Padang rumput, tanda "aman" |
 | Sky | `#9CC3EB` | Langit, aksen sekunder |
 | Confetti | `#8B5CF6` ungu · `#FF8A3D` jingga · `#2FBF71` hijau · `#FFC83D` kuning | Hanya untuk ilustrasi "pesan berantakan" |
-| Vonis | Terbukti salah `#B42318` · Tidak yakin `#B54708` · Belum ada pemeriksaan `#475467` | Tiga keadaan, selalu dengan label teks (sama dengan aplikasi dan Kartu Halio) |
+| Vonis | Terbukti salah `#B42318` · Tidak yakin `#B54708` · Belum ada pemeriksaan `#475467` | Tiga dari lima keadaan aplikasi yang tampil di video, selalu dengan label teks (warna sama dengan aplikasi dan Kartu Halio) |
 
 ## Tipografi (semua SIL OFL, lihat `fonts/LICENSES.md`)
 | Peran | Font | Aturan |

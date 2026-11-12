@@ -8,7 +8,7 @@ Konfigurasi: `HALIO_LLM=0` (bawaan), `HALIO_MEDIA=0`, tanpa `GOOGLE_FACTCHECK_AP
 
 **Yang bisa:**
 - Mencocokkan pesan dengan korpus bantahan lokal `data/debunks.json`: TF-IDF kata + trigram huruf, ditambah penjaga inti klaim dan negasi (`retrieval.py`). Tanpa jaringan; median 0,9 ms di laptop pengembang.
-- Tiga keadaan vonis, termasuk "belum ada pemeriksaan" bila tidak ada bantahan di korpus.
+- Tiga dari lima keadaan vonis (terbukti salah, tidak yakin, belum ada pemeriksaan). Dua lainnya butuh mesin bukti pada profil T2.
 - Menghapus data pribadi (`pii.py`), mendeteksi trik manipulasi (`manipulation.py`), membuat Kartu Halio (`card.py`).
 - Radar agregat, k-anonimitas, antrean eskalasi dan banding, Radar analis (`store.py`, `review.py`).
 - Suara: bila Cloud TTS dan gTTS tidak bisa dihubungi, API menjawab 501 dan web memakai suara bawaan perangkat.

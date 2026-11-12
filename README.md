@@ -58,7 +58,7 @@ GitHub Pages menjalankan skenario lokal berlabel simulasi tanpa mengirim pesan k
 | 🟠 | **Halio tidak yakin** | Mirip kabar bohong tapi tidak sama persis, bukti bertentangan atau kedaluwarsa, atau bukan klaim faktual |
 | ⚪ | **Belum ada pemeriksaan** | Belum ada sumber yang cocok; Halio tidak menebak |
 
-Alasan di balik lima keadaan ini ada di [Kalau informasinya benar, bagaimana?](docs/TRUE_INFORMATION.md). Bagian 2 pada dokumen arsitektur masih menjelaskan tiga keadaan awal dari jalur pencocokan lokal.
+Alasan di balik lima keadaan ini ada di [Kalau informasinya benar, bagaimana?](docs/TRUE_INFORMATION.md). Pada mode tanpa AI, hanya tiga keadaan yang bisa muncul: terbukti salah, tidak yakin, dan belum ada pemeriksaan.
 
 ## Jalankan secara lokal
 
@@ -116,6 +116,8 @@ docs/presentasi/    slide presentasi (HTML dan PDF)
 ```
 
 ## Dokumen
+
+Peta lengkap beserta status tiap dokumen (rujukan, bukti, atau catatan bertanggal) ada di [docs/README.md](docs/README.md).
 
 **Mulai dari sini**
 

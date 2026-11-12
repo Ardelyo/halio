@@ -32,7 +32,7 @@ Jumlah bintang GitHub diambil dari pelacak pihak ketiga, bukan dari GitHub langs
 ## 2. Posisi Halio, tanpa dibagus-baguskan
 
 ### Sudah lebih baik atau berbeda
-1. **Berani bilang "belum tahu"** dan tidak mengisi kekosongan dengan tebakan (empat keadaan, bukan benar/salah).
+1. **Berani bilang "belum tahu"** dan tidak mengisi kekosongan dengan tebakan (lima keadaan, bukan benar/salah).
 2. **Verifikasi positif yang ketat**: hijau hanya dari sumber resmi yang masih berlaku, kutipan dicek ulang oleh kode di halamannya.
 3. **Privasi yang bisa diperiksa**: data pribadi dibersihkan sebelum diproses, Radar k-anonim, jumlah byte yang dikirim ekstensi terukur.
 4. **Panel cakupan sensor yang jujur**: sumber hidup/basi/mati dan titik buta dinyatakan, bukan disembunyikan.

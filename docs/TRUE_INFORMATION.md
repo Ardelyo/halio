@@ -10,13 +10,15 @@ menyatakan "pasti benar" hanya karena tidak menemukan bantahan.
 | Disinformasi | Salah, disebarkan dengan sengaja | Video palsu "bansos dari Presiden" | Terbukti salah, plus nama triknya |
 | Malinformasi | **Benar**, tetapi dipakai untuk merugikan atau dikeluarkan dari konteks | Berita lama dipajang seolah baru; data pribadi yang bocor; rincian operasional yang sensitif | Bukan "hoaks". Halio menandai konteksnya (tanggal, masa berlaku), bukan benar/salahnya |
 
-## Empat keadaan jawaban Halio
+## Lima keadaan jawaban Halio
 1. **Terbukti salah**: ada bantahan dari pemeriksa fakta atau sumber resmi, dengan tautan.
 2. **Sejalan dengan sumber**: hanya bila sumber *resmi*, *masih berlaku*, memuat kutipan yang mendukung *seluruh*
    klaim, kutipan itu ada persis di halamannya (dicek ulang oleh backend, bukan oleh model), dan tidak ada
    bukti lain yang bertentangan. Ini bukan stempel "pasti benar": pengguna tetap diminta mengecek tanggal dan konteks.
-3. **Halio tidak yakin**: topik mirip tetapi inti klaim berbeda, bukti bertentangan, kedaluwarsa, atau pesan hanya meluruskan hoaks.
-4. **Belum ada pemeriksaan**: tidak ada sumber yang cocok. "Belum tahu" adalah jawaban yang sah.
+3. **Dilaporkan media**: beberapa media independen memberitakannya dan tidak ada yang membantah. Ini laporan media,
+   bukan pemeriksaan fakta, jadi Halio meminta pengguna menyebut sumbernya dan mengecek tanggalnya.
+4. **Halio tidak yakin**: topik mirip tetapi inti klaim berbeda, bukti bertentangan, kedaluwarsa, atau pesan hanya meluruskan hoaks.
+5. **Belum ada pemeriksaan**: tidak ada sumber yang cocok. "Belum tahu" adalah jawaban yang sah.
 
 ## Mengapa begitu
 - **Tidak ada bantahan ≠ benar.** Kebanyakan kabar baru memang belum diperiksa siapa pun. Melabeli itu "aman" akan

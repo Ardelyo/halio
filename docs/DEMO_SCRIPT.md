@@ -1,5 +1,7 @@
 # Demo Script
 
+> **Catatan pembaca:** catatan panggung ditulis dalam bahasa Inggris, narasi dalam Bahasa Indonesia. Untuk menjalankan demo langkah demi langkah, pakai [RUNBOOK_DEMO.md](RUNBOOK_DEMO.md).
+
 > **The submission video is built from code:** see `video/README.md`, the timed narration in `video/NASKAH.md`, and the brand rules in `video/BRAND.md`. The tables below remain the outline for the live final pitch.
 
 Two cuts: the **submission video** (target 6–8 min, hard limit 10) and the **final pitch** (10 min total including Q&A, so ~6 min talk + demo). Narration in Bahasa Indonesia; stage notes in English. Rule from judges' experience: show one workflow, not a feature tour; be honest about what isn't built.
