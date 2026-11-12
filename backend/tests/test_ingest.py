@@ -1,3 +1,5 @@
+"""Sensor tests: feed parsing limits, fingerprints, polling and backoff, coverage report and its API."""
+
 import os
 import tempfile
 from datetime import datetime, timedelta, timezone

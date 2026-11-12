@@ -1,5 +1,7 @@
 # Komponen Pihak Ketiga & Deklarasi
 
+> **Jenis:** Rujukan · **Untuk:** juri dan panitia · [Peta dokumen](README.md)
+
 Rulebook §G: pustaka, framework, API, model AI, dan alat pihak ketiga boleh dipakai **dengan atribusi**, dan karya yang sudah ada sebelumnya wajib **dideklarasikan dengan jelas**. Berkas ini disusun dari kode di repo (per commit `78b865c`), bukan dari ingatan. Lisensi di bawah adalah yang tercantum pada halaman resmi/PyPI masing-masing; tim belum melakukan tinjauan hukum.
 
 Lisensi karya Halio sendiri: [Apache 2.0](../LICENSE). HKI tetap milik tim (Rulebook §N).
@@ -33,9 +35,8 @@ Model AI juga dipakai **di dalam produk** (bagian "Model & layanan" di bawah). I
 | anthropic SDK (opsional, penyedia lama) | Konfirmasi kecocokan via Anthropic API | MIT |
 | pytest | Tes | MIT |
 | onnxruntime-web | Inferensi di perangkat pada ekstensi (dibundel lokal oleh `scripts/fetch_models.py`) | MIT |
-| Instrument Serif, Archivo, Inter (Google Fonts) | Tipografi merek di web, ekstensi, Kartu Halio, thumbnail, video | SIL Open Font License 1.1 |
-| Playwright + Chromium | Render frame video demo dan PDF presentasi (`video/tools`) | Apache-2.0 / BSD |
-| FFmpeg (libx264, libass) | Encode video dan subtitle (`video/tools`) | LGPL/GPL; hanya alat build, tidak didistribusikan |
+| Instrument Serif, Archivo, Inter (Google Fonts) | Tipografi merek di web, ekstensi, Kartu Halio, dan thumbnail | SIL Open Font License 1.1 |
+| Playwright + Chromium | Render PDF presentasi (`docs/presentasi/build_deck.py`) | Apache-2.0 / BSD |
 
 ## Model & layanan (dipakai saat produk berjalan)
 | Komponen | Kegunaan | Di kode | Ketentuan |
@@ -58,8 +59,8 @@ Model AI juga dipakai **di dalam produk** (bagian "Model & layanan" di bawah). I
 | Korpus bantahan `data/debunks.json` (7 entri) | Ringkasan kata sendiri + tautan sumber | Sumber: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (dengan Mafindo), MerahPutih, RRI, Kumparan. Tidak ada teks artikel yang disalin. Status tiap tautan: [VERIFIKASI_KORPUS.md](VERIFIKASI_KORPUS.md) |
 | Arsip judul cek fakta `data/arsip.jsonl` | Judul, tautan, dan metadata daftar dari turnbackhoax.id (Mafindo) | Dikumpulkan oleh `scripts/crawl_arsip.py`: `robots.txt` mengizinkan (diperiksa 7 Nov 2026), jeda 2 detik per permintaan, User-Agent beridentitas, tanpa teks artikel. Ketentuan penggunaan Mafindo **tidak ditemukan**, jadi berkas ini **tidak di-commit** (`.gitignore`). Untuk pemakaian di luar demo perlu kemitraan data dengan Mafindo |
 
-## Aset video
-Semua gambar dalam video demo dibuat tim: latar padang rumput (`video/tools/make_fields.py`), logo Halio (`web/icons/icon.svg`), dan tangkapan layar asli aplikasi yang berjalan. Musik latar disintesis (`video/tools/make_music.py`). Tidak ada foto stok, logo pihak ketiga, atau musik berlisensi. Gambar rujukan dari tim hanya dipakai sebagai arahan suasana dan gaya. Rekaman Nenek dibuat dengan persetujuan tertulis yang disimpan di luar repo.
+## Aset video dan materi pengumpulan
+Video demo ([YouTube](https://youtu.be/s2EMpZI2r4g)) memakai rekaman nyata keluarga tim, tangkapan layar asli aplikasi yang berjalan, logo Halio (`web/icons/icon.svg`), dan huruf merek di atas. Musik dan efek suaranya disintesis oleh tim, dan tidak ada foto stok atau musik berlisensi. Satu-satunya logo pihak ketiga adalah logo Kartika Cyber Hackathon 2026 dari situs resmi lomba (`kartikacyberhackathon.id`), dipakai pada penutup video dan thumbnail untuk menandai karya ini sebagai peserta lomba. Rekaman Nenek dibuat dengan persetujuan tertulis yang disimpan di luar repo. Latar `scripts/assets/field-day.jpg` dibuat tim untuk `scripts/make_thumbnail.py`.
 
 ## Sumber riset dalam narasi
-Lihat daftar sumber laporan riset (Liputan6, CODEPOLITAN, Katadata, detikNews, Kemhan Pothan, Martel & Rand 2024, studi prebunking Cambridge, dan lainnya) di [RESEARCH_STANDOUT.md](RESEARCH_STANDOUT.md).
+Dokumen riset internal tim tidak disertakan di repo ini. Artikel yang dikutip dalam demo (mis. Metro TV dan detikNews) disebut langsung pada materi yang memakainya.

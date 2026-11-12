@@ -2,7 +2,7 @@
 
     python scripts/make_thumbnail.py   ->  docs/submission/thumbnail.jpg
 
-Brand system: video/BRAND.md. Background is the generated field from video/tools/make_fields.py.
+Brand system: docs/BRAND.md. Background is the generated field in scripts/assets/field-day.jpg.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ W, H = 1200, 630
 out = ROOT / "docs" / "submission" / "thumbnail.jpg"
 out.parent.mkdir(parents=True, exist_ok=True)
 
-field = ROOT / "video" / "assets" / "field-day.jpg"
+field = ROOT / "scripts" / "assets" / "field-day.jpg"
 img = Image.open(field).convert("RGB").resize((1200, 675)).crop((0, 20, W, H + 20)) if field.exists() else Image.new("RGB", (W, H), CREAM)
 # cream wash on the sky so ink type reads cleanly
 wash = Image.new("RGBA", (W, H), (248, 243, 240, 0))

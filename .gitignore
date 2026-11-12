@@ -11,11 +11,6 @@ extension/models/
 *.zip
 .DS_Store
 Thumbs.db
-# video build output (large); keep the subtitle/script sources only
-video/out/*.mp4
-video/out/*.wav
-video/out/segments/
-video/out/story-segments/
 
 # fact-check headline archive (scripts/crawl_arsip.py); data you are licensed to use, not committed
 data/arsip.jsonl

@@ -1,5 +1,7 @@
 # Rencana Mesin Bukti v2: jawaban yang informatif, AI yang bisa dipakai, sumber yang benar
 
+> **Jenis:** Catatan bertanggal · **Untuk:** tim · [Peta dokumen](README.md)
+
 Disusun 6 Nov 2026 dari tiga jawaban bot nyata (v0.2.0) yang Anda tempel: artikel detik, kumpulan judul dari foto, dan pesan hadiah.
 Semua jawaban itu berakhir sama: "⚪ Belum ada pemeriksaan … jangan diteruskan dulu", dengan "AI mencari di web: N sumber, 0 lolos", tautan
 "google.com" sebagai bahan bacaan, dan peringatan "bukan situs pemerintah" untuk situs berita. Anda benar: jawaban itu kosong.
@@ -131,7 +133,7 @@ Set evaluasi nyata dan terkini, bukan buatan tim (disusun dari data yang sudah d
 - `scripts/eval_live.py` (sudah ada, lihat 2b) menjalankan set terhadap API sungguhan dan menulis laporan; dijalankan di server GCE Anda karena kredensial Vertex ada di sana.
 - Uji manusia: dua orang di luar tim menilai 30 jawaban: "apakah Anda paham, dan apakah Anda tahu langkah berikutnya?"
 
-## 5. Urutan kerja (selaras dengan `PLAN_UNGGUL` dan code freeze 11 Nov)
+## 5. Urutan kerja (selaras dengan code freeze 11 Nov)
 
 | Tanggal | Pekerjaan | Gerbang |
 |---|---|---|
@@ -148,4 +150,4 @@ Set evaluasi nyata dan terkini, bukan buatan tim (disusun dari data yang sudah d
 - Banyak berita beredar tanpa pernah diperiksa pemeriksa fakta. Wajar bila "belum ada pemeriksaan" tetap sering muncul; yang berubah adalah apa yang kami katakan sesudahnya.
 - Pencarian web ber-grounding bisa meleset atau memberi sumber lama; kebijakan kesegaran dan tanggal wajib.
 - Kami tidak menguji ke Vertex dari lingkungan ini. Setiap langkah yang memanggil model harus diuji di server Anda sebelum dipercaya.
-- Foto: Halio hanya membaca tulisan/ucapan; keaslian gambar tidak dinilai (lihat `PLAN_UNGGUL.md` bagian 3 untuk rencana asal-usul media).
+- Foto: Halio hanya membaca tulisan/ucapan; keaslian gambar tidak dinilai.

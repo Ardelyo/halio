@@ -1,6 +1,10 @@
 # Demo Script
 
-> **The submission video is built from code:** see `video/README.md`, the timed narration in `video/NASKAH.md`, and the brand rules in `video/BRAND.md`. The tables below remain the outline for the live final pitch.
+> **Jenis:** Catatan bertanggal · **Untuk:** tim · [Peta dokumen](README.md)
+
+> **Catatan pembaca:** catatan panggung ditulis dalam bahasa Inggris, narasi dalam Bahasa Indonesia. Untuk menjalankan demo langkah demi langkah, pakai [RUNBOOK_DEMO.md](RUNBOOK_DEMO.md).
+
+> **Video pengumpulan sudah terbit:** [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g) (5:01). Bagian A dan tabel di bawah adalah garis besar lama untuk video dan pitch final; video yang terbit dibuat dari rekaman nyata bersama keluarga, dengan naskah di [NASKAH_SYUTING_NENEK.md](NASKAH_SYUTING_NENEK.md). Aturan merek ada di [BRAND.md](BRAND.md).
 
 Two cuts: the **submission video** (target 6–8 min, hard limit 10) and the **final pitch** (10 min total including Q&A, so ~6 min talk + demo). Narration in Bahasa Indonesia; stage notes in English. Rule from judges' experience: show one workflow, not a feature tour; be honest about what isn't built.
 

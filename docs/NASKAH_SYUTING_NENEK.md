@@ -1,5 +1,7 @@
 # Naskah Syuting: "Berhenti Sebentar" bersama Nenek (nama disamarkan)
 
+> **Jenis:** Catatan bertanggal · **Untuk:** tim · [Peta dokumen](README.md)
+
 > Nama asli Nenek tidak dicantumkan di repo publik. Persetujuan tertulis Nenek untuk direkam dan dipublikasikan disimpan tim di luar repo.
 
 Durasi sasaran: **±2 menit 30 detik.** Bahasa: sehari-hari, pendek, mudah dihafal.

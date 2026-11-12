@@ -1,5 +1,7 @@
 # Kesiapan demo dan peluncuran
 
+> **Jenis:** Rujukan · **Untuk:** juri dan pengelola · [Peta dokumen](README.md)
+
 Dokumen ini memisahkan pekerjaan teknis yang sudah diverifikasi dari risiko yang masih memerlukan manusia, kredensial, perangkat, atau lingkungan produksi.
 
 ## Gerbang demo

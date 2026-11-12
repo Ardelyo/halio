@@ -1,5 +1,7 @@
 # Arsitektur Teknis Halio
 
+> **Jenis:** Rujukan · **Untuk:** juri dan pengembang · [Peta dokumen](README.md)
+
 Dokumen teknis untuk Dewan Juri dan pengembang. Bagian bertanda **(estimasi)** belum diukur.
 
 ## 1. Gambaran umum
@@ -19,7 +21,7 @@ Dokumen teknis untuk Dewan Juri dan pengembang. Bagian bertanda **(estimasi)** b
  │     + penjaga inti klaim (syarat + deteksi negasi)                                        │
  │  4. T1 jarak jauh (opsional): Google Fact Check Tools / ClaimReview                       │
  │  5. T2 (opsional): LLM hanya memilih kandidat + wajib kutipan persis → diverifikasi       │
- │  6. Vonis 3 keadaan + teks suara + trik manipulasi + peringatan tautan                    │
+ │  6. Vonis 5 keadaan + teks suara + trik manipulasi + peringatan tautan                    │
  │                                                                                           │
  │ /api/card/{id}.png  Kartu Halio (Pillow)     /api/voice/{id}.mp3  Halio Suara (Cloud TTS*) │
  │ /api/escalate, /api/appeal  antrean pemeriksa manusia                                      │
@@ -35,13 +37,17 @@ Dokumen teknis untuk Dewan Juri dan pengembang. Bagian bertanda **(estimasi)** b
 | T1 | Server | Pencocokan dengan korpus bantahan lokal, opsional ClaimReview | median 0,9 ms, p95 1,6 ms (diukur 27 Okt di laptop pengembang, korpus 7 bantahan, tanpa jaringan) | ≈ 0 |
 | T2 | Cloud (opsional) | LLM menimbang klaim vs kandidat, wajib kutipan | 3–8 s **(estimasi)** | per panggilan; mati secara default |
 
-## 2. Tiga keadaan vonis
+## 2. Lima keadaan vonis
+
+Jalur pencocokan lokal (tanpa AI) menghasilkan tiga keadaan pertama di bawah ini. Dua keadaan lainnya, `sejalan_dengan_sumber` dan `dilaporkan_media`, hanya muncul bila mesin bukti aktif. Alasannya dijelaskan di [TRUE_INFORMATION.md](TRUE_INFORMATION.md).
 
 | Status | Kapan | Yang dikatakan Halio |
 |---|---|---|
 | `terbukti_salah` | Skor kemiripan ≥ ambang **dan** inti klaim palsu hadir tanpa negasi (atau dikonfirmasi LLM dengan kutipan) | Penjelasan sederhana + nama sumber + tautan |
-| `tidak_yakin` | Mirip topik tapi tidak sama; inti klaim tidak ada/dinegasikan; atau bukan klaim faktual | Jujur bahwa Halio ragu; tawarkan pemeriksa manusia |
+| `tidak_yakin` | Mirip topik tapi tidak sama; inti klaim tidak ada/dinegasikan; bukti bertentangan atau kedaluwarsa; atau bukan klaim faktual | Jujur bahwa Halio ragu; tawarkan pemeriksa manusia |
 | `belum_ada_pemeriksaan` | Tidak ada bantahan yang cocok | "Halio tidak mau menebak"; sebut trik manipulasi bila ada; tawarkan pemeriksa manusia |
+| `sejalan_dengan_sumber` | Sumber resmi yang masih berlaku memuat kutipan yang mendukung seluruh klaim, dan kutipan itu dicek ulang oleh kode | Boleh dibagikan, tetapi cek tanggal dan konteksnya di sumber dulu |
+| `dilaporkan_media` | Beberapa media independen memberitakannya dan tidak ada yang membantah | Ini laporan media, bukan pemeriksaan fakta; sebut sumbernya dan cek tanggalnya |
 
 **Penjaga inti klaim.** Kemiripan kata saja tidak bisa membedakan "BMKG *memprediksi* gempa tanggal 12" (hoaks) dari "BMKG *mencatat* gempa M5,1 pagi ini" (fakta). Setiap bantahan memuat `syarat`: pola inti klaim palsu (memprediksi tanggal, membayar agar lulus, dsb.). Bila pola itu tidak ada, atau didahului "tidak/tanpa/bukan", hasil dibatasi menjadi `tidak_yakin`. Pada set uji, penjaga ini menurunkan tingkat "salah tuduh hoaks" dari 8% menjadi 0% (lihat `eval/RESULTS.md`).
 
@@ -96,7 +102,7 @@ python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose
 
 ## 6. Pengujian
 
-- `pytest` (backend/tests): PII, ekstraksi klaim, trik manipulasi, tiga keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
+- `pytest` (backend/tests): 265 tes lulus per 12 Nov 2026, dijalankan CI pada setiap perubahan. Cakupan: PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
 - `python eval/run_eval.py`: metrik jujur termasuk tingkat salah tuduh hoaks; `--sweep` untuk kalibrasi ambang.
 
 ## 7. Keterbatasan yang kami akui

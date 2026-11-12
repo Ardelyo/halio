@@ -1,6 +1,6 @@
 """Kartu Halio: a 1080x1080 correction card sized for WhatsApp family groups.
 
-Brand system: video/BRAND.md (Royal Blue, Light Cream, Instrument Serif / Archivo / Inter).
+Brand system: docs/BRAND.md (Royal Blue, Light Cream, Instrument Serif / Archivo / Inter).
 Fonts ship in halio/fonts (SIL OFL) so the card looks the same on every server.
 """
 
@@ -86,7 +86,7 @@ def _label(draw, y: int, text: str) -> int:
 
 
 def draw_mark(img: Image.Image, x: int, y: int, s: int) -> None:
-    """The Halio mark (video/assets/halio-mark.svg) drawn with primitives, s = side in px."""
+    """The Halio mark (web/icons/icon.svg) drawn with primitives, s = side in px."""
     k = s / 128
     d = ImageDraw.Draw(img)
     d.rounded_rectangle([x, y, x + s, y + s], radius=int(36 * k), fill=BLUE)

@@ -1,7 +1,7 @@
 """T1 remote: Google Fact Check Tools (ClaimReview) lookup.
 
 Optional; enabled when GOOGLE_FACTCHECK_API_KEY is set. Indonesian coverage is
-unverified (docs/PROJECT_PLAN.md risk R2), so results are merged with the local
+unverified, so results are merged with the local
 corpus and still have to clear the same similarity threshold.
 """
 

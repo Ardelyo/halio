@@ -1,8 +1,10 @@
 # Halio · Identitas Merek (v1, 28 Okt 2026)
 
+> **Jenis:** Rujukan · **Untuk:** desainer dan pengembang · [Peta dokumen](README.md)
+
 Satu sistem untuk situs, aplikasi, ekstensi, Kartu Halio, video, slide, dan thumbnail.
 
-**Sumber token:** `web/brand.css` (situs, ekstensi, halaman analis), `backend/halio/card.py` (Kartu Halio), `video/src/style.css` (video). Ubah nilai di sini dulu, lalu samakan ketiganya. Font: `web/fonts/fonts.css`.
+**Sumber token:** `web/brand.css` (situs, ekstensi, halaman analis), `backend/halio/card.py` (Kartu Halio) dan `scripts/make_thumbnail.py` (thumbnail). Ubah nilai di sini dulu, lalu samakan semuanya. Font: `web/fonts/fonts.css`.
 
 **Keputusan 2 Nov 2026:** warna situs sebelumnya (hijau hutan + limau) diganti dengan sistem biru ini agar situs, keluaran, dan video satu identitas.
 
@@ -20,7 +22,7 @@ meluruskan kabar. Foto padang yang luas dan hening dipadukan dengan tipografi ed
 | Meadow | `#3F7D26` | Padang rumput, tanda "aman" |
 | Sky | `#9CC3EB` | Langit, aksen sekunder |
 | Confetti | `#8B5CF6` ungu · `#FF8A3D` jingga · `#2FBF71` hijau · `#FFC83D` kuning | Hanya untuk ilustrasi "pesan berantakan" |
-| Vonis | Terbukti salah `#B42318` · Tidak yakin `#B54708` · Belum ada pemeriksaan `#475467` | Tiga keadaan, selalu dengan label teks (sama dengan aplikasi dan Kartu Halio) |
+| Vonis | Terbukti salah `#B42318` · Tidak yakin `#B54708` · Belum ada pemeriksaan `#475467` | Tiga dari lima keadaan aplikasi yang tampil di video, selalu dengan label teks (warna sama dengan aplikasi dan Kartu Halio) |
 
 ## Tipografi (semua SIL OFL, lihat `fonts/LICENSES.md`)
 | Peran | Font | Aturan |

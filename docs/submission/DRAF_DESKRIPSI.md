@@ -1,5 +1,7 @@
 # Draf Teks untuk Form Pengumpulan dan Tanya-Jawab Juri
 
+> **Jenis:** Rujukan · **Untuk:** juri dan tim · [Peta dokumen](../README.md)
+
 Semua jawaban di bawah selaras dengan [PROFIL_PENERAPAN.md](../PROFIL_PENERAPAN.md), [BUKTI_UJI_DEMO.md](../BUKTI_UJI_DEMO.md), dan [eval/RESULTS.md](../../eval/RESULTS.md). Bila ada angka yang berubah, ubah di sumbernya dulu, lalu di sini.
 
 ## a. Deskripsi karya (untuk form, 3 kalimat)

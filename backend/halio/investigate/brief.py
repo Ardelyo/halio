@@ -4,7 +4,7 @@
     -> cluster near-identical headlines (code) -> score (distinct sources, fact-check involvement, hoax words, recency)
     -> top narratives get a Halio Telusur investigation -> brief stored, shown in Radar.
 
-Narratives and claims only. No person, account or soldier is profiled; only public feeds are read (docs/PLAN_UNGGUL.md 5).
+Narratives and claims only. No person, account or soldier is profiled; only public feeds are read (docs/PRIVACY.md).
 """
 
 from __future__ import annotations

@@ -1,7 +1,9 @@
 # Menjalankan Halio untuk demo dan rekaman (Telegram, web, Radar)
 
+> **Jenis:** Panduan · **Untuk:** tim · [Peta dokumen](README.md)
+
 Bot Telegram **hanya hidup selama dua proses ini berjalan**: API dan bot. GitHub Pages tidak menjalankan keduanya.
-Panduan ini membuat semuanya hidup di satu laptop (tanpa Docker). Untuk server yang selalu menyala, lihat `PLAN_UNGGUL.md` bagian 4.1.
+Panduan ini membuat semuanya hidup di satu laptop (tanpa Docker). Untuk server yang selalu menyala, lihat [DEPLOY_UPDATE.md](DEPLOY_UPDATE.md).
 
 ## 1. Sekali saja
 1. Python 3.11+ dan pasang paket: `cd backend && pip install -r requirements.txt -r requirements-optional.txt`
@@ -50,10 +52,10 @@ Gunakan pesan buatan seperti ini saat merekam; jangan memakai pesan asli dari gr
 Bila API mati atau terlalu sibuk, bot **tetap membalas** dengan permintaan maaf (sudah diuji), bukan diam.
 
 ## 4. Yang bisa dan belum bisa (jujur)
-**Sudah berfungsi** (diuji dengan Telegram tiruan terhadap API sungguhan; 106 tes): perintah, pengecekan teks, tiga hasil + "sejalan dengan sumber", kartu PNG, suara MP3, tombol trik/banding/eskalasi, pesan panjang, HTML liar di pesan, hasil kedaluwarsa, API mati, batas laju.
+**Sudah berfungsi** (diuji dengan Telegram tiruan terhadap API sungguhan; lihat `scripts/e2e_telegram.py` bila ada di cabang kerja, dan seluruh tes di `backend/tests`): perintah, pengecekan teks, tiga hasil + "sejalan dengan sumber", kartu PNG, suara MP3, tombol trik/banding/eskalasi, pesan panjang, HTML liar di pesan, hasil kedaluwarsa, API mati, batas laju.
 
 **Belum / terbatas:**
-- **Hanya teks.** Foto, tangkapan layar, pesan suara, dan video belum diperiksa (rencana: `PLAN_UNGGUL.md` bagian 3). Bila Nenek memotret layar, bot akan meminta teksnya.
+- **Hanya teks.** Foto, tangkapan layar, pesan suara, dan video belum diperiksa (belum didukung). Bila Nenek memotret layar, bot akan meminta teksnya.
 - **Belum diuji dengan Telegram asli dari sini.** Token tidak ada di lingkungan saya; yang diuji adalah seluruh logika bot terhadap API nyata. Uji pertama dengan akun Anda sendiri sebelum merekam.
 - Suara server (Cloud TTS Chirp 3 HD, cadangan gTTS) butuh internet. Di halaman web, tombol "Dengarkan" memakai suara perangkat bila server gagal.
 - Sapaan (`/sapaan`) hilang saat bot dimulai ulang.

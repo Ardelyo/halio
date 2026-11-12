@@ -1,5 +1,7 @@
 # Memperbarui Telegram, situs, dan lainnya (checklist)
 
+> **Jenis:** Panduan · **Untuk:** pengelola server · [Peta dokumen](README.md)
+
 Sumber kebenaran: `deploy/deploy_gce.sh` mengemas folder **yang ada di laptop Anda saat itu** (bukan dari GitHub). Jadi langkah pertama selalu memastikan
 checkout lokal berisi kode yang diinginkan.
 
@@ -65,7 +67,7 @@ Hasilnya di `/opt/halio/eval/LIVE_RESULTS.md`; **berita benar dituduh salah haru
 |---|---|
 | Ekstensi Chrome | `chrome://extensions` → muat ulang ekstensi (popup memakai font merek; kamus teks dibangkitkan dari Python: `python scripts/sync_lexicon.py` bila `manipulation.py` berubah) |
 | Menu bot | @BotFather → `/setcommands`: `start`, `bantuan`, `sapaan`, `privasi`, `versi` (uraian: sebut "Halio memberi bukti, bukan vonis") |
-| Video demo dan story | Masih menampilkan empat keadaan; belum menampilkan 🔵 Dilaporkan media dan pesan berisi beberapa klaim. Render ulang hanya bila diperlukan (`python video/tools/render_all.py`) |
+| Video demo | Video di YouTube sudah terbit dan tidak dibangun dari kode repo ini. Bila tampilan aplikasi berubah, rekam ulang bagian yang berubah; tampilan keadaan jawaban mengikuti `backend/halio/card.py` |
 | Dokumen juri | `docs/PLAN_VERIFIKASI_AI.md` (status 2b), `eval/LIVE_RESULTS.md` setelah dijalankan |
 
 ## H2. Lapis jaringan: batasi lalu lintas keluar proses Halio (SSRF)

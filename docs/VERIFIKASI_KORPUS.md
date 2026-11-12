@@ -1,5 +1,7 @@
 # Verifikasi Sumber Korpus Bantahan
 
+> **Jenis:** Bukti · **Untuk:** juri · [Peta dokumen](README.md)
+
 Tanggal pemeriksaan: **10 Nov 2026**. Berkas: `data/debunks.json` (7 entri, 14 tautan). Setiap tautan dibuka dengan program (HTTP GET, User-Agent beridentitas). Halaman yang menolak program dibaca dari salinan Internet Archive. Kolom "Eksplisit?" menjawab satu pertanyaan: **apakah halaman itu sendiri menyatakan klaim tersebut salah, bohong, hoaks, penipuan, atau tidak terbukti**, bukan sekadar membahas topiknya. Catatan berisi ringkasan dengan kata-kata kami sendiri; teks artikel tidak disalin.
 
 Isi `data/debunks.json` **tidak diubah** dalam pemeriksaan ini. Usulan perubahan ada di bagian akhir.

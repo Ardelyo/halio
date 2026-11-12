@@ -2,7 +2,7 @@
 
 Pure-Python TF-IDF over word n-grams + character trigrams, so it runs on a
 laptop with no model download and survives typos and chat spelling. Small
-corpus by design; swap for embeddings once the corpus grows (docs/PROJECT_PLAN.md).
+corpus by design; swap for embeddings once the corpus grows.
 """
 
 from __future__ import annotations

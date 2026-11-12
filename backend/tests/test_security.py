@@ -1,3 +1,5 @@
+"""Security tests: Meta signature, rate limiter, review-token requirement, public results leak no delivery data."""
+
 import hashlib
 import hmac
 

@@ -378,7 +378,7 @@ async function makeStaticCard(result) {
   const context = canvas.getContext("2d");
   context.fillStyle = "#F8F3F0";
   context.fillRect(0, 0, 1080, 1350);
-  // Same layout and palette as the server's Kartu Halio (backend/halio/card.py, video/BRAND.md).
+  // Same layout and palette as the server's Kartu Halio (backend/halio/card.py, docs/BRAND.md).
   const THEME = { terbukti_salah: "#B42318", sejalan_dengan_sumber: "#067647", dilaporkan_media: "#014BAA", tidak_yakin: "#B54708", belum_ada_pemeriksaan: "#475467" };
   const SERIF = '"Instrument Serif", Georgia, serif', SANS = 'Inter, system-ui, Arial, sans-serif';
   try { await Promise.all([document.fonts.load(`80px ${SERIF}`), document.fonts.load(`600 30px ${SANS}`)]); } catch { /* fall back to system fonts */ }

@@ -1,3 +1,5 @@
+"""Shared test setup: keep every test offline and independent of the machine's HALIO_ENGINE."""
+
 import os
 
 # Tests never reach the network. The v1 agent is stubbed by the tests that need it; v2 tests pass `evidence_engine="v2"`
