@@ -1,6 +1,6 @@
 # Bukti Uji Setelah Perbaikan (kode lokal, belum dideploy)
 
-Tanggal: 10 Nov 2026. Melengkapi [BUKTI_UJI_DEMO.md](BUKTI_UJI_DEMO.md) (uji pada build publik `441f73e`, ada di PR #15). Semua angka di sini berasal dari kode cabang `fix/pra-submission-hardening` yang dijalankan lokal, mode `tanpa_ai` (pencocokan lokal tanpa web). **Server publik belum memakai perbaikan ini sampai PR #16 dideploy.**
+Tanggal: 10 Nov 2026. Melengkapi [BUKTI_UJI_DEMO.md](BUKTI_UJI_DEMO.md) (uji pada build publik `441f73e`, ada di PR #15). Semua angka di sini berasal dari kode cabang `fix/pra-submission-hardening` yang dijalankan lokal, mode `tanpa_ai` (pencocokan lokal tanpa web). **Dideploy ke server publik pada 10 Nov 2026 (build `e16d354-20261110-1151`); hasilnya ada di bagian terakhir.**
 
 ## Skenario 1 (calo TNI AD) sekarang 🔴
 | # | Skenario | Build publik 7 Nov | Kode perbaikan |
@@ -30,5 +30,17 @@ Catatan jujur: set ini ditulis setelah melihat kegagalan skenario 1, sehingga an
 4. Jawaban "tidak yakin" untuk pesan benar yang topiknya sama dengan hoaks tidak lagi berbunyi "lebih aman ditahan".
 5. Radar menghitung kategori dan debunk hanya dari cek yang terbukti salah.
 
-## Yang tetap perlu diuji setelah deploy
-Ulangi `scripts/preflight.py`, 10 skenario di `BUKTI_UJI_DEMO.md` (mode penuh), dan buka `/cek.html`, `/radar`, `/laporan.html` untuk memastikan CSP tidak memecah halaman.
+## Hasil di server publik setelah deploy (build `e16d354-20261110-1151`)
+Diuji 10 Nov 2026 lewat `/api/check`, kedua mode, pesan buatan.
+
+| Pemeriksaan | Hasil |
+|---|---|
+| 10 skenario, mode penuh dan tanpa AI | Skenario 1–7 🔴 di kedua mode (skenario 1 kini 🔴, `cocok_dengan_bantahan`); 8 🟠; 9 ⚪; 10 🟠 + peringatan tautan |
+| Tuduhan palsu pada pesan benar | **0** |
+| Header | `Content-Security-Policy` dan `X-Frame-Options: DENY` ada |
+| Halaman `cek`, `radar`, `laporan`, `uji`, `coverage` | semuanya HTTP 200; Radar tanpa token HTTP 401 |
+| `preflight.py` tanpa token bot | API, cek hoaks, kartu PNG, suara MP3, dan penguncian Radar PASS |
+| Layanan | `halio-api` dan `halio-bot` `active`; sensor 23 feed tanpa galat |
+| Latensi mode penuh | umumnya 4–9 detik; lonjakan sesekali 15–35 detik (variasi pencarian web/model). Tanpa AI: di bawah 1 detik |
+
+Belum diuji setelah deploy: tampilan visual halaman di peramban sungguhan pada build publik (CSP sudah 0 pelanggaran di uji lokal), Telegram, panel Radar TNI AD (butuh token Radar), dan `eval_live.py`.
