@@ -14,7 +14,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 |---|---|---|
 | **Relevansi dan manfaat** (25%) | Penipuan yang mencatut nama TNI AD (calo rekrutmen, surat kelulusan palsu) menyebar di grup keluarga, tempat bantahan resmi jarang sampai. Halio membawa bantahan bersumber ke sana, dan Radar memberi analis gambaran agregat narasi yang naik. | [Relevansi bagi TNI AD](DRAF_DESKRIPSI.md), [Evaluasi Radar untuk TNI AD](../EVALUASI_RADAR_TNI.md) |
 | **Inovasi teknis berbasis AI** (25%) | AI dikekang: model hanya memilih kandidat bukti. Kutipan disalin kode dari halaman yang dibuka kode, lalu dicocokkan ulang kata per kata. Kalimat tanpa dukungan kutipan dibuang. Lima jawaban, termasuk "belum ada pemeriksaan". | [Arsitektur](../ARCHITECTURE.md), [Halio Telusur](../ARCHITECTURE_AGENT.md), [Kabar benar bukan hoaks](../TRUE_INFORMATION.md) |
-| **Fungsionalitas purwarupa** (25%) | Server publik, bot Telegram, kartu, suara, Telusur, dan Radar berjalan sungguhan. 265 tes otomatis dan evaluasi dijalankan CI pada setiap perubahan. | [Bukti uji demo](../BUKTI_UJI_DEMO.md), [Bukti uji setelah perbaikan](../BUKTI_UJI_SETELAH_PERBAIKAN.md), [Hasil evaluasi](../../eval/RESULTS.md), [CI](../../.github/workflows/ci.yml) |
+| **Fungsionalitas purwarupa** (25%) | Server publik, bot Telegram, kartu, suara, Telusur, dan Radar berjalan sungguhan. 266 tes otomatis dan evaluasi dijalankan CI pada setiap perubahan. | [Bukti uji demo](../BUKTI_UJI_DEMO.md), [Bukti uji setelah perbaikan](../BUKTI_UJI_SETELAH_PERBAIKAN.md), [Hasil evaluasi](../../eval/RESULTS.md), [CI](../../.github/workflows/ci.yml) |
 | **Kelayakan implementasi** (15%) | Satu kontainer Docker. Profil tanpa cloud untuk server satuan (tidak ada data keluar), dan profil cloud opsional. Pencocokan lokal sekitar 1 ms tanpa AI. | [Profil penerapan](../PROFIL_PENERAPAN.md), [Kesiapan peluncuran](../LAUNCH_READINESS.md), [Skrip deploy](../../deploy/) |
 | **Kualitas dokumentasi** (10%) | Arsitektur, privasi, atribusi pihak ketiga, deklarasi bantuan AI, naskah demo, dan daftar keterbatasan tersedia di repo. | [README](../../README.md), [Privasi](../PRIVACY.md), [Atribusi dan deklarasi](../THIRD_PARTY.md), [Checklist pengumpulan](../SUBMISSION_CHECKLIST.md) |
 
@@ -22,7 +22,8 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 
 | Angka | Arti | Sumber |
 |---|---|---|
-| **0 dari 66** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah", pada dua set uji tulisan tim (pengembangan dan holdout) | [eval/RESULTS.md](../../eval/RESULTS.md) |
+| **0 dari 70** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah", pada dua set uji tulisan tim (pengembangan dan holdout) | [eval/RESULTS.md](../../eval/RESULTS.md) |
+| **0 dari 1.043** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel publik di luar set tim. Evaluasi ini pernah menemukan satu kesalahan (pesan yang meluruskan hoaks), yang sudah diperbaiki dan dicatat terbuka | [eval/PUBLIC_RESULTS.md](../../eval/PUBLIC_RESULTS.md) |
 | **88%** | Recall parafrase hoaks pada set holdout | [eval/RESULTS.md](../../eval/RESULTS.md) |
 | **0,9 ms** | Median pencocokan lokal tanpa AI (laptop pengembang, korpus 7 bantahan) | [Arsitektur §1](../ARCHITECTURE.md) |
 | **5** | Ambang bawaan k-anonimitas Radar (`HALIO_K_ANON`): isi kabar baru hanya disimpan setelah dilaporkan sejumlah itu pelapor berbeda | [Privasi](../PRIVACY.md) |

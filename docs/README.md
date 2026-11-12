@@ -39,6 +39,7 @@ Setiap dokumen punya baris kepala di bawah judulnya. Aturan lengkapnya ada di [R
 | Dokumen | Isi | Jenis |
 |---|---|---|
 | [../eval/RESULTS.md](../eval/RESULTS.md) | Evaluasi offline pada set uji tim (dibuat otomatis, bahasa Inggris) | Bukti |
+| [../eval/PUBLIC_RESULTS.md](../eval/PUBLIC_RESULTS.md) | Evaluasi pada 1.643 judul TurnBackHoax di luar set tim, termasuk kesalahan yang ditemukan dan diperbaiki | Bukti |
 | [BUKTI_UJI_DEMO.md](BUKTI_UJI_DEMO.md) | Sepuluh skenario di server publik | Bukti |
 | [BUKTI_UJI_SETELAH_PERBAIKAN.md](BUKTI_UJI_SETELAH_PERBAIKAN.md) | Hasil setelah perbaikan dan uji tekanan | Bukti |
 | [VERIFIKASI_KORPUS.md](VERIFIKASI_KORPUS.md) | Status 14 tautan sumber korpus | Bukti |

@@ -5,13 +5,13 @@ false-hoax rate: a true statement labelled "terbukti salah". Retrieval only (no 
 
 ## dev: testset.jsonl
 
-Tuning set: the rules were adjusted while looking at these. 52 hand-written items (16 paraphrases of known debunks, 32 true/unknown statements, 4 opinions/greetings). Written by the team, so results are optimistic. Not a benchmark.
+Tuning set: the rules were adjusted while looking at these. 56 hand-written items (16 paraphrases of known debunks, 36 true/unknown statements, 4 opinions/greetings). Written by the team, so results are optimistic. Not a benchmark.
 
 Thresholds: match >= 0.4, unsure >= 0.26. Mode: retrieval only (no LLM, no ClaimReview).
 
 | Metric | Value |
 |---|---|
-| False-hoax rate (true/unknown labelled 'terbukti salah') | **0%** (0/32) |
+| False-hoax rate (true/unknown labelled 'terbukti salah') | **0%** (0/36) |
 | Recall on paraphrased known hoaxes | 100% |
 | Matched the wrong debunk | 0 |
 | Correct abstain on true/unknown | 100% |
@@ -73,6 +73,10 @@ Thresholds: match >= 0.4, unsure >= 0.26. Mode: retrieval only (no LLM, no Claim
 | ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.31 | Hubungi nomor 112 untuk layanan darurat, gratis dari semua operator |
 | ✅ | not_debunked | belum_ada_pemeriksaan | tidak_ada_bantahan | - | Daftar BPJS Kesehatan gratis untuk warga kurang mampu lewat kantor des |
 | ✅ | not_debunked | tidak_yakin | mirip_tapi_tidak_sama | 0.315 | Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja berg |
+| ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.426 | BMKG Papua Mengklarifikasi Isu Akan Terjadi Tsunami di Papua |
+| ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.433 | BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan |
+| ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.625 | Kemenkes meluruskan isu air kelapa campur garam bisa menyembuhkan covi |
+| ✅ | not_debunked | tidak_yakin | tampak_meluruskan | 0.361 | Polres menyangkal kabar penculikan anak dengan mobil putih di Bekasi |
 
 ## holdout: holdout.jsonl
 

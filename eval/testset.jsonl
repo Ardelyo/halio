@@ -50,3 +50,7 @@
 {"text": "Hubungi nomor 112 untuk layanan darurat, gratis dari semua operator", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
 {"text": "Daftar BPJS Kesehatan gratis untuk warga kurang mampu lewat kantor desa dan dinas sosial", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
 {"text": "Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja bergaji di bawah 3,5 juta, cek di bsu.kemnaker.go.id", "expect": "not_debunked", "note": "true near-topic (probe, added after audit)"}
+{"text": "BMKG Papua Mengklarifikasi Isu Akan Terjadi Tsunami di Papua", "expect": "not_debunked", "note": "found by the public sample: 'mengklarifikasi' was not a correction cue"}
+{"text": "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan", "expect": "not_debunked", "note": "correction verb: menepis"}
+{"text": "Kemenkes meluruskan isu air kelapa campur garam bisa menyembuhkan covid", "expect": "not_debunked", "note": "correction verb: meluruskan"}
+{"text": "Polres menyangkal kabar penculikan anak dengan mobil putih di Bekasi", "expect": "not_debunked", "note": "correction verb: menyangkal"}
