@@ -100,7 +100,7 @@ python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose
 
 ## 6. Pengujian
 
-- `pytest` (backend/tests): PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
+- `pytest` (backend/tests): 265 tes lulus per 12 Nov 2026, dijalankan CI pada setiap perubahan. Cakupan: PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
 - `python eval/run_eval.py`: metrik jujur termasuk tingkat salah tuduh hoaks; `--sweep` untuk kalibrasi ambang.
 
 ## 7. Keterbatasan yang kami akui

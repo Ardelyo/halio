@@ -1,3 +1,5 @@
+"""API and store tests: check flow, card, Radar aggregation, k-anonymity, small-cell suppression, review tickets."""
+
 import os
 import tempfile
 

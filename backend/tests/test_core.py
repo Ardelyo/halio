@@ -1,3 +1,5 @@
+"""Core pipeline tests: PII scrubbing, claim extraction, manipulation hints, local matching and abstaining."""
+
 from dataclasses import replace
 
 from halio import claims, manipulation, pipeline

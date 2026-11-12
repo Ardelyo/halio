@@ -11,6 +11,7 @@ Semua dokumen ada di folder ini. Tabel di bawah menjelaskan isi dan status tiap 
 | Dokumen | Isi | Status |
 |---|---|---|
 | [submission/UNTUK_JURI.md](submission/UNTUK_JURI.md) | Halio dalam lima menit, dipetakan ke kriteria penilaian | Rujukan |
+| [BRAND.md](BRAND.md) | Panduan merek: warna, huruf, nada, dan label keadaan jawaban | Rujukan |
 | [submission/DRAF_DESKRIPSI.md](submission/DRAF_DESKRIPSI.md) | Deskripsi karya dan jawaban untuk sepuluh pertanyaan juri | Rujukan |
 | [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md) | Status tiap berkas pengumpulan | Rujukan |
 
@@ -45,7 +46,7 @@ Semua dokumen ada di folder ini. Tabel di bawah menjelaskan isi dan status tiap 
 | [DEPLOY_UPDATE.md](DEPLOY_UPDATE.md) | Checklist memperbarui server, bot, dan situs | Rujukan |
 | [LAUNCH_READINESS.md](LAUNCH_READINESS.md) | Risiko terbuka dan gerbang peluncuran | Rujukan |
 | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | Garis besar pitch final (catatan panggung berbahasa Inggris) | Catatan bertanggal |
-| [NASKAH_SYUTING_NENEK.md](NASKAH_SYUTING_NENEK.md) | Naskah syuting bersama Nenek | Catatan bertanggal |
+| [NASKAH_SYUTING_NENEK.md](NASKAH_SYUTING_NENEK.md) | Naskah syuting bersama Nenek (dasar video yang terbit) | Catatan bertanggal |
 
 ## Rencana dan riset
 
@@ -63,5 +64,6 @@ Semua dokumen ada di folder ini. Tabel di bawah menjelaskan isi dan status tiap 
 | Lokasi | Isi |
 |---|---|
 | [presentasi/](presentasi/) | Slide: `Halio_Presentasi_v2.pdf` adalah versi yang dipakai. Versi pertama disimpan karena menjadi sumber skrip pembangun |
-| [submission/](submission/) | Thumbnail dan lima screenshot alur penggunaan |
+| [submission/](submission/) | Panduan juri, thumbnail, dan lima screenshot alur penggunaan |
+| Video demo | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g): 5:01, publik. Sumber video lama dihapus dari repo |
 | `CHEATSHEET_HALIO.pdf`, `LEMBAR_UJI_KELUARGA.pdf`, `NASKAH_SYUTING_NENEK.pdf` | Versi cetak |

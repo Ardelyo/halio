@@ -1,3 +1,5 @@
+"""Evidence-agent tests: verified quotes become evidence, unverified ones never do, unsafe URLs are rejected."""
+
 from datetime import date
 
 import httpx

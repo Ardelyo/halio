@@ -15,6 +15,8 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 
 > Prototipe. Korpus demo masih kecil (7 bantahan bersumber) dan hasil evaluasi berasal dari set uji buatan tim. Lihat [Keterbatasan](docs/ARCHITECTURE.md#7-keterbatasan-yang-kami-akui).
 
+**Video demo:** [Halio: AI Cek Fakta Pesan Berantai untuk Keluarga & Lansia (YouTube, 5:01)](https://youtu.be/s2EMpZI2r4g)
+
 **Untuk Dewan Juri:** [Halio dalam lima menit](docs/submission/UNTUK_JURI.md) memetakan karya ini ke lima kriteria penilaian, lengkap dengan tautan bukti dan daftar hal yang belum kami buktikan.
 
 ![Halio: berhenti sebentar, cek dulu](docs/submission/thumbnail_kolase.jpg)
@@ -26,6 +28,7 @@ Dari cek-cek warga itu, **Radar Ketahanan Kognitif** menampilkan tren agregat ya
 | Masalah | Pesan berantai dan penipuan yang mencatut nama TNI AD menyebar di grup keluarga, tempat bantahan resmi jarang sampai |
 | Solusi | Teman cek pesan lewat Telegram dan web: jawaban bersumber, kartu, dan suara, ditambah Radar tren anonim untuk analis |
 | Peran AI | Mencari dan membaca bukti. Vonis diputuskan kode dari kutipan yang benar-benar ada di halaman sumber |
+| Pengujian | 265 tes otomatis dan evaluasi offline dijalankan CI pada setiap perubahan ([CI](.github/workflows/ci.yml)) |
 | Keselamatan | 0 dari 66 pernyataan benar yang salah dicap hoaks pada set uji tim ([hasil](eval/RESULTS.md)); "belum ada pemeriksaan" adalah jawaban yang sah |
 | Privasi | Nomor, NIK, email, rekening, tautan, dan @akun dihapus sebelum diproses; Radar memakai k-anonimitas |
 | Penerapan | Satu kontainer Docker; profil tanpa cloud untuk server satuan, cloud opsional ([profil](docs/PROFIL_PENERAPAN.md)) |
@@ -109,7 +112,6 @@ web/                PWA (index), Radar, feed simulasi
 extension/          ekstensi Chrome MV3 (lencana + blur di perangkat)
 scripts/            seed data simulasi, unduh model, thumbnail, preflight, antrean review
 deploy/             skrip dan unit layanan untuk server (GCE, Caddy, systemd)
-video/              sumber video demo (naskah, panduan merek, aset)
 docs/               rencana proyek, arsitektur, privasi, naskah demo, checklist
 docs/submission/    materi pengumpulan: panduan juri, thumbnail, screenshot, draf deskripsi
 docs/presentasi/    slide presentasi (HTML dan PDF)
@@ -154,7 +156,9 @@ Peta lengkap beserta status tiap dokumen (rujukan, bukti, atau catatan bertangga
 
 **Demo dan video**
 
-- [Naskah demo & video](docs/DEMO_SCRIPT.md)
+- [Video demo di YouTube (5:01)](https://youtu.be/s2EMpZI2r4g)
+- [Panduan merek (warna, huruf, nada)](docs/BRAND.md)
+- [Garis besar pitch final](docs/DEMO_SCRIPT.md)
 - [Runbook demo](docs/RUNBOOK_DEMO.md)
 - [Naskah syuting bersama Nenek](docs/NASKAH_SYUTING_NENEK.md)
 - [Atribusi pihak ketiga & deklarasi](docs/THIRD_PARTY.md)

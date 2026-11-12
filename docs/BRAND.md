@@ -2,7 +2,7 @@
 
 Satu sistem untuk situs, aplikasi, ekstensi, Kartu Halio, video, slide, dan thumbnail.
 
-**Sumber token:** `web/brand.css` (situs, ekstensi, halaman analis), `backend/halio/card.py` (Kartu Halio), `video/src/style.css` (video). Ubah nilai di sini dulu, lalu samakan ketiganya. Font: `web/fonts/fonts.css`.
+**Sumber token:** `web/brand.css` (situs, ekstensi, halaman analis), `backend/halio/card.py` (Kartu Halio) dan `scripts/make_thumbnail.py` (thumbnail). Ubah nilai di sini dulu, lalu samakan semuanya. Font: `web/fonts/fonts.css`.
 
 **Keputusan 2 Nov 2026:** warna situs sebelumnya (hijau hutan + limau) diganti dengan sistem biru ini agar situs, keluaran, dan video satu identitas.
 

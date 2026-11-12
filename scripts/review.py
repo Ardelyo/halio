@@ -1,3 +1,11 @@
+"""Command-line queue for human reviewers: list open appeals/escalations and resolve them.
+
+    python scripts/review.py list escalations
+    python scripts/review.py resolve escalations ID --response "..."
+
+Run only on a trusted server: it reads the same database as the API and can send replies.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -14,6 +22,7 @@ from halio.store import Store  # noqa: E402
 
 
 def main() -> None:
+    """Parse the sub-command; `resolve` sends the reply first (unless --no-send), then closes the ticket."""
     parser = argparse.ArgumentParser(description="Antrean pemeriksa manusia Halio (jalankan hanya di server tepercaya)")
     sub = parser.add_subparsers(dest="command", required=True)
     listing = sub.add_parser("list")

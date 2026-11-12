@@ -4,7 +4,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 
 **Satu kalimat:** Halio adalah teman cek pesan untuk keluarga Indonesia yang menjawab pesan berantai dengan sumber nyata, kartu, dan suara; AI hanya mencari dan membaca bukti, sedangkan vonis diputuskan kode.
 
-**Coba langsung:** [server publik](https://34-101-109-211.sslip.io/cek.html) (build `e16d354`) · [bot Telegram @halioid_bot](https://t.me/halioid_bot) · [uji keamanan langsung](https://34-101-109-211.sslip.io/uji.html) · [versi simulasi di GitHub Pages](https://ardelyo.github.io/halio/)
+**Coba langsung:** [server publik](https://34-101-109-211.sslip.io/cek.html) (build `e16d354`) · [bot Telegram @halioid_bot](https://t.me/halioid_bot) · [uji keamanan langsung](https://34-101-109-211.sslip.io/uji.html) · [versi simulasi di GitHub Pages](https://ardelyo.github.io/halio/) · [video demo (5:01)](https://youtu.be/s2EMpZI2r4g)
 
 ## Peta ke kriteria penilaian
 
@@ -12,7 +12,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 |---|---|---|
 | **Relevansi dan manfaat** (25%) | Penipuan yang mencatut nama TNI AD (calo rekrutmen, surat kelulusan palsu) menyebar di grup keluarga, tempat bantahan resmi jarang sampai. Halio membawa bantahan bersumber ke sana, dan Radar memberi analis gambaran agregat narasi yang naik. | [Relevansi bagi TNI AD](DRAF_DESKRIPSI.md), [Evaluasi Radar untuk TNI AD](../EVALUASI_RADAR_TNI.md), [Analisis Radar](../ANALISIS_RADAR_DAN_TNI.md) |
 | **Inovasi teknis berbasis AI** (25%) | AI dikekang: model hanya memilih kandidat bukti. Kutipan disalin kode dari halaman yang dibuka kode, lalu dicocokkan ulang kata per kata. Kalimat tanpa dukungan kutipan dibuang. Lima jawaban, termasuk "belum ada pemeriksaan". | [Arsitektur](../ARCHITECTURE.md), [Halio Telusur](../ARCHITECTURE_AGENT.md), [Kabar benar bukan hoaks](../TRUE_INFORMATION.md) |
-| **Fungsionalitas purwarupa** (25%) | Server publik, bot Telegram, kartu, suara, Telusur, dan Radar berjalan sungguhan. 217 fungsi uji otomatis dan evaluasi dijalankan CI pada setiap perubahan. | [Bukti uji demo](../BUKTI_UJI_DEMO.md), [Bukti uji setelah perbaikan](../BUKTI_UJI_SETELAH_PERBAIKAN.md), [Hasil evaluasi](../../eval/RESULTS.md), [CI](../../.github/workflows/ci.yml) |
+| **Fungsionalitas purwarupa** (25%) | Server publik, bot Telegram, kartu, suara, Telusur, dan Radar berjalan sungguhan. 265 tes otomatis dan evaluasi dijalankan CI pada setiap perubahan. | [Bukti uji demo](../BUKTI_UJI_DEMO.md), [Bukti uji setelah perbaikan](../BUKTI_UJI_SETELAH_PERBAIKAN.md), [Hasil evaluasi](../../eval/RESULTS.md), [CI](../../.github/workflows/ci.yml) |
 | **Kelayakan implementasi** (15%) | Satu kontainer Docker. Profil tanpa cloud untuk server satuan (tidak ada data keluar), dan profil cloud opsional. Pencocokan lokal sekitar 1 ms tanpa AI. | [Profil penerapan](../PROFIL_PENERAPAN.md), [Kesiapan peluncuran](../LAUNCH_READINESS.md), [Skrip deploy](../../deploy/) |
 | **Kualitas dokumentasi** (10%) | Arsitektur, privasi, atribusi pihak ketiga, deklarasi bantuan AI, naskah demo, dan daftar keterbatasan tersedia di repo. | [README](../../README.md), [Privasi](../PRIVACY.md), [Atribusi dan deklarasi](../THIRD_PARTY.md), [Checklist pengumpulan](../SUBMISSION_CHECKLIST.md) |
 
@@ -42,4 +42,4 @@ Jawaban untuk sepuluh pertanyaan juri yang diduga ada di [DRAF_DESKRIPSI.md](DRA
 | Thumbnail (1200×630) | [thumbnail_kolase.jpg](thumbnail_kolase.jpg), alternatif [thumbnail.jpg](thumbnail.jpg) |
 | Screenshot alur penggunaan (5) | [01 Tempel pesan](screenshot_01.png) · [02 Jawaban bersumber](screenshot_02.png) · [03 Dengarkan dan bagikan](screenshot_03.png) · [04 Jujur saat belum tahu](screenshot_04.png) · [05 Radar](screenshot_05.png) |
 | Slide | [Halio_Presentasi_v2.pdf](../presentasi/Halio_Presentasi_v2.pdf) |
-| Video demo | Tautan YouTube diisi setelah diunggah (lihat [checklist](../SUBMISSION_CHECKLIST.md)) |
+| Video demo | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g) (YouTube, publik, 5:01) |

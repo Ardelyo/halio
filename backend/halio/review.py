@@ -1,3 +1,8 @@
+"""Deliver a human reviewer's answer back to the channel the ticket came from (Telegram or WhatsApp).
+
+A ticket is closed only after delivery succeeds; failures raise so the caller keeps it open.
+"""
+
 from __future__ import annotations
 
 import httpx
@@ -6,6 +11,7 @@ from .config import settings
 
 
 def send_reply(item: dict, response: str) -> None:
+    """Send `response` to the ticket's origin. Raises RuntimeError when the channel cannot reply or the API refuses."""
     origin = item.get("reporter") or ""
     if item.get("channel") == "telegram" and origin.startswith("tg:"):
         if not settings.telegram_token:

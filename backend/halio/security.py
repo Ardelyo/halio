@@ -1,3 +1,5 @@
+"""Request-level safeguards: WhatsApp webhook signature check, per-key rate limit, daily budget for paid calls."""
+
 from __future__ import annotations
 
 import hashlib
@@ -8,6 +10,7 @@ from collections import deque
 
 
 def valid_meta_signature(body: bytes, signature: str | None, app_secret: str | None) -> bool:
+    """True only if `signature` is the HMAC-SHA256 of the exact raw body under the app secret. No secret means reject."""
     if not app_secret or not signature or not signature.startswith("sha256="):
         return False
     expected = hmac.new(app_secret.encode(), body, hashlib.sha256).hexdigest()
@@ -15,6 +18,8 @@ def valid_meta_signature(body: bytes, signature: str | None, app_secret: str | N
 
 
 class RateLimiter:
+    """Sliding one-minute window per key (user or IP). Bounded memory: stale keys are dropped past 10,000 entries."""
+
     def __init__(self, per_minute: int):
         self.limit = max(1, per_minute)
         self._hits: dict[str, deque[float]] = {}

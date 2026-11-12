@@ -1,3 +1,5 @@
+"""Tests for the green (sejalan dengan sumber) gate: current official evidence plus a verified quote, otherwise never."""
+
 import json
 from dataclasses import replace
 

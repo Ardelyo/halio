@@ -50,7 +50,7 @@ Gunakan pesan buatan seperti ini saat merekam; jangan memakai pesan asli dari gr
 Bila API mati atau terlalu sibuk, bot **tetap membalas** dengan permintaan maaf (sudah diuji), bukan diam.
 
 ## 4. Yang bisa dan belum bisa (jujur)
-**Sudah berfungsi** (diuji dengan Telegram tiruan terhadap API sungguhan; 106 tes): perintah, pengecekan teks, tiga hasil + "sejalan dengan sumber", kartu PNG, suara MP3, tombol trik/banding/eskalasi, pesan panjang, HTML liar di pesan, hasil kedaluwarsa, API mati, batas laju.
+**Sudah berfungsi** (diuji dengan Telegram tiruan terhadap API sungguhan; lihat `scripts/e2e_telegram.py` bila ada di cabang kerja, dan seluruh tes di `backend/tests`): perintah, pengecekan teks, tiga hasil + "sejalan dengan sumber", kartu PNG, suara MP3, tombol trik/banding/eskalasi, pesan panjang, HTML liar di pesan, hasil kedaluwarsa, API mati, batas laju.
 
 **Belum / terbatas:**
 - **Hanya teks.** Foto, tangkapan layar, pesan suara, dan video belum diperiksa (rencana: `PLAN_UNGGUL.md` bagian 3). Bila Nenek memotret layar, bot akan meminta teksnya.
