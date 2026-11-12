@@ -1,5 +1,7 @@
 # Halio dalam Lima Menit: Panduan untuk Dewan Juri
 
+> **Jenis:** Rujukan · **Untuk:** juri · [Peta dokumen](../README.md)
+
 Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2026 (Syarat dan Ketentuan pasal 9.2). Setiap klaim menunjuk ke bukti yang bisa dibuka. Yang belum terbukti ditulis apa adanya.
 
 **Satu kalimat:** Halio adalah teman cek pesan untuk keluarga Indonesia yang menjawab pesan berantai dengan sumber nyata, kartu, dan suara; AI hanya mencari dan membaca bukti, sedangkan vonis diputuskan kode.
@@ -10,7 +12,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 
 | Kriteria (bobot) | Yang Halio tawarkan | Bukti |
 |---|---|---|
-| **Relevansi dan manfaat** (25%) | Penipuan yang mencatut nama TNI AD (calo rekrutmen, surat kelulusan palsu) menyebar di grup keluarga, tempat bantahan resmi jarang sampai. Halio membawa bantahan bersumber ke sana, dan Radar memberi analis gambaran agregat narasi yang naik. | [Relevansi bagi TNI AD](DRAF_DESKRIPSI.md), [Evaluasi Radar untuk TNI AD](../EVALUASI_RADAR_TNI.md), [Analisis Radar](../ANALISIS_RADAR_DAN_TNI.md) |
+| **Relevansi dan manfaat** (25%) | Penipuan yang mencatut nama TNI AD (calo rekrutmen, surat kelulusan palsu) menyebar di grup keluarga, tempat bantahan resmi jarang sampai. Halio membawa bantahan bersumber ke sana, dan Radar memberi analis gambaran agregat narasi yang naik. | [Relevansi bagi TNI AD](DRAF_DESKRIPSI.md), [Evaluasi Radar untuk TNI AD](../EVALUASI_RADAR_TNI.md) |
 | **Inovasi teknis berbasis AI** (25%) | AI dikekang: model hanya memilih kandidat bukti. Kutipan disalin kode dari halaman yang dibuka kode, lalu dicocokkan ulang kata per kata. Kalimat tanpa dukungan kutipan dibuang. Lima jawaban, termasuk "belum ada pemeriksaan". | [Arsitektur](../ARCHITECTURE.md), [Halio Telusur](../ARCHITECTURE_AGENT.md), [Kabar benar bukan hoaks](../TRUE_INFORMATION.md) |
 | **Fungsionalitas purwarupa** (25%) | Server publik, bot Telegram, kartu, suara, Telusur, dan Radar berjalan sungguhan. 265 tes otomatis dan evaluasi dijalankan CI pada setiap perubahan. | [Bukti uji demo](../BUKTI_UJI_DEMO.md), [Bukti uji setelah perbaikan](../BUKTI_UJI_SETELAH_PERBAIKAN.md), [Hasil evaluasi](../../eval/RESULTS.md), [CI](../../.github/workflows/ci.yml) |
 | **Kelayakan implementasi** (15%) | Satu kontainer Docker. Profil tanpa cloud untuk server satuan (tidak ada data keluar), dan profil cloud opsional. Pencocokan lokal sekitar 1 ms tanpa AI. | [Profil penerapan](../PROFIL_PENERAPAN.md), [Kesiapan peluncuran](../LAUNCH_READINESS.md), [Skrip deploy](../../deploy/) |

@@ -1,5 +1,7 @@
 # Profil Penerapan: T1 Tanpa Cloud dan T2 Cloud Opsional
 
+> **Jenis:** Rujukan · **Untuk:** juri dan satuan pengguna · [Peta dokumen](README.md)
+
 Halio bisa dijalankan dalam dua profil. Keduanya memakai kode yang sama. Bedanya hanya variabel lingkungan dan apakah server boleh memanggil layanan cloud. Dokumen ini menjelaskan apa yang tersedia di tiap profil dan **data apa yang keluar dari server**. Semua pernyataan di bawah merujuk ke berkas kode. Halio belum disertifikasi atau disetujui pihak mana pun untuk dipakai di lingkungan TNI AD.
 
 ## T1: on-premise, tanpa cloud AI

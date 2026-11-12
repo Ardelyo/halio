@@ -1,5 +1,7 @@
 # Komponen Pihak Ketiga & Deklarasi
 
+> **Jenis:** Rujukan · **Untuk:** juri dan panitia · [Peta dokumen](README.md)
+
 Rulebook §G: pustaka, framework, API, model AI, dan alat pihak ketiga boleh dipakai **dengan atribusi**, dan karya yang sudah ada sebelumnya wajib **dideklarasikan dengan jelas**. Berkas ini disusun dari kode di repo (per commit `78b865c`), bukan dari ingatan. Lisensi di bawah adalah yang tercantum pada halaman resmi/PyPI masing-masing; tim belum melakukan tinjauan hukum.
 
 Lisensi karya Halio sendiri: [Apache 2.0](../LICENSE). HKI tetap milik tim (Rulebook §N).
@@ -61,4 +63,4 @@ Model AI juga dipakai **di dalam produk** (bagian "Model & layanan" di bawah). I
 Video demo ([YouTube](https://youtu.be/s2EMpZI2r4g)) memakai rekaman nyata keluarga tim, tangkapan layar asli aplikasi yang berjalan, logo Halio (`web/icons/icon.svg`), dan huruf merek di atas. Musik dan efek suaranya disintesis oleh tim, dan tidak ada foto stok atau musik berlisensi. Satu-satunya logo pihak ketiga adalah logo Kartika Cyber Hackathon 2026 dari situs resmi lomba (`kartikacyberhackathon.id`), dipakai pada penutup video dan thumbnail untuk menandai karya ini sebagai peserta lomba. Rekaman Nenek dibuat dengan persetujuan tertulis yang disimpan di luar repo. Latar `scripts/assets/field-day.jpg` dibuat tim untuk `scripts/make_thumbnail.py`.
 
 ## Sumber riset dalam narasi
-Lihat daftar sumber laporan riset (Liputan6, CODEPOLITAN, Katadata, detikNews, Kemhan Pothan, Martel & Rand 2024, studi prebunking Cambridge, dan lainnya) di [RESEARCH_STANDOUT.md](RESEARCH_STANDOUT.md).
+Dokumen riset internal tim tidak disertakan di repo ini. Artikel yang dikutip dalam demo (mis. Metro TV dan detikNews) disebut langsung pada materi yang memakainya.

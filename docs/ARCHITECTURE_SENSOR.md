@@ -1,5 +1,7 @@
 # Arsitektur Sensor Halio: pemantauan narasi yang sadar cakupan
 
+> **Jenis:** Rujukan · **Untuk:** pengembang dan analis · [Peta dokumen](README.md)
+
 Dokumen rancangan dan bukti riset (28 Okt 2026). Bagian bertanda **(terukur)** berasal dari uji kami sendiri; **(vendor)** dari blog pihak ketiga yang belum diverifikasi ke sumber resmi; **(belum diverifikasi)** belum kami uji sama sekali.
 
 ## 1. Pertanyaan yang dijawab

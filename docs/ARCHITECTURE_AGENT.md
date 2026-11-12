@@ -1,5 +1,7 @@
 # Halio Telusur: swarm investigasi (arsitektur dan batas jujur)
 
+> **Jenis:** Rujukan · **Untuk:** juri, analis, dan pengembang · [Peta dokumen](README.md)
+
 Disusun 7 Nov 2026. Hasil ukur ada di `eval/AGENT_RESULTS.md` (dibuat oleh `eval/eval_agent.py` di server, data nyata).
 
 ## Untuk siapa
@@ -44,7 +46,7 @@ vonis, ringkasan, asal paling awal, dan tautan laporan. Topik: `tni` (TNI AD dan
 ## Tata kelola (konteks TNI AD)
 Narasi dan klaim, **bukan orang**. Tidak ada profil warga, akun, atau prajurit; tidak menilai pendapat politik; hanya
 sumber publik; statistik agregat; tidak ada tindakan tanpa persetujuan manusia. Foto dari pengguna hanya disimpan di
-memori selama penelusuran dan tidak ditulis ke basis data. Lihat juga `docs/PRIVACY.md` dan `docs/PLAN_UNGGUL.md` bagian 5.
+memori selama penelusuran dan tidak ditulis ke basis data. Lihat juga `docs/PRIVACY.md`.
 
 ## Batas yang jujur
 - **Web terbuka saja.** Grup WhatsApp/Telegram privat, TikTok, Instagram, Facebook, X tidak ditelusuri; "asal-usul" berarti
@@ -58,15 +60,3 @@ memori selama penelusuran dan tidak ditulis ke basis data. Lihat juga `docs/PRIV
 - **Biaya**: setiap investigasi ±20 panggilan model ber-grounding. Harga grounding per permintaan tidak kami verifikasi;
   pasang peringatan anggaran.
 - **Video** belum.
-
-## Dibanding yang lain (yang bisa kami klaim, tidak lebih)
-| | Halio Telusur | Chatbot cek fakta umum (mis. CekSumber) | Basis data pemeriksa fakta (Mafindo/CekFakta) |
-|---|---|---|---|
-| Kutipan disalin dari halaman oleh kode, bisa dibuka | Ya | Tidak terlihat | Ya (artikel buatan manusia) |
-| Linimasa dan kemunculan paling awal | Ya | Tidak terlihat | Sebagian, per artikel |
-| Laporan analis + versi keluarga dari satu penelusuran | Ya | Tidak | Tidak |
-| Brief harian narasi TNI AD | Ya | Tidak | Tidak |
-| Keadaan "belum tahu" dan titik buta yang ditulis | Ya | Tidak terlihat | Tidak relevan |
-| Ketelitian manusia dan jaringan relawan | **Tidak** | Tidak | **Ya** (keunggulan mereka) |
-| Pengguna nyata dan skala | **Belum** | Ya | Ya |
-Kolom pesaing berdasarkan sumber publik di `docs/COMPETITORS.md`; yang tidak bisa kami buktikan ditulis "tidak terlihat".

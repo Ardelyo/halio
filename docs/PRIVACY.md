@@ -1,5 +1,7 @@
 # Privasi & Aturan Netral Halio
 
+> **Jenis:** Rujukan · **Untuk:** semua pembaca · [Peta dokumen](README.md)
+
 Ringkasan aturan yang ditegakkan di kode, bukan sekadar janji. Tinjauan hukum UU PDP (UU 27/2022) masih diperlukan sebelum produksi; pasal spesifik belum kami kaji.
 
 ## Yang Halio lakukan

@@ -1,5 +1,7 @@
 # Status Pengumpulan Karya
 
+> **Jenis:** Rujukan · **Untuk:** tim dan juri · [Peta dokumen](README.md)
+
 Batas: **15 Nov 2026, 23.59 WIB** (Rulebook §G). Target internal: **14 Nov 20.00 WIB**. Kirim lewat platform CODEPOLITAN (`codepolitan.com/dashboard/kartika-cyber-hackathon-2026`). Satu pengiriman per tim. Pembaruan boleh sampai batas waktu; hanya yang terakhir dinilai. Penjurian online 16 Nov, finalis diumumkan 20 Nov, final fisik 24 Nov di Jakarta (minimal satu perwakilan hadir).
 
 Aturan dokumen ini: hanya tandai **SELESAI** bila ada bukti yang bisa dibuka. Sisanya **BELUM TERVERIFIKASI** sampai pemilik tindakan mengisi buktinya.

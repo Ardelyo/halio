@@ -1,5 +1,7 @@
 # Kalau informasinya benar, bagaimana?
 
+> **Jenis:** Rujukan · **Untuk:** juri dan pengembang · [Peta dokumen](README.md)
+
 Singkat: **kabar yang benar bukan hoaks.** Halio tidak boleh menyebutnya begitu, dan tidak boleh pula
 menyatakan "pasti benar" hanya karena tidak menemukan bantahan.
 

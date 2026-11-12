@@ -1,5 +1,7 @@
 # Bukti Uji Demo pada Build Publik
 
+> **Jenis:** Bukti · **Untuk:** juri dan pengembang · [Peta dokumen](README.md)
+
 **Tanggal:** 10 Nov 2026 · **Server:** `https://34-101-109-211.sslip.io` · **Build:** `441f73e-20261107-2316` (`/health`: `llm:true`, `media:true`) · **Kanal:** API `/api/check` dengan `channel=demo`, jadi baris ini tercatat sebagai data simulasi di Radar · **Pesan:** semuanya buatan, nama dan nomor fiktif.
 
 Setiap skenario dijalankan dua kali: mode penuh (AI aktif, mesin bukti v2) dan `mode=tanpa_ai` (tanpa model). Angka di bawah adalah keluaran server apa adanya.

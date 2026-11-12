@@ -1,5 +1,7 @@
 # Demo Script
 
+> **Jenis:** Catatan bertanggal · **Untuk:** tim · [Peta dokumen](README.md)
+
 > **Catatan pembaca:** catatan panggung ditulis dalam bahasa Inggris, narasi dalam Bahasa Indonesia. Untuk menjalankan demo langkah demi langkah, pakai [RUNBOOK_DEMO.md](RUNBOOK_DEMO.md).
 
 > **Video pengumpulan sudah terbit:** [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g) (5:01). Bagian A dan tabel di bawah adalah garis besar lama untuk video dan pitch final; video yang terbit dibuat dari rekaman nyata bersama keluarga, dengan naskah di [NASKAH_SYUTING_NENEK.md](NASKAH_SYUTING_NENEK.md). Aturan merek ada di [BRAND.md](BRAND.md).

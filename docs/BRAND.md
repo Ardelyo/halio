@@ -1,5 +1,7 @@
 # Halio · Identitas Merek (v1, 28 Okt 2026)
 
+> **Jenis:** Rujukan · **Untuk:** desainer dan pengembang · [Peta dokumen](README.md)
+
 Satu sistem untuk situs, aplikasi, ekstensi, Kartu Halio, video, slide, dan thumbnail.
 
 **Sumber token:** `web/brand.css` (situs, ekstensi, halaman analis), `backend/halio/card.py` (Kartu Halio) dan `scripts/make_thumbnail.py` (thumbnail). Ubah nilai di sini dulu, lalu samakan semuanya. Font: `web/fonts/fonts.css`.

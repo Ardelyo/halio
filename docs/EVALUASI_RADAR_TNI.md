@@ -1,5 +1,7 @@
 # Evaluasi Radar untuk TNI AD: Berfungsi dan Bermanfaatkah?
 
+> **Jenis:** Bukti · **Untuk:** juri dan analis · [Peta dokumen](README.md)
+
 Tanggal: 10 Nov 2026. Dijalankan lokal pada kode cabang `fix/pra-submission-hardening` dengan **data nyata** dari 23 feed publik (sensor dijalankan sungguhan) dan **data simulasi** dari `scripts/seed_demo.py` untuk bagian cek warga. Tidak ada cek warga nyata yang tercatat di mana pun, jadi bagian itu hanya dibuktikan berfungsi, belum terbukti bermanfaat.
 
 Radar punya dua sumber yang berbeda sifatnya. Keduanya dinilai terpisah.

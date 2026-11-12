@@ -28,7 +28,8 @@ CI (`.github/workflows/ci.yml`) juga menjalankan `compileall`, `node --check` un
 2. **Pakai nama keadaan yang sama di semua tempat:** Terbukti salah, Sejalan dengan sumber, Dilaporkan media, Halio tidak yakin, Belum ada pemeriksaan. Ada lima; mode tanpa AI hanya menghasilkan tiga.
 3. **Angka diubah di sumbernya dulu** (`eval/RESULTS.md`, `data/debunks.json`, dokumen bukti), baru di README dan dokumen lain.
 4. **Dokumen rencana adalah catatan bertanggal.** Jangan menulis ulang angka lama di dalamnya; tambahkan tanggal pada setiap pembaruan.
-5. Dokumen baru didaftarkan di [docs/README.md](docs/README.md).
+5. Dokumen baru wajib punya baris kepala (jenis dan pembaca) dan didaftarkan di [docs/README.md](docs/README.md). Aturan lengkap: [docs/RENCANA_DOKUMEN.md](docs/RENCANA_DOKUMEN.md).
+6. Jangan menulis rencana strategi, riset pemasaran, atau peta pesaing di repo publik. Simpan di luar repo.
 
 ## Lisensi
 

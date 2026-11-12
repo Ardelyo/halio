@@ -1,5 +1,7 @@
 # Arsitektur Teknis Halio
 
+> **Jenis:** Rujukan · **Untuk:** juri dan pengembang · [Peta dokumen](README.md)
+
 Dokumen teknis untuk Dewan Juri dan pengembang. Bagian bertanda **(estimasi)** belum diukur.
 
 ## 1. Gambaran umum

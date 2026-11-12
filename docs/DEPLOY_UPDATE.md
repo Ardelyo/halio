@@ -1,5 +1,7 @@
 # Memperbarui Telegram, situs, dan lainnya (checklist)
 
+> **Jenis:** Panduan · **Untuk:** pengelola server · [Peta dokumen](README.md)
+
 Sumber kebenaran: `deploy/deploy_gce.sh` mengemas folder **yang ada di laptop Anda saat itu** (bukan dari GitHub). Jadi langkah pertama selalu memastikan
 checkout lokal berisi kode yang diinginkan.
 
