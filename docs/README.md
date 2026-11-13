@@ -31,6 +31,7 @@ Setiap dokumen punya baris kepala di bawah judulnya. Aturan lengkapnya ada di [R
 | [ARCHITECTURE_SENSOR.md](ARCHITECTURE_SENSOR.md) | Sensor feed terbuka dan titik butanya | Rujukan |
 | [TRUE_INFORMATION.md](TRUE_INFORMATION.md) | Mengapa kabar benar tidak dicap hoaks | Rujukan |
 | [PRIVACY.md](PRIVACY.md) | Data yang disimpan, dihapus, dan tidak pernah diambil | Rujukan |
+| [../SECURITY.md](../SECURITY.md) | Cara melapor kerentanan, model ancaman satu halaman, dan celah yang diketahui | Rujukan |
 | [PROFIL_PENERAPAN.md](PROFIL_PENERAPAN.md) | Profil tanpa cloud dan cloud opsional, serta data yang keluar | Rujukan |
 | [THIRD_PARTY.md](THIRD_PARTY.md) | Atribusi pihak ketiga dan deklarasi bantuan AI | Rujukan |
 | [BRAND.md](BRAND.md) | Panduan merek: warna, huruf, nada, label keadaan jawaban | Rujukan |

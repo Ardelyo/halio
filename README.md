@@ -82,6 +82,7 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 | **0 dari 76** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim; batas atas 95%: 4,8%) | [eval/RESULTS.md](eval/RESULTS.md) |
 | **0 dari 1.043** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel publik yang tidak dipakai menyetel Halio (satu kesalahan ditemukan lalu diperbaiki, lihat catatan di laporan) | [eval/PUBLIC_RESULTS.md](eval/PUBLIC_RESULTS.md) |
 | **0 dari 197** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel 3.700 judul diuji ulang dengan korpus 10 entri (13 Nov, commit beku, batas atas 95%: 1,9%) | [eval/PUBLIC_RECHECK.md](eval/PUBLIC_RECHECK.md) |
+| **0 dari 27** | Rilis resmi TNI dan Kemhan yang salah dicap "terbukti salah" (n kecil, batas atas 95%: 12,5%). **3 dari 27 melewati ambang skor dan hanya tertahan oleh penjaga inti klaim**; 12 dijawab "tidak yakin" dan 15 "belum ada pemeriksaan" | [eval/RESMI_TNI_RESULTS.md](eval/RESMI_TNI_RESULTS.md) |
 | **88%** | Recall parafrase hoaks pada set holdout | [eval/RESULTS.md](eval/RESULTS.md) |
 | **0,5 ms** | Median pencocokan lokal tanpa AI (13 Nov, 300 pemanggilan, korpus 10 entri, jaringan diblokir oleh tes) | [Arsitektur](docs/ARCHITECTURE.md) |
 | **23** | Feed terbuka yang dipantau sensor (opsional) | [Arsitektur sensor](docs/ARCHITECTURE_SENSOR.md) |
@@ -95,6 +96,7 @@ Jalur pencocokan (T1) tidak butuh AI maupun internet, jadi Halio bisa dipakai di
 - Ini purwarupa. Set uji ditulis tim sendiri, jadi angkanya **bukan** akurasi dunia nyata.
 - Korpus bantahan kurasi baru **10 entri**. Di luar korpus, Halio memakai pencarian bukti atau berkata belum tahu.
 - Belum ada uji dengan pengguna lansia sungguhan; lembar ujinya sudah siap.
+- Pada rilis resmi rekrutmen TNI AD, Halio di mode lokal menjawab "tidak yakin" (7 dari 7), bukan mengenalinya sebagai benar: ia tidak menuduh, tetapi juga belum bisa membenarkan tanpa mesin bukti. Rincian di [eval/RESMI_TNI_RESULTS.md](eval/RESMI_TNI_RESULTS.md).
 - Data Radar pada demo adalah **simulasi** dan diberi label.
 - Halio membaca isi teks, foto, dan suara, tetapi **tidak menilai keaslian** foto atau video, dan tidak mendeteksi deepfake.
 - Telegram dan web aktif. Kode kanal WhatsApp (webhook Meta) tersedia dan membutuhkan token Meta milik pemakai.
