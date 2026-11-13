@@ -96,7 +96,7 @@ def appendix_html() -> str:
   <div class="kicker">Coba sendiri</div>
   <h2>Halio berjalan sekarang, <em>silakan dicoba.</em></h2>
   <div class="row" style="margin-top:44px;gap:30px;align-items:stretch">{cards}</div>
-  <p class="note" style="margin-top:26px;font-size:24px">Bot Telegram <b>@halioid_bot</b> · Panduan juri: <b>docs/submission/UNTUK_JURI.md</b> · Rilis <b>v0.2.0-submission</b></p>
+  <p class="note" style="margin-top:26px;font-size:24px">Bot Telegram <b>@halioid_bot</b> · Panduan juri: <b>docs/submission/UNTUK_JURI.md</b> · Rilis <b>v0.2.1-luring</b></p>
   <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span>Ardellio S. A.</span></div>
 </section>'''
 

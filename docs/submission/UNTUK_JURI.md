@@ -8,7 +8,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 
 **Uji mode luring dalam 30 detik:** buka halaman cek sekali saat online, putus internet, lalu cek pesan lagi. Halio menjawab di perangkat (hanya dari korpus), dengan label "Mode luring". Rincian: [Mode luring](../LURING.md).
 
-**Coba langsung:** [server publik](https://halio.ardelyo.com/cek.html) (build `281dc9e`, rilis [v0.2.0-submission](https://github.com/Ardelyo/halio/releases/tag/v0.2.0-submission)) · [bot Telegram @halioid_bot](https://t.me/halioid_bot) · [uji keamanan langsung](https://halio.ardelyo.com/uji.html) · [versi simulasi di GitHub Pages](https://ardelyo.github.io/halio/) · [video demo (5:01)](https://youtu.be/s2EMpZI2r4g)
+**Coba langsung:** [server publik](https://halio.ardelyo.com/cek.html) (build `7a607da`, rilis [v0.2.1-luring](https://github.com/Ardelyo/halio/releases/tag/v0.2.1-luring), memuat paket folder luring; rilis awal [v0.2.0-submission](https://github.com/Ardelyo/halio/releases/tag/v0.2.0-submission)) · [bot Telegram @halioid_bot](https://t.me/halioid_bot) · [uji keamanan langsung](https://halio.ardelyo.com/uji.html) · [GitHub Pages](https://ardelyo.github.io/halio/) (Cek pesan memakai mesin luring di browser; Radar dan Cakupan adalah simulasi) · [video demo (5:01)](https://youtu.be/s2EMpZI2r4g)
 
 ## Peta ke kriteria penilaian
 
