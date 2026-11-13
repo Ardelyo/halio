@@ -20,7 +20,7 @@ jobs:
       - run: python eval/run_eval.py && git diff --exit-code -- eval/RESULTS.md
       # cek sintaks python, js ekstensi/web, sm build docker sekalian
       - run: python -m compileall -q backend scripts eval
-      - run: for file in extension/*.js web/*.js; do node --check "$file"; done
+      - run: for file in extension/*.js web/*.js web/engine/*.js web/engine/*.mjs; do node --check "$file"; done
       - run: docker build .
       # cek celah keamanan di paket python yg di-pin; sementra warning aja biar ga bikin gagal build kl advisories lg rewel
       - name: pip-audit (warning only)

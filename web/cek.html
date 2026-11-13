@@ -36,7 +36,7 @@
     </aside>
 
     <div class="workbench">
-      <div id="static-notice" class="mode-notice hidden" role="status"><span class="mode-dot" aria-hidden="true"></span><p><b>Demo di perangkat ini.</b> Tidak ada pesan atau tiket yang dikirim ke server.</p></div>
+      <div id="static-notice" class="mode-notice hidden" role="status"><span class="mode-dot" aria-hidden="true"></span><p><b>Berjalan di perangkat ini.</b> Pesan dicocokkan di browser dengan korpus bantahan Halio. Tidak ada pesan atau tiket yang dikirim ke server.</p></div>
       <!-- kotak tempel pesan berantai dr grup WA, pilihan panggilan sapaan, & unggah foto/suara -->
       <section class="checker-card" id="checker" aria-labelledby="ask">
         <div class="card-heading"><span class="step-label">Mulai di sini</span><span id="char-count" aria-live="polite">0 / 4.000</span></div>
@@ -84,6 +84,8 @@
     </form>
   </dialog>
   <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <script src="engine/data.js?v=1"></script>
+  <script src="engine/halio-local.js?v=1"></script>
   <script src="static-demo.js"></script>
   <script src="app.js"></script>
 </body>

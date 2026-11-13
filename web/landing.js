@@ -65,3 +65,6 @@ steps.forEach((step, index) => {
 // tombol lanjut muter balik ke langkah pertama kl udah nyampe ujung
 next.addEventListener("click", () => showStep((activeStep + 1) % steps.length));
 showStep(0);
+
+// daftarin service worker dr beranda juga, biar halaman cek + mesin luring udah ke-cache sebelum pengguna kehilangan sinyal
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

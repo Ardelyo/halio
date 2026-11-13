@@ -72,6 +72,9 @@ function updateInput() {
   $("#clear-input").classList.toggle("hidden", !length);
 }
 
+// mesin luring (web/engine) siap dipake kl browsernya mendukung (lookbehind regex) & datanya termuat
+const localReady = () => Boolean(window.HalioLocal && window.HalioLocal.available);
+
 async function check(text) {
   const button = $("#go");
   button.disabled = true;
@@ -79,17 +82,28 @@ async function check(text) {
   $("#result").setAttribute("aria-busy", "true");
   try {
     let result;
+    const local = () => window.HalioLocal.check(text, $("#sapaan").value);
     if (window.HALIO_STATIC_DEMO) {
       await new Promise((resolve) => setTimeout(resolve, 350));
-      result = window.HalioStaticDemo.check(text);
+      // di hosting statis (Pages) pake mesin sungguhan di browser; kamus demo lama cuma cadangan kl browsernya terlalu jadul
+      result = localReady() ? local() : window.HalioStaticDemo.check(text);
+    } else if (navigator.onLine === false && localReady()) {
+      result = local();
     } else {
-      const response = await fetch(`${API}/api/check`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, channel: "web", sapaan: $("#sapaan").value, reporter: deviceId(), mode: $("#noai")?.checked ? "tanpa_ai" : "penuh" }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw Object.assign(new Error(response.statusText), { http: response.status });
-      result = data;
+      try {
+        const response = await fetch(`${API}/api/check`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, channel: "web", sapaan: $("#sapaan").value, reporter: deviceId(), mode: $("#noai")?.checked ? "tanpa_ai" : "penuh" }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw Object.assign(new Error(response.statusText), { http: response.status });
+        result = data;
+      } catch (error) {
+        // cuma gagal jaringan (bukan jawaban error dr server) yg dialihin ke mesin luring di perangkat
+        if (error.http || !localReady()) throw error;
+        result = local();
+        toast("Tidak ada koneksi. Halio menjawab di perangkat ini, hanya dari korpus bantahan.");
+      }
     }
     render(result, text);
   } catch (error) {
@@ -231,8 +245,9 @@ function render(result, original) {
 
   $("#result").innerHTML = `
     <article class="verdict-card ${esc(result.status)}">
+      ${result.on_device ? `<p class="mode-banner">📴 <b>Mode luring.</b> Dicocokkan di perangkat ini dengan ${window.HalioLocal.corpusSize} bantahan yang sudah dikurasi. Tidak ada AI, web, atau server yang dipakai. Kabar di luar daftar itu tidak akan dikenali, dan Halio tidak menebaknya.</p>` : ""}
       ${result.mode === "tanpa_ai" ? '<p class="mode-banner">🔌 <b>Mode tanpa AI.</b> Jawaban ini hanya dari korpus dan arsip bantahan; tidak ada model yang dipanggil.</p>' : ""}
-      <div class="result-kicker"><span>Hasil pemeriksaan</span><span>${window.HALIO_STATIC_DEMO ? "Simulasi lokal" : "Halio"}</span></div>
+      <div class="result-kicker"><span>Hasil pemeriksaan</span><span>${result.on_device ? "Luring · di perangkat" : window.HALIO_STATIC_DEMO ? "Simulasi lokal" : "Halio"}</span></div>
       <div class="verdict-heading"><span class="verdict-mark" aria-hidden="true">${ICON[result.status] || "?"}</span><div><h2>${esc(LABEL_BY_REASON[result.reason] || result.status_label)}</h2><p>Klaim diperiksa, bukan pengirimnya.</p></div></div>
       ${infoPanel(result)}
       ${plain ? "" : `<p class="answer-lead">${esc(match && !many ? match.sederhana : result.voice_script)}</p>`}
@@ -242,7 +257,7 @@ function render(result, original) {
       ${match && !many ? `<div class="fact-block"><h3>Fakta di baliknya</h3><p>${esc(match.fakta)}</p></div>${sourceList(match)}` : ""}
       ${result.llm?.kutipan ? `<div class="fact-block"><h3>Kutipan pendukung</h3><p>“${esc(result.llm.kutipan)}”</p></div>` : ""}
       ${processPanel(result)}
-      ${window.HALIO_STATIC_DEMO ? "" : `<div class="telusur-cta"><a class="action-button" href="laporan.html?mulai=1&tampilan=keluarga&q=${encodeURIComponent(result.claim || original || "")}">🔬 Telusuri mendalam</a><small>Laporan analis: puluhan sumber, linimasa, asal-usul yang ditemukan. 1–3 menit.</small></div>`}
+      ${window.HALIO_STATIC_DEMO || result.on_device ? "" : `<div class="telusur-cta"><a class="action-button" href="laporan.html?mulai=1&tampilan=keluarga&q=${encodeURIComponent(result.claim || original || "")}">🔬 Telusuri mendalam</a><small>Laporan analis: puluhan sumber, linimasa, asal-usul yang ditemukan. 1–3 menit.</small></div>`}
       ${readingPanel(result)}
       <div class="next-steps"><h3>Yang bisa Anda lakukan</h3><ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></div>
       ${warnings.map((warning) => `<p class="warning">${esc(warning)}</p>`).join("")}
@@ -251,7 +266,7 @@ function render(result, original) {
         <button id="share" class="action-button primary" type="button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Bagikan kartu</button>
         <button id="listen" class="action-button" type="button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 9v6h4l5 4V5L9 9H5Zm12 0c1.3 1.7 1.3 4.3 0 6m2-9c3.3 3.3 3.3 8.7 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Dengarkan</button>
       </div>
-      <div class="secondary-actions">${result.offer_human_review
+      <div class="secondary-actions">${result.on_device ? '<p class="result-footnote">Hasil luring tidak dikirim ke server. Saat tersambung, cek ulang untuk jawaban dari pemeriksa manusia atau Telusur.</p>' : result.offer_human_review
         ? '<button id="human" class="text-button" type="button">Minta pemeriksa manusia</button>'
         : '<button id="appeal" class="text-button" type="button">Ajukan banding atas hasil</button>'}</div>
       <details class="forward-details"><summary>Saya tetap ingin meneruskan pesan asli</summary><div class="forward-box"><p>Ambil jeda sepuluh detik. Pesan hanya akan disalin setelah hitungan selesai; sertakan konteks dan sumber saat membagikannya.</p><button id="forward" class="action-button" type="button">Mulai jeda 10 detik</button></div></details>
@@ -292,9 +307,10 @@ async function post(path, body) {
   if (window.HALIO_STATIC_DEMO) {
     return { message: "Ini demo lokal. Tidak ada tiket atau banding yang dikirim ke server." };
   }
-  const response = await fetch(API + path, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  } catch { throw new Error("Perlu koneksi internet untuk ini. Coba lagi saat tersambung."); }
   const data = await response.json();
   if (!response.ok) throw new Error(data.detail || "Permintaan belum berhasil.");
   return data;
@@ -425,7 +441,7 @@ async function makeStaticCard(result) {
   }
   context.fillStyle = "#5B6475";
   context.font = `500 25px ${SANS}`;
-  context.fillText(window.HALIO_STATIC_DEMO ? "Kartu simulasi lokal · periksa kembali sumbernya" : "Kartu Halio · periksa kembali sumbernya", 80, 1250);
+  context.fillText(window.HALIO_STATIC_DEMO && !result.on_device ? "Kartu simulasi lokal · periksa kembali sumbernya" : "Kartu Halio · periksa kembali sumbernya", 80, 1250);
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
@@ -495,11 +511,12 @@ function pauseBeforeShare(button, original) {
 async function showVersion() {
   const el = $("#version");
   if (!el) return;
-  if (window.HALIO_STATIC_DEMO) { el.textContent = "Demo statis di browser (tanpa server)"; return; }
+  const localNote = () => `mesin luring di perangkat siap (${window.HalioLocal.corpusSize} bantahan)`;
+  if (window.HALIO_STATIC_DEMO) { el.textContent = localReady() ? `Halio di browser · ${localNote()}, tanpa server` : "Demo statis di browser (tanpa server)"; return; }
   try {
     const h = await (await fetch(`${API}/health`)).json();
     el.textContent = `Halio v${h.version} · build ${h.build || "lokal"} · AI web: ${h.llm ? "aktif" : "mati"}`;
-  } catch { el.textContent = "Versi server tidak terbaca"; }
+  } catch { el.textContent = localReady() ? `Server tidak terjangkau · ${localNote()}` : "Versi server tidak terbaca"; }
 }
 
 function init() {
@@ -511,7 +528,14 @@ function init() {
   sapaan.value = store.get("halio.sapaan", "Bapak, Ibu");
   sapaan.onchange = () => store.set("halio.sapaan", sapaan.value);
   if (window.HALIO_STATIC_DEMO) $("#media-row")?.classList.add("hidden");
-  else $("#media-file")?.addEventListener("change", (event) => event.target.files[0] && checkMedia(event.target.files[0]));
+  else {
+    $("#media-file")?.addEventListener("change", (event) => event.target.files[0] && checkMedia(event.target.files[0]));
+    // baca foto/suara butuh server, jadi disembunyiin pas offline & muncul lagi pas tersambung
+    const syncMedia = () => $("#media-row")?.classList.toggle("hidden", navigator.onLine === false);
+    window.addEventListener("online", syncMedia);
+    window.addEventListener("offline", syncMedia);
+    syncMedia();
+  }
   $("#msg").addEventListener("input", updateInput);
   $("#msg").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
