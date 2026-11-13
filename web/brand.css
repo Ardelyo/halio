@@ -1,4 +1,5 @@
-/* Halio brand tokens: the single source for every page. Spec and rules: docs/BRAND.md */
+/* warna biru andalan halio sm krem hangat, satu sumber buat semua halaman (aturan lengkap di docs/BRAND.md) */
+/* jgn diganti sembarangan ntar belang sm kartu PNG yg digambar server */
 :root {
   --blue: #014BAA; --blue-2: #0A5BC9; --blue-soft: #E6EEF9;
   --cream: #F8F3F0; --cream-2: #EFE8E3; --white: #FFFFFF;

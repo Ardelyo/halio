@@ -60,6 +60,7 @@ Sertakan tanggal publikasi hanya jika tertera. Sertakan valid_until hanya untuk 
 Jika tidak menemukan bukti yang relevan, kembalikan daftar sources kosong. Maksimal tiga sumber terbaik."""
 
 
+# mesin v1 (cadangan): minta Gemini nyari sumber via Google Search lalu kita cek ulang kutipannya
 def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigation:
     from google import genai
     from google.genai import types
@@ -87,6 +88,7 @@ def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigat
             if web and web.uri:
                 grounding.append(f"{web.title or 'Sumber'}: {web.uri}")
                 found.append({"title": web.title or "", "uri": web.uri})
+    # langkah kedua: ubah teks laporan pencarian jadi JSON rapi sesuai skema tanpa ngarang URL baru
     extraction = client.models.generate_content(
         model=cfg.llm_model,
         contents=(
@@ -109,7 +111,7 @@ def request_investigation(claim: str, cfg: Settings, seed_urls=()) -> Investigat
 def repair_source(claim: str, check: Verification, cfg: Settings) -> Verification:
     if check.reason != "kutipan_tidak_ada_di_halaman" or not check.page_text:
         return check
-    # A debunk from an official or fact-check page: let CODE pick the page's own sentence, so the quote is verbatim by construction.
+    # kl bantahan dari situs resmi/cek fakta tp kutipan model meleset dikit, biar kode kita yg comot kalimat aslinya langsung
     if check.evidence.relation == "refutes" and check.source_kind in {"resmi", "cek_fakta"}:
         passage = best_passage(claim, check.page_text)
         if passage:
@@ -142,6 +144,7 @@ def repair_source(claim: str, check: Verification, cfg: Settings) -> Verificatio
         corrected = SourceEvidence.model_validate_json(response.text).model_copy(
             update={"url": check.final_url, "name": check.evidence.name}
         )
+        # validsi sekali lagi, kl kutipan perbaikannya tetep ga ketemu persis di halaman ya tolak aja
         if not quote_present(corrected.quote, check.page_text):
             return check
         return Verification(True, "terverifikasi_dari_halaman", corrected, check.final_url, check.source_kind)
@@ -185,6 +188,7 @@ def investigate(
         log.warning("Gemini investigation unavailable: %s", type(exc).__name__)
         return None
 
+    # cek & benerin kandidat halaman secara paralel biar user ga nunggu kelamaan
     with ThreadPoolExecutor(max_workers=max(1, min(3, len(report.sources)))) as pool:
         checks = list(pool.map(verifier, report.sources))
         checks = list(pool.map(lambda check: repairer(claim, check, cfg), checks))
@@ -203,6 +207,7 @@ def investigate(
         match = _match(claim, verified[0], positive=False)
         return AgentResult("tidak_yakin", "bukti_bertentangan", match, None, note)
 
+    # konfirmasi positif cuma boleh dari sumber resmi, kl bantahan boleh juga dari pemeriksa fakta
     positive = "supports" in relations
     eligible = [
         c for c in verified

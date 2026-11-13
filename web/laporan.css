@@ -1,3 +1,4 @@
+/* tampilan halaman laporan halio telusur buat analis sm mode keluarga */
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--cream); color: var(--ink); font: 16px/1.55 var(--sans); }
 a { color: var(--blue); }
@@ -14,6 +15,7 @@ a { color: var(--blue); }
 .lp-card h1 { font: 700 1.6rem/1.2 var(--display); margin: 0 0 .5rem; }
 .lp-muted { color: var(--muted); }
 textarea { width: 100%; min-height: 140px; font: inherit; padding: .75rem; border-radius: 10px; border: 1px solid var(--line); }
+/* titik indikator tahapan penelusuran & kotak penghitung halaman yg dibuka */
 .lp-stages { list-style: none; padding: 0; margin: 1rem 0; display: grid; gap: .4rem; }
 .lp-stages li { display: flex; gap: .6rem; align-items: center; color: var(--muted); }
 .lp-stages li::before { content: ""; width: .8rem; height: .8rem; border-radius: 50%; border: 2px solid var(--line); flex: none; }
@@ -28,6 +30,7 @@ textarea { width: 100%; min-height: 140px; font: inherit; padding: .75rem; borde
 .lp-counters b { display: block; font: 700 1.4rem var(--display); }
 .lp-counters small { color: var(--muted); }
 
+/* kepala laporan analis lengkap sm lencana warna vonis */
 .lp-head { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
 .lp-kicker { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .lp-claim { font: 400 1.5rem/1.3 var(--serif); margin: .4rem 0 .8rem; }
@@ -42,6 +45,7 @@ textarea { width: 100%; min-height: 140px; font: inherit; padding: .75rem; borde
 .lp-sec h2 { font: 700 1.15rem var(--display); margin: 0 0 .6rem; }
 .lp-sec p.s { margin: .35rem 0; }
 .cite { font-size: .78rem; vertical-align: super; margin-left: .15rem; text-decoration: none; }
+/* daftar bukti kutipan bernomor & garis linimasa kemunculan klaim */
 .lp-ev { list-style: none; padding: 0; margin: 0; display: grid; gap: .8rem; }
 .lp-ev li { border-left: 4px solid var(--line); padding: .2rem 0 .2rem .8rem; }
 .lp-ev li.refutes { border-color: var(--salah); }
@@ -66,6 +70,7 @@ textarea { width: 100%; min-height: 140px; font: inherit; padding: .75rem; borde
 details.lp-method summary { cursor: pointer; font-weight: 600; }
 .lp-foot { max-width: 980px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: .85rem; }
 .lp-foot small { display: block; margin-top: .3rem; }
+/* rapihin tmpilan pas dicetak ke pdf biar tautan aslinya ikut tertulis */
 @media print {
   .lp-top nav, .lp-foot small { display: none; }
   body { background: #fff; }
@@ -73,6 +78,7 @@ details.lp-method summary { cursor: pointer; font-weight: 600; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .75rem; color: #555; overflow-wrap: anywhere; }
 }
 
+/* tombol ganti mode sm kartu huruf gede khusus tampilan keluarga biar nenek nyaman baca */
 .lp-toggle { display: flex; gap: .4rem; margin: 0 0 12px; flex-wrap: wrap; }
 .lp-toggle button { font: 600 .9rem var(--sans); padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--line); background: var(--white); cursor: pointer; }
 .lp-toggle button[aria-pressed="true"] { background: var(--blue); color: var(--white); border-color: var(--blue); }

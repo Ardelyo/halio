@@ -16,6 +16,7 @@ from .retrieval import Debunk, Index, Match
 log = logging.getLogger(__name__)
 
 ENDPOINT = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
+# daftar kata kunci rating negatif di ClaimReview buat nyaring mana yg beneran bantahan
 FALSE_RATINGS = ("salah", "hoaks", "hoax", "keliru", "palsu", "menyesatkan", "false", "misleading", "fake", "disinformasi")
 
 
@@ -23,6 +24,7 @@ def is_false_rating(value: object) -> bool:
     if not isinstance(value, str):
         return False
     rating = value.strip().lower()
+    # jaga-jaga ada kalimat sanggahan kayak "bukan hoaks" biar ga kebalik ketangkep salah
     if any(negated in rating for negated in ("tidak salah", "bukan hoaks", "bukan hoax", "not false", "not a hoax")):
         return False
     return any(word in rating for word in FALSE_RATINGS)
@@ -38,6 +40,7 @@ def search(query: str, api_key: str, limit: int = 5, timeout: float = 4.0) -> li
         resp.raise_for_status()
         payload = resp.json()
     except (httpx.HTTPError, ValueError) as exc:
+        # kl API Google lagi error atau lemot, lewatin aja biar cek lokal tetep jalan lancar
         log.warning("Fact Check API unavailable: %s", type(exc).__name__)
         return []
 
@@ -45,6 +48,7 @@ def search(query: str, api_key: str, limit: int = 5, timeout: float = 4.0) -> li
     for i, claim in enumerate(payload.get("claims", [])):
         if not isinstance(claim, dict) or not claim.get("text"):
             continue
+        # ambil review yg jelas ngasih vonis salah/hoaks aja
         reviews = [r for r in claim.get("claimReview", []) if isinstance(r, dict) and is_false_rating(r.get("textualRating"))]
         if not reviews:
             continue
@@ -68,5 +72,5 @@ def search(query: str, api_key: str, limit: int = 5, timeout: float = 4.0) -> li
         )
     if not debunks:
         return []
-    # Re-score with our own similarity so remote hits obey the same threshold.
+    # hitung ulang skor kemiripannya pake index lokal biar tetep ngikut standar threshold kita
     return Index(debunks).search(query, k=limit)

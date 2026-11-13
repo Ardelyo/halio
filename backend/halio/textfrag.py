@@ -14,11 +14,11 @@ from urllib.parse import quote, urlparse, urlunparse
 
 START_WORDS = 6
 END_WORDS = 6
-MIN_WORDS_FOR_RANGE = START_WORDS + END_WORDS + 2   # shorter quotes are matched whole
+MIN_WORDS_FOR_RANGE = START_WORDS + END_WORDS + 2   # kutipan pendek langsung dicocokin utuh semua katanya
 
 
 def _enc(text: str) -> str:
-    # quote() leaves "-" alone; the fragment syntax needs it encoded, and "," and "&" too.
+    # quote() bawaan Python ngebiarin tanda "-", padahal aturan text fragment wajibin "-", ",", sm "&" ikut di-encode
     return quote(text, safe="").replace("-", "%2D")
 
 
@@ -29,8 +29,10 @@ def fragment_url(url: str, quotation: str) -> str:
     if len(words) < 3 or not url.startswith(("http://", "https://")):
         return url
     parts = urlparse(url)
+    # bersihin fragment lama di URL sebelum nempel sorotan kutipan baru
     base = urlunparse(parts._replace(fragment=""))
     if len(words) >= MIN_WORDS_FOR_RANGE:
+        # kl kalimatnya panjang cukup pasang potongan kata awal & akhir biar URL ga kepanjangan
         spec = f"{_enc(' '.join(words[:START_WORDS]))},{_enc(' '.join(words[-END_WORDS:]))}"
     else:
         spec = _enc(" ".join(words))

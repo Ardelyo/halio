@@ -23,6 +23,7 @@ class Technique:
     patterns: tuple[str, ...]
 
 
+# pola teknik manipulasi di pesan berantai (fokus ke cara nakut-nakutin/maksa, netral dari topik politik)
 TECHNIQUES: tuple[Technique, ...] = (
     Technique(
         "ajakan_sebar", "Desakan untuk menyebarkan",
@@ -69,11 +70,12 @@ TECHNIQUES: tuple[Technique, ...] = (
     ),
 )
 
+# kompilasi regex sekali di awal; kl ngubah pola di atas jangan lupa jalanin scripts/sync_lexicon.py buat ekstensi
 _COMPILED = [(t, [re.compile(p) for p in t.patterns]) for t in TECHNIQUES]
 
-# Online gambling (judol) vocabulary in Indonesian banners and links, for the extension's blur rule.
-# Words like "slot", "rtp", "scatter" or "situs resmi" are everyday Indonesian too ("slot parkir",
-# "situs resmi Kemensos"), so they only count when two of them appear together.
+# kosakata iklan judi online (judol) di banner & link lokal buat aturan blur di ekstensi browser.
+# kata kayak "slot", "rtp", atau "situs resmi" kepake juga di kalimat sehari-hari ("slot parkir",
+# "situs resmi Kemensos"), jadi kelompok lemah baru diitung judol kl nongol minimal dua kata barengan.
 JUDOL_STRONG = (r"\bgacor\b", r"\bmaxwin\b", r"\btogel\b", r"\bslot ?(gacor|online|88|777|\d{2,3})\b",
                 r"bonus new member", r"\bdepo(sit)? ?\d+ ?(rb|ribu|k)?\b", r"\bwd cepat\b", r"\bmahjong ways\b",
                 r"\bzeus\b.{0,20}\bslot\b|\bslot\b.{0,20}\b(zeus|olympus)\b", r"\brtp (live|slot)\b")
@@ -89,6 +91,7 @@ def is_judol(text: str) -> bool:
 
 
 def _shouting(text: str) -> bool:
+    # deteksi gaya ketikan ngegas: mayoritas huruf gede semua atau tanda seru berderet
     letters = [c for c in text if c.isalpha()]
     caps_ratio = sum(c.isupper() for c in letters) / max(1, len(letters))
     return (len(letters) > 30 and caps_ratio > 0.6) or "!!!" in text
@@ -101,7 +104,7 @@ def analyze(text: str) -> dict:
         hits = sorted({m.group(0) for p in patterns for m in p.finditer(low)})
         if hits:
             d = asdict(tech)
-            d.pop("patterns")
+            d.pop("patterns")  # regex mentahnya ga usah ikut dikirim ke response
             d["evidence"] = hits[:3]
             found.append(d)
     shouting = _shouting(text)

@@ -28,12 +28,12 @@ TOPICS = {
         r"tamtama|yonif|pangdam|danrem|dandim|angkatan darat|kemhan|menhan|wamenhan|kementerian pertahanan)\b", re.I)),
     "umum": ("Hoaks dan klaim yang sedang diperiksa", None),
 }
-# A foreign defence minister or army is not this topic, unless the headline also names an Indonesian service or place.
+# menhan atau militer luar negeri bukan topik ini, kecuali judulnya jg nyebut unsur Indonesia / TNI
 _FOREIGN = re.compile(r"\b(as|amerika|trump|hegseth|pentagon|rusia|israel|china|tiongkok|inggris|ukraina|iran|korea|jepang|nato)\b", re.I)
 _INDONESIAN = re.compile(r"\b(tni|kodam|korem|kodim|koramil|babinsa|kasad|ksad|dispenad|indonesia|ri)\b", re.I)
-# Official feeds that belong to a topic whatever their headline says ("Prajurit Yonif ... bantu warga").
+# feed resmi yg otomatis masuk topik apapun bunyi judulnya (misal "Prajurit Yonif ... bantu warga")
 TOPIC_SOURCES = {"tni": {"tniad", "kemhan"}}
-# Fact-checkers label headlines "[SALAH]", "[HOAKS]", "[PENIPUAN]", "[MISLEADING]"...: the strongest signal of all.
+# label khas pemeriksa fakta kayak "[SALAH]", "[HOAKS]", "[PENIPUAN]": ini sinyal hoaks paling kuat
 _HOAX = re.compile(r"\bhoa[xk]s?\b|cek fakta|tidak benar|keliru|disinformasi|penipuan|\bpalsu\b|catut|mencatut|menyesatkan|"
                    r"\[\s*(salah|hoaks?|penipuan|misleading|menyesatkan|disinformasi|fitnah|satire|konten palsu)\s*\]", re.I)
 _PREFIX = re.compile(r"^\s*(\[[^\]]{2,20}\]|hoaks?!?:?|cek fakta:?|klarifikasi:?)\s*", re.I)
@@ -58,6 +58,7 @@ def clusters(rows: list[dict], kinds: dict[str, str], names: dict[str, str], top
 
     picked = [r for r in rows if r["source_id"] in own or (on_topic(r["title"]) if rx else kinds.get(r["source_id"]) == "cek_fakta")]
     groups: list[dict] = []
+    # kelompokin judul yg mirip2 biar satu narasi yg rame ga pecah jadi banyak baris
     for r in picked:
         toks = set(tokens(_PREFIX.sub("", r["title"])))
         if len(toks) < 3:
@@ -75,8 +76,8 @@ def clusters(rows: list[dict], kinds: dict[str, str], names: dict[str, str], top
         hoaxy = any(_HOAX.search(r["title"]) for r in items)
         recent = sum(1 for r in items if r["first_seen"] >= (now - timedelta(hours=12)).isoformat(timespec="seconds"))
         score = 2 * len(sources) + len(items) + (3 if "cek_fakta" in kinds_in else 0) + (2 if hoaxy else 0) + recent
-        # Worth a swarm investigation only with a disinformation signal: hoax words, a fact-checker, or several outlets.
-        # A single official release ("Majalah Palagan edisi ...") is context, not a narrative to investigate.
+        # baru layak dikerahkan swarm telusur kl ada sinyal disinformasi: kata hoaks, cek fakta, atau muncul di >=2 sumber.
+        # rilis rutin tunggal ("Majalah Palagan edisi ...") cukup jadi konteks, jgn buang2 jatah telusur wkwk
         worth = hoaxy or "cek_fakta" in kinds_in or len(sources) >= 2
         rep = min(items, key=lambda r: len(r["title"]))
         out.append({
@@ -110,7 +111,7 @@ class Briefs:
         names = {s.id: s.name for s in SOURCES}
         found = clusters(rows, kinds, names, topic, now)
         narratives = [c for c in found if c["perlu_ditelusuri"]][:8]
-        # Official releases on the topic, shown beside the narratives as the army's own public account (not investigated).
+        # rilis resmi seputar topik ditaruh di samping narasi sbg konteks publik dr instansinya (ga ikut ditelusuri)
         context = [{"judul": c["judul"], "sumber": c["sumber"], "pertama": c["pertama"], "url": c["berita"][-1]["url"]}
                    for c in found if not c["perlu_ditelusuri"] and "resmi" in c["jenis_sumber"]][:6]
         for n in narratives[:top]:
@@ -118,7 +119,7 @@ class Briefs:
             if jobs is not None:
                 try:
                     n["investigasi"] = jobs.submit(n["judul"], "brief", "demo")
-                except Exception as exc:  # daily cap reached, model off: the brief still lists the narratives
+                except Exception as exc:  # kl kuota harian abis atau model mati, daftar narasinya tetep ditampilin
                     n["catatan"] = f"Belum ditelusuri: {exc}"
         brief = {
             "id": uuid.uuid4().hex, "dibuat": datetime.now(WIB).isoformat(timespec="seconds"), "topik": topic,
@@ -140,6 +141,7 @@ class Briefs:
         if not row:
             return None
         brief = json.loads(row["data"])
+        # tempelin progres & hasil terbaru dr tiap job telusur pas brief diambil
         for n in brief["narasi"]:
             job_id = n.get("investigasi")
             if job_id and jobs is not None:

@@ -16,6 +16,7 @@ client = TestClient(app)
 
 
 def test_meta_signature_requires_secret_and_exact_raw_body():
+    # validsi HMAC webhook Meta wajib cocok persis sm byte body mentahnya, geser 1 spasi aja langsung tolak
     body = b'{"entry":[]}'
     signature = "sha256=" + hmac.new(b"secret", body, hashlib.sha256).hexdigest()
     assert valid_meta_signature(body, signature, "secret")
@@ -25,10 +26,12 @@ def test_meta_signature_requires_secret_and_exact_raw_body():
 
 
 def test_whatsapp_webhook_rejects_missing_signature():
+    # kiriman ke webhook WhatsApp tanpa signature langsung mental 403
     assert client.post("/webhook/whatsapp", json={"entry": []}).status_code == 403
 
 
 def test_rate_limiter_is_bounded_per_key():
+    # jatah request dibatesin per kunci pengakses & pulih kemabli pas jendela semenitnya lewat
     limiter = RateLimiter(2)
     assert limiter.allow("a", now=1)
     assert limiter.allow("a", now=2)
@@ -43,12 +46,14 @@ def test_appeal_rejects_unknown_or_expired_check():
 
 
 def test_public_result_does_not_include_delivery_metadata():
+    # amanin privasi: field internal rute balasan (_reporter, _channel) pantang bocor ke JSON publik
     body = client.post("/api/check", json={"text": "Jembatan Suramadu ditutup besok", "reporter": "web:test"}).json()
     fetched = client.get("/api/check/" + body["id"]).json()
     assert "_reporter" not in fetched and "_channel" not in fetched
 
 
 def test_reviewer_workflow_tracks_origin_and_resolution(tmp_path):
+    # tiket eskalasi yg udah dijawab analis ga boleh bisa di-resolve ulang kedua kalinya
     store = Store(tmp_path / "review.db")
     ticket = store.add_escalation("a" * 32, "Klaim", "telegram", "tg:123")
     item = store.review_items("escalations")[0]
@@ -63,6 +68,7 @@ def test_reviewer_workflow_tracks_origin_and_resolution(tmp_path):
 
 
 def test_review_api_requires_configured_token(monkeypatch):
+    # antrean review analis wajib kekunci bearer token kl RADAR_TOKEN dipasang
     from dataclasses import replace
 
     monkeypatch.setattr(api_module, "settings", replace(api_module.settings, radar_token="test-secret"))
@@ -72,6 +78,7 @@ def test_review_api_requires_configured_token(monkeypatch):
 
 
 def test_factcheck_rating_does_not_invert_negated_false_labels():
+    # awas kejebak negasi: rating "Tidak salah" atau "Not false" jgn sampe kebalik diitung salah wkwk
     assert is_false_rating("Salah")
     assert is_false_rating("Mostly false")
     assert not is_false_rating("Tidak salah")

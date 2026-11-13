@@ -5,6 +5,7 @@ import tempfile
 
 import pytest
 
+# arahin db ke folder sementra dulu sblm import app biar ga nyentuh db lokal
 os.environ["HALIO_DB"] = os.path.join(tempfile.mkdtemp(), "test.db")
 os.environ.pop("GOOGLE_FACTCHECK_API_KEY", None)
 os.environ.pop("HALIO_LLM", None)
@@ -20,6 +21,7 @@ client = TestClient(app)
 
 
 def test_check_card_and_radar_flow():
+    # tes alur utma: cek klaim -> render kartu PNG -> cek hitungan di radar ikut naik
     r = client.post("/api/check", json={"text": "Waspada gempa besar diprediksi minggu depan, sebarkan!", "channel": "demo"})
     assert r.status_code == 200
     body = r.json()
@@ -56,6 +58,7 @@ def test_review_web_response_is_recorded_without_fake_delivery():
 
 
 def test_failed_delivery_keeps_review_open(monkeypatch):
+    # kl gagal dikrim balik ke Telegram, tiket eskalasinya jgn ditutup biar analis bisa kirim ulang
     ticket = api_module.store.add_escalation("c" * 32, "Klaim Telegram", "telegram", "tg:123")
     monkeypatch.setattr(api_module.review, "send_reply", lambda *_: (_ for _ in ()).throw(RuntimeError("Telegram menolak balasan")))
     response = client.post(f"/api/review/escalations/{ticket}/resolve", json={"response": "Jawaban analis"})
@@ -84,7 +87,7 @@ def _unknown(claim):
 def test_rumour_text_hidden_until_k_distinct_reporters(store):
     claim = "Jembatan Suramadu akan ditutup total selama seminggu"
     for _ in range(5):
-        store.record(_unknown(claim), "telegram", "tg:1")  # same person repeatedly
+        store.record(_unknown(claim), "telegram", "tg:1")  # satu orang yg sama lapor berulang2 tetep diitung 1
     assert store.radar()["emerging_rumours"] == []
     assert store.radar()["rumours_below_k"] == 1
 
@@ -95,6 +98,7 @@ def test_rumour_text_hidden_until_k_distinct_reporters(store):
 
 
 def test_small_cells_are_suppressed(store):
+    # angka di bawah ambang k-anonymity disembunyiin jadi "<3" biar aman privasinya
     store.record({"status": "terbukti_salah", "claim": "x", "match": {"debunk_id": "a", "kategori": "kesehatan"},
                   "manipulation": {"techniques": []}}, "web", None)
     assert store.radar()["by_kategori"][0]["n"] == "<3"
@@ -156,12 +160,12 @@ def test_radar_flags_a_spike_in_scams_that_use_the_army_name(store):
     from datetime import date, timedelta
 
     base = date.fromisoformat(__import__("halio.store", fromlist=["today"]).today())
-    for back in range(1, 7):                      # a quiet week: 1 a day
+    for back in range(1, 7):                      # seminggu adem: cuma 1 laporan per hari
         _tni_check(store, (base - timedelta(days=back)).isoformat(), 1)
     quiet = store.radar(7)["catut_tni"]
     assert quiet["status"] == "tenang" and len(quiet["harian"]) == 7
 
-    _tni_check(store, base.isoformat(), 9)         # today: 9, against about 1 a day before
+    _tni_check(store, base.isoformat(), 9)         # hari ini tembus 9 laporan dibanding rata2 1 sehari sebelumnya
     spike = store.radar(7)["catut_tni"]
     assert spike["status"] == "naik" and spike["hari_ini"] == 9 and spike["rata_rata_sebelumnya"] == 1.0
     assert spike["harian"][-1] == {"day": base.isoformat(), "n": 9}
@@ -171,6 +175,6 @@ def test_tni_spike_needs_enough_checks_to_mean_anything(store):
     from datetime import date
 
     today = __import__("halio.store", fromlist=["today"]).today()
-    _tni_check(store, today, 2)                    # 2 against nothing: below the small-cell floor, not a spike
+    _tni_check(store, today, 2)                    # cuma 2 laporan dr nol: msh di bawah batas sel kecil, belum diitung lonjakan
     r = store.radar(7)["catut_tni"]
     assert r["status"] == "tenang" and r["hari_ini"] == "<3"

@@ -35,8 +35,8 @@ limiter = RateLimiter(settings.rate_limit_per_minute)
 llm_budget = DailyBudget(settings.llm_daily_cap)
 media_budget = DailyBudget(settings.media_daily_cap)
 MAX_BODY_BYTES = settings.max_body_mb * 1024 * 1024
-# Every page loads its own scripts, fonts and images from this origin. Inline styles stay allowed (style attributes in
-# generated markup); the one inline script (index.html, the `js` class) is allowed by its hash. test_hardening checks both.
+# semua aset dimuat dari origin sendiri. style inline tetep dibolehin krn dipake di markup hasil render,
+# dan satu-satunya script inline di index.html diizinin pake hash ini (dicek juga di test_hardening).
 INDEX_INLINE_SCRIPT_HASH = "sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw="
 CSP = ("default-src 'self'; "
        f"script-src 'self' '{INDEX_INLINE_SCRIPT_HASH}'; "
@@ -48,8 +48,8 @@ CSP = ("default-src 'self'; "
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     if settings.telegram_token and not settings.channel_key:
-        # Without the shared key the Telegram bot's per-chat id is not trusted, so escalation replies
-        # cannot be routed back and every Telegram user counts as one reporter for the Radar.
+        # kl ga ada shared key, chat id dari bot telegram ga bakal dipercaya server, jadi balasan eskalasi
+        # ga bisa balik ke user dan semua user telegram kehitung satu pelapor doang di radar.
         log.warning("TELEGRAM_BOT_TOKEN is set but HALIO_CHANNEL_KEY is not: set the same value on the API and the bot")
     poller = None
     if settings.sensor_enabled:
@@ -98,6 +98,7 @@ if settings.cors_origins:
 
 @app.middleware("http")
 async def protect(request: Request, call_next):
+    # cegat kirimn yg kegedean atau nyepam sebelum masuk ke handler utma
     if request.url.path.startswith(("/api/", "/webhook/")):
         size = request.headers.get("content-length")
         if size is not None and (not size.isdigit() or int(size) > MAX_BODY_BYTES):
@@ -117,7 +118,7 @@ async def protect(request: Request, call_next):
 
 
 class CheckIn(BaseModel):
-    # Long forwards are cut, not rejected: the claim is almost always in the first lines.
+    # pesan terusannya panjang bgt? potong aja jgn ditolak, soalnya inti klaim hampir selalu di kalimat awal
     text: str = Field(min_length=3, max_length=100_000)
     channel: str = Field(default="web", pattern="^(web|telegram|whatsapp|extension|demo)$")
     sapaan: str = Field(default="Bapak, Ibu", max_length=30)
@@ -153,15 +154,16 @@ class ReviewResolveIn(BaseModel):
 
 
 def _public(result: dict) -> dict:
+    # buang field internal yg depannya underscore biar ga bocor ke response publik
     return {k: v for k, v in result.items() if not k.startswith("_")}
 
 
 def run_check(body: CheckIn, reporter: str | None) -> dict:
     from dataclasses import replace
 
-    # "tanpa_ai" turns the model off for THIS request only: the answer then comes from the curated corpus and the archive alone.
+    # mode "tanpa_ai" matiin model khusus buat request ini aja, jadi murni ngandelin korpus kurasi + arsip
     mode = body.mode
-    # Past the daily AI budget the check still runs, from the corpus and archive only, and says so.
+    # kl kuota harian AI abis, pengecekkan tetep jalan pake korpus & arsip sambil ngasih info ke user
     if mode == "penuh" and settings.llm_enabled and not llm_budget.take():
         mode = "tanpa_ai"
     cfg = replace(settings, llm_enabled=False) if mode == "tanpa_ai" else settings
@@ -198,7 +200,7 @@ def ready() -> dict:
 
 @app.post("/api/check")
 def api_check(body: CheckIn, request: Request) -> dict:
-    # A client-chosen reporter id is free to forge; only our own bots may name one (netguard.py).
+    # id reporter dari client gampang dipalsuin, cuma bot resmi kita yg boleh ngirim id sendiri (cek netguard.py)
     return run_check(body, reporter_for(request, settings, body.reporter))
 
 
@@ -332,7 +334,7 @@ def api_investigate(body: InvestigateIn, request: Request) -> dict:
     if not (settings.llm_enabled and settings.llm_provider == "google"):
         raise HTTPException(503, "Penelusuran mendalam membutuhkan AI (HALIO_LLM=1) dan sedang tidak aktif di server ini.")
     text = body.text
-    if body.check_id:  # "investigate this answer": reuse the text the user already sent
+    if body.check_id:  # kl lanjut telusur dari hasil cek sebelumnya, pake ulang klaim yg udah diekstrak
         text = _cached(body.check_id).get("claim") or text
     image = None
     if body.image_b64:
@@ -386,6 +388,7 @@ def api_brief_run(request: Request, topic: str = "tni", authorization: str | Non
 
 
 def _require_radar_token(authorization: str | None, request: Request) -> None:
+    # pastiin halaman data radar ga kebuka sembarangan kecuali ada token atau emang akses lokal/demo
     if settings.radar_token:
         if not hmac.compare_digest(authorization or "", f"Bearer {settings.radar_token}"):
             raise HTTPException(401, "Radar memerlukan token")
@@ -472,7 +475,7 @@ def _wa_process(payload: dict) -> None:
         try:
             result = run_check(CheckIn(text=text, channel="whatsapp"), reporter=f"wa:{sender}")
             whatsapp.reply(sender, result, settings)
-        except Exception:  # one bad message must not drop the rest of the batch
+        except Exception:  # satu pesan error jgn smpe bikin sisa antrean di batch ini ikut gagal
             log.exception("WhatsApp message failed")
 
 
@@ -485,7 +488,7 @@ async def wa_receive(request: Request, background: BackgroundTasks) -> dict:
         payload = json.loads(body)
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise HTTPException(400, "Payload webhook tidak valid") from exc
-    # Answer Meta at once; the checks (and the blocking HTTP replies) run after the response.
+    # langsung bales 200 ke Meta dulu biar ga timeout, urusan cek + bales WA jalan di background
     background.add_task(_wa_process, payload if isinstance(payload, dict) else {})
     return {"ok": True}
 
@@ -500,5 +503,6 @@ def coverage_page() -> FileResponse:
     return FileResponse(settings.web_dir / "coverage.html")
 
 
+# mount folder web paling terakhir biar ga nutupin route API di atas
 if settings.web_dir.exists():
     app.mount("/", StaticFiles(directory=settings.web_dir, html=True), name="web")

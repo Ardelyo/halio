@@ -10,6 +10,7 @@ CFG = Settings(google_factcheck_key=None, llm_enabled=False)
 
 
 def test_scrub_removes_personal_data():
+    # pastin nomor hp, NIK, email, sm link pendek bersih kesensor semua sblm disimpen
     text = "Hubungi 0812-3456-7890 atau +6281234567890, NIK 3201234567890001, email a.b@mail.com, cek https://bit.ly/xyz @budi"
     out = scrub(text)
     for leaked in ("0812", "6281", "3201234567890001", "a.b@mail.com", "bit.ly", "@budi"):
@@ -26,11 +27,13 @@ def test_extract_domains():
 
 
 def test_opinion_is_not_factual():
+    # ucapan selamat pagi di grup keluarga jelas bukan klaim faktual yg perlu dicek fakta wkwk
     assert not claims.extract("Selamat pagi keluarga, semoga sehat selalu. Amin").is_factual
     assert claims.extract("BMKG memprediksi gempa magnitudo 9 akan terjadi tanggal 12 November").is_factual
 
 
 def test_manipulation_flags_techniques():
+    # tangkep pola klasik pesan berantai: huruf gede heboh, nyuruh sebar, sm minta uang admin
     r = manipulation.analyze("SEGERA SEBARKAN!!! Bantuan tunai gratis, transfer biaya administrasi dulu")
     ids = {t["id"] for t in r["techniques"]}
     assert {"ajakan_sebar", "urgensi", "iming_iming", "minta_data_uang"} <= ids
@@ -46,12 +49,13 @@ def test_known_hoax_is_terbukti_salah_with_source():
 
 
 def test_negated_core_is_not_labelled_hoax():
-    # True statement on the same topic must never be called a hoax.
+    # pernyataan bener di topik yg sama pantang bgt kena cap hoaks
     r = pipeline.check("Rekrutmen TNI AD dibuka, tidak dipungut biaya dan tanpa calo", CFG)
     assert r["status"] != "terbukti_salah"
 
 
 def test_unknown_claim_abstains_and_offers_human():
+    # kl blm ada di korpus, jujur bilang tidak mau menebak & tawarin terusin ke pemeriksa manusia
     r = pipeline.check("Jembatan Suramadu akan ditutup total selama seminggu mulai besok", CFG)
     assert r["status"] == "belum_ada_pemeriksaan"
     assert r["match"] is None
@@ -71,6 +75,7 @@ def test_thresholds_are_respected():
 
 def test_clarification_verbs_are_not_labelled_hoax():
     """Found by the public-sample evaluation: a message that clarifies or denies a rumour must never be called a hoax."""
+    # berita atau pesan yg isinya meluruskan isu jgn sampe kebalik dituduh salah
     for text in (
         "BMKG Papua Mengklarifikasi Isu Akan Terjadi Tsunami di Papua",
         "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan",

@@ -14,6 +14,7 @@ import sys
 import urllib.error
 import urllib.request
 
+# sengaja cuma pake standard library biar skrip pengecekkan ini jalan di mana aja tanpa venv
 API = os.getenv("HALIO_API_URL", "http://localhost:8000").rstrip("/")
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 KEY = os.getenv("HALIO_CHANNEL_KEY", "")
@@ -26,6 +27,7 @@ def say(level: str, what: str, detail: str = "") -> None:
     print(f"[{level:<4}] {what}" + (f"  ({detail})" if detail else ""))
 
 
+# helper tipis buat nembak JSON lewat urllib bawaan python
 def call(url: str, data: dict | None = None, headers: dict | None = None, timeout: int = 20):
     body = json.dumps(data).encode() if data is not None else None
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json", **(headers or {})})
@@ -35,7 +37,7 @@ def call(url: str, data: dict | None = None, headers: dict | None = None, timeou
 
 def main() -> None:
     print(f"Halio preflight, API = {API}\n")
-    # 1. API alive
+    # 1. cek dulu API-nya beneran hidup ga
     try:
         _, body, _ = call(f"{API}/health")
         health = json.loads(body)
@@ -44,7 +46,7 @@ def main() -> None:
         say("FAIL", "API tidak bisa dihubungi", f"{exc}; jalankan: cd backend && uvicorn halio.api:app --port 8000")
         sys.exit(1)
 
-    # 2. a real check, with the bot's channel key
+    # 2. jajal cek satu contoh pesan hoaks beneran pake channel key bot
     probe = "Bapak ibu, ada video Presiden bagi-bagi bantuan tunai, bayar biaya admin 150rb lewat WA. SEBARKAN!!"
     try:
         _, body, _ = call(f"{API}/api/check", {"text": probe, "channel": "telegram", "reporter": "tg:0"},
@@ -56,6 +58,7 @@ def main() -> None:
         say("FAIL", "Cek pesan gagal", str(exc))
         res = None
 
+    # pastin kartu PNG sm audio MP3 bisa diambil juga sebelom mulai rekaman demo
     if res:
         for name, url_key, kind in (("Kartu Halio (PNG)", "card_url", b"\x89PNG"), ("Suara (MP3)", "voice_url", None)):
             try:
@@ -67,7 +70,7 @@ def main() -> None:
             except Exception as exc:
                 say("WARN" if url_key == "voice_url" else "FAIL", name, str(exc))
 
-    # 3. Telegram
+    # 3. cek token bot Telegram & pastiin ga nyangkut di mode webhook
     if not TOKEN:
         say("FAIL", "TELEGRAM_BOT_TOKEN kosong", "isi dari @BotFather")
     else:
@@ -82,7 +85,7 @@ def main() -> None:
             say("FAIL", "Telegram tidak bisa dicek", str(exc))
     say("PASS" if KEY else "WARN", "HALIO_CHANNEL_KEY", "terisi" if KEY else "kosong: tombol 'Tanya pemeriksa manusia' tidak bisa membalas dan semua pengguna Telegram terhitung satu pelapor")
 
-    # 4. Radar protection
+    # 4. cek halaman Radar ketutup token ga (penting kl udah naik ke server publik)
     try:
         call(f"{API}/api/radar")
         say("WARN", "Radar terbuka tanpa token", "aman bila hanya di laptop Anda; isi RADAR_TOKEN sebelum dipublikasikan")

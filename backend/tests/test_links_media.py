@@ -27,6 +27,7 @@ def test_dead_link_is_reported_not_trusted():
 
 
 def test_redirect_to_other_domain_is_named():
+    # kl link pemendek belok ke domain aneh, buka kedok domain tujuan aslinya di peringatan
     def handler(req):
         if req.url.host == "bit.ly":
             return httpx.Response(302, headers={"location": "https://bansos-cair.xyz/daftar"})
@@ -44,6 +45,7 @@ def test_official_site_has_no_warning():
 
 
 def test_private_address_is_refused_without_fetch():
+    # alamat lokal / privat langsung ditolak tanpa sempet nembak koneksi
     out = link_check.check_link("http://127.0.0.1:8000/api/radar")
     assert out["state"] == "tidak_ditemukan" and out["status"] is None
 
@@ -69,6 +71,7 @@ def test_check_media_returns_503_when_reader_down(client, monkeypatch):
 
 
 def test_check_media_runs_text_through_pipeline_and_never_claims_authenticity(client, monkeypatch):
+    # teks di dlm poster lanjut dicek ke pipeline, tp jujur bilang blm ngecek keaslian foto/deepfake
     reading = media.MediaReading(kind="poster_atau_berita", text="Bapak ibu, ada video Presiden bagi-bagi bantuan tunai, bayar biaya admin 150rb lewat WA. SEBARKAN!!")
     monkeypatch.setattr(media, "read_media", lambda *a: reading)
     r = client.post("/api/check-media", json={"data_b64": base64.b64encode(b"x" * 200).decode(), "mime": "image/png"})
@@ -117,6 +120,7 @@ def test_reply_shows_how_halio_checked_and_version():
 
 
 def test_soft_404_page_is_not_a_good_link():
+    # tes kasus pojok soft-404: balikin HTTP 200 tp judulnya halaman ga ketemu, jgn ketukar sm berita "Rp 404 juta" wkwk
     html = "<title>404 - Halaman tidak ditemukan</title>"
     out = link_check.check_link("https://x.example/a", transport(lambda r: httpx.Response(200, headers={"content-type": "text/html"}, text=html)))
     assert out["state"] == "rusak"
@@ -134,6 +138,7 @@ def test_best_passage_is_verbatim_and_needs_real_overlap():
 
 
 def test_reading_list_filters_dead_pages(monkeypatch):
+    # saring keluar link yg udah mati dr daftar bacaan lanjutan
     from halio import reading
 
     def fake(url):
@@ -167,6 +172,7 @@ def test_empty_result_gives_next_steps_and_plain_sentence():
 
 
 def test_green_is_lowered_when_a_factchecker_covers_the_topic_as_hoax():
+    # kl ada situs cek fakta yg bahas isu serupa sbg hoaks, rem dulu jgn dikasih hijau
     from halio import pipeline
 
     assert pipeline._factcheck_warns({"items": [{"kind": "cek_fakta", "title": "[HOAKS] Pendaftaran CPNS 2026 Sudah Dibuka"}]})
@@ -175,6 +181,7 @@ def test_green_is_lowered_when_a_factchecker_covers_the_topic_as_hoax():
 
 
 def test_attribution_mismatch_is_flagged_but_content_verdict_kept():
+    # kl pesan nyatut nama lembaga yg beda dr sumber bantahan (PMI vs BMKG), vonis isinya tetep tp kasih catatan jelas
     from halio import pipeline
     from halio.channels.format import reply_text
 

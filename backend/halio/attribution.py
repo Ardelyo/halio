@@ -11,7 +11,7 @@ import re
 
 from .textnorm import fold
 
-# canonical name -> pattern (matched on folded text, whole words)
+# nama resmi lembaga -> pola regex (dicocokin per kata utuh ke teks yg udah di-fold)
 ORGS = {
     "BMKG": r"bmkg|badan meteorologi",
     "BNPB": r"bnpb|badan nasional penanggulangan bencana",
@@ -30,17 +30,19 @@ ORGS = {
     "Presiden": r"presiden|prabowo|jokowi",
     "Pemerintah": r"pemerintah",
 }
+# kompilasi di awal biar ga bikin ulang regex tiap cek pesan
 _COMPILED = {name: re.compile(rf"\b(?:{pat})\b") for name, pat in ORGS.items()}
 
 
 def orgs_in(text: str) -> set[str]:
     low = fold(text)
     found = {name for name, rx in _COMPILED.items() if rx.search(low)}
-    # "Pemerintah" is generic: only count it when nothing more specific is named.
+    # kata "Pemerintah" terlalu umum, baru dipake kl ga nyebut nama instansi yg lebih spesifik
     return found - {"Pemerintah"} if found - {"Pemerintah"} else found
 
 
 def mismatch(message: str, debunk_text: str) -> dict | None:
+    # cek modus catut nama lembaga: isi hoaksnya sama persis tp nama sumbernya diganti (misal BMKG jadi PMI)
     said, covered = orgs_in(message), orgs_in(debunk_text)
     if not said or not covered or said & covered:
         return None

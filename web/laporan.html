@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
+  <!-- halaman laporan mendalam halio telusur (bisa mode analis ato mode keluarga) -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Laporan Telusur — Halio</title>
   <meta name="description" content="Laporan investigasi Halio Telusur: bukti bernomor, linimasa, asal-usul yang ditemukan, dan titik buta.">
@@ -19,6 +20,7 @@
   </header>
 
   <main class="lp-main">
+    <!-- form awal buat masukin klaim ato foto yg mau ditelusuri -->
     <section id="start" class="lp-card hidden" aria-labelledby="start-h">
       <h1 id="start-h">Telusuri sebuah klaim</h1>
       <p class="lp-muted">Halio mencari puluhan sumber, membuka halamannya, menyalin kutipan, menyusun linimasa, dan menulis laporan bernomor. Butuh 1–3 menit.</p>
@@ -27,6 +29,7 @@
       <button id="go" class="lp-primary" type="button">Mulai penelusuran</button>
     </section>
 
+    <!-- tampilan progres langsung selagi swarm agen nyari & buka sumber -->
     <section id="progress" class="lp-card hidden" aria-live="polite">
       <h1>Sedang menelusuri…</h1>
       <ol class="lp-stages" id="stages"></ol>
@@ -34,6 +37,7 @@
       <p class="lp-muted">Halaman ini diperbarui sendiri. Anda boleh menutupnya dan membuka tautan yang sama nanti.</p>
     </section>
 
+    <!-- wadah pesan galat sm hasil akhir laporan bernomor -->
     <section id="error" class="lp-card hidden" role="alert"></section>
     <article id="report" class="hidden"></article>
   </main>

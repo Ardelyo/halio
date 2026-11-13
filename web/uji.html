@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
+  <!-- halaman uji keamanan langsung: pembuktian kl ai nyari tp kode yg mutusin -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Uji keamanan — Halio</title>
   <meta name="description" content="Tiga uji hidup yang memanggil fungsi asli Halio: perintah tersembunyi di halaman, alamat palsu, dan kalimat yang dikarang AI.">
@@ -30,11 +31,13 @@
     <nav><a href="cek.html">Cek pesan</a><a href="laporan.html">Telusur</a><a href="radar.html">Radar</a></nav>
   </header>
   <main class="lp-main">
+    <!-- kartu pengantar tiga skenario pengujian asli ke server -->
     <section class="lp-card">
       <h1>Jangan percaya, coba sendiri.</h1>
       <p class="lp-muted intro">Halio mengatakan: <b>AI mencari, kode memutuskan.</b> Tiga uji di bawah memanggil fungsi asli Halio di server ini, bukan tiruan.
         Uji pertama memanggil model sungguhan, jadi butuh beberapa detik. Sebuah uji bisa <b>gagal</b>; bila itu terjadi, hasilnya tetap ditampilkan.</p>
     </section>
+    <!-- daftar 3 kartu uji diisi otomatis dr /api/uji lewat uji.js -->
     <div id="tests"></div>
   </main>
   <footer class="lp-foot"><p>Kode uji: <code>backend/halio/selftest.py</code>. <small id="version"></small></p></footer>

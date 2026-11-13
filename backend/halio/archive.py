@@ -27,6 +27,7 @@ from .textnorm import tokens
 
 log = logging.getLogger(__name__)
 
+# pola kata di judul cek fakta buat misahin mana yg beneran bantahan hoaks vs berita valid
 _FALSE_LABEL = re.compile(r"\b(hoa[xk]s?|salah|disinformasi|misinformasi|penipuan|palsu|keliru|menyesatkan|tidak benar|bohong|klarifikasi)\b", re.I)
 _TRUE_LABEL = re.compile(r"^\s*\[?\s*(benar|fakta|valid|terbukti benar)\b|\bterbukti benar\b|\bkabar benar\b", re.I)
 _PREFIX = re.compile(r"^\s*(\[[^\]]{2,24}\]|hoa[xk]s?!?:?|cek fakta:?|fakta atau hoa[xk]s:?|klarifikasi:?)\s*", re.I)
@@ -41,11 +42,13 @@ def says_false(title: str) -> bool:
 
 
 def claim_of(title: str) -> str:
+    # buang embel-embel "[SALAH]" atau "CEK FAKTA:" di depan judul biar bersih pas dicocokin
     return " ".join(_PREFIX.sub("", title).split())
 
 
 def _entry(i: int, title: str, url: str, publisher: str, date: str, origin: str) -> Debunk | None:
     claim = claim_of(title)
+    # kl kata kuncinya kedikitan atau bukan https, skip aja drpd salah cocok
     if len(set(tokens(claim))) < _MIN_TOKENS or not url.startswith("https://"):
         return None
     return Debunk(
@@ -92,7 +95,7 @@ def from_file(path: Path) -> list[Debunk]:
             continue
         label = str(d.get("label", "")).lower()
         if label and not re.search(r"salah|hoa[xk]|fake|false|disinfo|misinfo|penipuan|palsu|1", label):
-            continue   # a true / valid row in a mixed dataset is not a debunk
+            continue   # baris berita valid/benar di dataset campuran jgn dimasukin sbg bantahan
         e = _entry(i, d.get("klaim", ""), d.get("url", ""), d.get("penerbit", "Pemeriksa fakta"), str(d.get("tanggal", ""))[:10], "berkas")
         if e:
             out.append(e)
@@ -100,13 +103,14 @@ def from_file(path: Path) -> list[Debunk]:
 
 
 def index_for(cfg: Settings) -> tuple[Index | None, int]:
+    # simpen index arsip sementra di memori (10 menit) biar ga bolak-balik baca db tiap request
     key = str(cfg.db_path)
     hit = _cache.get(key)
     if hit and time.monotonic() - hit[0] < TTL:
         return hit[1], hit[2]
     entries = from_sensor(cfg) + from_file(cfg.corpus_path.parent / "arsip.jsonl")
     seen, unique = set(), []
-    for d in entries:   # one entry per URL
+    for d in entries:   # cukup satu entri aja per URL biar ga dobel
         if d.sumber[0]["url"] not in seen:
             seen.add(d.sumber[0]["url"])
             unique.append(d)

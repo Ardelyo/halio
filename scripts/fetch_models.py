@@ -18,9 +18,11 @@ import httpx
 
 ROOT = Path(__file__).resolve().parents[1]
 EXT = ROOT / "extension"
+# versi runtime onnx web yg dipake ekstensi (MV3 ngelarang load skrip dr CDN luar pas jalan)
 ORT_VERSION = "1.20.1"
 ORT = f"https://cdn.jsdelivr.net/npm/onnxruntime-web@{ORT_VERSION}/dist"
 
+# daftar file wasm runtime sm bobot NudeNet kecil buat deteksi lokal di browser
 FILES = {
     EXT / "vendor" / "ort.min.js": f"{ORT}/ort.min.js",
     EXT / "vendor" / "ort-wasm-simd-threaded.wasm": f"{ORT}/ort-wasm-simd-threaded.wasm",
@@ -31,8 +33,10 @@ FILES = {
 
 def main() -> int:
     failed = 0
+    # kasih timeout agak panjang soalnya ukuran wasm + model lumayan gede kl koneksi lg pelan
     with httpx.Client(follow_redirects=True, timeout=120) as client:
         for dest, url in FILES.items():
+            # pastin foldernya udah kebikin sebelom nyimpen file
             dest.parent.mkdir(parents=True, exist_ok=True)
             print(f"-> {dest.relative_to(ROOT)}")
             try:
@@ -42,9 +46,11 @@ def main() -> int:
                 print(f"   FAILED: {exc}")
                 failed += 1
                 continue
+            # tulis biner apa adanya trus tampilin potongan hash sha256 buat ngecek
             dest.write_bytes(resp.content)
             print(f"   {len(resp.content) / 1e6:.1f} MB  sha256={hashlib.sha256(resp.content).hexdigest()[:16]}")
     print("Done." if not failed else f"{failed} download(s) failed; see docstring.")
+    # balikin kode error kl ada unduhan yg mental (misal link rilisnya pindah)
     return 1 if failed else 0
 
 

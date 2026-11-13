@@ -1,3 +1,4 @@
+// cek dulu kl user milih kurangi gerak, langsung tampilin semua elemen tanpa animasi
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const reveals = document.querySelectorAll(".reveal");
 
@@ -14,6 +15,7 @@ if (reducedMotion || !("IntersectionObserver" in window)) {
   reveals.forEach((element) => observer.observe(element));
 }
 
+// isi html buat 4 layar simulasi hp di beranda (pesan masuk -> periksa -> vonis -> koreksi)
 const screens = [
   `<div class="device-header"><span class="avatar">K</span><span><b>Keluarga Besar</b><small>6 anggota · pesan diteruskan</small></span><span>08.42</span></div>
    <div class="device-chat"><p>Ada video Presiden bagi-bagi bantuan tunai! Langsung chat nomor WA untuk daftar, <mark>bayar biaya admin 150rb dulu.</mark> SEBARKAN!!</p><small>Pesan sintetis untuk demonstrasi</small></div>
@@ -29,6 +31,7 @@ const next = document.querySelector("#demo-next");
 const nextLabels = ["Lanjut: periksa klaim", "Lanjut: lihat jawaban", "Lanjut: bagikan koreksi", "Putar ulang demonstrasi"];
 let activeStep = 0;
 
+// ganti layar simulasi sekalian atur atribut tab biar ramah pembaca layar
 function showStep(index, focus = false) {
   activeStep = index;
   steps.forEach((step, i) => {
@@ -44,6 +47,7 @@ function showStep(index, focus = false) {
   next.innerHTML = `${nextLabels[index]} <span aria-hidden="true">→</span>`;
 }
 
+// dukung pindah langkah pake klik biasa ato tombol panah keyboard
 steps.forEach((step, index) => {
   step.addEventListener("click", () => showStep(index));
   step.addEventListener("keydown", (event) => {
@@ -58,5 +62,6 @@ steps.forEach((step, index) => {
   });
 });
 
+// tombol lanjut muter balik ke langkah pertama kl udah nyampe ujung
 next.addEventListener("click", () => showStep((activeStep + 1) % steps.length));
 showStep(0);

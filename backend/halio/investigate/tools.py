@@ -19,6 +19,7 @@ from ..config import Settings
 from ..textnorm import tokens
 
 log = logging.getLogger(__name__)
+# identitas user-agent jujur buat request ke API arsip & indeks publik
 UA = {"User-Agent": "HalioTelusur/0.1 (riset anti-disinformasi; hanya sumber publik)"}
 
 
@@ -40,12 +41,13 @@ class Toolbox:
 
         try:
             found, _ = gemini_discover(query, self.cfg)
-        except Exception as exc:  # model or quota: this query becomes a blind spot
+        except Exception as exc:  # kl model down atau kuota abis, kueri ini jadi titik buta aja jgn bikin crash
             log.warning("search unavailable for a query: %s", type(exc).__name__)
             return []
         return [{"uri": f["uri"], "title": f.get("title", ""), "via": "google"} for f in found]
 
     def sensor(self, claim: str, limit: int = 15) -> list[dict]:
+        # intip arsip sensor lokal dulu siapa tau topik ini udah ketarik dr rss media / cek fakta
         want = set(tokens(claim))
         if len(want) < 3:
             return []
@@ -67,6 +69,7 @@ class Toolbox:
 
     def archive(self, claim: str, limit: int = 8) -> list[dict]:
         """Fact-check articles about a very similar claim (archive.py): leads that the evidence engine will open."""
+        # cari bantahan lama yg mirip buat jadi petunjuk awal halaman yg perlu dibuka mesin bukti
         from .. import archive
 
         try:
@@ -78,6 +81,7 @@ class Toolbox:
                  "seen": m.debunk.sumber[0].get("tanggal", ""), "mirip": m.score} for m in hits]
 
     def claimreview(self, query: str) -> list[dict]:
+        # tembak Google Fact Check Tools API kl kunci API-nya ada di konfigrasi
         key = self.cfg.google_factcheck_key
         if not key:
             return []
@@ -101,6 +105,7 @@ class Toolbox:
         return out
 
     def gdelt(self, claim: str, limit: int = 40) -> list[dict]:
+        # tarik daftar artikel dr GDELT buat nambah cakupan berita lintas negara & bahasa
         words = _distinct(claim, 4)
         if len(words) < 2:
             return []
@@ -127,6 +132,7 @@ class Toolbox:
 
     def wayback_first(self, url: str) -> str:
         """ISO date of the first archived capture, or ''."""
+        # cek ke CDX Internet Archive kapan pertama kali URL ini sempet diarsipin
         try:
             resp = httpx.get("https://web.archive.org/cdx/search/cdx", headers=UA, timeout=8,
                              params={"url": url, "output": "json", "limit": 1, "fl": "timestamp", "filter": "statuscode:200"})

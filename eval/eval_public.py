@@ -35,10 +35,11 @@ from halio.config import Settings  # noqa: E402
 DATASET = "Rifky/indonesian-hoax-news"
 API = "https://datasets-server.huggingface.co"
 OUT = ROOT / "eval" / "PUBLIC_RESULTS.md"
-HOAX_SAMPLE = 600  # first N [SALAH] items from rows spread evenly over the dataset (deterministic)
+HOAX_SAMPLE = 600  # ambil N item [SALAH] disebar merata dr seluruh dataset biar deterministik
 
 
 def get(url: str) -> dict:
+    # tarik JSON dr API Hugging Face dgn retry bertahap kl kena rate limit / timeout
     for attempt in range(5):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "halio-eval"})
@@ -49,6 +50,7 @@ def get(url: str) -> dict:
 
 
 def clean(title: str) -> str:
+    # bersihin tag [SALAH]/[BENAR], buntut nama situs, sm karakter mojibake bawaan dataset lama
     t = re.sub(r"^\s*\[[^\]]+\]\s*", "", title)
     t = re.sub(r"\s*[–—\-–—âÂ]+\s*TurnBackHoax\.ID\s*$", "", t, flags=re.I)
     t = t.replace("�", '"').replace("â", "").replace("Â", "")
@@ -63,6 +65,7 @@ def label(title: str) -> str:
 def search(query: str, want_prefix: str) -> list[tuple[str, str]]:
     found: dict[str, str] = {}
     offset = 0
+    # ambil semua baris yg cocok sm kata kunci lewat endpoint search per 100 baris
     while True:
         q = urllib.parse.quote(query)
         r = get(f"{API}/search?dataset={DATASET}&config=default&split=train&query={q}&offset={offset}&length=100")
@@ -78,6 +81,7 @@ def search(query: str, want_prefix: str) -> list[tuple[str, str]]:
 
 def hoax_sample() -> list[tuple[str, str]]:
     out: dict[str, str] = {}
+    # loncat tiap 600 baris biar sampel hoaksnya nyebar dr awal sampe akhir dataset, ga numpuk di satu masa
     total = get(f"{API}/size?dataset={DATASET}")["size"]["dataset"]["num_rows"]
     for offset in range(0, total, 600):
         r = get(f"{API}/rows?dataset={DATASET}&config=default&split=train&offset={offset}&length=100")
@@ -90,6 +94,7 @@ def hoax_sample() -> list[tuple[str, str]]:
 
 
 def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    # selang kepercayaan Wilson 95% buat ngitung batas atas tingkat tuduhan palsu secara jujur
     if n == 0:
         return (0.0, 0.0)
     p = k / n
@@ -109,6 +114,7 @@ def run(items: list[tuple[str, str]], cfg: Settings) -> list[dict]:
 
 
 def main() -> None:
+    # paksa mode lokal murni tanpa AI / FactCheck API, persis kaya eval/run_eval.py
     cfg = Settings(google_factcheck_key=None, llm_enabled=False)
     print("mengambil data TurnBackHoax dari Hugging Face ...", flush=True)
     true_items = search("BENAR", "BENAR")
@@ -143,6 +149,7 @@ def main() -> None:
     lo, hi = wilson(kk, nn)
     lines += [f"| **Gabungan** | **{nn}** | **{kk}** | **{kk / max(1, nn):.1%}** | **{hi:.1%}** |", ""]
 
+    # kl sampe ada kabar bener ato klarifikasi yg kecap salah, buka terang-terangan di laporan
     for key in ("BENAR", "KLARIFIKASI"):
         bad = [r for r in res[key] if r["status"] == "terbukti_salah"]
         if bad:
@@ -174,6 +181,7 @@ def main() -> None:
               "- Sampel `[SALAH]` diambil merata, bukan acak murni, dan dibatasi 600 item.",
               "- Mode tanpa AI saja. Mesin bukti dan ClaimReview belum dievaluasi pada set ini.",
               ""]
+    # simpen hasil ke eval/PUBLIC_RESULTS.md (data mentahnya sendiri ga ikut disimpen di repo)
     OUT.write_text("\n".join(lines), encoding="utf-8")
     print(f"tuduhan palsu: {kk}/{nn}  | cakupan SALAH: {k_h}/{n_h} | ditulis {OUT}")
 

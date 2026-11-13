@@ -50,18 +50,18 @@ def test_article_from_known_outlet_is_described_not_treated_as_a_rumour(offline)
     assert r["kind"] == "berita_media" and r["reason"] == "berita_media_dikenal"
     assert r["info"]["penerbit"] == "detikNews" and r["info"]["judul"].startswith("Pertamina Dukung Pembinaan")
     assert r["info"]["terbit"] == "2026-11-05"
-    assert r["links"]["warnings"] == []          # no "bukan situs pemerintah" noise for a news site
+    assert r["links"]["warnings"] == []          # situs berita dikenal ga perlu dikasih warning berisik "bukan situs pemerintah"
     assert r["offer_human_review"] is False
     out = reply_text(r, html=False)
     assert "BERITA DARI MEDIA DIKENAL" in out and "5 Nov 2026" in out and "detikNews" in out
     assert "jangan diteruskan" not in out.lower() and "tidak mau menebak" not in out.lower()
-    assert out.count("bandingkan dengan satu atau dua media lain") == 1      # said once, not three times
-    assert "apps.detik.com" not in out                                       # an app-download promo is not part of the answer
+    assert out.count("bandingkan dengan satu atau dua media lain") == 1      # saran pembanding cukup disebut sekali, jgn diulang2
+    assert "apps.detik.com" not in out                                       # link promo unduh aplikasi jgn ikut nongol di jawaban
     assert "2026-11-05" not in out
 
 
 def test_pushy_message_with_an_outlet_link_is_still_judged_as_a_message(offline, monkeypatch):
-    monkeypatch.setattr(google_agent, "investigate", lambda *a, **k: None)   # the agent may run here
+    monkeypatch.setattr(google_agent, "investigate", lambda *a, **k: None)   # pesan heboh tetep boleh lanjut dicek agen web
     stub_links(offline, NEWS_PAGE)
     r = pipeline.check("SEGERA SEBARKAN!! Klaim hadiah gratis Rp5 juta sekarang juga https://news.detik.com/berita/d-1 dan transfer biaya admin", CFG)
     assert r["kind"] == "pesan"
@@ -74,6 +74,7 @@ def test_unknown_site_keeps_its_caution(offline):
 
 
 def test_screenshot_of_several_headlines_is_not_one_claim(offline):
+    # tangkapan layar daftar beberapa judul berita jgn dilebur paksa jadi satu klaim tunggal
     stub_links(offline)
     r = pipeline.check("Istana Waspadai Musuh\nSiap-siap, Rekrutmen\ndalam Selimut Sekitar\nCPNS 2026 Dibuka\nPrabowo: Bersih-Bersih", CFG)
     assert r["kind"] == "kumpulan_judul" and r["reason"] == "kumpulan_judul"
@@ -113,7 +114,7 @@ def test_same_group_outlets_are_one_voice():
     assert outlets.lookup("kompas.com").group != outlets.lookup("tempo.co").group
 
 
-# --- Telegram -------------------------------------------------------------------------------------------------
+# --- tampilan & tombol di bot Telegram ------------------------------------------------------------------------
 
 class Resp:
     def __init__(self, status=200, data=None):
@@ -128,6 +129,7 @@ class Resp:
 
 
 def test_news_answer_has_no_card_voice_or_banding_button(monkeypatch):
+    # kl cuma info artikel berita biasa, ga usah kirim kartu gambar / suara / tombol banding
     calls = []
     monkeypatch.setattr(t, "tg", lambda m, **kw: calls.append((m, kw)))
     monkeypatch.setattr(t.httpx, "get", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no card or voice expected")))
@@ -142,6 +144,7 @@ def test_news_answer_has_no_card_voice_or_banding_button(monkeypatch):
 
 
 def test_button_recovers_after_a_restart_using_the_replied_message(monkeypatch):
+    # kl cache di memori sempet ilang abis restart, tombol eskalasi tetep bisa pulih dr teks pesan yg di-reply
     sent, posts = [], []
     monkeypatch.setattr(t, "tg", lambda m, **kw: sent.append((m, kw)))
 

@@ -13,6 +13,7 @@ from ..textnorm import tokens
 KIND_LABEL = {"A": "Sumber resmi", "B": "Pemeriksa fakta", "C": "Media", "D": "Situs lain"}
 
 
+# tangkep format YYYY-MM-DD maupun DD-MM-YYYY biar urutan linimasa ga kebalik gara2 beda gaya tulis tanggal
 _YMD = re.compile(r"(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})")
 _DMY = re.compile(r"(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})")
 
@@ -44,8 +45,9 @@ def timeline(events: list[dict], limit: int = 25) -> list[dict]:
     best: dict[str, dict] = {}
     for e in events:
         d = iso_date(e.get("tanggal") or "")
-        if not d or d > date.today().isoformat() or d < "1995-01-01":   # bad page metadata, not history
+        if not d or d > date.today().isoformat() or d < "1995-01-01":   # metadata tanggal halaman ngaco, bukan sejarah beneran
             continue
+        # satu URL cukup masuk sekali pake tanggal kemunculan paling awalnya
         cur = best.get(e["url"])
         if cur is None or d < cur["tanggal"]:
             best[e["url"]] = {**e, "tanggal": d}
@@ -56,6 +58,7 @@ def earliest(line: list[dict]) -> dict | None:
     """The first dated appearance, and separately the first by a fact-checker or official source (who reacted first)."""
     if not line:
         return None
+    # catat kemunculan paling awal + siapa sumber resmi / cek fakta pertama yg angkat suara
     first = line[0]
     reaction = next((e for e in line if e.get("tingkat") in ("A", "B")), None)
     return {
@@ -68,6 +71,7 @@ def earliest(line: list[dict]) -> dict | None:
 
 def variants(passages: list[dict], threshold: float = 0.55, limit: int = 6) -> list[dict]:
     """Group near-identical sentences across sites (one wording = one cluster). Shows how a claim mutates or is copied."""
+    # kumpulin kutipan yg bunyinya mirip2 lintas situs biar keliatan klaimnya dicopas atau berubah versi gimana aja
     clusters: list[dict] = []
     for p in passages:
         toks = set(tokens(p["kutipan"]))
@@ -90,6 +94,7 @@ def variants(passages: list[dict], threshold: float = 0.55, limit: int = 6) -> l
 def coverage(passages: list[dict]) -> dict:
     """How many distinct voices per tier (outlets of one group or one wire copy count once)."""
     out = {}
+    # media satu grup konglomerasi atau salinan kantor berita yg sama tetep diitung satu suara
     for tier in "ABCD":
         groups = {p["grup"] for p in passages if p["tingkat"] == tier}
         out[tier] = {"label": KIND_LABEL[tier], "suara": len(groups)}

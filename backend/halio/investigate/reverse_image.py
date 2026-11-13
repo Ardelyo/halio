@@ -21,6 +21,7 @@ def _token() -> str:
     import google.auth
     from google.auth.transport.requests import Request
 
+    # tarik token ADC lokal/server buat autentikasi ke Cloud Vision API
     creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
     creds.refresh(Request())
     return creds.token
@@ -34,9 +35,10 @@ def web_detection(data: bytes, cfg: Settings, token=_token, transport: httpx.Bas
             resp = client.post(ENDPOINT, headers={"Authorization": f"Bearer {token()}", "x-goog-user-project": cfg.google_cloud_project},
                                json={"requests": [{"image": {"content": base64.b64encode(data).decode()},
                                                    "features": [{"type": "WEB_DETECTION", "maxResults": 40}]}]})
-    except Exception as exc:  # credentials, network
+    except Exception as exc:  # kredensial blm ada atau koneksi jaringan putus
         out["galat"] = f"tidak_tersedia ({type(exc).__name__})"
         return out
+    # kl Vision API blm dinyalain di proyek GCP, jujur laporin sbg titik buta jgn dianggap "0 kecocokan"
     if resp.status_code in (403, 404):
         out["galat"] = "Cloud Vision API belum diaktifkan di proyek ini"
         return out
@@ -47,12 +49,14 @@ def web_detection(data: bytes, cfg: Settings, token=_token, transport: httpx.Bas
     out["aktif"] = True
     out["label"] = [x.get("label", "") for x in web.get("bestGuessLabels", []) if x.get("label")][:3]
     out["entitas"] = [x["description"] for x in web.get("webEntities", []) if x.get("description")][:8]
+    # masukin halaman publik yg muat gambar persis sama atau mirip ke kolam kandidat bareng
     for page in web.get("pagesWithMatchingImages", [])[:30]:
         url = page.get("url", "")
         if not url.startswith("https://"):
             continue
         full = bool(page.get("fullMatchingImages"))
         out["sama" if full else "mirip"] += 1
+        # bersihin sisa tag <b> bawaan snippet judul dr Vision API
         title = page.get("pageTitle", "").replace("<b>", "").replace("</b>", "")
         out["hits"].append({"uri": url, "title": title, "via": "gambar", "gambar_sama": full})
     return out

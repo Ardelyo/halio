@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cek pesan — Halio</title>
+  <!-- halaman utama alat cek pesan buat keluarga -->
   <meta name="description" content="Tempel pesan yang meragukan. Halio mencari bantahan bersumber dan berkata jujur bila belum tahu.">
   <meta name="theme-color" content="#014BAA">
   <link rel="manifest" href="manifest.webmanifest">
@@ -21,6 +22,7 @@
   </header>
 
   <main class="check-shell">
+    <!-- kolom pengantar kiri: tiga janji kejujuran halio & catatan saringan privasi -->
     <aside class="check-intro">
       <p class="eyebrow">Teman cek pesan keluarga</p>
       <h1>Berhenti sebentar.<br><em>Cek dulu.</em></h1>
@@ -35,6 +37,7 @@
 
     <div class="workbench">
       <div id="static-notice" class="mode-notice hidden" role="status"><span class="mode-dot" aria-hidden="true"></span><p><b>Demo di perangkat ini.</b> Tidak ada pesan atau tiket yang dikirim ke server.</p></div>
+      <!-- kotak tempel pesan berantai dr grup WA, pilihan panggilan sapaan, & unggah foto/suara -->
       <section class="checker-card" id="checker" aria-labelledby="ask">
         <div class="card-heading"><span class="step-label">Mulai di sini</span><span id="char-count" aria-live="polite">0 / 4.000</span></div>
         <label class="big" id="ask" for="msg">Pesan apa yang ingin Anda periksa?</label>
@@ -56,17 +59,20 @@
         <p class="keyboard-hint">Ctrl + Enter untuk memeriksa</p>
       </section>
 
+      <!-- deretan pesan contoh sintetis buat langsung dicoba sekali klik -->
       <section class="examples-section" aria-labelledby="examples-title">
         <div class="examples-heading"><h2 id="examples-title">Belum ada pesan? Coba contoh ini.</h2><span>Pesan sintetis</span></div>
         <div class="example-grid" id="examples"></div>
       </section>
 
+      <!-- wadah hasil pengecekkan, diisi dinamis sm app.js -->
       <section id="result" class="result-container hidden" aria-live="polite" aria-label="Hasil pemeriksaan"></section>
     </div>
   </main>
 
   <footer class="app-footer"><p>Halio membantu memeriksa klaim, bukan menggantikan penilaian Anda. <small id="version" class="version-line"></small></p><div><a href="https://github.com/Ardelyo/halio/blob/main/docs/PRIVACY.md" target="_blank" rel="noopener">Privasi ↗</a><a href="https://github.com/Ardelyo/halio" target="_blank" rel="noopener">Kode sumber ↗</a></div></footer>
 
+  <!-- dialog pengajuan banding kl ada konteks atau sumber baru yg kelewat -->
   <dialog id="appeal-dialog" class="appeal-dialog">
     <form id="appeal-form">
       <button class="dialog-close" type="button" id="appeal-close" aria-label="Tutup">×</button>

@@ -2,6 +2,6 @@
 
 import os
 
-# Tests never reach the network. The v1 agent is stubbed by the tests that need it; v2 tests pass `evidence_engine="v2"`
-# explicitly and inject discover/fetch/judge, so no test depends on whatever HALIO_ENGINE the machine has.
+# semua unit test wajib jalan offline tanpa nyentuh internet. kunci default ke engine v1 dulu;
+# tes yg nguji v2 bakal ngisi evidence_engine="v2" sendiri + suntik mock biar ga tergantung env mesin.
 os.environ["HALIO_ENGINE"] = "v1"

@@ -1,8 +1,8 @@
-# Example Caddy site for the public demo VM (Caddy is installed by hand; this file is not deployed by deploy_gce.sh).
-# Copy to /etc/caddy/Caddyfile, replace the hostnames (the sslip.io name is the fallback, it follows the VM IP), then: sudo systemctl reload caddy
+# contoh setelan Caddy buat VM demo publik (Caddy dipasang manual, file ini ga otomatis disalin deploy_gce.sh)
+# salin ke /etc/caddy/Caddyfile, sesuain domainnya (sslip.io buat cadangan ngikutin IP VM), trus: sudo systemctl reload caddy
 halio.ardelyo.com, 34-101-109-211.sslip.io {
 	encode gzip
-	# Same limit as HALIO_MAX_BODY_MB: refuse oversized uploads at the edge, before they reach the API.
+	# samain batasnya dgn HALIO_MAX_BODY_MB biar upload kegedean langsung mental di depan sebelom nyentuh API
 	request_body {
 		max_size 16MB
 	}

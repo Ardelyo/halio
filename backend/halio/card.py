@@ -12,6 +12,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+# ukuran persegi 1080x1080 biar pas bgt pas dikirim ke grup WA keluarga tanpa kepotong preview
 SIZE = 1080
 PAD = 80
 FONT_DIR = Path(__file__).resolve().parent / "fonts"
@@ -38,6 +39,7 @@ _FALLBACK = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "C:/Windows/Font
 
 @lru_cache(maxsize=64)
 def font(role: str, size: int) -> ImageFont.FreeTypeFont:
+    # utamain font bawaan repo biar hasil render seragam di lokal maupun server
     path = FONT_DIR / _FILES[role]
     if path.exists():
         return ImageFont.truetype(str(path), size)
@@ -64,6 +66,7 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, f, width: int, max_lines: int) -
     if cur:
         lines.append(cur)
     if len(lines) > max_lines:
+        # potong rapi pake elipsis kl kepanjangan biar teks ga nabrak footer kartu
         lines = lines[:max_lines]
         lines[-1] = lines[-1].rstrip(" .,") + "…"
     return lines
@@ -79,7 +82,7 @@ def _block(draw, y: int, text: str, f, fill: str, max_lines: int, leading: float
 def _label(draw, y: int, text: str) -> int:
     f = font("semibold", 22)
     x = PAD
-    for ch in text.upper():  # letter-spaced micro label
+    for ch in text.upper():  # gambar per huruf biar dapet jarak spasi tipis ala label mikro
         draw.text((x, y), ch, font=f, fill=MUTED)
         x += draw.textlength(ch, font=f) + 3
     return y + 40
@@ -99,6 +102,7 @@ def draw_mark(img: Image.Image, x: int, y: int, s: int) -> None:
     d.ellipse([x + 92 * k, y + 14 * k, x + 114 * k, y + 36 * k], fill=SUN)
 
 
+# bagian favorit nih ngerender kartu gambar 1080x1080 buat diterusin ke grup wa keluarga
 def render(result: dict) -> bytes:
     color, title = THEME[result["status"]]
     img = Image.new("RGB", (SIZE, SIZE), CREAM)
@@ -106,6 +110,7 @@ def render(result: dict) -> bytes:
 
     d.rectangle([0, 0, SIZE, 210], fill=color)
     size = 64
+    # kecilin ukuran font judul pelan-pelan kl teks statusnya kepanjangan
     while size > 36 and d.textlength(title, font=font("display", size)) > SIZE - 2 * PAD:
         size -= 2
     d.text((PAD, 52 + (64 - size) // 2), title, font=font("display", size), fill=CREAM)
@@ -132,6 +137,7 @@ def render(result: dict) -> bytes:
         y = _label(d, y, "Kata Halio")
         _block(d, y, msg, font("semibold", 40), INK, max_lines=6)
 
+    # footer kartu: garis pemisah, tanggal cek, sama logo kecil halio di pojok kanan bawah
     d.line([PAD, SIZE - 140, SIZE - PAD, SIZE - 140], fill=LINE, width=3)
     d.text((PAD, SIZE - 98), f"{result['created'][:10]}  ·  Bukan vonis Halio: cek sumbernya.", font=font("regular", 24), fill=MUTED)
     wf = font("serif", 52)

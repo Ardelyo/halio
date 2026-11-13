@@ -1,5 +1,7 @@
+// logika utama halaman cek pesan (cek.html): kirim teks/media, render bukti, suara, & kartu PNG
 const API = window.HALIO_API || "";
 
+// contoh pesan buatan siap klik biar pengunjung langsung bisa nyoba tanpa nyari pesan dulu
 const EXAMPLES = [
   ["Bansos dari Presiden", "Bapak ibu, ada video Pak Presiden bagi-bagi bantuan tunai! Langsung chat nomor WA 0812-3456-7890 untuk daftar, bayar biaya admin 150rb dulu. SEBARKAN!!"],
   ["Masuk TNI dijamin lulus", "Ada kenalan di kodam bisa bantu anak masuk TNI AD jalur khusus, dijamin lulus asal siapkan uang 80 juta. Hubungi saya segera, kuota terbatas."],
@@ -27,12 +29,13 @@ const $ = (selector) => document.querySelector(selector);
 const esc = (value) => String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 const store = {
   get(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
-  set(key, value) { try { localStorage.setItem(key, value); } catch { /* Storage may be unavailable. */ } },
+  set(key, value) { try { localStorage.setItem(key, value); } catch { /* abaikan kl mode privat matiin localStorage */ } },
 };
 let appealCheckId = "";
 let cardPreviewUrl = "";
 let currentAudio = null;
 
+// pastin tautan yg dirender cuma boleh http/https biar aman dr javascript: URI
 function safeUrl(value) {
   try {
     const url = new URL(value, location.href);
@@ -40,6 +43,7 @@ function safeUrl(value) {
   } catch { return "#"; }
 }
 
+// tanda acak per browser buat bantu itung pelapor berbeda di k-anonimitas radar (bukan identitas orang)
 function deviceId() {
   let id = store.get("halio.device", "");
   if (!id) {
@@ -104,6 +108,7 @@ async function check(text) {
   }
 }
 
+// kirim gambar atau pesan suara ke endpoint media (cuma dibaca isinya, bukan deteksi deepfake)
 async function checkMedia(file) {
   const button = $("#go");
   button.disabled = true;
@@ -144,6 +149,7 @@ function sourceList(match) {
     </a></li>`).join("")}</ul>`;
 }
 
+// susun rincian langkah yg beneran dijalanin mesin bukti biar transparan ke pengguna
 function processPanel(result) {
   const rows = [];
   const m = result.match;
@@ -312,6 +318,7 @@ function openAppeal(checkId) {
   $("#appeal-reason").focus();
 }
 
+// bagian krusial biar nenek ga bingung pas mencet tombol suara: coba audio server dulu, kl gagal jatoh ke suara bawaan hp
 function speak(result) {
   const button = $("#listen");
   const fallback = () => {
@@ -371,6 +378,7 @@ function evidencePanel(result) {
     <small>Kutipan disalin langsung dari halaman oleh kode; AI hanya menilai hubungannya dengan klaim.</small></div>`;
 }
 
+// gambar kartu PNG di canvas lokal kl mode demo statis atau endpoint kartu server lagi belum siap
 async function makeStaticCard(result) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
@@ -378,10 +386,10 @@ async function makeStaticCard(result) {
   const context = canvas.getContext("2d");
   context.fillStyle = "#F8F3F0";
   context.fillRect(0, 0, 1080, 1350);
-  // Same layout and palette as the server's Kartu Halio (backend/halio/card.py, docs/BRAND.md).
+  // tata letak sm palet warnanya disamain persis kaya Kartu Halio di server (backend/halio/card.py)
   const THEME = { terbukti_salah: "#B42318", sejalan_dengan_sumber: "#067647", dilaporkan_media: "#014BAA", tidak_yakin: "#B54708", belum_ada_pemeriksaan: "#475467" };
   const SERIF = '"Instrument Serif", Georgia, serif', SANS = 'Inter, system-ui, Arial, sans-serif';
-  try { await Promise.all([document.fonts.load(`80px ${SERIF}`), document.fonts.load(`600 30px ${SANS}`)]); } catch { /* fall back to system fonts */ }
+  try { await Promise.all([document.fonts.load(`80px ${SERIF}`), document.fonts.load(`600 30px ${SANS}`)]); } catch { /* pake font sistem kl gagal muat */ }
   context.fillStyle = "#014BAA";
   context.fillRect(0, 0, 1080, 170);
   context.fillStyle = "#F8F3F0";
@@ -465,6 +473,7 @@ async function shareCard(result) {
   }
 }
 
+// rem jeda 10 detik sebelum nyalin pesan asli biar orang sempet mikir ulang sebelum sebar ke grup
 function pauseBeforeShare(button, original) {
   let seconds = 10;
   button.disabled = true;
@@ -495,7 +504,7 @@ async function showVersion() {
 
 function init() {
   showVersion();
-  // The no-AI switch is a demo control, shown with ?demo=1 so ordinary visitors are not confused by it.
+  // saklar tanpa-AI khusus buat ngedemoin ke juri pake ?demo=1, disembunyiin dr pengunjung biasa biar ga bingung
   if (new URLSearchParams(location.search).has("demo") && !window.HALIO_STATIC_DEMO) $("#noai-row")?.classList.remove("hidden");
   if (window.HALIO_STATIC_DEMO) $("#static-notice").classList.remove("hidden");
   const sapaan = $("#sapaan");
@@ -542,6 +551,7 @@ function init() {
     finally { button.disabled = false; }
   };
 
+  // tangkep kiriman langsung dr menu "Bagikan" hp (Web Share Target) terus langsung cek
   const params = new URLSearchParams(location.search);
   const shared = [params.get("title"), params.get("text"), params.get("url")].filter(Boolean).join("\n");
   if (shared) {

@@ -23,6 +23,7 @@ from halio import pipeline  # noqa: E402
 from halio.config import Settings  # noqa: E402
 
 
+# dua set uji: dev dipake pas nyetel aturan, holdout disimpen buat ngecek jujur
 SETS = {
     "dev": ("testset.jsonl", "tuning set: the rules were adjusted while looking at these"),
     "holdout": ("holdout.jsonl", "held-out set: written before the guard fix and never tuned on"),
@@ -30,6 +31,7 @@ SETS = {
 
 
 def load(name: str = "dev") -> list[dict]:
+    # baca file jsonl baris demi baris
     path = ROOT / "eval" / SETS[name][0]
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
@@ -39,6 +41,7 @@ def evaluate(cfg: Settings, items: list[dict]) -> dict:
     pos = [i for i in items if i["expect"] == "terbukti_salah"]
     neg = [i for i in items if i["expect"] == "not_debunked"]
     opi = [i for i in items if i["expect"] == "opinion"]
+    # ukur akurasi pencocokan korpus; angka paling krusial itu false_hoax (pantang > 0)
     for item in items:
         r = pipeline.check(item["text"], cfg)
         got_id = (r["match"] or {}).get("debunk_id")
@@ -51,11 +54,13 @@ def evaluate(cfg: Settings, items: list[dict]) -> dict:
                 wrong_id += 1
             else:
                 fn += 1
+        # kl pernyataan bener/blm jelas malah dicap terbukti_salah, langsung itung sbg tuduhan palsu
         elif item["expect"] == "not_debunked":
             if r["status"] == "terbukti_salah":
                 false_hoax += 1
             else:
                 abstain_ok += 1; ok = True
+        # sapaan ato opini pribadi wajib ketangkep sbg bukan_klaim_faktual
         else:
             if r["reason"] == "bukan_klaim_faktual":
                 opinion_ok += 1; ok = True
@@ -136,8 +141,10 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sweep", action="store_true")
     args = ap.parse_args()
+    # matiin FactCheck API sm LLM biar evaluasi ini murni ngetes korpus + aturan lokal & cepet jalan di CI
     base = Settings(google_factcheck_key=None, llm_enabled=False)
 
+    # mode --sweep buat nyari pasangan ambang match & unsure yg paling pas tanpa false-hoax
     if args.sweep:
         print("match  unsure  recall  false_hoax  abstain_ok")
         for mt in [x / 100 for x in range(30, 61, 2)]:
@@ -152,6 +159,7 @@ def main() -> None:
         parts.append(report(base, m, name))
         summary.append(f"{name:<8} false-hoax {m['false_hoax']}/{m['counts']['negatives']}  recall {m['recall_known_hoax']:.0%}  "
                        f"wrong-debunk {m['wrong_debunk']}  opinion {m['opinion_detect']:.0%}")
+    # tulis ulang eval/RESULTS.md (dicek pake git diff di CI biar angkanya ga pernah basi)
     (ROOT / "eval" / "RESULTS.md").write_text(HEADER + "\n".join(parts) + "\n" + HISTORY + LIMITS, encoding="utf-8")
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")

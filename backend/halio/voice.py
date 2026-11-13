@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 ENDPOINT = "https://texttospeech.googleapis.com/v1/text:synthesize"
 VOICE = os.getenv("HALIO_TTS_VOICE", "id-ID-Chirp3-HD-Aoede")
 PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "gemma4good-494311")
-MAX_CHARS = 1500   # a voice note is a short answer; the API accepts far more, but nobody listens to a page
+MAX_CHARS = 1500   # voice note cukup ringkas aja biar enak didengerin orang tua, ga usah sepanjang artikel
 
 
 class VoiceUnavailable(RuntimeError):
@@ -38,6 +38,7 @@ def _cloud(script: str, token=_token, transport: httpx.BaseTransport | None = No
     import base64
 
     with httpx.Client(timeout=25, transport=transport) as client:
+        # speakingRate 0.95 biar temponya agak pelan dikit & artikulasinya jelas buat bapak/ibu
         resp = client.post(ENDPOINT, headers={"Authorization": f"Bearer {token()}", "x-goog-user-project": PROJECT}, json={
             "input": {"text": script[:MAX_CHARS]},
             "voice": {"languageCode": "id-ID", "name": VOICE},
@@ -56,15 +57,16 @@ def _gtts(script: str) -> bytes:
     buf = io.BytesIO()
     try:
         gTTS(script, lang="id", slow=False).write_to_fp(buf)
-    except Exception as exc:  # gTTS raises its own error types on network failure
+    except Exception as exc:  # gTTS suka ngelempar error sendiri kl koneksi lagi bermasalah
         log.warning("TTS failed: %s", exc)
         raise VoiceUnavailable(str(exc)) from exc
     return buf.getvalue()
 
 
 def synthesize(script: str) -> bytes:
+    # coba pake suara Chirp 3 HD di Cloud TTS dulu, kl gagal otomatis turun ke gTTS
     try:
         return _cloud(script)
-    except Exception as exc:   # credentials, API disabled, quota, network: never lose the voice note over it
+    except Exception as exc:   # kredensial blm ada, kuota abis, atau jaringan gangguan: jgn smpe voice note batal dibuat
         log.info("Cloud TTS unavailable, falling back to gTTS: %s", type(exc).__name__)
         return _gtts(script)

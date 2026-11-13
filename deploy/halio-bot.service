@@ -1,3 +1,4 @@
+# unit systemd bot Telegram long-polling, nunggu halio-api nyala duluan
 [Unit]
 Description=Halio Telegram bot
 After=halio-api.service
@@ -6,6 +7,7 @@ Requires=halio-api.service
 User=halio
 WorkingDirectory=/opt/halio/backend
 EnvironmentFile=/opt/halio/.env.systemd
+# tembak API lewat loopback lokal biar kenceng & ga muter keluar jaringan
 Environment=HALIO_API_URL=http://127.0.0.1:8000
 ExecStart=/opt/halio/.venv/bin/python -m halio.channels.telegram
 Restart=always

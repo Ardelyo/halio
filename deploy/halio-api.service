@@ -1,3 +1,4 @@
+# unit systemd buat backend API Halio (cuma dengerin localhost, publiknya lewat Caddy)
 [Unit]
 Description=Halio API
 After=network-online.target
@@ -5,6 +6,7 @@ After=network-online.target
 User=halio
 WorkingDirectory=/opt/halio/backend
 EnvironmentFile=/opt/halio/.env.systemd
+# tetep 1 worker biar akses sqlite & hitungan limit harian aman
 ExecStart=/opt/halio/.venv/bin/uvicorn halio.api:app --host 127.0.0.1 --port 8000 --workers 1
 Restart=always
 RestartSec=3

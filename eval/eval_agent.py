@@ -26,10 +26,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
+# status "hijau" yg pantang banget keluar buat klaim hoaks
 GREEN = {"sejalan_dengan_sumber", "dilaporkan_media"}
 
 
 def corpus_hoaxes() -> list[str]:
+    # ambil klaim hoaks dr korpus kurasi (skip entri yg sifatnya verifikasi positif)
     data = json.loads((ROOT / "data" / "debunks.json").read_text(encoding="utf-8"))
     items = data["debunks"] if isinstance(data, dict) else data
     return [d["klaim"] for d in items if d.get("jenis") != "verifikasi_positif"]
@@ -47,20 +49,23 @@ def main() -> None:
     ap.add_argument("--hoax", type=int, default=10)
     ap.add_argument("--news", type=int, default=10)
     args = ap.parse_args()
+    # evaluasi agen telusur butuh Gemini + Google Search hidup, kl mati langsung tolak aja
     if not settings.llm_enabled:
         raise SystemExit("HALIO_LLM=1 diperlukan.")
 
+    # gabungin korpus hoaks kita sm judul cek fakta terbaru hasil tangkapan sensor
     rows = SensorStore(settings.db_path).recent_items(limit=200)
     news, sensor_hoax = build_sets(rows, {s.id: s.kind for s in SOURCES}, args.news, args.hoax)
     hoax = (corpus_hoaxes() + sensor_hoax)[: args.hoax]
     results = []
+    # jalankan telusur penuh satu-satu; lumayan makan waktu jd cetak progres per baris
     for kind, claims in (("hoax", hoax), ("news", news)):
         for claim in claims:
             t0 = time.time()
             try:
                 rep = investigate.run(claim, settings)
                 err = ""
-            except Exception as exc:  # report it, keep going
+            except Exception as exc:  # catet aja errornya, jgn berenti di tengah jalan
                 rep, err = {}, type(exc).__name__
             sec = round(time.time() - t0, 1)
             m = rep.get("metode", {})
@@ -73,6 +78,7 @@ def main() -> None:
             r = results[-1]
             print(f"{kind:<4} {r['status']:<24} {sec:>6}s dibuka {r['dibuka']:>3} bukti {r['bukti']:>2} asal {r['asal'] or '-':<10} {claim[:70]}", flush=True)
 
+    # cek dua syarat keselamatan utma: 0 berita dituduh salah & 0 hoaks lolos hijau
     bad_news = [r for r in results if r["set"] == "news" and r["status"] == "terbukti_salah"]
     green_hoax = [r for r in results if r["set"] == "hoax" and r["status"] in GREEN]
     secs = sorted(r["detik"] for r in results if not r["galat"]) or [0]
@@ -107,6 +113,7 @@ def main() -> None:
     out = ROOT / "eval" / "AGENT_RESULTS.md"
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"\nTertulis: {out}")
+    # gagalin proses kl ada pelanggaran keselamatan biar ketauan jelas
     sys.exit(1 if bad_news or green_hoax else 0)
 
 

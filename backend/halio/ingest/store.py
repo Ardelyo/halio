@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS sensor_log (
 CREATE INDEX IF NOT EXISTS idx_log_ts ON sensor_log (ts);
 """
 
+# batas maksmal backoff sejam sm batesin item sekali tarik biar sqlite ga berat
 MAX_BACKOFF_S = 3600
 MAX_ITEMS_PER_FETCH = 200
 
@@ -60,7 +61,7 @@ class SensorStore:
         conn.row_factory = sqlite3.Row
         return conn
 
-    # --- scheduling -----------------------------------------------------
+    # --- jadwal tarik feed ----------------------------------------------
     def due(self, sources: tuple[Source, ...] | list[Source], now: datetime) -> list[Source]:
         with self._conn() as c:
             rows = {r["source_id"]: r["next_due"] for r in c.execute("SELECT source_id, next_due FROM sensor_state")}
@@ -72,7 +73,7 @@ class SensorStore:
             row = c.execute("SELECT * FROM sensor_state WHERE source_id=?", (source_id,)).fetchone()
         return dict(row) if row else None
 
-    # --- writes ---------------------------------------------------------
+    # --- catat hasil tarikan --------------------------------------------
     def record_fetch(
         self, source: Source, now: datetime, *, status: str, latency_ms: int | None,
         error: str | None = None, items: list[Item] | None = None,
@@ -85,12 +86,13 @@ class SensorStore:
             first_success = prev["first_success"] if prev else None
             ok = status in ("ok", "304")
             fails = 0 if ok else (prev["fails"] if prev else 0) + 1
+            # kl gagal terus, mundurin jadwal cek berikutnya pake exponential backoff
             delay = source.cadence_s if ok else min(source.cadence_s * 2 ** min(fails, 6), MAX_BACKOFF_S)
 
             new = 0
             if status == "ok" and items:
-                # Items found on a source's very first successful poll are history, not news:
-                # flagged so they never count toward rate or latency statistics.
+                # pas tarikan sukses paling pertama, isinya itu riwayat lama bukan berita baru:
+                # tandain backfill=1 biar ga ngerusak statistik laju berita per jam sm delay
                 backfill = 0 if first_success else 1
                 for it in items[:MAX_ITEMS_PER_FETCH]:
                     cur = c.execute(
@@ -125,7 +127,7 @@ class SensorStore:
             c.execute("DELETE FROM sensor_items WHERE first_seen < ?", (iso(now - timedelta(days=item_days)),))
             c.execute("DELETE FROM sensor_log WHERE ts < ?", (iso(now - timedelta(days=log_days)),))
 
-    # --- reads for coverage + UI ----------------------------------------
+    # --- query bacaan buat cakupan + UI ---------------------------------
     def states(self) -> dict[str, dict]:
         with self._conn() as c:
             return {r["source_id"]: dict(r) for r in c.execute("SELECT * FROM sensor_state")}
@@ -160,12 +162,12 @@ class SensorStore:
             ).fetchall()
         for r in rows:
             d = (datetime.fromisoformat(r["first_seen"]) - datetime.fromisoformat(r["published"])).total_seconds()
-            if d >= 0:  # clock skew in a feed can put "published" in the future; ignore those
+            if d >= 0:  # jam server media kadang ngaco maju ke masa depan, yg minus skip aja
                 out.setdefault(r["source_id"], []).append(d)
         return out
 
     def items_since(self, since_iso: str, limit: int = 3000) -> list[dict]:
-        # Backfill (what a feed already held at its first poll) is included: for a brief, a headline is a headline.
+        # backfill tetep ikut kebawa di sini: buat nyusun brief harian, judul lama yg baru ketarik tetep kepake
         sql = ("SELECT source_id, title, url, published, first_seen FROM sensor_items WHERE first_seen >= ? "
                "ORDER BY first_seen DESC LIMIT ?")
         with self._conn() as c:
@@ -173,6 +175,7 @@ class SensorStore:
 
     def search_items(self, words: list[str], limit: int = 400) -> list[dict]:
         """Whole archive (backfill included), titles containing any of the words; newest first. The caller scores them."""
+        # ambil maks 6 kata aja biar query LIKE ke sqlite tetep enteng
         words = [w for w in words if w][:6]
         if not words:
             return []

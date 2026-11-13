@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+# set db sementra dulu sblm import modul api biar aman dr db lokal
 os.environ.setdefault("HALIO_DB", os.path.join(tempfile.mkdtemp(), "hardening.db"))
 os.environ.pop("RADAR_TOKEN", None)
 
@@ -30,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[2]
 client = TestClient(api.app)
 
 
-# --- false accusations -------------------------------------------------------------------------
+# --- cegah tuduhan hoaks salah sasaran ---------------------------------------------------------
 
 @pytest.mark.parametrize("text", [
     "Pendaftaran Bintara TNI AD 2026 dibuka tanggal 5 Januari melalui penerimaan.tniad.mil.id, biaya gratis",
@@ -47,7 +48,7 @@ def test_true_same_topic_statements_are_not_called_hoax(text):
     "Pesan prediksi gempa besar minggu depan itu hoaks, BMKG sudah membantahnya",
     "Jasa Marga membantah membagikan saldo e-toll gratis lewat link, itu penipuan",
     "Tidak ada bukti air kelapa dan garam menyembuhkan covid, kata Kementerian Kesehatan",
-    # Warnings found by the pre-submission stress test (Nov 2026): both were called hoaxes before.
+    # temuan dr stress test jelang kumpul (Nov 2026): dua pesan imbauan ini tadinya sempet kecap hoaks
     "Hati-hati penipuan bansos memakai video palsu Presiden. Bantuan resmi tidak pernah meminta biaya administrasi. Cek di situs resmi Kemensos.",
     "Kodam XV Pattimura menangkap calo penerimaan prajurit. Masyarakat diminta melapor bila ada yang meminta uang. Seleksi TNI AD tidak dipungut biaya.",
     "Jangan percaya calo yang menjanjikan lulus masuk TNI AD dengan bayar uang, semua tes resmi gratis",
@@ -73,12 +74,12 @@ def test_llm_cannot_lift_past_the_guard(monkeypatch):
 
     monkeypatch.setattr(llm_verdict, "judge", always_same)
     cfg = replace(CFG, llm_enabled=True, llm_provider="anthropic")
-    # Core negated ("tidak dipungut biaya"): the LLM saying "sama" must not turn it into a hoax.
+    # inti klaimnya dibalik ("tidak dipungut biaya"): biarpun LLM ngotot bilang "sama", tetep ga boleh jadi hoaks
     r = pipeline.check("Rekrutmen tamtama TNI AD tidak dipungut biaya, daftar resmi lewat situs", cfg)
     assert r["status"] != "terbukti_salah"
     r = pipeline.check("Pesan prediksi gempa besar minggu depan itu hoaks, BMKG sudah membantahnya", cfg)
     assert r["status"] != "terbukti_salah"
-    # A "mirip" paraphrase whose core is present may still be confirmed with a quote.
+    # parafrase "mirip" yg intinya masih utuh tetep boleh dikonfirmasi pake kutipan
     r = pipeline.check("bisa bantu masuk bintara TNI lwt kenalan perwira, ada uang pelicin dikit", cfg)
     assert r["status"] == "terbukti_salah" and r["reason"] == "cocok_dikonfirmasi_llm"
 
@@ -93,7 +94,7 @@ def test_holdout_eval_has_no_false_hoax():
         assert m["wrong_debunk"] == 0, name
 
 
-# --- privacy and links -------------------------------------------------------------------------
+# --- sensor data pribadi & pengecekkan tautan --------------------------------------------------
 
 @pytest.mark.parametrize("text,leak", [
     ("hubungi +62 812-3456-7890", "812"), ("telp (0812) 3456 7890", "3456"),
@@ -107,7 +108,7 @@ def test_scrub_gaps_closed(text, leak):
 def test_link_host_is_parsed_not_suffix_matched():
     assert extract_domains("https://kemensos.go.id.bansos-cair.xyz/?a=.go.id") == ["kemensos.go.id.bansos-cair.xyz"]
     assert extract_domains("klik bit.ly/abc atau s.id/daftar") == ["bit.ly", "s.id"]
-    # The pipeline now really opens links; keep this test offline and about hostname parsing only.
+    # skrg pipeline beneran ngebuka link; matiin fitur buka link di sini biar murni ngetes parsing host secara offline
     r = pipeline.check("daftar di https://kemensos.go.id.bansos-cair.xyz/form dan https://cekbansos.kemensos.go.id", replace(CFG, link_check_enabled=False))
     warned = " ".join(r["links"]["warnings"])
     assert "bansos-cair.xyz" in warned and "cekbansos.kemensos.go.id" not in warned
@@ -125,10 +126,11 @@ def test_judol_rule_ignores_everyday_words():
 
 
 def test_extension_lexicon_is_generated_from_python():
+    # pastin kamus kata di ekstensi browser tetep sinkron sm sumber python-nya
     subprocess.run([sys.executable, str(ROOT / "scripts" / "sync_lexicon.py"), "--check"], check=True)
 
 
-# --- API abuse limits --------------------------------------------------------------------------
+# --- batas anti-spam & penyalahgunaan API ------------------------------------------------------
 
 def test_long_input_is_truncated_not_rejected():
     r = client.post("/api/check", json={"text": "Waspada gempa besar diprediksi minggu depan. " + "x " * 5000})
@@ -152,7 +154,7 @@ def test_rate_limit_keys_on_forwarded_address_only_when_proxy_trusted(monkeypatc
 
 
 def test_forged_reporters_count_once():
-    # Five invented "devices" from one network are one reporter for k-anonymity.
+    # lima "device" karangan dr satu subnet jaringan yg sama tetep diitung satu pelapor buat k-anonymity
     for i in range(6):
         client.post("/api/check", json={"text": "Jembatan Ampera ditutup total tiga hari mulai besok pagi", "reporter": f"fake{i}"})
     texts = [r.get("text") for r in api.store.radar(days=1)["emerging_rumours"]]
@@ -167,7 +169,7 @@ def test_radar_closed_to_remote_clients_without_token(monkeypatch):
     assert remote.get("/api/radar").status_code == 200
 
 
-# --- WhatsApp webhook --------------------------------------------------------------------------
+# --- webhook WhatsApp --------------------------------------------------------------------------
 
 def _signed(body: bytes, secret: str) -> dict:
     return {"x-hub-signature-256": "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest(),
@@ -186,14 +188,14 @@ def test_whatsapp_rejects_unsigned_and_accepts_signed(monkeypatch):
     assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "wrong")).status_code == 403
     assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "s3cret")).status_code == 200
     assert seen == [("628111", "terbukti_salah")]
-    # Meta retries a redelivered message id: it must not be answered twice.
+    # Meta kadang kirim ulang wamid yg sama: jgn sampe kekirim balasan dobel ke user
     assert client.post("/webhook/whatsapp", content=body, headers=_signed(body, "s3cret")).status_code == 200
     assert seen == [("628111", "terbukti_salah")]
     junk = b"not json"
     assert client.post("/webhook/whatsapp", content=junk, headers=_signed(junk, "s3cret")).status_code == 400
 
 
-# --- Telegram HTML -----------------------------------------------------------------------------
+# --- keamanan HTML Telegram --------------------------------------------------------------------
 
 def test_telegram_reply_escapes_user_text():
     r = pipeline.check("Jembatan <b>Suramadu</b> ditutup, cek http://a<script>.xyz", CFG, sapaan="<i>Bu</i>")
@@ -207,7 +209,7 @@ def test_bot_reporter_is_kept_only_with_the_channel_key(monkeypatch):
     forged = client.post("/api/check", json=body).json()
     real = client.post("/api/check", json=body, headers={"x-halio-channel-key": "k3y"}).json()
     assert api.cache.get(forged["id"])["_reporter"].startswith("net:")
-    assert api.cache.get(real["id"])["_reporter"] == "tg:42"  # escalation replies are routed with this
+    assert api.cache.get(real["id"])["_reporter"] == "tg:42"  # id ini dipake buat ngerutein balasn tiket eskalasi
 
 
 def test_web_agent_cannot_turn_a_correction_into_a_hoax(monkeypatch):
@@ -235,15 +237,15 @@ def test_gemini_defaults(monkeypatch):
 
 
 def test_radar_stays_closed_behind_a_same_host_proxy():
-    # nginx / Cloudflare Tunnel connect from 127.0.0.1; the proxy headers reveal the real remote client.
+    # nginx / Cloudflare Tunnel masuk dr 127.0.0.1; cek header proxy buat nangkep IP pengakses luarnya
     proxied = TestClient(api.app, client=("127.0.0.1", 5000))
     for path in ("/api/radar", "/api/review/escalations", "/api/sensor/coverage"):
         for hdr in ({"x-forwarded-for": "203.0.113.9"}, {"cf-connecting-ip": "203.0.113.9"}, {"forwarded": "for=203.0.113.9"}):
             assert proxied.get(path, headers=hdr).status_code == 401, (path, hdr)
-    assert proxied.get("/api/radar").status_code == 200  # a developer hitting the app directly still works
+    assert proxied.get("/api/radar").status_code == 200  # kl diakses dev lokal langsung tanpa header proxy tetep jalan
 
 
-# --- cost and load guards (pre-submission, Nov 2026) ---------------------------------------------
+# --- penjaga kuota biaya & beban server (jelang kumpul, Nov 2026) ------------------------------
 
 def test_daily_budget_zero_means_unlimited_and_resets_each_day():
     from halio.security import DailyBudget
@@ -273,7 +275,7 @@ def test_llm_daily_cap_falls_back_to_local_answer_with_a_label(monkeypatch):
     second = client.post("/api/check", json={"text": text}).json()
     assert seen == [True, False]
     assert first["mode"] == "penuh" and second["mode"] == "tanpa_ai" and second.get("batas_ai_harian")
-    assert second["status"] == first["status"] == "terbukti_salah"   # the curated corpus still answers
+    assert second["status"] == first["status"] == "terbukti_salah"   # basis data kurasi lokal tetep bisa ngejawab
 
 
 def test_media_daily_cap_answers_429_with_plain_advice(monkeypatch):
@@ -301,7 +303,7 @@ def test_pages_get_csp_and_frame_denial_and_the_inline_script_hash_matches():
     assert r.headers["X-Frame-Options"] == "DENY"
     csp = r.headers["Content-Security-Policy"]
     assert "frame-ancestors 'none'" in csp and "object-src 'none'" in csp and "'unsafe-eval'" not in csp
-    # Any inline <script> in web/*.html must be allowed by hash, or the page silently breaks under the CSP.
+    # semua <script> inline di web/*.html wajib cocok hash sha256-nya di CSP; tes rewel dikit gpp drpd jebol pas didemoin ke juri
     for page in (ROOT / "web").glob("*.html"):
         for body in re.findall(r"<script>(.*?)</script>", page.read_text(encoding="utf-8"), re.S):
             digest = "sha256-" + base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()

@@ -35,22 +35,22 @@ from .textnorm import tokens
 log = logging.getLogger(__name__)
 
 TIER_LABEL = {"A": "Sumber resmi", "B": "Pemeriksa fakta", "C": "Media", "D": "Lainnya"}
-FRESH_OFFICIAL_DAYS = 180   # an official page older than this does not make a claim "sejalan" today
-FRESH_MEDIA_DAYS = 30       # media reports older than this are not counted as confirming a current claim
+FRESH_OFFICIAL_DAYS = 180   # rilis resmi yg lebih tua dari ini ga boleh langsung bikin klaim hari ini jadi "sejalan"
+FRESH_MEDIA_DAYS = 30       # berita media yg udah lewat sebulan ga diitung sbg konfirmasi kabar baru
 MAX_PAGES, MAX_PASSAGES_PER_PAGE, MAX_PASSAGES = 10, 2, 14
 
 
-# ---- data -----------------------------------------------------------------------------------------------------
+# ---- struktur data bukti --------------------------------------------------------------------------------------
 
 @dataclass
 class Passage:
     id: int
-    text: str            # copied from the page by code: verbatim by construction
+    text: str            # disalin langsung dari halaman oleh kode kita, jadi pasti persis kata per kata
     url: str
     host: str
     tier: str            # A resmi | B pemeriksa fakta | C media | D lainnya
     publisher: str
-    group: str           # outlets of one group (or one wire copy) are one voice
+    group: str           # media satu grup (atau satu rilis kantor berita) diitung satu suara aja
     published: date | None
     title: str = ""
 
@@ -58,8 +58,8 @@ class Passage:
 @dataclass
 class Judgement:
     id: int
-    relation: str        # supports | refutes | context | unrelated
-    covers_all: bool     # the passage states the whole core of the claim by itself
+    relation: str        # label relasi: supports | refutes | context | unrelated
+    covers_all: bool     # kutipan ini sendirian udah nyakup seluruh inti klaim
 
 
 @dataclass
@@ -73,7 +73,7 @@ class Item:
 class Decision:
     status: str
     reason: str
-    kekuatan: int        # 0..4, explainable (see decide), not a model "confidence"
+    kekuatan: int        # skor 0..4 dari aturan jelas di decide(), bukan angka "confidence" karangan model
     alasan: str
     used: list[Item] = field(default_factory=list)
 
@@ -84,15 +84,15 @@ class EvidenceResult:
     reason: str
     kekuatan: int
     alasan: str
-    items: list[dict]            # what to show: publisher, tier, date, verbatim quote, url, relation
-    dicari: list[str]            # the search queries the model ran
-    dibuka: int                  # pages our code really opened
-    relevan: int                 # pages with at least one passage that overlaps the claim
-    ditolak: list[dict]          # {host, alasan}: why a candidate was not used
+    items: list[dict]            # daftar bukti buat ditampilin: penerbit, tingkat, tanggal, kutipan asli, url, hubungan
+    dicari: list[str]            # kueri pencarian yg dijalanin model
+    dibuka: int                  # jumlah halaman yg beneran berhasil dibuka kode kita
+    relevan: int                 # jumlah halaman yg punya minimal satu kalimat nyambung sm klaim
+    ditolak: list[dict]          # {host, alasan}: catetan kenapa kandidat halaman ga dipake
     bacaan: dict = field(default_factory=lambda: {"items": [], "disaring": 0})
 
 
-# ---- source tiers ---------------------------------------------------------------------------------------------
+# ---- pengelompokan tingkat sumber -----------------------------------------------------------------------------
 
 def classify(url: str) -> tuple[str, str, str]:
     """(tier, publisher, group). A and B come from the existing allow-lists; C from the known-outlets registry; the rest is D."""
@@ -110,9 +110,9 @@ def classify(url: str) -> tuple[str, str, str]:
     return "D", host, host
 
 
-# ---- wire agencies: one article republished by many outlets is one voice ---------------------------------------
+# ---- deteksi kantor berita: satu rilis ANTARA/Reuters yg dimuat banyak media tetep diitung satu suara ---------
 
-# A dateline such as "Jakarta (ANTARA) - ..." or "(Reuters) -" marks agency copy, whoever republishes it.
+# penanda di awal berita kayak "Jakarta (ANTARA) - ..." atau "(Reuters) -" nandain naskah sindikasi kantor berita
 _WIRE = re.compile(r"\(\s*(ANTARA|Antara|Reuters|AFP|AP|Associated Press)\s*\)\s*[-–—:]")
 _WIRE_GROUP = {"antara": "ANTARA", "reuters": "Reuters", "afp": "AFP", "ap": "Associated Press", "associated press": "Associated Press"}
 
@@ -123,7 +123,7 @@ def wire_group(text: str) -> str | None:
     return _WIRE_GROUP[m.group(1).lower()] if m else None
 
 
-# ---- reading: passages are picked by code ---------------------------------------------------------------------
+# ---- baca halaman: kalimat kutipan dipilih murni sama kode ----------------------------------------------------
 
 _SENT = re.compile(r"(?<=[.!?])\s+|\s\|\s")
 
@@ -163,26 +163,26 @@ def build_passages(claim: str, pages: list[Page]) -> tuple[list[Passage], int]:
     """Number the passages of every usable page. Returns (passages, number of pages that had any)."""
     passages: list[Passage] = []
     relevant = 0
-    seen_text: dict[str, str] = {}   # identical sentence on two sites = one wire/syndicated copy = one group
+    seen_text: dict[str, str] = {}   # kalimat kembar identik di dua situs = naskah sindikasi yg sama = satu grup suara
     for page in pages:
         tier, publisher, group = classify(page.final_url)
         if tier == "D":
             continue
         wire = wire_group(page.text)
         if wire and tier == "C":
-            group = wire    # Tempo and Detik both printing the ANTARA copy are one voice, not two
+            group = wire    # Tempo sm Detik yg sama-sama nayangin naskah ANTARA diitung satu sumber, bukan dua
         found = extract_passages(claim, page.text)
         if not found:
             continue
         relevant += 1
         for text in found:
             key = " ".join(tokens(text))
-            group_for = seen_text.setdefault(key, group)   # first publisher of a copied sentence owns the "voice"
+            group_for = seen_text.setdefault(key, group)   # penerbit pertama yg ketemu megang grup "suara" kutipan ini
             passages.append(Passage(
                 id=len(passages) + 1, text=text, url=page.final_url, host=urlparse(page.final_url).hostname or "",
                 tier=tier, publisher=publisher, group=group_for, published=parse_date(page.published), title=page.title,
             ))
-    # Keep the strongest tiers first when trimming, but never drop a whole tier because another is chatty.
+    # utamain tier paling kuat pas motong daftar, tp urutannya dijaga rapi
     passages.sort(key=lambda p: ("ABCD".index(p.tier), p.id))
     passages = passages[:MAX_PASSAGES]
     for i, p in enumerate(passages, 1):
@@ -190,7 +190,7 @@ def build_passages(claim: str, pages: list[Page]) -> tuple[list[Passage], int]:
     return passages, relevant
 
 
-# ---- judging: the model only returns numbers ------------------------------------------------------------------
+# ---- penilaian: model cuma balikin nomor kutipan & label hubungan ---------------------------------------------
 
 def validate(raw: list[Judgement], passages: list[Passage]) -> list[Item]:
     """Drop every judgement that names a passage we did not give, a duplicate, or an unknown relation."""
@@ -203,7 +203,7 @@ def validate(raw: list[Judgement], passages: list[Passage]) -> list[Item]:
     return items
 
 
-# ---- deciding: pure policy ------------------------------------------------------------------------------------
+# ---- penentuan status: murni aturan kode, jgn kasih model nebak vonis sendiri ---------------------------------
 
 def _days(published: date | None, today: date) -> int | None:
     return None if published is None else (today - published).days
@@ -220,10 +220,10 @@ def decide(items: list[Item], today: date) -> Decision:
     """Tier policy. Only supports/refutes judged to cover the whole claim count; everything else is context."""
     counted = [i for i in items if i.relation in ("supports", "refutes") and i.covers_all]
     ref = [i for i in counted if i.relation == "refutes"]
-    # A sentence from a page that calls the topic a hoax cannot "support" the claim, whatever the judge said
-    # (fact-check pages quote the hoax they debunk; a police page linking a fact-check is not a confirmation).
+    # kalimat dari artikel yg judul/isinya nyebut hoaks jgn smpe diitung "supports" biarpun model salah nilai
+    # (artikel cek fakta sering ngutip ulang teks hoaks yg lagi mereka bantah soalnya).
     sup = [i for i in counted if i.relation == "supports" and not _HOAX_WORDS.search(f"{i.passage.text} {i.passage.title}")]
-    # Any refutation by an official source or fact-checker blocks green, even one that does not cover the whole claim.
+    # bantahan sekecil apa pun dari sumber resmi atau pemeriksa fakta langsung nahan status hijau
     any_ab_ref = [i for i in items if i.relation == "refutes" and i.passage.tier in "AB"]
     ab_ref = [i for i in ref if i.passage.tier in "AB"]
     ab_sup = [i for i in sup if i.passage.tier in "AB"]
@@ -272,7 +272,7 @@ def decide(items: list[Item], today: date) -> Decision:
                     "Halio membuka beberapa halaman, tetapi tidak ada yang menyatakan klaim ini secara utuh.", [])
 
 
-# ---- the two model calls --------------------------------------------------------------------------------------
+# ---- dua panggilan ke model (cari halaman & nilai hubungan) ---------------------------------------------------
 
 class _JudgementOut(BaseModel):
     id: int
@@ -353,7 +353,7 @@ def sensor_candidates(claim: str, cfg: Settings, limit: int = 3) -> list[dict]:
         from .ingest.store import SensorStore
 
         rows = SensorStore(cfg.db_path).recent_items(limit=200)
-    except Exception as exc:  # no sensor database yet is normal
+    except Exception as exc:  # wajar kl db sensor blm keisi pas baru jalan
         log.info("Sensor archive unavailable: %s", type(exc).__name__)
         return []
     scored = []
@@ -364,7 +364,7 @@ def sensor_candidates(claim: str, cfg: Settings, limit: int = 3) -> list[dict]:
     return [c for _, c in sorted(scored, key=lambda x: -x[0])[:limit]]
 
 
-# ---- orchestration --------------------------------------------------------------------------------------------
+# ---- alur orkestrasi utma -------------------------------------------------------------------------------------
 
 Discover = Callable[[str, Settings], tuple[list[dict], list[str]]]
 Fetch = Callable[[str], Page]
@@ -394,8 +394,8 @@ def reading_list(claim, pages, rejected, opened, cands, limit: int = 5) -> dict:
         key = _canonical(page.final_url)
         if key in seen or _SOFT_404.search(page.title or ""):
             continue
-        # Reading must be about THIS claim: at least half of the claim's distinctive words (5+ letters) are on the page,
-        # and at least two. Common words ("seorang", "anak", "orang") would match almost any article.
+        # bacaan tambahan wajib beneran nyambung sm klaim ini: minimal separuh kata khas (5+ huruf) dan min 2 kata cocok,
+        # biar kata pasaran kayak "seorang" atau "orang" ga bikin artikel random ikut nyangkut.
         if distinct:
             hit = len(distinct & set(tokens(f"{page.title} {page.text[:6000]}")))
             if hit < min(2, len(distinct)) or hit / len(distinct) < 0.5:
@@ -436,7 +436,7 @@ def investigate_v2(
             return fetch(c["uri"]), None, host
         except SourceError as exc:
             return None, str(exc), host
-        except Exception:  # network, TLS, bad encoding: a single page never aborts the check
+        except Exception:  # error jaringan/TLS/encoding di satu situs jgn smpe ngebatalin seluruh pengecekkan
             return None, "sumber_tidak_dapat_diakses", host
 
     with ThreadPoolExecutor(max_workers=max(1, min(6, len(cands)))) as pool:

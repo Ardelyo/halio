@@ -57,6 +57,7 @@ def now_iso() -> str:
 
 
 def claim_hash(text: str) -> str:
+    # urutin kata kunci unik dulu baru di-hash biar variasi susunan kalimat tipis tetep satu ember
     key = " ".join(sorted(set(tokens(text))))
     return hashlib.sha256(key.encode()).hexdigest()[:16]
 
@@ -71,6 +72,7 @@ class ResultCache:
         with self._lock:
             self._data[key] = (time.time(), value)
             self._data.move_to_end(key)
+            # buang entri paling lama kl cache memori udah kepenuhan
             while len(self._data) > self.max_items:
                 self._data.popitem(last=False)
 
@@ -90,7 +92,7 @@ def daily_salt(c: sqlite3.Connection, day: str) -> str:
     if row:
         return row[0]
     c.execute("DELETE FROM daily_salt WHERE day<>?", (day,))
-    # OR IGNORE: Store and Jobs share the table; whoever inserts first wins and both read the same salt back.
+    # pake OR IGNORE soalnya Store sm Jobs berbagi tabel yg sama; siapa pun yg ngisi duluan, keduanya baca salt yg sama
     c.execute("INSERT OR IGNORE INTO daily_salt VALUES (?,?)", (day, secrets.token_hex(16)))
     return c.execute("SELECT salt FROM daily_salt WHERE day=?", (day,)).fetchone()[0]
 
@@ -105,6 +107,7 @@ class Store:
         self._last_prune = ""
         with self._conn() as c:
             c.executescript(SCHEMA)
+            # migrasi ringan buat file db lama yg blm punya kolom channel & reporter
             columns = {r["name"] for r in c.execute("PRAGMA table_info(escalations)")}
             if "channel" not in columns:
                 c.execute("ALTER TABLE escalations ADD COLUMN channel TEXT")
@@ -128,13 +131,14 @@ class Store:
             c.execute("DELETE FROM events WHERE day<?", (day_cutoff,))
             c.execute("DELETE FROM evidence_telemetry WHERE day<?", (day_cutoff,))
             c.execute("DELETE FROM appeals WHERE created<?", (cutoff,))
+            # tiket eskalasi yg statusnya masih menunggu pemeriksa jgn ikut disapu bersih
             c.execute("DELETE FROM escalations WHERE created<? AND status<>'menunggu'", (cutoff,))
             c.execute("DELETE FROM review_events WHERE created<?", (cutoff,))
 
     def record(self, result: dict, channel: str, reporter: str | None, day: str | None = None) -> None:
         day = day if day and channel == "demo" else today()
-        # Only a proven-false check counts toward a debunk and its category. A message that merely resembles one
-        # (unsure, or a true message on the same topic) would otherwise inflate e.g. "Penipuan mencatut TNI".
+        # cuma cek yg beneran terbukti_salah yg diitung ke statistik kategori bantahan.
+        # kl pesan yg cuma mirip topik atau ragu-ragu ikut masuk, angka kayak "Penipuan mencatut TNI" bakal melambung palsu.
         match = (result.get("match") or {}) if result.get("status") == "terbukti_salah" else {}
         techniques = ",".join(t["id"] for t in result["manipulation"]["techniques"])
         with self._lock, self._conn() as c:
@@ -143,7 +147,7 @@ class Store:
                 (day, result["status"], match.get("debunk_id"), match.get("kategori"), techniques, channel),
             )
             if reporter:
-                # A message with several claims counts each unknown claim on its own, so a rumour is recognised wherever it sits.
+                # kl satu pesan memuat beberapa klaim, catet tiap klaim asing sendiri-sendiri biar tetep kebaca kl rame
                 for sub in result.get("claims") or [result]:
                     if sub["status"] == "belum_ada_pemeriksaan" and sub.get("claim") and sub.get("reason") != "bukan_klaim_faktual":
                         self._count_unknown(c, day, sub["claim"], reporter)
@@ -195,6 +199,7 @@ class Store:
         if is_new:
             reporters.append(pseudo)
         count = row["count"] + int(is_new)
+        # isi teks klaim baru disimpen ke db begitu jumlah pelapor uniknya tembus batas k-anonymity
         text = row["text"] or (claim if len(reporters) >= self.k else None)
         c.execute(
             "UPDATE unknown_claims SET last_seen=?, reporters=?, count=?, text=? WHERE hash=?",
@@ -259,6 +264,7 @@ class Store:
             raise ValueError("item_type must be appeals or escalations")
 
     def _suppress(self, n: int) -> int | str:
+        # samarin angka yg kekecilan (< min_cell) di tampilan Radar demi privasi
         return n if n >= self.min_cell else f"<{self.min_cell}"
 
     def _tni_trend(self, rows, days: int) -> dict:

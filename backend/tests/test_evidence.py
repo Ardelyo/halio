@@ -25,17 +25,17 @@ def item(*a, relation="supports", covers=True, **k):
     return Item(passage(*a, **k), relation, covers)
 
 
-# ---- reading: code copies sentences -----------------------------------------------------------------------------
+# ---- baca halaman: kode nyalin kalimat mentah2 ------------------------------------------------------------------
 
 def test_passages_are_verbatim_and_topic_only_pages_yield_nothing():
     text = ("Berita lain hari ini. PLN memastikan tarif listrik pelanggan rumah tangga naik mulai Desember 2026 menurut Kementerian ESDM. "
             "Cuaca cerah di Jakarta sepanjang pekan ini.")
     got = extract_passages(CLAIM, text)
-    assert got and all(g in text for g in got)                                  # copied, never rewritten
+    assert got and all(g in text for g in got)                                  # wajib salinan persis, ga pernah ditulis ulang
     assert extract_passages(CLAIM, "Listrik adalah energi yang dipakai di rumah. Tarif parkir juga ada di mal besar sekali itu.") == []
 
 
-# ---- the model only returns numbers -----------------------------------------------------------------------------
+# ---- model cuma balikin nomor kutipan ---------------------------------------------------------------------------
 
 def test_invented_numbers_duplicates_and_odd_relations_are_dropped():
     ps = [passage(1, "C", "Detik"), passage(2, "C", "Tempo")]
@@ -44,7 +44,7 @@ def test_invented_numbers_duplicates_and_odd_relations_are_dropped():
     assert [(i.passage.id, i.relation) for i in got] == [(1, "supports")]
 
 
-# ---- policy -----------------------------------------------------------------------------------------------------
+# ---- aturan penentu vonis (policy) ------------------------------------------------------------------------------
 
 @pytest.mark.parametrize("items,status,reason,strength", [
     ([item(1, "B", "Mafindo", relation="refutes")], "terbukti_salah", "dibantah_pemeriksa_fakta", 3),
@@ -75,7 +75,7 @@ def test_media_alone_never_makes_a_claim_false_or_officially_true():
     assert decide([item(1, "C", "Detik", relation="refutes"), item(2, "C", "Tempo", relation="refutes")], TODAY).status == "tidak_yakin"
 
 
-# ---- orchestration with fakes -----------------------------------------------------------------------------------
+# ---- tes orkestrasi pake mock halaman ---------------------------------------------------------------------------
 
 def page(host, text, published="2026-11-05", title="t"):
     return Page(text=text, final_url=f"https://{host}/a", title=title, published=published)
@@ -111,7 +111,7 @@ def test_two_independent_outlets_are_reported_and_a_blog_is_not_a_source():
     assert (r.status, r.reason) == ("dilaporkan_media", "dilaporkan_beberapa_media")
     assert {i["grup"] for i in r.items} == {"Trans Media", "Tempo"}
     assert any(x["alasan"] == "bukan_sumber_dikenal" for x in r.ditolak) and r.dicari == ["tarif listrik naik"]
-    assert all(i["kutipan"] in " ".join(p.text for p in PAGES.values()) for i in r.items)      # verbatim from a page
+    assert all(i["kutipan"] in " ".join(p.text for p in PAGES.values()) for i in r.items)      # persis salinan dr isi halamn
 
 
 def test_two_outlets_of_the_same_group_are_one_voice():
@@ -122,7 +122,7 @@ def test_two_outlets_of_the_same_group_are_one_voice():
 def test_a_copied_sentence_on_two_sites_is_one_wire_copy():
     pages = {"https://www.tempo.co/1": page("www.tempo.co", SAYS), "https://news.detik.com/1": page("news.detik.com", SAYS)}
     r = run(list(pages), pages=pages)
-    assert r.reason == "satu_media_melaporkan"      # identical sentence = one voice even from two groups
+    assert r.reason == "satu_media_melaporkan"      # kalimat kembar persis = tetep satu suara walau beda grup media
 
 
 def test_a_page_cannot_talk_the_system_into_a_verdict():
@@ -133,11 +133,11 @@ def test_a_page_cannot_talk_the_system_into_a_verdict():
 
     def judge(claim, ps, cfg):
         seen.extend(p.text for p in ps)
-        return [Judgement(p.id, "context", False) for p in ps]       # the honest model sees data and calls it context
+        return [Judgement(p.id, "context", False) for p in ps]       # model jujur tetep liat injeksi itu cuma konteks biasa
 
     r = run(["https://news.detik.com/1"], pages=pages, judge=judge)
     assert r.status == "belum_ada_pemeriksaan" and r.reason == "tidak_ada_sumber_relevan"
-    # and even a hostile judge cannot name a passage that does not exist
+    # bahkan kl hakimnya ngaco nunjuk nomor kutipan yg ga ada pun tetep mental
     r = run(["https://news.detik.com/1"], pages=pages, judge=lambda c, ps, cfg: [Judgement(99, "supports", True)])
     assert r.status == "belum_ada_pemeriksaan"
 
@@ -149,7 +149,7 @@ def test_search_engine_dead_pages_and_duplicates_are_reported_with_reasons():
         **pages, "https://news.detik.com/1?utm_source=a": PAGES["https://news.detik.com/1"]})
     reasons = {x["alasan"] for x in r.ditolak}
     assert {"mesin_pencari_atau_pengalih", "http_404"} <= reasons
-    assert r.dibuka == 2                                  # the utm duplicate was collapsed
+    assert r.dibuka == 2                                  # duplikat parameter utm udah dilebur jadi satu
 
 
 def test_sensor_archive_candidates_are_used_without_a_search():
@@ -166,7 +166,7 @@ def test_model_down_returns_none_so_the_caller_keeps_what_it_has():
     assert run(["https://news.detik.com/1"], judge=lambda *a: (_ for _ in ()).throw(RuntimeError("judge down"))) is None
 
 
-# ---- pipeline -------------------------------------------------------------------------------------------------
+# ---- sambungan ke pipeline utma ---------------------------------------------------------------------------------
 
 def ev(status, reason="r", items=(), strength=2, alasan="Alasan."):
     return EvidenceResult(status, reason, strength, alasan, list(items), ["kueri"], 3, 2, [])
@@ -204,7 +204,7 @@ def test_evidence_can_lower_a_curated_debunk_only_by_conflict(stub):
     r = pipeline.check(hoax, CFG)
     assert (r["status"], r["reason"]) == ("tidak_yakin", "bukti_bertentangan")
     stub(ev("belum_ada_pemeriksaan", "tidak_ada_sumber_relevan"))
-    assert pipeline.check(hoax, CFG)["status"] == "terbukti_salah"           # nothing decisive: the curated debunk stays
+    assert pipeline.check(hoax, CFG)["status"] == "terbukti_salah"           # kl web ga nemu bukti baru yg tegas, bantahan lokal tetep pegang kendali
 
 
 def test_unavailable_v2_falls_back_to_the_v1_agent(monkeypatch, stub):
@@ -221,7 +221,7 @@ def test_correction_guard_still_wins(stub):
     assert r["status"] != "terbukti_salah"
 
 
-# ---- how it reads -----------------------------------------------------------------------------------------------
+# ---- format balasan ke pengguna ---------------------------------------------------------------------------------
 
 def test_reply_shows_what_was_found_with_date_strength_and_the_honest_label(stub):
     stub(ev("dilaporkan_media", "dilaporkan_beberapa_media", [web_item("C", "supports")], 2,
@@ -239,7 +239,7 @@ def test_nothing_found_says_what_was_searched_not_just_do_not_forward(stub):
     assert "kata kunci: tarif listrik naik desember" in out and "Halio membuka 4 halaman" in out and "situsnya bukan sumber yang dikenal" in out
 
 
-# ---- scripts/eval_live.py (pure helpers only; the script itself needs real Gemini) -----------------------------------
+# ---- helper murni di scripts/eval_live.py (skrip utamanya butuh akses Gemini beneran) ---------------------------
 
 def _eval_live():
     import importlib.util
@@ -258,7 +258,7 @@ def test_live_eval_strips_fact_check_prefixes_and_builds_both_sets():
     assert m.strip_prefix("Cek Fakta: Hoaks Video Menkeu Beri Bantuan Dana Hibah") == "Video Menkeu Beri Bantuan Dana Hibah"
     rows = [{"source_id": "cekfakta", "title": "Hoaks! Pemerintah akan hapus BPJS Kesehatan"},
             {"source_id": "detik-news", "title": "Pertamina Dukung Pembinaan Pembalap Muda Lewat Mandalika Racing Series"},
-            {"source_id": "detik-news", "title": "Hoaks beredar di media sosial soal bansos, polisi menyelidiki"},   # a news item ABOUT a hoax is not a true headline
+            {"source_id": "detik-news", "title": "Hoaks beredar di media sosial soal bansos, polisi menyelidiki"},   # berita TENTANG hoaks jgn ikut masuk ke sampel berita biasa
             {"source_id": "detik-news", "title": "Pendek saja"}]
     news, hoax = m.build_sets(rows, {"cekfakta": "cek_fakta", "detik-news": "berita"}, 10, 10)
     assert news == ["Pertamina Dukung Pembinaan Pembalap Muda Lewat Mandalika Racing Series"]

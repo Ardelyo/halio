@@ -19,6 +19,7 @@ from pathlib import Path
 import qrcode
 from pypdf import PdfReader, PdfWriter, Transformation
 
+# lokasi berkas deck cerita, deck v2, sm path Edge buat render lampiran ke PDF
 HERE = Path(__file__).parent
 STORY = HERE / "Halio_Deck_Cerita.pdf"
 V2 = HERE / "halio_deck_v2.html"
@@ -26,11 +27,12 @@ APPENDIX_HTML = HERE / "halio_lampiran.html"
 OUT = HERE / "Halio_Deck_Juri.pdf"
 EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
-# v2 slide numbers (1-based) in appendix order, with the label that replaces the v2 kicker number
+# nomor slide dari deck v2 (mulai dari 1) sesuai urutan lampiran teknis buat dewan juri
 PICK = [(5, "Arsitektur"), (12, "Cara kerja"), (13, "Sumber"), (9, "Halio Telusur"), (10, "Laporan analis"),
         (15, "Brief harian TNI AD"), (14, "Privasi"), (16, "Pengaman"), (17, "Hasil uji")]
 
 
+# bikin QR code langsung jd data URI biar praktis ga perlu nyimpen file png sementra
 def qr(url: str) -> str:
     img = qrcode.make(url, box_size=10, border=2)
     buf = io.BytesIO()
@@ -38,6 +40,7 @@ def qr(url: str) -> str:
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
+# rakit HTML lampiran L1-L9 lengkap sm halaman pemetaan kriteria juri dan halaman QR coba langsung
 def appendix_html() -> str:
     html = V2.read_text(encoding="utf-8")
     first = html.index('<section class="slide')
@@ -88,6 +91,7 @@ def appendix_html() -> str:
 
 def main() -> None:
     APPENDIX_HTML.write_text(appendix_html(), encoding="utf-8")
+    # cetak lampiran HTML ke PDF via Edge headless, terus selipin sebelum slide penutup deck cerita
     with tempfile.TemporaryDirectory() as tmp:
         pdf = Path(tmp) / "lampiran.pdf"
         subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=6000",
@@ -101,7 +105,7 @@ def main() -> None:
         for p in story.pages[:10]:
             out.add_page(p)
         for src in appx.pages:
-            p = out.add_page(src)  # transform the writer's copy (pypdf 7 refuses to edit reader pages)
+            p = out.add_page(src)  # wajib transform salinan milik writer (pypdf 7 nolak ubah halaman reader langsung)
             k = w / float(p.mediabox.width)
             p.add_transformation(Transformation().scale(k, k))
             p.mediabox.lower_left = (0, 0)

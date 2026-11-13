@@ -1,4 +1,4 @@
-// Sensor coverage panel: which sources are watched, how fresh, and the declared blind spots.
+// panel cakupan sensor: nampilin daftar sumber terbuka yg dipantau, kesegarannya, sm titik buta
 const API = window.HALIO_API || "";
 const REFRESH_MS = 30000;
 
@@ -7,6 +7,7 @@ const STATUS_LABEL = { hidup: "● Hidup", basi: "◐ Basi", tertunda: "◌ Tert
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// format selisih detik jd satuan waktu yg enak dibaca
 function age(sec) {
   if (sec == null) return "—";
   if (sec < 90) return `${Math.round(sec)} dtk`;
@@ -15,13 +16,14 @@ function age(sec) {
   return `${Math.round(sec / 86400)} hari`;
 }
 
+// ambil data sensor pake token radar kl server dipasangin proteksi akses
 async function get(path) {
   let token = null;
-  try { token = localStorage.getItem("halio.radar"); } catch { /* storage blocked */ }
+  try { token = localStorage.getItem("halio.radar"); } catch { /* localStorage diblokir */ }
   let r = await fetch(API + path, { headers: token ? { Authorization: "Bearer " + token } : {} });
   if (r.status === 401) {
     token = prompt("Halaman ini memerlukan token akses:");
-    try { localStorage.setItem("halio.radar", token); } catch { /* storage blocked */ }
+    try { localStorage.setItem("halio.radar", token); } catch { /* localStorage diblokir */ }
     r = await fetch(API + path, { headers: { Authorization: "Bearer " + token } });
   }
   if (!r.ok) throw new Error(path + " " + r.status);
@@ -69,4 +71,5 @@ async function load() {
 }
 
 load().catch((e) => { console.error(e); $("#tiles").innerHTML = `<p class="note">Cakupan tidak bisa dimuat.</p>`; });
+// segarkan otomatis tiap 30 detik kl beneran nyambung ke server
 if (!window.HALIO_STATIC_DEMO) setInterval(() => load().catch(() => {}), REFRESH_MS);

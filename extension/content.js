@@ -1,6 +1,6 @@
-// Feed layer: "Perlu dicek?" badges on posts + family-rule image blur.
-// Text leaves the device only when the user clicks "Cek dengan Halio".
-// Images never leave the device: they are classified in the offscreen document.
+// lapisan pelindung di feed medsos: lencana "Perlu dicek?" + blur gambar sesuai aturan keluarga
+// teks postingan cuma keluar dr perangkat kl user beneran mencet tombol "Cek dengan Halio"
+// gambar ga pernah keluar dr perangkatt sama sekali, dicek lokal di offscreen canvas
 (() => {
   const { analyze, isJudol, scrub } = globalThis.HalioLexicon;
   const POSTS = '[role="article"], article, [data-halio-post]';
@@ -10,7 +10,7 @@
   const send = (msg) => new Promise((resolve) => chrome.runtime.sendMessage(msg, resolve));
   const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls, textContent: text || "" });
 
-  // ---- text badges -------------------------------------------------------
+  // ---- lencana peringatan teks postingan ----
   function badgePost(post) {
     if (post.dataset.halio) return;
     post.dataset.halio = "1";
@@ -26,6 +26,7 @@
     btn.addEventListener("click", async (e) => {
       e.preventDefault(); e.stopPropagation();
       btn.disabled = true; btn.textContent = "Mengecek…";
+      // bersihin dulu nomor hp, NIK, email, sm link sebelum dikirim ke API
       const r = await send({ type: "check", text: scrub(text) });
       btn.remove();
       box.append(renderResult(r));
@@ -51,7 +52,7 @@
     return out;
   }
 
-  // ---- image blur ----------------------------------------------------------
+  // ---- saringan & blur gambar di feed ----
   function contextText(img) {
     const link = img.closest("a");
     return [img.alt, img.title, link && link.href, img.parentElement && img.parentElement.innerText.slice(0, 200)].join(" ");
@@ -76,6 +77,7 @@
 
   async function screenImage(img) {
     if (img.dataset.halioImg || settings.blurMode === "off") return;
+    // lewatin ikon kecil, avatar profil, atau stiker biar tampilan ga berantakan
     if ((img.naturalWidth || img.width) < 120 && (img.naturalHeight || img.height) < 120) return;
     img.dataset.halioImg = "1";
     send({ type: "stat", key: "imagesChecked" });
@@ -84,7 +86,7 @@
     if (settings.blurMode === "semua") return hide(img, "Gambar disembunyikan (mode semua)");
     if (settings.blurMode !== "pintar") return;
 
-    // Fail-closed: blur first, reveal only after the on-device model says it is safe.
+    // jaga-jaga: blur dulu di awal, baru buka lagi kl model lokal udah bilang aman
     img.classList.add("halio-blur");
     const r = await send({ type: "classify", src: img.currentSrc || img.src });
     if (r && r.ok && !r.unsafe) img.classList.remove("halio-blur");
@@ -92,7 +94,7 @@
     else hide(img, "Gambar belum bisa diperiksa");
   }
 
-  // ---- scanning --------------------------------------------------------------
+  // ---- pemindaian DOM pas halaman berubah / di-scroll ----
   function scan() {
     if (settings.badges) document.querySelectorAll(POSTS).forEach(badgePost);
     document.querySelectorAll("img").forEach((img) => {
@@ -101,6 +103,7 @@
     });
   }
 
+  // kasih jeda 400ms biar ga berat pas user scroll cepet di linimasa
   let pending = null;
   new MutationObserver(() => {
     clearTimeout(pending);

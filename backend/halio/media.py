@@ -16,6 +16,7 @@ from .config import Settings
 
 log = logging.getLogger(__name__)
 
+# format foto & voice note yg biasa masuk dari WA/Telegram, ukuran dibatasin maks 8 MB
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 AUDIO_TYPES = {"audio/ogg", "audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/mp4", "audio/aac", "audio/flac"}
 MAX_BYTES = 8_000_000
@@ -44,12 +45,14 @@ def supported(mime: str) -> bool:
 
 def read_media(data: bytes, mime: str, cfg: Settings) -> MediaReading | None:
     """None when the model is unavailable; the caller then asks the user to type the text."""
+    # tolak langsung kl fitur media mati, format aneh, atau filenya kegedean
     if not cfg.media_enabled or not supported(mime) or len(data) > MAX_BYTES:
         return None
     try:
         from google import genai
         from google.genai import types
 
+        # Gemini di sini murni buat baca teks di gambar / transkrip suara, bukan nentuin fotonya asli atau rekayasa
         client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
         response = client.models.generate_content(
             model=cfg.media_model,
@@ -64,6 +67,6 @@ def read_media(data: bytes, mime: str, cfg: Settings) -> MediaReading | None:
             ),
         )
         return MediaReading.model_validate_json(response.text)
-    except Exception as exc:  # network, quota, bad file: never crash the bot
+    except Exception as exc:  # jaringan putus, kuota abis, atau file rusak jgn smpe bikin bot ikutan tumbang
         log.warning("Media reading unavailable: %s", type(exc).__name__)
         return None

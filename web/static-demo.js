@@ -1,4 +1,4 @@
-// Static hosting uses explicit local scenarios, never a fabricated API response.
+// hosting statis (github pages) pake skenario contoh lokal yg jujur, ga pura2 jd balasan server beneran
 window.HALIO_STATIC_DEMO = location.hostname.endsWith(".github.io") || new URLSearchParams(location.search).has("static");
 
 (() => {
@@ -16,6 +16,7 @@ window.HALIO_STATIC_DEMO = location.hostname.endsWith(".github.io") || new URLSe
     evidence: ["SEBARKAN"],
   }];
 
+  // 4 contoh bantahan lokal buat dicoba pas halaman dibuka tanpa backend
   function known(kind) {
     const records = {
       bansos: {
@@ -47,6 +48,7 @@ window.HALIO_STATIC_DEMO = location.hostname.endsWith(".github.io") || new URLSe
   }
 
   window.HalioStaticDemo = {
+    // cocokin kata kunci sederhana dr teks yg ditempel user
     check(text) {
       const lower = text.toLowerCase();
       let kind;
@@ -68,6 +70,7 @@ window.HALIO_STATIC_DEMO = location.hostname.endsWith(".github.io") || new URLSe
         };
       }
 
+      // kl ga ada yg cocok di kamus demo, jujur bilang belum ada pemeriksaan (jgn ngarang vonis)
       const greeting = /selamat pagi|selamat siang|selamat malam/.test(lower);
       const script = greeting
         ? "Ini sapaan, bukan klaim faktual yang perlu diperiksa."
@@ -81,6 +84,7 @@ window.HALIO_STATIC_DEMO = location.hostname.endsWith(".github.io") || new URLSe
         disclaimer: "Simulasi lokal untuk memperlihatkan perilaku saat Halio tidak mempunyai sumber.",
       };
     },
+    // angka contoh buat pratinjau tampilan radar & halaman cakupan pas mode statis
     radar: {
       window_days: 7, since: "2026-10-26", total_checks: 24, demo_events: 24,
       by_status: { terbukti_salah: 15, tidak_yakin: 5, belum_ada_pemeriksaan: 4 },

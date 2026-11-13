@@ -1,13 +1,16 @@
+# setelan buat nyalain cepet API (+ bot opsional) pake docker compose
 services:
   api:
     build: .
     env_file: .env
     ports:
       - "8000:8000"
+    # simpen database sqlite di volume biar ga ilang pas container di-restart
     volumes:
       - halio-data:/data
     restart: unless-stopped
 
+  # bot telegram long-polling, baru ikut nyala kl dipanggil pake profile telegram
   telegram:
     build: .
     env_file: .env
@@ -17,7 +20,7 @@ services:
     depends_on:
       - api
     restart: unless-stopped
-    profiles: ["telegram"]   # docker compose --profile telegram up -d
+    profiles: ["telegram"]   # cara nyalain bareng bot: docker compose --profile telegram up -d
 
 volumes:
   halio-data:

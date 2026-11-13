@@ -16,11 +16,11 @@ from urllib.parse import urlparse
 @dataclass(frozen=True)
 class Outlet:
     name: str
-    group: str  # outlets of one group are one voice when counting independent reports
+    group: str  # media dlm satu grup konglomerasi diitung satu suara aja pas ngitung konfirmasi independen
     kind: str   # "media" | "kantor_berita_negara"
 
 
-# (registrable domain, display name, group). Groups are only merged where common ownership is public knowledge.
+# (domain utama, nama tampil, grup kepemilikan). digabung satu grup cuma kl kepemilikannya udah umum diketahui publik.
 _ROWS = [
     ("detik.com", "detikNews", "Trans Media"),
     ("cnnindonesia.com", "CNN Indonesia", "Trans Media"),
@@ -55,7 +55,7 @@ _ROWS = [
 ]
 OUTLETS: dict[str, Outlet] = {d: Outlet(n, g, "kantor_berita_negara" if g == "ANTARA" else "media") for d, n, g in _ROWS}
 
-# Search engines, redirectors and app stores are never a source: they only point at one.
+# mesin pencari, medsos, sm toko aplikasi bukan sumber berita (mereka cuma ngarahin ke tempat lain)
 NOT_A_SOURCE = (
     "google.com", "google.co.id", "vertexaisearch.cloud.google.com", "bing.com", "duckduckgo.com", "yahoo.com",
     "facebook.com", "instagram.com", "twitter.com", "x.com", "tiktok.com", "youtube.com", "t.me", "wa.me",
@@ -66,11 +66,12 @@ NOT_A_SOURCE = (
 def _registrable(host: str) -> list[str]:
     host = host.lower().rstrip(".").removeprefix("www.")
     parts = host.split(".")
-    # "news.detik.com" -> ["news.detik.com", "detik.com", "com"]; ".co.id" style domains are covered by the table itself.
+    # contoh "news.detik.com" -> ["news.detik.com", "detik.com", "com"]; domain ".co.id" udah ke-handle langsung di tabel _ROWS
     return [".".join(parts[i:]) for i in range(len(parts) - 1)]
 
 
 def lookup(url_or_host: str) -> Outlet | None:
+    # cek dari subdomain paling spesifik sampe domain induknya di daftar OUTLETS
     host = urlparse(url_or_host).hostname if "//" in url_or_host else url_or_host
     for candidate in _registrable(host or ""):
         if candidate in OUTLETS:

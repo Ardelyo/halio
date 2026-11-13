@@ -39,19 +39,20 @@ SCHEMA = {
 }
 
 
-# Models that accept the server-side "default" refusal fallback.
+# daftar model Claude yg udah dukung fallback penolakan otomatis di sisi server
 FALLBACK_MODELS = {"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"}
 
 
 @dataclass
 class LlmJudgement:
-    relation: str            # sama | berbeda | tidak_cukup_bukti
+    relation: str            # pilihan relasi: sama | berbeda | tidak_cukup_bukti
     debunk_id: str | None
     quote: str
     explanation: str
     grounded: bool
 
 
+# jalur alternatif pake Anthropic buat ngecek apakah klaim user beneran sama dgn kandidat korpus
 def judge(claim: str, candidates: list[Match], model: str) -> LlmJudgement | None:
     """Return a grounded judgement, or None if the LLM is unavailable."""
     try:
@@ -81,7 +82,7 @@ def judge(claim: str, candidates: list[Match], model: str) -> LlmJudgement | Non
         if model in FALLBACK_MODELS:
             response = client.beta.messages.create(**kwargs, betas=["server-side-fallback-2026-07-01"], fallbacks="default")
         else:
-            # Haiku has no server-side refusal fallback; a refusal just falls back to retrieval below.
+            # Haiku ga punya fitur fallback server-side, kl kena refusal ya nanti balik ke hasil retrieval biasa
             response = client.messages.create(**kwargs)
     except anthropic.RateLimitError:
         log.warning("LLM rate limited; falling back to retrieval-only verdict")
@@ -105,6 +106,7 @@ def judge(claim: str, candidates: list[Match], model: str) -> LlmJudgement | Non
 
     chosen = next((m for m in candidates if m.debunk.id == data.get("kandidat_id")), None)
     quote = data.get("kutipan", "").strip()
+    # wajib cek kutipannya beneran ada persis di teks fakta kandidat, kl ngarang paksa turun jadi tidak_cukup_bukti
     grounded = bool(chosen and quote and quote in chosen.debunk.fakta)
     return LlmJudgement(
         relation=data["relasi"] if grounded or data["relasi"] != "sama" else "tidak_cukup_bukti",

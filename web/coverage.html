@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cakupan Sensor Halio</title>
+  <!-- panel transparansi sensor: daftar feed publik yg dipantau beserta titik butanya -->
   <meta name="description" content="Cakupan sensor Halio: sumber terbuka yang dipantau, kesegarannya, dan titik buta yang kami akui.">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="fonts/fonts.css">
@@ -23,12 +24,14 @@
   <div id="off" class="banner hidden">Pemantauan belum aktif di server ini (<code>HALIO_SENSOR=1</code> belum diatur). Angka di bawah belum berisi pengamatan nyata.</div>
   <div class="tiles" id="tiles"></div>
 
+  <!-- tabel status tiap sumber (hidup, basi, mati, jeda respons, keterlambatan lihat) -->
   <section class="card">
     <h2>Sumber yang dipantau</h2>
     <p class="note" id="disclaimer"></p>
     <div class="scroll"><table id="sources"></table></div>
   </section>
 
+  <!-- pengakuan jujur kanal yg ga bisa diliat sensor + daftar judul paling baru -->
   <div class="grid2">
     <section class="card">
       <h2>Titik buta yang kami akui</h2>
@@ -40,6 +43,7 @@
     </section>
   </div>
 
+  <!-- keterangan istilah biar analis paham batas pengamatan sensor -->
   <section class="card note">
     <h2>Cara membaca halaman ini</h2>
     <ul>

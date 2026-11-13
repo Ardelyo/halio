@@ -1,8 +1,8 @@
-// On-device image classification with NudeNet (YOLOv8n, 320px, MIT licence).
-// The image is fetched and analysed inside the extension; no pixels leave the device.
+// klasifikasi gambar murni di perangkat pake model NudeNet (YOLOv8n 320px, lisensi MIT)
+// gambar dibaca & dihitung di dalem ekstensi ini aja, ga ada satu piksel pun yg dikirim keluar
 const MODEL = "models/320n.onnx";
 const SIZE = 320;
-// Class order from NudeNet 3.4 (nudenet/nudenet.py). Verify when upgrading the model.
+// urutan kelas bawaan NudeNet 3.4, cek lagi urutannya kl suatu saat ganti versi model
 const LABELS = [
   "FEMALE_GENITALIA_COVERED", "FACE_FEMALE", "BUTTOCKS_EXPOSED", "FEMALE_BREAST_EXPOSED",
   "FEMALE_GENITALIA_EXPOSED", "MALE_BREAST_EXPOSED", "ANUS_EXPOSED", "FEET_EXPOSED", "BELLY_COVERED",
@@ -18,12 +18,13 @@ function session() {
   if (!sessionPromise) {
     if (typeof ort === "undefined") return Promise.reject(new Error("onnxruntime-web belum dipasang (jalankan scripts/fetch_models.py)"));
     ort.env.wasm.wasmPaths = chrome.runtime.getURL("vendor/");
-    ort.env.wasm.numThreads = 1; // offscreen documents are not cross-origin isolated
+    ort.env.wasm.numThreads = 1; // dokumen offscreen ga punya cross-origin isolation jd wajib 1 thread
     sessionPromise = ort.InferenceSession.create(chrome.runtime.getURL(MODEL), { executionProviders: ["wasm"] });
   }
   return sessionPromise;
 }
 
+// ubah gambar jd tensor float32 [1, 3, 320, 320] lewat OffscreenCanvas lokal
 async function toTensor(src) {
   const blob = await (await fetch(src)).blob();
   const bmp = await createImageBitmap(blob);
@@ -33,7 +34,7 @@ async function toTensor(src) {
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, SIZE, SIZE);
-  ctx.drawImage(bmp, 0, 0, w, h); // letterbox top-left, as NudeNet pads right/bottom
+  ctx.drawImage(bmp, 0, 0, w, h); // taruh pojok kiri atas, sisa kanan/bawah item ngikut format NudeNet
   const { data } = ctx.getImageData(0, 0, SIZE, SIZE);
   const chw = new Float32Array(3 * SIZE * SIZE);
   for (let i = 0; i < SIZE * SIZE; i++) {
@@ -47,7 +48,7 @@ async function toTensor(src) {
 async function classify(src) {
   const s = await session();
   const out = await s.run({ [s.inputNames[0]]: await toTensor(src) });
-  const t = out[s.outputNames[0]]; // [1, 4 + classes, anchors]
+  const t = out[s.outputNames[0]]; // bentuk output model: [1, 4 kotak + 18 kelas, jumlah anchor]
   const [, rows, anchors] = t.dims;
   let worst = { label: null, score: 0 };
   for (let a = 0; a < anchors; a++) {

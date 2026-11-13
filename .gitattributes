@@ -1,2 +1,4 @@
+# paksa line ending LF semua biar skrip bash ga rusak pas dikirim dr windows ke vm linux
 * text=auto eol=lf
+# file gambar jgn sampe keubah byte-nya
 *.png binary

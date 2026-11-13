@@ -1,3 +1,4 @@
+// pengaturan popup ekstensi: baca konfigrasi tersimpen, angka statistik lokal, & status model ONNX
 const DEFAULTS = { badges: true, blurMode: "judol", apiUrl: "http://localhost:8000" };
 const $ = (id) => document.getElementById(id);
 
@@ -11,6 +12,7 @@ chrome.storage.local.get("stats", ({ stats = {} }) => {
   $("textChecks").textContent = stats.textChecks || 0;
   $("bytesSent").textContent = (stats.bytesSent || 0).toLocaleString("id-ID");
 });
+// cek apakah berkas model NudeNet udah siap di folder ekstensi
 chrome.runtime.sendMessage({ type: "model-status" }, (r) => {
   $("model").textContent = r && r.ok
     ? "Model NudeNet terpasang dan berjalan di perangkat."
@@ -19,8 +21,8 @@ chrome.runtime.sendMessage({ type: "model-status" }, (r) => {
 
 $("badges").onchange = (e) => chrome.storage.sync.set({ badges: e.target.checked });
 $("blurMode").onchange = (e) => chrome.storage.sync.set({ blurMode: e.target.value });
-// Only the platforms, their image CDNs, localhost and the demo server are granted at install. Another Halio server is asked
-// for here, when the user types its address (a user gesture), so the extension never holds access to every site.
+// pas baru dipasang, izin akses cuma buat domain medsos, CDN gambar, localhost, sm server demo;
+// kl user ngetik alamat server Halio lain baru minta izin origin itu aja (biar ga megang izin semua situs)
 $("apiUrl").onchange = (e) => {
   const apiUrl = e.target.value.trim() || DEFAULTS.apiUrl;
   let origin;

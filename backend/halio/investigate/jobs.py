@@ -47,6 +47,7 @@ class Jobs:
         self._last_prune = ""
         with self._conn() as c:
             c.executescript(SCHEMA)
+            # job yg nyangkut gara2 server sempat restart langsung tandain gagal biar user ga nungguin selamanya
             c.execute("UPDATE investigations SET status='gagal', error='terhenti karena server dimulai ulang' "
                       "WHERE status IN ('antre','berjalan')")
 
@@ -70,6 +71,7 @@ class Jobs:
 
     @staticmethod
     def _pseudonym(c: sqlite3.Connection, day: str, reporter: str | None) -> str | None:
+        # samarin id pelapor pake salt harian: cukup buat ngitung jatah hari ini tp ga bisa dilacak besoknya
         if not reporter:
             return None
         return hashlib.sha256(f"{daily_salt(c, day)}|telusur|{reporter}".encode()).hexdigest()[:16]
@@ -82,6 +84,7 @@ class Jobs:
             self._last_prune = day
         with self._lock, self._conn() as c:
             reporter = self._pseudonym(c, day, reporter)
+            # cek jatah harian total server sm jatah per orang dulu sblm masukin antrean
             total = c.execute("SELECT COUNT(*) FROM investigations WHERE day=?", (day,)).fetchone()[0]
             if total >= self.cfg.agent_daily_cap:
                 raise LimitReached("Batas investigasi harian server sudah tercapai. Coba lagi besok.")
@@ -99,7 +102,7 @@ class Jobs:
         def say(stage: str = "", **counts):
             now = time.monotonic()
             if now - self._last_write.get(job_id, 0) < 1.0 and stage != "menyusun":
-                return  # at most one write a second
+                return  # batesin tulis progres ke sqlite maks sekali sedetik biar db ga ke-lock terus
             self._last_write[job_id] = now
             with self._conn() as c:
                 c.execute("UPDATE investigations SET stage=?, progress=? WHERE id=?", (stage, json.dumps(counts), job_id))
@@ -113,7 +116,7 @@ class Jobs:
             with self._conn() as c:
                 c.execute("UPDATE investigations SET status='selesai', stage='selesai', report=?, claim=? WHERE id=?",
                           (json.dumps(report, ensure_ascii=False, default=str), report.get("klaim", ""), job_id))
-        except Exception as exc:  # never lose the job silently
+        except Exception as exc:  # jgn smpe job gagal diem2 tanpa jejak di db
             log.exception("investigation %s failed", job_id)
             with self._conn() as c:
                 c.execute("UPDATE investigations SET status='gagal', error=? WHERE id=?", (type(exc).__name__, job_id))
@@ -129,6 +132,7 @@ class Jobs:
 
     def wait(self, job_id: str, timeout: float = 5.0) -> dict | None:
         """For tests and the bot: poll until the job is no longer running (or the timeout)."""
+        # helper polling singkat buat nungguin job kelar di unit test sm bot telegram
         end = time.monotonic() + timeout
         while time.monotonic() < end:
             job = self.get(job_id)

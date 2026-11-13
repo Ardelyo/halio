@@ -1,3 +1,4 @@
+// logika ruang kerja radar analis: tarik data agregat, kelola tiket triase, sm tampilkan brief narasi
 const API = window.HALIO_API || "";
 const STATIC = window.HALIO_STATIC_DEMO;
 const KATEGORI = {
@@ -19,7 +20,7 @@ const $ = (selector) => document.querySelector(selector);
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 const storage = {
   get(key) { try { return localStorage.getItem(key) || ""; } catch { return ""; } },
-  set(key, value) { try { localStorage.setItem(key, value); } catch { /* Storage may be unavailable. */ } },
+  set(key, value) { try { localStorage.setItem(key, value); } catch { /* abaikan kl penyimpanan browser lg dikunci */ } },
 };
 const state = {
   days: 7, view: "overview", type: "escalations", openOnly: true,
@@ -48,6 +49,7 @@ function toast(text, error = false) {
   setTimeout(() => item.remove(), 5000);
 }
 
+// pembungkus fetch ke api halio sekalian selipin header token bearer analis kl udah login
 async function request(path, options = {}) {
   const response = await fetch(API + path, {
     ...options,
@@ -62,6 +64,7 @@ async function request(path, options = {}) {
   return data;
 }
 
+// muat semua data dasbor sekaligus (atau pake data simulasi kl lg jalan di github pages)
 async function loadDashboard() {
   if (state.loading) return;
   state.loading = true;
@@ -85,7 +88,7 @@ async function loadDashboard() {
         request("/api/sensor/items?limit=8"),
       ]);
       Object.assign(state, { radar, coverage, recent });
-      // Seeded demo rows (channel "demo") sit beside real ones on a server; say so whenever any are in the window.
+      // data contoh dr seed_demo.py (kanal "demo") bisa nyampur sm data asli di server; kasih tau jelas kl ada yg masuk rentang
       const demoEvents = Number(radar.demo_events || 0);
       $("#seed-notice").classList.toggle("hidden", demoEvents <= 0);
       $("#seed-count").textContent = `${demoEvents} dari ${radar.total_checks} cek`;
@@ -155,6 +158,7 @@ const OUTCOME = {
   sumber_resmi_tanpa_tanggal_atau_lama: "Sumber resmi tanpa tanggal atau lama", tidak_ada_sumber_relevan: "Tidak ada sumber yang relevan",
 };
 
+// tampilin telemetri mesin bukti biar ketauan kenapa sumber web ditolak ato gagal dipake
 function renderEvidenceHealth(t) {
   const panel = document.querySelector(".evidence-health");
   if (!panel) return;
@@ -172,9 +176,9 @@ function renderEvidenceHealth(t) {
 
 function renderTni(t) {
   const panel = $("#tni-panel");
-  if (!t) { panel.classList.add("hidden"); return; }   // static demo data has no such series
+  if (!t) { panel.classList.add("hidden"); return; }   // data demo statis emg ga punya seri harian ini
   panel.classList.remove("hidden");
-  const num = (n) => (typeof n === "number" ? n : 1);       // a suppressed cell ("<3") draws as a minimal bar
+  const num = (n) => (typeof n === "number" ? n : 1);       // angka kecil yg disamarin ("<3") tetep digambar jd batang tipis
   const max = Math.max(1, ...t.harian.map((d) => num(d.n)));
   $("#tni-bars").innerHTML = t.harian.map((d) => `<span class="tni-col" title="${esc(d.day)}: ${esc(d.n)}"><i class="${d.n === 0 ? "zero" : ""}" style="height:${d.n === 0 ? 2 : Math.max(8, num(d.n) / max * 100)}%"></i></span>`).join("");
   const up = t.status === "naik";
@@ -202,6 +206,7 @@ function trendRows(data) {
   return rows;
 }
 
+// gambar grafik garis svg manual biar enteng tanpa perlu pasang library chart tambahan
 function renderTrend(data) {
   const rows = trendRows(data);
   const width = 660;
@@ -230,6 +235,7 @@ function renderTrend(data) {
   $("#trend-table").innerHTML = `<thead><tr><th>Tanggal</th><th class="numeric">Jumlah cek</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${esc(formatDate(row.day))}</td><td class="numeric">${row.n}</td></tr>`).join("")}</tbody>`;
 }
 
+// diagram donat pake conic-gradient css biasa biar simpel
 function renderStatus(data) {
   const total = data.total_checks;
   let cursor = 0;
@@ -304,6 +310,7 @@ function switchView(view) {
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
+// buka rincian tiket triase & sesuaikan opsi kirim balasan sm kanal asalnya
 function openTicket(id) {
   const item = state.reviews[state.type].items.find((entry) => entry.id === id);
   if (!item) return;
@@ -342,6 +349,7 @@ function renderHistory() {
   $("#review-history").innerHTML = events.length ? events.map((event) => `<article class="history-item"><p>${esc(event.response)}</p><small>Respons dicatat · ${esc(formatDate(event.created, true))}</small></article>`).join("") : '<p class="history-empty">Belum ada tindakan yang dicatat untuk tiket ini.</p>';
 }
 
+// simpen jawaban analis; jgn smpe tiket ketutup kl pengiriman balasan ke warga gagal
 async function resolveTicket(event) {
   event.preventDefault();
   const item = state.currentTicket;
@@ -383,6 +391,7 @@ function openAccess() {
 const BRIEF_ICON = { terbukti_salah: "🔴", sejalan_dengan_sumber: "🟢", dilaporkan_media: "🔵", tidak_yakin: "🟠", belum_ada_pemeriksaan: "⚪" };
 state.briefTopic = "tni";
 
+// ambil brief narasi harian, kl swarm masih jalan cek ulang otomatis tiap 6 detik
 async function loadBrief() {
   if (STATIC) { $("#brief-list").innerHTML = '<p class="brief-meta">Brief harian membutuhkan server Halio dengan sensor dan AI aktif.</p>'; return; }
   $("#brief-meta").textContent = "Memuat brief…";
@@ -406,7 +415,7 @@ function renderBrief(data) {
   }
   $("#brief-meta").textContent = `${b.label} · disusun ${formatDate(b.dibuat, true)} · ${b.berita_dibaca.toLocaleString("id-ID")} berita dibaca dalam ${b.jendela_jam} jam, ${b.berita_cocok_topik.toLocaleString("id-ID")} cocok topik, ${b.narasi.length} narasi.`;
   $("#brief-note").textContent = b.catatan;
-  // Official releases on the topic: the army's own public account, listed for context and never investigated.
+  // rilis resmi dr akun publik tni ad sendiri: ditampilin buat konteks aja, ga ikut diinvestigasi hoaks
   const context = (b.konteks_resmi || []).length
     ? `<article class="brief-card"><span class="brief-rank">KONTEKS RESMI · TIDAK DITELUSURI</span><h3>Rilis resmi terbaru pada topik ini</h3>
       <ul class="brief-heads">${b.konteks_resmi.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber.join(", "))}</small></li>`).join("")}</ul></article>`

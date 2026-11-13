@@ -14,6 +14,7 @@ import socket
 import httpx
 
 
+# lumayan ribet urusan dns rebinding tp mending cerewet di awal drpd kecolongan tembus ke localhost wkwk
 class PinnedTransport(httpx.BaseTransport):
     def __init__(self, inner: httpx.BaseTransport | None = None, resolver=socket.getaddrinfo):
         self.inner = inner or httpx.HTTPTransport()
@@ -29,6 +30,7 @@ class PinnedTransport(httpx.BaseTransport):
                 addresses = [info[4][0] for info in self.resolve(host, port, type=socket.SOCK_STREAM)]
             except (socket.gaierror, UnicodeError) as exc:
                 raise httpx.ConnectError("domain_tidak_ditemukan", request=request) from exc
+        # wajib semua IP hasil resolve murni alamat global/publik; kl ada satu aja IP privat/loopback langsung tolak
         if not addresses or any(not ipaddress.ip_address(a.split("%")[0]).is_global for a in addresses):
             raise httpx.ConnectError("alamat_jaringan_tidak_publik", request=request)
         return addresses[0].split("%")[0]
@@ -37,9 +39,10 @@ class PinnedTransport(httpx.BaseTransport):
         host = request.url.host
         address = self._address(request)
         if address != host:
-            # The Host header was set from the original URL when the request was built; only where we connect changes.
+            # header Host udah keisi domain asli dari URL awal, di sini kita cuma ngunci alamat IP tujuan koneksinya aja
             request.url = request.url.copy_with(host=address)
             if request.url.scheme == "https":
+                # tetep kirim nama host asli lewat SNI biar validsi sertifikat TLS ga protes
                 request.extensions = {**request.extensions, "sni_hostname": host}
         return self.inner.handle_request(request)
 

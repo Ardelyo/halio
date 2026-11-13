@@ -23,7 +23,7 @@ log = logging.getLogger("halio.telegram")
 
 API_URL = os.getenv("HALIO_API_URL", "http://localhost:8000").rstrip("/")
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-# Lets the API trust our per-chat reporter id (halio/netguard.py). Same value as the server's.
+# biar server API percaya sm id pelapor per-chat dari bot ini (nilainya wajib kembar sm di server)
 CHANNEL_HEADERS = {"x-halio-channel-key": os.getenv("HALIO_CHANNEL_KEY", "")}
 TG = f"https://api.telegram.org/bot{TOKEN}"
 
@@ -65,7 +65,7 @@ CARD_CAPTION = {
 BUSY = "Maaf, Halio sedang tidak bisa memeriksa pesan ini. Coba kirim lagi sebentar lagi, ya."
 NOT_TEXT = "Untuk sekarang saya baru bisa membaca teks. Teruskan pesan tulisannya, ya."
 
-sapaan_by_chat: dict[int, str] = {}  # in memory only; families set it once
+sapaan_by_chat: dict[int, str] = {}  # simpen di memori aja, biasanya tiap keluarga cukup nyetel sekali
 
 
 def tg(method: str, **kwargs) -> dict:
@@ -158,7 +158,7 @@ def _follow_job(chat_id: int, job_id: str, message_id: int | None) -> None:
     tg("sendMessage", json={"chat_id": chat_id, "text": "Penelusuran terlalu lama. Buka laporannya nanti: " + (_report_link(job_id) or "situs Halio")})
 
 
-photo_refs: dict[str, tuple[str, str, str]] = {}   # short key -> (Telegram file_id, mime, text read from the photo)
+photo_refs: dict[str, tuple[str, str, str]] = {}   # kunci pendek -> (file_id Telegram, mime, teks hasil baca foto)
 PHOTO_ONLY = "Foto tanpa tulisan yang diteruskan pengguna"
 
 
@@ -202,13 +202,13 @@ def send_result(chat_id: int, result: dict, reply_to: int | None = None) -> None
         "disable_web_page_preview": True, "reply_markup": {"inline_keyboard": keyboard_for(result)},
     }
     if reply_to:
-        # Replying to the user's message lets the buttons recover the original text after a restart (see handle_callback).
+        # bales sebagai reply ke pesan user biar tombol callback sebenernya tetep bisa mungut teks aslinya kl server abis restart
         body["reply_to_message_id"] = reply_to
         body["allow_sending_without_reply"] = True
     tg("sendMessage", json=body)
     if result.get("reason") in ("berita_media_dikenal", "kumpulan_judul"):
-        return  # an article link or a list of headlines needs the text answer only, not a correction card or a voice note
-    # The card and the voice note are extras: if either fails the text answer above has already been delivered.
+        return  # khusus link berita biasa atau daftar judul cukup bales teks aja, ga perlu kartu koreksi & voice note
+    # kartu gambar & voice note sifatnya bonus pelengkap: kl salah satu gagal, jawaban teks utama di atas udah aman terkirim
     try:
         card = httpx.get(f"{API_URL}{result['card_url']}", timeout=20)
         if card.status_code == 200:
@@ -236,7 +236,7 @@ def _status_line() -> str:
 def _media_of(msg: dict) -> tuple[str, str] | None:
     """(file_id, mime) of a photo, voice note, audio or image document, else None."""
     if msg.get("photo"):
-        return msg["photo"][-1]["file_id"], "image/jpeg"  # Telegram lists sizes small to large
+        return msg["photo"][-1]["file_id"], "image/jpeg"  # Telegram ngurutin ukuran foto dari kecil ke paling gede
     for key, default in (("voice", "audio/ogg"), ("audio", "audio/mpeg"), ("document", "")):
         item = msg.get(key)
         if item and (item.get("mime_type") or default):
@@ -416,7 +416,7 @@ def startup_checks() -> None:
     if not me.get("ok"):
         raise SystemExit(f"Token Telegram ditolak: {me.get('description', 'tidak dikenal')}. Periksa TELEGRAM_BOT_TOKEN.")
     log.info("Logged in as @%s", me["result"].get("username"))
-    # A leftover webhook makes getUpdates fail with 409; this bot polls.
+    # sapu sisa webhook lama kl ada, soalnya bot ini jalan pake mode polling getUpdates (biar ga mental 409)
     httpx.post(f"{TG}/deleteWebhook", json={"drop_pending_updates": False}, timeout=15)
     try:
         health = httpx.get(f"{API_URL}/health", timeout=10).json()
@@ -431,7 +431,7 @@ def main() -> None:
     if not TOKEN:
         raise SystemExit("Set TELEGRAM_BOT_TOKEN (dari @BotFather) terlebih dahulu.")
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger("httpx").setLevel(logging.WARNING)  # httpx logs full URLs, which contain the bot token
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # matiin log info httpx krn URL lengkapnya ngandung token bot!
     log.info("Halio Telegram bot started, API=%s", API_URL)
     startup_checks()
     offset = 0
@@ -439,7 +439,7 @@ def main() -> None:
         try:
             updates = httpx.get(f"{TG}/getUpdates", params={"timeout": 30, "offset": offset}, timeout=40).json()
             if not updates.get("ok"):
-                # 409 = another bot process is polling with this token; never spin on an error reply.
+                # 409 artinya ada proses bot kembar yg ikut polling pake token ini; kasih jeda biar ga nge-loop kenceng
                 log.warning("getUpdates ditolak: %s; mencoba lagi dalam 5 detik", updates.get("description"))
                 time.sleep(5)
                 continue
@@ -450,7 +450,7 @@ def main() -> None:
                         handle_message(upd["message"])
                     elif "callback_query" in upd:
                         handle_callback(upd["callback_query"])
-                except Exception:  # one bad update must never stop the bot, and the user must not be left waiting
+                except Exception:  # satu update bermasalah jgn smpe matiin bot atau bikin user nunggu tanpa kabar
                     log.exception("Failed to handle update %s", upd.get("update_id"))
                     chat = _chat_of(upd)
                     if chat:

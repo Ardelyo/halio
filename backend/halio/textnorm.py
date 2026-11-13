@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 
-# Common chat abbreviations seen in forwarded WhatsApp messages.
+# kamus singkatan ketikan chat sehari-hari yg sering bgt muncul di pesan terusannya grup WA
 SLANG = {
     "yg": "yang", "dgn": "dengan", "utk": "untuk", "krn": "karena", "tdk": "tidak",
     "gak": "tidak", "ga": "tidak", "gk": "tidak", "nggak": "tidak", "engga": "tidak",
@@ -16,6 +16,7 @@ SLANG = {
     "covid19": "covid", "covid-19": "covid", "rb": "ribu", "jt": "juta",
 }
 
+# kata sambung/umum yg dibuang pas ngitung kemiripan biar ga ngaburin kata kunci inti
 STOPWORDS = set(
     """
     yang dan di ke dari untuk pada dengan ini itu adalah akan juga sudah telah atau
@@ -30,6 +31,7 @@ _TOKEN = re.compile(r"[a-z0-9]+")
 
 
 def fold(text: str) -> str:
+    # ratain karakter unicode beraksen terus ubah jadi huruf kecil semua
     text = unicodedata.normalize("NFKD", text)
     text = "".join(c for c in text if not unicodedata.combining(c))
     return text.lower()
@@ -39,7 +41,7 @@ def tokens(text: str, drop_stopwords: bool = True) -> list[str]:
     out = []
     for tok in _TOKEN.findall(fold(text)):
         tok = SLANG.get(tok, tok)
-        # Collapse elongated words: "bahayaaaa" -> "bahaya".
+        # kempesin huruf berulang panjang khas chat: "bahayaaaa" -> "bahaya"
         tok = re.sub(r"(.)\1{2,}", r"\1", tok)
         if drop_stopwords and (tok in STOPWORDS or len(tok) < 2):
             continue

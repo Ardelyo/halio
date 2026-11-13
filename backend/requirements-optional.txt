@@ -1,8 +1,8 @@
-# Halio Suara server-side TTS (MP3 voice notes). Needs internet access.
+# Halio Suara buat bikin voice note MP3 di sisi server (butuh koneksi internet)
 gTTS==2.5.4
-# T2 grounded LLM verdict (HALIO_LLM=1, HALIO_LLM_PROVIDER=google).
+# SDK Gemini Vertex AI buat cek web & telusur (HALIO_LLM=1, HALIO_LLM_PROVIDER=google)
 google-genai==1.75.0
-# Legacy provider (HALIO_LLM_PROVIDER=anthropic).
+# provider cadangan lama kl mau pake claude (HALIO_LLM_PROVIDER=anthropic)
 anthropic==0.84.0
-# Tests
+# buat jalanin unit test
 pytest==9.2.0

@@ -1,4 +1,6 @@
+// data simulasi lokal buat dasbor radar kl dibuka statis tanpa backend (misal di GitHub Pages)
 (() => {
+  // tiket eskalasi & banding buatan biar alur triase analis tetep bisa dicoba di mode demo
   const items = {
     escalations: [
       { id: 103, created: "2026-11-01T08:20:00+07:00", check_id: "d1030000000000000000000000000000", claim: "SIMULASI: Bantuan tunai dapat diambil setelah membayar biaya pencairan melalui tautan pribadi.", status: "menunggu", channel: "web", reporter: "web:demo" },
@@ -19,6 +21,7 @@
     return date.toISOString().slice(0, 10);
   }
 
+  // bentuk deret angka harian yg stabil sesuai pilihan rentang 7/14/30 hari
   function radar(days) {
     const daily = [];
     let total = 0;
@@ -68,6 +71,7 @@
         events: events[type],
       };
     },
+    // tandai tiket selesai di memori sesi browser aja, ilang lagi kl halaman di-refresh
     resolve(type, id, response) {
       const item = items[type].find((entry) => entry.id === id);
       if (!item || item.status === "selesai") throw new Error("Tiket tidak tersedia atau sudah selesai.");

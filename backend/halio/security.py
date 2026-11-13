@@ -11,6 +11,7 @@ from collections import deque
 
 def valid_meta_signature(body: bytes, signature: str | None, app_secret: str | None) -> bool:
     """True only if `signature` is the HMAC-SHA256 of the exact raw body under the app secret. No secret means reject."""
+    # tolak langsung kl app_secret kosong atau header signature ga diawalin sha256=
     if not app_secret or not signature or not signature.startswith("sha256="):
         return False
     expected = hmac.new(app_secret.encode(), body, hashlib.sha256).hexdigest()
@@ -29,6 +30,7 @@ class RateLimiter:
         now = time.monotonic() if now is None else now
         with self._lock:
             hits = self._hits.setdefault(key, deque())
+            # bersihin timestamp lama yg udah lewat jendela 60 detik
             while hits and now - hits[0] >= 60:
                 hits.popleft()
             if len(hits) >= self.limit:
@@ -36,6 +38,7 @@ class RateLimiter:
                     self._hits.pop(key, None)
                 return False
             hits.append(now)
+            # jaga-jaga kl jumlah key tembus 10 ribu, sapu entri yg udah ga aktif biar RAM aman
             if len(self._hits) > 10000:
                 self._hits = {k: v for k, v in self._hits.items() if v and now - v[-1] < 60}
             return True
@@ -54,7 +57,7 @@ class DailyBudget:
         self._lock = threading.Lock()
 
     def take(self, day: str | None = None) -> bool:
-        if self.cap <= 0:
+        if self.cap <= 0:  # 0 artinya tanpa batas kuota harian
             return True
         if day is None:
             from datetime import datetime
@@ -63,6 +66,7 @@ class DailyBudget:
 
             day = datetime.now(WIB).date().isoformat()
         with self._lock:
+            # begitu ganti tanggal WIB, hitungan kuota di-reset kemabli dari nol
             if day != self._day:
                 self._day, self._used = day, 0
             if self._used >= self.cap:

@@ -22,6 +22,7 @@ GRAPH_VERSION = os.getenv("WHATSAPP_GRAPH_VERSION", "v21.0")
 
 def incoming_texts(payload: dict) -> Iterator[tuple[str, str, str]]:
     """(message id, sender, text) for every text message; anything malformed is skipped, never raised."""
+    # bongkar payload bersarang dari webhook Meta, lewatin aja kl ada pesan non-teks atau strukturnya aneh
     if not isinstance(payload, dict):
         return
     for entry in payload.get("entry") or []:
@@ -34,6 +35,7 @@ def incoming_texts(payload: dict) -> Iterator[tuple[str, str, str]]:
 
 def _send(cfg: Settings, body: dict) -> None:
     if not (cfg.wa_token and cfg.wa_phone_id):
+        # kl token WA blm diset cukup catet warning aja biar server ga error
         log.warning("WhatsApp not configured; skipping reply")
         return
     url = f"https://graph.facebook.com/{GRAPH_VERSION}/{cfg.wa_phone_id}/messages"
@@ -44,8 +46,9 @@ def _send(cfg: Settings, body: dict) -> None:
 
 
 def reply(to: str, result: dict, cfg: Settings) -> None:
+    # kirim balasan teks dulu, baru susul kartu gambar 1080x1080 sm voice note MP3
     base = cfg.public_base_url.rstrip("/")
     _send(cfg, {"to": to, "type": "text", "text": {"body": reply_text(result), "preview_url": False}})
-    # Media by link requires PUBLIC_BASE_URL to be reachable by Meta (e.g. the deployed demo).
+    # kirim media pake link butuh PUBLIC_BASE_URL yg beneran bisa diakses publik sama server Meta
     _send(cfg, {"to": to, "type": "image", "image": {"link": base + result["card_url"]}})
     _send(cfg, {"to": to, "type": "audio", "audio": {"link": base + result["voice_url"]}})

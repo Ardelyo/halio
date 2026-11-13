@@ -22,8 +22,8 @@ class Source:
     name: str
     url: str
     kind: str
-    cadence_s: int = 2 * MIN       # how often we poll
-    max_quiet_s: int = 6 * HOUR    # newest item older than this => "basi" (stale)
+    cadence_s: int = 2 * MIN       # jeda waktu antar tarikan feed
+    max_quiet_s: int = 6 * HOUR    # kl berita paling barunya lebih tua dr ini, anggep "basi"
     notes: str = ""
 
 
@@ -62,6 +62,7 @@ SOURCES: tuple[Source, ...] = (
     Source("tniad", "TNI AD", "https://tniad.mil.id/feed/", RESMI, cadence_s=10 * MIN, max_quiet_s=3 * DAY),
 )
 
+# indeks cepet buat ngambil konfigrasi sumber langsung pake id-nya
 SOURCE_BY_ID = {s.id: s for s in SOURCES}
 
 
@@ -73,6 +74,7 @@ class BlindSpot:
     reason: str
 
 
+# daftar kanal yg jujur blm atau emang ga bisa dipantau sensor kita
 BLIND_SPOTS: tuple[BlindSpot, ...] = (
     BlindSpot("wa-privat", "WhatsApp dan obrolan privat", "C",
               "Terenkripsi dan privat. Halio hanya melihat pesan yang pengguna teruskan sendiri."),

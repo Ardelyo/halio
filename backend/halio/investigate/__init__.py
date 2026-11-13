@@ -43,13 +43,13 @@ PHOTO_ONLY = "Foto tanpa tulisan yang diteruskan pengguna"
 
 @dataclass
 class Budget:
-    queries: int = 10          # first-round search queries (the claim itself is always one of them)
-    followups: int = 4         # second-round, origin-oriented queries
-    pages: int = 60            # pages opened in total
-    seconds: float = 150.0     # wall clock for the whole investigation
+    queries: int = 10          # kueri putaran pertama (teks klaim aslinya selalu ikut masuk)
+    followups: int = 4         # kueri putaran kedua khusus buat ngelacak asal-usul klaim
+    pages: int = 60            # batas maksmal halaman web yg dibuka total
+    seconds: float = 150.0     # batas waktu jalan buat satu sesi telusur penuh
     workers: int = 8
     judge_batch: int = 14
-    passages: int = 42         # passages sent to the judge in total
+    passages: int = 42         # total kutipan yg dikirim buat dinilai model
 
 
 _CHATTY = {"bapak", "ibu", "langsung", "chat", "daftar", "sebarkan", "segera", "tolong", "teruskan", "grup", "dulu", "waspada"}
@@ -106,11 +106,11 @@ class _Run:
         self.t0 = clock()
         self.cands: dict[str, dict] = {}
         self.opened: set[str] = set()
-        self.pages: list[dict] = []          # every page opened and readable
+        self.pages: list[dict] = []          # semua halaman yg berhasil dibuka & kebaca isinya
         self.failed: dict[str, int] = {}
         self.passages: list[evidence.Passage] = []
         self.items: list[evidence.Item] = []
-        self.side: list[dict] = []           # sensor / gdelt / claimreview hits, for the timeline
+        self.side: list[dict] = []           # temuan sampingan dr sensor / gdelt / claimreview buat linimasa
         self.reviews: list[dict] = []
         self.queries: list[str] = []
         self.core = claim
@@ -128,7 +128,7 @@ class _Run:
                 "gagal": sum(self.failed.values()), "kutipan": len(self.passages), "dinilai": len(self.items),
                 "detik": round(self.clock() - self.t0, 1)}
 
-    # -- candidates --------------------------------------------------------------------------------------------
+    # -- kumpulin kandidt halaman ------------------------------------------------------------------------------
     def add(self, hits: list[dict], agent: str = "umum") -> None:
         for h in hits:
             uri = h.get("uri", "")
@@ -165,7 +165,7 @@ class _Run:
             except FutureTimeout:
                 log.info("search round cut by the time budget")
 
-    # -- reading -----------------------------------------------------------------------------------------------
+    # -- buka & baca isi halaman -------------------------------------------------------------------------------
     def rank(self) -> list[dict]:
         def key(c):
             via = c["via"]
@@ -205,7 +205,7 @@ class _Run:
 
     def keep(self, c: dict, page) -> None:
         final = evidence._canonical(page.final_url)
-        if final in self.kept:   # two search redirects to the same article: read it once
+        if final in self.kept:   # kl dua link hasil cari berujung ke artikel yg sama, cukup baca sekali aja
             return
         self.kept.add(final)
         tier, publisher, group = evidence.classify(page.final_url)
@@ -225,7 +225,7 @@ class _Run:
             self.passages.append(evidence.Passage(id=0, text=text, url=page.final_url, host=host, tier=tier, publisher=publisher,
                                                   group=group, published=evidence.parse_date(origin.iso_date(page.published)), title=page.title))
 
-    # -- judging -----------------------------------------------------------------------------------------------
+    # -- nilai hubungan kutipan pake model ---------------------------------------------------------------------
     def judge_new(self) -> None:
         judged = {id(i.passage) for i in self.items}
         pending = [p for p in self.passages if p.tier != "D" and id(p) not in judged]
@@ -262,7 +262,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
     claim = claims.extract(text).text
     r = _Run(claim, cfg, budget, toolbox or Toolbox(cfg), fetch, judge, progress, clock)
     r.image = image
-    if image:  # the picture first: for a photo without words, what the web says about it IS the claim to investigate
+    if image:  # cek gambarnya dulu: kl cuma kiriman foto tanpa tulisan, konteks dr web itu yg jadi klaimnya
         r.say(stage="mencari", **r.stats())
         try:
             r.vision = r.tools.reverse_image(image)
@@ -281,6 +281,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
     r.read()
     r.judge_new()
 
+    # lanjut putaran kedua buat nyari asal-usul kl sisa waktunya msh cukup longgar
     if r.left() > 45:
         r.say(stage="menelusuri_asal", **r.stats())
         found = sorted((p for p in r.pages if p["relevan"]), key=lambda p: p["tanggal"] or "9999")
@@ -293,7 +294,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
     d = evidence.decide(r.items, today)
     r.say(stage="menyusun", **r.stats())
 
-    # evidence list, numbered for the report: judged passages (strongest first), then ClaimReview entries
+    # urutin daftar bukti bernomor buat laporan: kutipan terkuat duluan, baru disusul entri ClaimReview
     order = {"refutes": 0, "supports": 1, "context": 2, "unrelated": 3}
     shown = sorted((i for i in r.items if i.relation != "unrelated"), key=lambda i: ("ABCD".index(i.passage.tier), order[i.relation]))
     numbered = []
@@ -309,7 +310,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
     for n, b in enumerate(numbered, 1):
         b["no"] = n
 
-    # timeline: pages with a date, side hits with a date, and the first archive capture of the earliest relevant pages
+    # susun linimasa: gabungin halaman bertanggal, temuan sampingan, sm tangkapan paling awal dr Wayback
     events = [{"tanggal": p["tanggal"], "judul": p["judul"], "url": p["url"], "penerbit": p["penerbit"], "tingkat": p["tingkat"],
                "asal": "gambar" if p["gambar_sama"] and not p["relevan"] else "halaman",
                "catatan": ("memuat gambar yang sama; " if p["gambar_sama"] else "") + ("membahas klaim" if p["relevan"] else "")}

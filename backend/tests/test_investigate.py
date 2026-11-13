@@ -71,8 +71,8 @@ def dossier_ask(claim, status_label, numbered, cfg):
     return dossier._Dossier(
         ringkasan=[
             dossier._Sentence(teks="TurnBackHoax dan Komdigi menyatakan video Presiden Prabowo membagikan bantuan tunai lewat WhatsApp adalah hoaks.", sumber=[1, 2]),
-            dossier._Sentence(teks="Video itu ditonton 2 juta kali sejak 2019.", sumber=[1]),        # invented numbers
-            dossier._Sentence(teks="Presiden Prabowo membagikan bantuan tunai lewat WhatsApp.", sumber=[99]),  # unknown source
+            dossier._Sentence(teks="Video itu ditonton 2 juta kali sejak 2019.", sumber=[1]),        # angka karangan yg ga ada di bukti
+            dossier._Sentence(teks="Presiden Prabowo membagikan bantuan tunai lewat WhatsApp.", sumber=[99]),  # nunjuk nomor sumber gaib
         ],
     )
 
@@ -94,7 +94,7 @@ def test_code_decides_and_report_drops_unsupported_sentences():
 def test_timeline_is_ordered_and_earliest_is_named_honestly():
     rep = run()
     dates = [e["tanggal"] for e in rep["linimasa"]]
-    assert dates == sorted(dates) and dates[0] == "2025-02-19"           # the Wayback capture of the blog post
+    assert dates == sorted(dates) and dates[0] == "2025-02-19"           # tangkapan paling awal Wayback dr postingan blog
     assert rep["asal"]["tanggapan_pertama"]["tingkat"] in ("A", "B")
     assert "bukan pasti asal-usulnya" in rep["asal"]["catatan"]
 
@@ -108,12 +108,12 @@ def test_page_budget_and_blind_spots():
 
 
 def test_no_follow_up_round_when_time_is_short():
-    ticks = iter(range(0, 10_000, 20))      # every clock read advances 20 s
+    ticks = iter(range(0, 10_000, 20))      # tiap kali baca jam langsung lompat 20 detik
     tools = FakeTools()
     investigate.run(CLAIM, Settings(), toolbox=tools, fetch=fetch, judge=judge, plan_ask=plan_ask, dossier_ask=dossier_ask,
                     today=date(2025, 3, 10), clock=lambda: next(ticks), budget=investigate.Budget(seconds=60))
     assert "prabowo cash video whatsapp" in tools.searched
-    assert "asal video bantuan tunai prabowo pertama kali" not in tools.searched      # no time left for the origin round
+    assert "asal video bantuan tunai prabowo pertama kali" not in tools.searched      # sisa waktu mepet, putaran lacak asal dilewatin
 
 
 def test_follow_up_round_runs_when_time_allows():
@@ -190,10 +190,10 @@ def test_jobs_run_store_report_and_enforce_caps(tmp_path):
     import pytest
 
     with pytest.raises(LimitReached):
-        j.submit("klaim kedua yang cukup panjang", "tg:1", "telegram")      # per reporter
+        j.submit("klaim kedua yang cukup panjang", "tg:1", "telegram")      # mentok jatah per pelapor
     j.submit("klaim ketiga yang cukup panjang", "tg:2", "telegram")
     with pytest.raises(LimitReached):
-        j.submit("klaim keempat yang cukup panjang", "tg:3", "telegram")    # daily total
+        j.submit("klaim keempat yang cukup panjang", "tg:3", "telegram")    # mentok kuota harian total server
 
 
 def test_failed_job_is_recorded_not_lost(tmp_path):
@@ -418,7 +418,7 @@ def test_archive_match_is_only_a_lead_for_the_engine(tmp_path, monkeypatch):
     archive._cache.clear()
     hits = archive.search("Ada video Presiden Prabowo bagi-bagi bantuan tunai lewat WhatsApp, bayar biaya administrasi dulu", cfg)
     assert hits and hits[0].debunk.sumber[0]["url"] == "https://turnbackhoax.id/articles/1"
-    assert all("Bintara" not in m.debunk.klaim for m in hits)          # [BENAR] never enters the archive
+    assert all("Bintara" not in m.debunk.klaim for m in hits)          # artikel berlabel [BENAR] jgn sampe nyasar masuk arsip bantahan
     assert archive.size(cfg) == 1
 
 
@@ -520,7 +520,7 @@ def test_blocked_page_without_archive_copy_still_fails_honestly(monkeypatch):
         sv.fetch_page("https://berita.example/gone")
         assert False
     except sv.SourceError as exc:
-        assert str(exc) == "http_404"      # a missing page is not "blocked": no archive fallback
+        assert str(exc) == "http_404"      # halaman ilang (404) itu bukan diblokir, jadi ga usah cari salinan arsip
 
 
 def test_text_fragment_link_points_at_the_copied_sentence():
@@ -535,7 +535,7 @@ def test_text_fragment_link_points_at_the_copied_sentence():
     assert url.startswith("https://x.id/a#:~:text=") and "#lama" not in url
     start, end = url.split("#:~:text=")[1].split(",", 1)[0], url.rsplit(",", 1)[1]
     assert unquote(start).startswith("Brigjen Wahyu memastikan%2C".replace("%2C", ",")) and unquote(end).endswith("keluar uang")
-    # "," and "-" inside the quote must not break the "start,end" syntax
+    # tanda "," sm "-" di dlm kutipan jgn sampe ngerusak sintaks text-fragment "awal,akhir"
     assert fragment_url("https://x.id/", "tidak-benar, kata dia & lainnya ya").count(",") == 0
     assert "%2D" in fragment_url("https://x.id/", "tidak-benar kata dia") and "%26" in fragment_url("https://x.id/", "a & b c")
     assert fragment_url("javascript:alert(1)", "satu dua tiga empat") == "javascript:alert(1)"
@@ -600,10 +600,10 @@ def test_injection_test_reports_honestly_without_ai_and_with_a_fooled_model(monk
     assert off["lulus"] is None and "tidak aktif" in off["catatan"]
 
     on = replace(Settings(), llm_enabled=True, llm_provider="google")
-    fooled = lambda claim, passages, cfg: [evidence.Judgement(p.id, "supports", True) for p in passages]  # a model that obeys the trap
+    fooled = lambda claim, passages, cfg: [evidence.Judgement(p.id, "supports", True) for p in passages]  # pura2 modelnya kena kibul injeksi
     monkeypatch.setattr(evidence, "gemini_judge", fooled)
     out = selftest.injeksi(on)
-    assert out["lulus"] is False                      # the test must be able to FAIL when the model is fooled
+    assert out["lulus"] is False                      # uji mandiri wajib bisa GAGAL beneran kl modelnya ketipu jebakan
     wise = lambda claim, passages, cfg: [evidence.Judgement(1, "context", False), evidence.Judgement(2, "refutes", True)]
     monkeypatch.setattr(evidence, "gemini_judge", wise)
     assert selftest.injeksi(on)["lulus"] is True
@@ -701,7 +701,7 @@ def test_brief_recognises_fact_check_labels_and_investigates_only_signalled_narr
             return "j" * 32
 
     built = brief.Briefs(_cfg(tmp_path)).build("tni", FakeJobs(), now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
-    assert submitted and not any("Majalah" in s or "Buku Potret" in s for s in submitted)   # no investigation spent on routine releases
+    assert submitted and not any("Majalah" in s or "Buku Potret" in s for s in submitted)   # jgn abisin jatah telusur buat rilis rutin
     assert all(n["perlu_ditelusuri"] for n in built["narasi"])
     assert any("Majalah Palagan" in k["judul"] for k in built["konteks_resmi"])
 
@@ -718,7 +718,7 @@ def test_tni_topic_ignores_foreign_defence_ministers_but_keeps_indonesian_ones()
             row(2, "Trump 'Pasang Badan' Bela Menhan Hegseth yang Terancam Dimakzulkan"),
             row(3, "Wamenhan Hadiri Remembrance Day, Perkuat Diplomasi Pertahanan RI"),
             row(4, "Dituding Dirikan Barak Militer di Kawasan PIK 2, TNI Bantah: Itu Tenda Sementara"),
-            row(5, "Menhan Rusia dan TNI bahas kerja sama latihan bersama")]   # foreign word, but TNI is named: kept
+            row(5, "Menhan Rusia dan TNI bahas kerja sama latihan bersama")]   # ada negara asing tp tetep nyebut TNI: wajib disimpen
     out = brief.clusters(rows, {"detik-news": "berita"}, {}, "tni", now=datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
     titles = " | ".join(c["judul"] for c in out)
     assert "Hegseth" not in titles and "Menhan AS" not in titles

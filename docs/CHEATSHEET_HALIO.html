@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Halio: lembar contekan</title>
+<!-- lembar contekan cepet buat pegangan sendiri pas demo sm sesi tanya jawab juri -->
 <link rel="stylesheet" href="../web/fonts/fonts.css">
 <style>
 :root{--blue:#014BAA;--blue-soft:#E6EEF9;--cream:#F8F3F0;--ink:#0E1726;--ink2:#3A4456;--muted:#5B6475;--line:#E7E1DC;--sun:#FFC83D;--sun-soft:#FFF1C2;--salah:#B42318;--salah-bg:#FEF3F2;--ragu:#B54708;--ragu-bg:#FFFAEB;--ok:#067647;--ok-bg:#ECFDF3;--belum:#475467;--belum-bg:#F2F4F7}
@@ -41,6 +42,7 @@ ul{margin:2pt 0 6pt 14pt;padding:0}li{margin:1pt 0}
 
 <div class="hero"><p><b>Halio bukan sekadar pendeteksi hoaks.</b> Halio adalah <b>mesin yang menyusun bukti</b>. Pintu pertama: keluarga dan Nenek bertanya lewat Telegram, dapat jawaban sederhana dan bersuara. Pintu kedua: analis (TNI AD) mendapat <b>laporan investigasi</b> lengkap dan <b>brief harian</b> tentang narasi yang sedang naik.</p></div>
 
+<!-- ringkasan 1 napas biar ga belibet pas jelasin bedanya halio di menit awal -->
 <h2>1. Halio itu apa, dalam satu napas</h2>
 <div class="grid g2">
   <div class="card"><h3>Pendeteksi hoaks biasa</h3><p>Menempel label “hoaks” atau “bukan hoaks” pada pesan. Biasanya hanya benar-salah, tanpa menunjukkan dari mana kesimpulannya.</p></div>
@@ -65,6 +67,7 @@ ul{margin:2pt 0 6pt 14pt;padding:0}li{margin:1pt 0}
 <tr><td>5. Menulis laporan</td><td>AI menulis kalimat, lalu kode <b>membuang</b> kalimat yang tidak didukung kutipan.</td><td>AI + <b>kode</b></td></tr>
 </table>
 
+<!-- arti 5 warna status, pastiin juri nangkep kalo "belum ada pemeriksaan" itu fitur jujur -->
 <h2>4. Lima hasil yang mungkin (arti warnanya)</h2>
 <table>
 <tr><td style="width:30%"><span class="tag" style="background:var(--salah-bg);color:var(--salah)">🔴 Terbukti salah</span></td><td>Sudah dibantah sumber resmi atau pemeriksa fakta.</td></tr>
@@ -74,6 +77,7 @@ ul{margin:2pt 0 6pt 14pt;padding:0}li{margin:1pt 0}
 <tr><td><span class="tag" style="background:var(--belum-bg);color:var(--belum)">⚪ Belum ada pemeriksaan</span></td><td>Halio <b>tidak menebak</b>. Ini jawaban yang sah, bukan kegagalan.</td></tr>
 </table>
 
+<!-- pindah halamn cetak A4, semua angka di sini wajib dari hasil ukur beneran di server -->
 <h2 class="pb">5. Angka yang boleh disebut (semua terukur)</h2>
 <div class="grid g3" style="grid-template-columns:repeat(4,1fr)">
   <div class="card num"><div class="big">0 / 10</div><small>berita benar dituduh hoaks</small></div>
@@ -101,6 +105,7 @@ ul{margin:2pt 0 6pt 14pt;padding:0}li{margin:1pt 0}
 <tr><td><b>Kemunculan paling awal</b></td><td>Tanggal paling lama yang <i>ditemukan</i> di web terbuka. Bukan asal pesan yang pasti.</td></tr>
 </table>
 
+<!-- daftar pertanyaan kritis yg sering muncul + jawaban jujur apa adanya -->
 <h2>7. Tanya jawab juri (jawaban jujur)</h2>
 <div class="q"><b>“Apa bedanya dengan chatbot AI biasa?”</b>Chatbot sering mengarang kutipan dan tautan. Di Halio kutipan disalin <i>kode</i> dari halaman asli, dan vonis ditetapkan aturan, bukan perasaan model.</div>
 <div class="q"><b>“Kenapa banyak hasilnya ‘tidak yakin’?”</b>Karena kami memilih tidak menuduh kabar benar. Bantahan dari media tidak cukup untuk 🔴; perlu sumber resmi atau pemeriksa fakta. Itu kebijakan, bukan kekurangan pencarian.</div>
@@ -111,6 +116,7 @@ ul{margin:2pt 0 6pt 14pt;padding:0}li{margin:1pt 0}
 <div class="q"><b>“Bisa menilai foto asli atau palsu?”</b>Tidak. Halio membaca <i>isi</i> foto dan mencari asal gambar (pencarian gambar terbalik, setelah Cloud Vision aktif). Deteksi deepfake tidak dijanjikan.</div>
 <div class="q"><b>“Situs yang memblokir bagaimana?”</b>Kami tidak menyamar sebagai peramban. Bila diblokir, dicoba salinan Internet Archive dan diberi label; selebihnya dicatat sebagai titik buta.</div>
 
+<!-- urutan waktu demo 6 menit + pengingat klaim yg pantang diucapin pas presentasi -->
 <h2 class="pb">8. Demo (6 menit) dan tautan</h2>
 <table>
 <tr><th style="width:15%">Waktu</th><th>Apa yang ditunjukkan</th></tr>

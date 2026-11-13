@@ -1,10 +1,11 @@
-// Halio Telusur report page: start an investigation, follow its progress, render the report for analysts.
+// halaman laporan halio telusur: mulai penelusuran, pantau progresnya, trus tampilin hasil buat analis ato keluarga
 const API = window.HALIO_API || "";
 const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeUrl = (u) => { try { const x = new URL(u, location.href); return ["http:", "https:"].includes(x.protocol) ? x.href : "#"; } catch { return "#"; } };
 const link = (u, t) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener noreferrer">${esc(t)}</a>`;
 
+// urutan 6 tahap kerja swarm penelusur biar kliatan jalan satu-satu di layar
 const STAGES = [
   ["merencanakan", "Merencanakan kueri pencarian"],
   ["mencari", "Mencari di Google, arsip sensor, ClaimReview, GDELT"],
@@ -26,6 +27,7 @@ function fail(text, retry = false) {
   if (again) again.onclick = () => { history.replaceState(null, "", location.pathname); init(); };
 }
 
+// kirim klaim teks (ato foto yg udah diubah ke base64) buat mulai antrean investigasi
 async function start(text) {
   $("#go").disabled = true;
   try {
@@ -56,6 +58,7 @@ function renderProgress(job) {
   $("#counters").innerHTML = c.map(([k, l]) => `<div><b>${esc(p[k] ?? 0)}</b><small>${esc(l)}</small></div>`).join("");
 }
 
+// cek status pengerjaan ke server tiap 2 detik sampe statusnya selesai ato gagal
 async function poll(id) {
   show("#progress");
   renderProgress({ tahap: "merencanakan" });
@@ -78,6 +81,7 @@ function sentences(list) {
   return (list || []).map((s) => `<p class="s">${esc(s.teks)}${s.sumber.map((n) => `<a class="cite" href="#b${n}">[${n}]</a>`).join("")}</p>`).join("");
 }
 
+// pilih mode tampilan: versi ringkas huruf gede buat keluarga ato dosir lengkap buat analis
 let VIEW = new URLSearchParams(location.search).get("tampilan") === "keluarga" ? "keluarga" : "analis";
 let LAST = null;
 
@@ -93,6 +97,7 @@ function wireToggle() {
       renderReport(...LAST);
     };
   });
+  // tombol bacain hasil pake suara bawaan browser biar orang tua ga capek baca panjang2
   const listen = $("#listen");
   if (listen) listen.onclick = () => {
     if (!("speechSynthesis" in window)) return;
@@ -103,6 +108,7 @@ function wireToggle() {
   };
 }
 
+// susun tampilan ramah keluarga: bahasa sederhana, poin inti, sm saran tindak lanjut
 function renderFamily(r) {
   const f = r.keluarga || {};
   const g = r.gambar;
@@ -120,6 +126,7 @@ function renderFamily(r) {
   </article>`;
 }
 
+// susun laporan lengkap analis: kutipan bernomor, linimasa, varian kalimat, sm titik buta
 function renderReport(r, job) {
   LAST = [r, job];
   if (VIEW === "keluarga") {
@@ -200,9 +207,10 @@ function renderReport(r, job) {
 }
 
 async function version() {
-  try { const h = await (await fetch(`${API}/health`)).json(); $("#version").textContent = `Halio v${h.version} · build ${h.build || "lokal"}`; } catch { /* footer stays empty */ }
+  try { const h = await (await fetch(`${API}/health`)).json(); $("#version").textContent = `Halio v${h.version} · build ${h.build || "lokal"}`; } catch { /* biarin kosong aja kl gagal ambil versi */ }
 }
 
+// kl ada parameter id di url langsung pantau laporannya, kl ada q langsung isiin ke kotak
 function init() {
   $("#print").onclick = () => window.print();
   if (window.HALIO_STATIC_DEMO) return fail("Halio Telusur membutuhkan server Halio (pencarian web sungguhan). Halaman ini sedang dibuka sebagai demo statis.");

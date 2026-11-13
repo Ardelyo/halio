@@ -21,7 +21,7 @@ THREE = ("Presiden bagi-bagi bantuan Rp10 juta untuk semua warga, daftar lewat W
          "Gempa M9 akan terjadi minggu depan di Jawa, menurut BMKG. Sebarkan ke semua grup!")
 
 
-# ---- splitting --------------------------------------------------------------------------------------------------
+# ---- mecah beberapa klaim dlm satu pesan ------------------------------------------------------------------------
 
 def test_a_message_with_three_claims_becomes_three_units_with_their_context():
     units = claims.split_units(THREE)
@@ -30,8 +30,8 @@ def test_a_message_with_three_claims_becomes_three_units_with_their_context():
 
 
 @pytest.mark.parametrize("text", [
-    "Hati-hati penculik anak naik mobil putih keliling sekolah. Sebarkan ke semua grup keluarga.",       # one claim + a push
-    "Gempa M9 akan terjadi besok di Jawa, menurut BMKG. Gempa M9 akan terjadi besok di Jawa menurut BMKG!!",  # the same claim twice
+    "Hati-hati penculik anak naik mobil putih keliling sekolah. Sebarkan ke semua grup keluarga.",       # cuma 1 klaim + ajakan sebar
+    "Gempa M9 akan terjadi besok di Jawa, menurut BMKG. Gempa M9 akan terjadi besok di Jawa menurut BMKG!!",  # klaim yg sama persis diulang 2x
     "Selamat pagi keluarga, semoga sehat selalu. Amin.",
 ])
 def test_one_claim_is_never_split(text):
@@ -57,7 +57,7 @@ def test_each_claim_gets_its_own_answer_and_the_message_takes_the_worst():
     assert "3 klaim" in r["voice_script"]
     out = reply_text(r, html=False)
     assert "PESAN BERISI BEBERAPA KLAIM" in out and "1. 🔴" in out and "2. ⚪" in out and "3. 🔴" in out
-    assert out.count("Sumber:") == 2                       # only the two debunked claims have a source to cite
+    assert out.count("Sumber:") == 2                       # cuma dua klaim yg terbukti salah yg punya tautan sumber bantahan
 
 
 def test_a_message_with_a_link_is_not_split(monkeypatch):
@@ -65,10 +65,10 @@ def test_a_message_with_a_link_is_not_split(monkeypatch):
 
     monkeypatch.setattr(link_check, "check_links", lambda t: [])
     r = pipeline.check(THREE + " https://contoh.example/x", Settings(google_factcheck_key=None, llm_enabled=False, link_check_enabled=True))
-    assert not r.get("claims")      # links are checked once for the whole message, not once per claim
+    assert not r.get("claims")      # kl ada link, cek sekali buat pesan utuh aja ga usah dipecah per klaim
 
 
-# ---- agency copy ------------------------------------------------------------------------------------------------
+# ---- deteksi salinan kantor berita (wire copy) ------------------------------------------------------------------
 
 def test_wire_dateline_is_detected_but_a_passing_mention_is_not():
     assert wire_group("Jakarta (ANTARA) - Pemerintah memastikan tarif listrik naik.") == "ANTARA"
@@ -107,7 +107,7 @@ def test_agency_copy_plus_an_independent_report_is_two_voices():
     assert r.status == "dilaporkan_media" and {i["grup"] for i in r.items} == {"ANTARA", "Tempo"}
 
 
-# ---- telemetry --------------------------------------------------------------------------------------------------
+# ---- telemetri bukti --------------------------------------------------------------------------------------------
 
 def store(k=2):
     return Store(Path(tempfile.mkdtemp()) / "t.db", k_anonymity=k)
@@ -129,7 +129,7 @@ def test_telemetry_counts_reasons_without_any_text():
     assert t["pemeriksaan"] == 2 and t["halaman_dibuka"] == 8 and t["halaman_relevan"] == 2 and t["mesin_cadangan"] == 1
     assert {r["alasan"]: r["n"] for r in t["ditolak"]} == {"http_404": 4, "bukan_sumber_dikenal": 2}
     assert s.radar(1)["evidence_telemetry"]["pemeriksaan"] == 2
-    with sqlite3.connect(s.path) as c:   # only counts are stored: no claim text anywhere in the telemetry table
+    with sqlite3.connect(s.path) as c:   # murni nyimpen angka hitungan: jgn smpe ada teks klaim nyasar ke tabel telemetri
         assert "x" not in " ".join(str(v) for row in c.execute("SELECT * FROM evidence_telemetry") for v in row if isinstance(v, str) and len(v) > 1 and v == "x")
 
 
@@ -162,4 +162,4 @@ def test_each_unknown_claim_of_a_multi_claim_message_is_counted():
     s.record(msg("Jembatan Barelang ditutup total lima hari mulai lusa", "Harga beras naik dua kali lipat bulan depan di Batam"), "telegram", "tg:1")
     s.record(msg("Harga beras naik dua kali lipat bulan depan di Batam", "Bandara ditutup karena kabut asap pekan depan"), "telegram", "tg:2")
     texts = [e["text"] for e in s.radar(1)["emerging_rumours"]]
-    assert any("Harga beras" in t for t in texts)        # reached k=2 only because it was counted from inside the two messages
+    assert any("Harga beras" in t for t in texts)        # tembus k=2 krn ikut kehitung dr dalem dua pesan multi-klaim

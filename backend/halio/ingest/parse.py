@@ -16,6 +16,7 @@ from email.utils import parsedate_to_datetime
 
 from ..textnorm import normalized
 
+# batesin ukuran mentah feed sm panjang cuplikan biar memori tetep irit
 MAX_FEED_BYTES = 3_000_000
 SNIPPET_CHARS = 200
 
@@ -32,12 +33,13 @@ class Item:
     guid: str
     title: str
     url: str
-    published: str | None   # ISO 8601 UTC, None when the feed gives no usable date
+    published: str | None   # waktu ISO 8601 UTC, None kl feed-nya ga nyantumin tanggal yg jelas
     snippet: str
-    fingerprint: str        # hash of the normalised title, for near-duplicate grouping
+    fingerprint: str        # hash dr judul yg udah dinormalisasi buat ngelompokin berita kembar
 
 
 def _local(tag: str) -> str:
+    # buang prefix namespace xml, xml dari rss kadang suka aneh2 bentuknya wkwk
     return tag.rsplit("}", 1)[-1]
 
 
@@ -53,6 +55,7 @@ def _child(parent: ET.Element, *names: str) -> ET.Element | None:
 
 
 def clean(raw: str, limit: int | None = None) -> str:
+    # unescape 2x soalnya tag html di deskripsi rss sering ke-encode dobel
     out = _SPACE.sub(" ", html.unescape(_TAG.sub(" ", html.unescape(raw)))).strip()
     return out[:limit].rstrip() if limit else out
 
@@ -61,6 +64,7 @@ def parse_date(raw: str) -> str | None:
     raw = raw.strip()
     if not raw:
         return None
+    # coba format tanggal RFC ala RSS dulu, kl mental baru coba format ISO ala Atom
     try:
         dt = parsedate_to_datetime(raw)
     except (TypeError, ValueError):
@@ -80,7 +84,7 @@ def fingerprint(title: str) -> str:
 def parse_feed(data: bytes) -> list[Item]:
     if len(data) > MAX_FEED_BYTES:
         raise FeedError("feed terlalu besar")
-    # Stdlib ElementTree expands entities; refuse any feed that declares them (billion-laughs).
+    # ElementTree bawaan python msh nge-expand entity; tolak semua <!ENTITY biar aman dr XXE / billion-laughs
     if b"<!ENTITY" in data:
         raise FeedError("feed memuat deklarasi entity")
     try:
@@ -95,6 +99,7 @@ def parse_feed(data: bytes) -> list[Item]:
         link_el = _child(n, "link")
         url = (link_el.get("href") or _text(link_el)) if link_el is not None else ""
         url = url.strip()
+        # kl judul atau link kosong ga usah disimpen, ga bisa ditelusuri jg
         if not title or not url:
             continue
         guid = _text(_child(n, "guid", "id")) or url

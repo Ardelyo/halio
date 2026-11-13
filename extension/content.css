@@ -1,3 +1,4 @@
+/* tampilan kotak peringatan "Perlu dicek?" yg diselipin di atas postingan feed */
 .halio-badge {
   font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   background: #fffaeb; color: #0E1726; border: 1px solid #fdb022; border-radius: 10px;
@@ -10,6 +11,7 @@
 }
 .halio-result { flex-basis: 100%; border-top: 1px solid #fdb022; padding-top: 8px; }
 .halio-result a { color: #014BAA; }
+/* efek blur aturan keluarga buat nutup iklan judol/konten dewasa, msh bisa diklik kl mau dibuka */
 img.halio-blur { filter: blur(28px) saturate(.4) !important; cursor: pointer; transition: filter .2s; }
 .halio-imgnote {
   font: 600 12px system-ui, sans-serif; background: #0E1726; color: #fff; border-radius: 6px;

@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
+  <!-- dasbor radar analis buat baca tren agregat & nanganin tiket eskalasi -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Radar analis — Halio</title>
   <meta name="description" content="Ruang kerja analis Halio untuk membaca tren agregat dan menindaklanjuti antrean pemeriksaan.">
@@ -13,6 +14,7 @@
 </head>
 <body>
   <a class="skip-link" href="#workspace">Lewati ke ruang kerja</a>
+  <!-- menu samping pindah2 tampilan: ringkasan, brief, antrean, kabar baru, cakupan -->
   <aside class="radar-sidebar">
     <a class="radar-brand" href="./" aria-label="Halio, kembali ke beranda"><img src="icons/icon.svg" alt="" width="39" height="39"><span>halio.</span></a>
     <div class="workspace-label"><span>Ruang kerja</span><b>Radar analis</b></div>
@@ -34,6 +36,7 @@
       <div id="seed-notice" class="dashboard-notice hidden" role="status"><b>Berisi data simulasi.</b><span><span id="seed-count"></span> dalam rentang ini adalah data simulasi dari <code>scripts/seed_demo.py</code>, bukan cek warga sungguhan.</span></div>
       <div id="load-error" class="dashboard-error hidden" role="alert"></div>
 
+      <!-- tampilan 1: ringkasan metrik harian, tren topik, sm kesehatan mesin bukti -->
       <section id="view-overview" class="dashboard-view" aria-labelledby="overview-title">
         <div class="page-heading"><div><p class="section-kicker">Gambaran situasi</p><h1 id="overview-title">Yang perlu mendapat<br><em>perhatian hari ini.</em></h1><p class="page-description">Ikuti pola pesan yang diperiksa warga, lalu lanjutkan yang membutuhkan penilaian manusia.</p></div><div class="period-control" id="period" aria-label="Periode data"><button type="button" data-days="7" class="active" aria-pressed="true">7 hari</button><button type="button" data-days="14" aria-pressed="false">14 hari</button><button type="button" data-days="30" aria-pressed="false">30 hari</button></div></div>
         <div class="metric-grid" id="metrics" aria-label="Metrik utama"></div>
@@ -52,6 +55,7 @@
         <section class="queue-callout"><div><p class="section-kicker">Perlu tindakan manusia</p><h2 id="queue-callout-title">Antrean menunggu.</h2><p>Buka klaim, periksa konteksnya, lalu catat respons yang bisa dipertanggungjawabkan.</p></div><button class="primary-button" type="button" data-go-queue>Buka antrean <span aria-hidden="true">→</span></button></section>
       </section>
 
+      <!-- tampilan 2: brief harian narasi yg lg naik hasil telusuran swarm -->
       <section id="view-brief" class="dashboard-view hidden" aria-labelledby="brief-title">
         <div class="page-heading compact"><div><p class="section-kicker">Swarm Halio Telusur</p><h1 id="brief-title">Narasi yang naik,<br><em>sudah ditelusuri.</em></h1><p class="page-description">Setiap pagi Halio mengelompokkan berita dan cek fakta 48 jam terakhir, memberi skor tiap narasi, lalu menelusuri tiga teratas dengan tujuh agen paralel. Narasi dan klaim, bukan orang.</p></div>
           <div class="brief-actions"><div class="period-control" id="brief-topics"><button type="button" data-topic="tni" class="active" aria-pressed="true">TNI AD</button><button type="button" data-topic="umum" aria-pressed="false">Umum</button></div><button id="brief-run" class="secondary-button" type="button">Susun brief sekarang</button></div></div>
@@ -60,12 +64,14 @@
         <p class="panel-footnote" id="brief-note"></p>
       </section>
 
+      <!-- tampilan 3: ruang triase tiket eskalasi & banding warga -->
       <section id="view-queue" class="dashboard-view hidden" aria-labelledby="queue-title">
         <div class="page-heading compact"><div><p class="section-kicker">Ruang triase</p><h1 id="queue-title">Satu tiket,<br><em>satu keputusan.</em></h1><p class="page-description">Baca konteks, tulis jawaban, dan pilih cara tindak lanjut. Tiket tidak ditutup bila pengiriman balasan gagal.</p></div></div>
         <div class="queue-toolbar"><div class="queue-tabs" role="tablist" aria-label="Jenis antrean"><button id="tab-escalations" role="tab" aria-selected="true" class="active" data-type="escalations" type="button">Eskalasi <span id="escalation-count">0</span></button><button id="tab-appeals" role="tab" aria-selected="false" data-type="appeals" type="button">Banding <span id="appeal-count">0</span></button></div><label class="filter-label" for="queue-filter">Tampilkan<select id="queue-filter"><option value="open">Perlu ditangani</option><option value="all">Semua tiket</option></select></label></div>
         <div class="queue-layout"><div id="ticket-list" class="ticket-list"></div><aside class="queue-guide"><span class="guide-number">03</span><h2>Sebelum menutup tiket</h2><ol><li>Pastikan klaim dan konteksnya dibaca utuh.</li><li>Gunakan sumber yang dapat dibuka penerima.</li><li>Tulis jawaban dengan bahasa yang langsung dan sopan.</li></ol><p>Untuk kanal web, respons hanya dicatat. Tindak lanjut manual tetap diperlukan.</p></aside></div>
       </section>
 
+      <!-- tampilan 4: sinyal awal kabar berulang yg udah lewatin ambang k-anonimitas -->
       <section id="view-emerging" class="dashboard-view hidden" aria-labelledby="emerging-title">
         <div class="page-heading compact"><div><p class="section-kicker">Sinyal awal</p><h1 id="emerging-title">Kabar baru,<br><em>tanpa membuka pesan pribadi.</em></h1><p class="page-description">Isi kabar tak dikenal baru muncul setelah melewati ambang pelapor berbeda pada hari yang sama.</p></div></div>
         <div class="privacy-explainer"><span id="k-anonymity">5</span><div><h2>Ambang k-anonimitas</h2><p>Di bawah ambang ini, isi kabar tidak disimpan dan tidak ditampilkan. Angka kecil pada agregat juga disamarkan.</p></div></div>
@@ -73,6 +79,7 @@
         <section class="panel table-panel"><div class="panel-heading"><div><p class="panel-kicker">Sudah memiliki sumber</p><h2>Bantahan yang sering terpakai</h2></div><a href="https://github.com/Ardelyo/halio/blob/main/data/debunks.json" target="_blank" rel="noopener noreferrer">Lihat korpus ↗</a></div><div class="table-scroll"><table id="top-table"></table></div></section>
       </section>
 
+      <!-- tampilan 5: status hidup/basi sensor sumber terbuka & catatan titik buta -->
       <section id="view-coverage" class="dashboard-view hidden" aria-labelledby="coverage-title">
         <div class="page-heading compact"><div><p class="section-kicker">Batas pengamatan</p><h1 id="coverage-title">Ukur yang terlihat.<br><em>Akui yang terlewat.</em></h1><p class="page-description">Cakupan feed membantu analis membedakan ketiadaan kabar dari keterbatasan sensor.</p></div><a class="secondary-button" href="coverage.html">Laporan cakupan lengkap ↗</a></div>
         <div id="coverage-summary" class="coverage-summary"></div>
@@ -83,6 +90,7 @@
     </div>
   </main>
 
+  <!-- dialog buka tiket triase sm dialog input token akses analis -->
   <dialog id="ticket-dialog" class="ticket-dialog">
     <div class="dialog-shell"><button id="ticket-close" class="dialog-close" type="button" aria-label="Tutup detail tiket">×</button><div id="ticket-detail"></div><form id="resolve-form"><label for="analyst-response">Respons analis</label><textarea id="analyst-response" maxlength="2000" required placeholder="Tulis jawaban, dasar pemeriksaan, dan langkah yang dapat dilakukan penerima…"></textarea><div class="response-meta"><span>Maksimal 2.000 karakter</span><span id="response-count">0 / 2.000</span></div><label id="send-option" class="send-option"><input id="send-response" type="checkbox" checked><span>Kirim respons ke kanal asal sebelum menutup tiket</span></label><p id="delivery-note" class="delivery-note"></p><p id="resolve-error" class="resolve-error hidden" role="alert"></p><button id="resolve-submit" class="primary-button" type="submit">Simpan dan selesaikan <span aria-hidden="true">→</span></button></form><section class="review-history" aria-labelledby="history-title"><h3 id="history-title">Riwayat tindakan</h3><div id="review-history"></div></section></div>
   </dialog>

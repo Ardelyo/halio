@@ -44,7 +44,7 @@ class Page:
     title: str = ""
     published: str = ""
     site_name: str = ""
-    archived: str = ""      # ISO date of the Internet Archive copy this text was read from ("" = read from the live site)
+    archived: str = ""      # tanggal salinan Internet Archive kl baca dari arsip (kosong kl langsung dari situs asli)
 
 
 _META = {
@@ -74,6 +74,7 @@ class _Head(HTMLParser):
 
 
 class _VisibleText(HTMLParser):
+    # saring tag script/style dkk biar yg keambil cuma teks artikel yg beneran tampil di layar
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.parts = []
@@ -133,6 +134,7 @@ def best_passage(claim: str, page_text: str) -> str | None:
 
 
 def source_kind(url: str) -> str:
+    # kenalin apakah URL ini milik instansi resmi (.go.id/.mil.id/WHO) atau redaksi pemeriksa fakta
     host = (urlparse(url).hostname or "").lower().rstrip(".")
     path = urlparse(url).path.lower()
     if any(host.endswith(suffix) for suffix in OFFICIAL_DOMAINS):
@@ -191,6 +193,7 @@ def _wayback_snapshot(url: str) -> tuple[str, str]:
             return snap["url"].replace("http://", "https://", 1), str(snap.get("timestamp", ""))
     except (httpx.HTTPError, ValueError):
         pass
+    # kl API availability zonk, cek cadangan langsung ke indeks CDX Wayback
     try:
         rows = httpx.get("https://web.archive.org/cdx/search/cdx", timeout=12, headers=headers,
                          params={"url": url, "output": "json", "limit": -1, "fl": "timestamp", "filter": "statuscode:200"}).json()
@@ -206,7 +209,7 @@ def _fetch_wayback(url: str) -> Page:
     copy_url, ts = _wayback_snapshot(url)
     if not copy_url:
         raise SourceError("diblokir_dan_tidak_ada_salinan_arsip")
-    # id_ asks the archive for the original bytes without its toolbar; the text then matches the live page.
+    # sisipin id_ di path Wayback biar dapet HTML murni aslinya tanpa suntikan banner arsip
     copy_url = re.sub(r"/web/(\d+)/", r"/web/\1id_/", copy_url, count=1)
     page = _fetch_live(copy_url, None, 4)
     day = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) >= 8 else ""
@@ -220,7 +223,7 @@ def _fetch_live(url: str, transport: httpx.BaseTransport | None = None, max_redi
         timeout=httpx.Timeout(12.0, connect=6.0),
         follow_redirects=False,
         headers={"User-Agent": "HalioEvidence/0.1 (verifikasi kutipan sumber publik)"},
-        # Connect to the address ensure_public_url approved, not to whatever a second DNS lookup returns.
+        # kunci koneksi ke IP publik yg udah lolos cek ensure_public_url, jgn biarin lookup DNS kedua belok sendiri
         transport=transport or PinnedTransport(),
     ) as client:
         for _ in range(max_redirects + 1):
@@ -245,7 +248,7 @@ def _fetch_live(url: str, transport: httpx.BaseTransport | None = None, max_redi
                 head = _Head()
                 try:
                     head.feed(html[:200_000])
-                except Exception:  # a malformed head must not lose the page text
+                except Exception:  # tag head yg agak rusak jgn smpe bikin teks halaman utamanya gagal kebaca
                     pass
                 return Page(visible_text(html), current, " ".join(head.title.split())[:200],
                             head.meta.get("published", ""), head.meta.get("site_name", ""))
@@ -268,6 +271,7 @@ def verify_source(evidence: EvidenceLike, transport: httpx.BaseTransport | None 
         reason = str(exc) if isinstance(exc, SourceError) else "sumber_tidak_dapat_diakses"
         return Verification(False, reason, evidence)
     final_kind = source_kind(final_url)
+    # jgn smpe link awalnya keliatan resmi tp pas di-redirect malah nyasar ke domain biasa
     if not final_kind:
         return Verification(False, "redirect_ke_domain_lain", evidence, final_url=final_url)
     if not quote_present(evidence.quote, text):

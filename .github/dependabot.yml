@@ -1,5 +1,5 @@
-# Weekly update PRs for Python dependencies and GitHub Actions (pinned to commit SHAs).
-# Review each PR and run the eval before merging; do not merge dependency updates during judging (16-24 Nov 2026).
+# cek update mingguan buat paket python sm github actions (yg udah di-pin ke commit SHA)
+# wajib cek dulu & jalanin eval sebelom merge; JANGAN merge update apa pun pas masa penjurian 16-24 Nov 2026!
 version: 2
 updates:
   - package-ecosystem: pip

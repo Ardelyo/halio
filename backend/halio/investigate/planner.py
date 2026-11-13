@@ -32,6 +32,7 @@ class _Plan(BaseModel):
 
 
 def fallback_queries(claim: str) -> list[str]:
+    # kueri cadangan murni kode jaga-jaga kl perencana AI lagi ga nyaut
     core = " ".join(claim.split())[:160]
     words = [t for t in tokens(claim) if len(t) >= 4][:6]
     key = " ".join(words)
@@ -40,6 +41,7 @@ def fallback_queries(claim: str) -> list[str]:
 
 
 def _clean(queries: list[str], limit: int, avoid: set[str] = frozenset()) -> list[str]:
+    # rapihin spasi, batesin panjang karakter, sm buang kueri duplkat biar hemat jatah cari
     seen, out = {q.lower() for q in avoid}, []
     for q in queries:
         q = " ".join(str(q).split())[:200]
@@ -53,6 +55,7 @@ def _ask(system: str, content: str, cfg: Settings) -> list[str]:
     from google import genai
     from google.genai import types
 
+    # minta Gemini bikin variasi kueri singkat pake mode thinking minimal biar ga lemot
     client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
     resp = client.models.generate_content(
         model=cfg.llm_model, contents=content,
@@ -67,6 +70,7 @@ def _ask(system: str, content: str, cfg: Settings) -> list[str]:
 
 def core_ok(core: str, claim: str) -> bool:
     """The model's restatement may only use the claim's own words (no new names or numbers sneak in)."""
+    # validsi kalimat inti dr model: jgn sampe dia nyelipin nama atau angka baru di luar teks asli
     words = {t for t in tokens(core) if len(t) >= 4}
     have = set(tokens(claim))
     return len(words) >= 3 and len(words - have) <= max(1, len(words) // 4)
@@ -74,6 +78,7 @@ def core_ok(core: str, claim: str) -> bool:
 
 def plan(claim: str, cfg: Settings, limit: int = 10, ask=_ask) -> tuple[list[str], str]:
     """(queries, core claim or ''). The claim itself always goes first: the model's ideas are added, never substituted."""
+    # klaim asli wajib taruh paling depan; ide kueri dr model cuma nambahin, ga pernah ngegantiin
     base = fallback_queries(claim)
     try:
         out = ask(PLAN_SYSTEM, f"<klaim>{claim}</klaim>\nTulis 8 sampai 12 kueri.", cfg)
@@ -86,6 +91,7 @@ def plan(claim: str, cfg: Settings, limit: int = 10, ask=_ask) -> tuple[list[str
 
 
 def follow_up(claim: str, findings: list[dict], done: list[str], cfg: Settings, limit: int = 5, ask=_ask) -> list[str]:
+    # putaran kedua khusus ngelacak asal-usul berdasar judul & tanggal temuan awal yg udah kebuka
     if limit <= 0:
         return []
     lines = "\n".join(f"- {f.get('tanggal') or '?'} | {f.get('penerbit') or f.get('host', '')} | {f.get('judul', '')[:120]}" for f in findings[:15])

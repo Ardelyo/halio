@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
+# pola label di awal judul cek fakta yg perlu dibuang biar bentuknya mirip klaim mentah
 PREFIX = re.compile(r"^\s*(\[[^\]]{2,20}\]|hoaks?!?:?|hoax!?:?|cek fakta:|fakta atau hoaks:?|disinformasi:?|misinformasi:?|klarifikasi:?)\s*", re.I)
 HOAX_WORD = re.compile(r"\b(hoaks|hoax|penipuan|disinformasi|misinformasi)\b", re.I)
 
@@ -32,6 +33,7 @@ HOAX_WORD = re.compile(r"\b(hoaks|hoax|penipuan|disinformasi|misinformasi)\b", r
 def strip_prefix(title: str) -> str:
     """'[PENIPUAN] Akun Telegram Pendaftaran Program X' -> 'Akun Telegram Pendaftaran Program X' (repeated prefixes too)."""
     out = title.strip()
+    # kupas sampe 3 lapis soalnya kadang judul punya tag berlapis kaya "[HOAKS] Cek Fakta: ..."
     for _ in range(3):
         new = PREFIX.sub("", out, count=1).strip()
         if new == out:
@@ -43,6 +45,7 @@ def strip_prefix(title: str) -> str:
 def build_sets(rows: list[dict], kinds: dict[str, str], n_news: int, n_hoax: int) -> tuple[list[str], list[str]]:
     """rows: sensor items {source_id,title}; kinds: source_id -> berita|cek_fakta|resmi."""
     news, hoax, seen = [], [], set()
+    # saring item sensor: pisahin mana berita beneran sm mana judul bantahan hoaks
     for r in rows:
         title = " ".join(r["title"].split())
         if title in seen or len(title.split()) < 5:
@@ -58,6 +61,7 @@ def build_sets(rows: list[dict], kinds: dict[str, str], n_news: int, n_hoax: int
 
 
 def summarize(results: list[dict]) -> dict:
+    # itung sebaran waktu jawab (p50/p95) sm alasan halaman yg ditolak mesin bukti
     lat = sorted(r["seconds"] for r in results)
     pct = lambda p: lat[min(len(lat) - 1, int(p * len(lat)))] if lat else 0  # noqa: E731
     rejected = Counter(x["alasan"] for r in results for x in ((r["result"].get("evidence") or {}).get("ditolak") or []))
@@ -81,8 +85,10 @@ def main() -> None:
     from halio.ingest.sources import SOURCES
     from halio.ingest.store import SensorStore
 
+    # wajib nyalain LLM soalnya skrip ini ngetes pencarian web beneran (awas lumayan makan kuota API)
     if not settings.llm_enabled:
         raise SystemExit("HALIO_LLM=1 diperlukan: skrip ini mengukur pencarian web yang sebenarnya.")
+    # ambil sampel terbaru langsung dr database sensor tanpa data bikinan tangan
     store = SensorStore(settings.db_path)
     rows = store.recent_items(limit=200)
     news, hoax = build_sets(rows, {s.id: s.kind for s in SOURCES}, args.news, args.hoax)
@@ -102,6 +108,7 @@ def main() -> None:
     print(f"\n-- pemeriksaan fakta ({len(hoax)})")
     rh = run(hoax)
 
+    # dua kesalahan paling fatal: berita bener dituduh salah, ato hoaks malah lolos dicap sejalan/dilaporkan
     false_accusations = [r for r in rn if r["result"]["status"] == "terbukti_salah"]
     dangerous = [r for r in rh if r["result"]["status"] in ("sejalan_dengan_sumber", "dilaporkan_media")]
     caught = [r for r in rh if r["result"]["status"] == "terbukti_salah"]
@@ -125,6 +132,7 @@ def main() -> None:
             lines += [f"## {title}", ""] + [f"- {r['text']}  →  {r['result']['status']} ({r['result']['reason']})" for r in rows_] + [""]
     Path(args.out).write_text("\n".join(lines), encoding="utf-8")
     print(f"\nTertulis: {args.out}")
+    # keluar kode 1 kl ada satu aja tuduhan palsu ato hoaks yg kelewat hijau
     sys.exit(1 if false_accusations or dangerous else 0)
 
 

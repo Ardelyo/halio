@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from ..dates import human_date
 
+# kalimat saran yg santun & gampang dicerna ortu / nenek di grup WA keluarga
 SARAN = {
     "terbukti_salah": "Jangan diteruskan. Kalau sudah terlanjur, beri tahu grup bahwa kabar ini tidak benar.",
     "tidak_yakin": "Tahan dulu, jangan diteruskan. Tanyakan ke anak atau cucu, atau cek situs resmi.",
@@ -19,11 +20,12 @@ def _who(rep: dict) -> list[str]:
     for b in rep.get("bukti", []):
         if b.get("hubungan") in ("refutes", "claimreview") and b["penerbit"] not in names:
             names.append(b["penerbit"])
-    # A bare host name ("al.rekrutmen-tni.mil.id") reads oddly to a grandmother: say it is a website.
+    # domain mentah kayak "al.rekrutmen-tni.mil.id" kaku bgt kl dibaca Nenek, tambahin kata "situs" di depannya
     return [f"situs {n}" if "." in n and " " not in n else n for n in names[:4]]
 
 
 def headline(rep: dict, who: list[str]) -> str:
+    # susun satu kalimat pembuka yg langsung ke inti hasil pengecekkan
     s, r = rep["status"], rep.get("reason", "")
     if s == "terbukti_salah":
         return "Kabar ini tidak benar."
@@ -43,6 +45,7 @@ def headline(rep: dict, who: list[str]) -> str:
 
 
 def build(rep: dict) -> dict:
+    # rangkai tampilan ramah keluarga murni dr laporan yg udah lolos cek, tanpa panggil model lagi
     who = _who(rep)
     L = rep.get("laporan") or {}
     points = [s["teks"] for s in (L.get("ringkasan") or [])[:3]] + [s["teks"] for s in (L.get("temuan") or [])[:1]]
@@ -52,5 +55,6 @@ def build(rep: dict) -> dict:
         since = f"Kabar seperti ini sudah muncul di internet sejak {human_date(a['pertama']['tanggal'])}."
     head = headline(rep, who)
     advice = SARAN.get(rep["status"], SARAN["belum_ada_pemeriksaan"])
+    # satuin jadi naskah lisan yg enak didengerin lewat fitur suara (TTS)
     spoken = " ".join([head, *points[:2], since, (f"Yang sudah membantah: {', '.join(who)}." if who else ""), advice]).strip()
     return {"judul": head, "poin": points, "sejak": since, "pembantah": who, "saran": advice, "suara": " ".join(spoken.split())}

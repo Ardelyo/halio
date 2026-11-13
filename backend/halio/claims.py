@@ -15,6 +15,7 @@ from .textnorm import fold, tokens
 
 _SENT_SPLIT = re.compile(r"(?<=[.!?…])\s+|\n+")
 
+# kata-kata pemicu yg biasanya muncul di klaim faktual vs basa-basi/opini grup WA
 CLAIM_CUES = {
     "akan", "telah", "sudah", "resmi", "membagikan", "dibagikan", "bantuan", "terjadi",
     "menyebabkan", "menyembuhkan", "mengobati", "obat", "dibuka", "pendaftaran", "gratis",
@@ -34,8 +35,8 @@ OPINION_CUES = (
 
 @dataclass
 class Claim:
-    text: str          # scrubbed, <= 300 chars
-    score: float       # check-worthiness 0..1
+    text: str          # udah dibersihin dari data pribadi (PII), maksmal 300 karakter
+    score: float       # skor kelayakan cek 0..1
     is_factual: bool
 
 
@@ -45,6 +46,7 @@ def sentences(text: str) -> list[str]:
 
 def checkworthiness(sentence: str) -> float:
     low = fold(sentence)
+    # kalimat tanya murni tanpa angka biasanya cuma nanya kabar, bukan klaim
     if sentence.strip().endswith("?") and not re.search(r"\d", sentence):
         return 0.05
     toks = tokens(sentence)
@@ -54,7 +56,7 @@ def checkworthiness(sentence: str) -> float:
     score += min(0.45, 0.15 * sum(t in CLAIM_CUES for t in toks))
     if re.search(r"\d", sentence):
         score += 0.2
-    # Mid-sentence capitalised words ~ named entities.
+    # kata huruf besar di tengah kalimat biasanya nama orang, tempat, atau instansi
     if re.search(r"(?<=\s)[A-Z][a-z]{2,}", sentence):
         score += 0.15
     if len(toks) >= 5:
@@ -68,9 +70,10 @@ def extract(text: str, max_sentences: int = 2) -> Claim:
     """Return the most check-worthy part of the message, scrubbed of PII."""
     sents = sentences(text) or [text]
     scored = sorted(((checkworthiness(s), i, s) for i, s in enumerate(sents)), reverse=True)
-    top = sorted(scored[:max_sentences], key=lambda x: x[1])  # keep original order
+    top = sorted(scored[:max_sentences], key=lambda x: x[1])  # urutin balik sesuai urutan kalimat aslinya
     best = scored[0][0]
     chosen = " ".join(s for sc, _, s in top if sc >= max(0.2, best * 0.5)) or scored[0][2]
+    # wajib sikat dulu nomor HP/NIK dkk sebelum teks klaim dipake ke tahap berikutnya
     return Claim(text=scrub(chosen), score=best, is_factual=best >= 0.3)
 
 
@@ -93,7 +96,7 @@ def split_units(text: str, max_units: int = 3, min_score: float = 0.5, min_token
         if checkworthiness(s) >= min_score and len(tokens(s)) >= min_tokens and not any(_same(s, sents[j]) for j in marks):
             marks.append(i)
     if len(marks) < 2:
-        return []
+        return []  # kl cuma satu klaim ga usah dipecah
     marks = marks[:max_units]
     units = []
     for k, start in enumerate(marks):

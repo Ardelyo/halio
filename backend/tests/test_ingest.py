@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 import httpx
 import pytest
 
+# arahin ke db sementra dulu sblm import app biar bersih
 os.environ.setdefault("HALIO_DB", os.path.join(tempfile.mkdtemp(), "ingest-api.db"))
 os.environ.pop("RADAR_TOKEN", None)
 
@@ -42,14 +43,14 @@ def store(tmp_path):
     return SensorStore(tmp_path / "sensor.db")
 
 
-# --- parsing ------------------------------------------------------------
+# --- parsing XML RSS & Atom ---------------------------------------------
 def test_parse_rss_keeps_minimal_metadata_and_skips_incomplete_items():
     items = parse_feed(RSS.encode())
     assert [i.guid for i in items] == ["a", "b"]
     assert items[0].title == "Gempa M5,1 guncang Cianjur"
     assert items[0].published == "2026-10-28T11:58:00+00:00"
-    assert items[0].snippet == "BMKG mencatat gempa"          # markup stripped
-    assert items[1].published is None                          # TurnBackHoax-style feed without dates
+    assert items[0].snippet == "BMKG mencatat gempa"          # tag html udah dikupas bersih
+    assert items[1].published is None                          # gaya feed TurnBackHoax yg emang ga nyantumin tanggal
 
 
 def test_parse_atom():
@@ -70,32 +71,32 @@ def test_same_headline_gets_same_fingerprint_across_sources():
     assert a.fingerprint == b.fingerprint
 
 
-# --- store: dedupe + backfill ----------------------------------------------
+# --- penyimpanan sqlite: anti-dobel + backfill -----------------------------
 def test_first_poll_is_backfill_then_new_items_count(store):
     s = src()
     items = parse_feed(RSS.encode())
     store.record_fetch(s, NOW, status="ok", latency_ms=50, items=items)
-    assert store.recent_items() == []                          # history is not news
+    assert store.recent_items() == []                          # isi tarikan pertama itu riwayat lama, bukan berita baru
     assert store.item_stats(NOW - timedelta(hours=24))[s.id]["n_window"] == 0
 
     more = parse_feed(RSS.replace("</channel>", '<item><title>Baru</title><link>https://x.test/c</link><guid>c</guid></item></channel>').encode())
     assert store.record_fetch(s, NOW + timedelta(minutes=2), status="ok", latency_ms=60, items=more) == 1
     assert [i["title"] for i in store.recent_items()] == ["Baru"]
-    # same items again: nothing new
+    # item yg sama persis ketarik lagi: hitungan item barunya harus 0
     assert store.record_fetch(s, NOW + timedelta(minutes=4), status="ok", latency_ms=60, items=more) == 0
 
 
 def test_seen_delay_ignores_future_published_times(store):
     s = src()
     store.record_fetch(s, NOW, status="ok", latency_ms=10, items=[])
-    ok = parse_feed(RSS.encode())[:1]                           # published 11:58, seen 12:02 -> 240 s
+    ok = parse_feed(RSS.encode())[:1]                           # terbit 11:58, kebaca 12:02 -> selisih 240 detik
     store.record_fetch(s, NOW + timedelta(minutes=2), status="ok", latency_ms=10, items=ok)
     future = parse_feed(ATOM.replace("2026-10-28T11:00:00Z", "2026-10-28T13:00:00Z").encode())
     store.record_fetch(s, NOW + timedelta(minutes=4), status="ok", latency_ms=10, items=future)
     assert store.seen_delays(NOW - timedelta(hours=1))[s.id] == [240.0]
 
 
-# --- fetcher: conditional GET, failures, backoff ---------------------------
+# --- penarik feed: conditional GET, gagal, sm backoff ----------------------
 def test_conditional_get_and_304_keeps_etag(store):
     calls = []
 
@@ -120,11 +121,11 @@ def test_failures_back_off_and_mark_source_dead(store):
     t = NOW
     for _ in range(3):
         run_once(store, client, [s], now=t)
-        t += timedelta(hours=1)                                 # always due again
+        t += timedelta(hours=1)                                 # majuin sejam terus biar selalu masuk jadwal tarik lagi
     st = store.state(s.id)
     assert st["fails"] == 3 and st["last_error"] == "HTTP 404"
     assert coverage.classify(s, st, None, t) == "mati"
-    # backoff: after the third failure the next attempt is pushed past the base cadence
+    # backoff: abis gagal ke-3, jadwal coba berikutnya harus mundur jauh lewat dr jeda dasar
     assert datetime.fromisoformat(st["next_due"]) - (t - timedelta(hours=1)) >= timedelta(seconds=120 * 8)
     assert store.due([s], t - timedelta(hours=1) + timedelta(seconds=120)) == []
 
@@ -138,7 +139,7 @@ def test_network_error_is_reported_not_raised(store):
     assert store.state("s1")["last_error"] == "ConnectError"
 
 
-# --- coverage classification ---------------------------------------------------
+# --- klasifikasi status cakupan sumber -----------------------------------------
 def test_classify_live_stale_and_paused(store):
     s = src(cadence=120, quiet=3600)
     assert coverage.classify(s, None, None, NOW) == "belum"
@@ -149,7 +150,7 @@ def test_classify_live_stale_and_paused(store):
     assert coverage.classify(s, st, fresh, NOW + timedelta(seconds=60)) == "hidup"
     old = {"newest_pub": "2026-10-28T09:00:00+00:00"}
     assert coverage.classify(s, st, old, NOW + timedelta(seconds=60)) == "basi"
-    assert coverage.classify(s, st, fresh, NOW + timedelta(hours=1)) == "tertunda"   # poller stopped
+    assert coverage.classify(s, st, fresh, NOW + timedelta(hours=1)) == "tertunda"   # poller berhenti jalan
 
 
 def test_undated_feed_is_judged_by_first_seen(store):
@@ -157,7 +158,7 @@ def test_undated_feed_is_judged_by_first_seen(store):
     store.record_fetch(s, NOW, status="ok", latency_ms=10, items=parse_feed(RSS.encode()))
     st = store.state(s.id)
     stats = {"newest_pub": None, "newest_seen": None}
-    assert coverage.classify(s, st, stats, NOW + timedelta(seconds=100)) == "hidup"   # just started watching
+    assert coverage.classify(s, st, stats, NOW + timedelta(seconds=100)) == "hidup"   # baru aja mulai dipantau
     store.record_fetch(s, NOW + timedelta(hours=2), status="304", latency_ms=10)
     assert coverage.classify(s, store.state(s.id), stats, NOW + timedelta(hours=2, seconds=30)) == "basi"
 
@@ -175,7 +176,7 @@ def test_build_report_shape(store):
     assert "bukan seluruh ruang informasi" in report["disclaimer"]
 
 
-# --- registry + API ------------------------------------------------------------
+# --- validsi daftar sumber & endpoint API --------------------------------------
 def test_registry_is_sane():
     ids = [s.id for s in SOURCES]
     assert len(ids) == len(set(ids)) >= 20

@@ -35,10 +35,10 @@ STATUS_LABEL = {
 }
 
 SHORTENERS = {"bit.ly", "s.id", "cutt.ly", "tinyurl.com", "shorturl.at", "rb.gy", "t.ly", "linktr.ee", "wa.me"}
-# Only domains a scammer cannot register. .ac.id / .sch.id are run by thousands of schools and get hijacked.
+# cuma masukin domain negara yg ga bisa didaftarin umum; .ac.id / .sch.id sengaja ga masuk krn sering kena deface/bajak
 OFFICIAL_SUFFIXES = (".go.id", ".mil.id")
 
-# Answers that describe what something is; they are not rumours to judge, so no correction card, voice note or review button.
+# jenis hasil yg sifatnya cuma ngasih info isi halaman (bukan rumor buat divonis), jadi ga perlu kartu koreksi / tombol sanggah
 PLAIN_KINDS = {"berita_media_dikenal", "kumpulan_judul"}
 
 DISCLAIMER = "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriksa fakta atau sumber resmi yang disebutkan."
@@ -47,7 +47,7 @@ DISCLAIMER = "Halio tidak membuat vonis sendiri. Hasil ini berasal dari pemeriks
 def _link_warnings(domains: list[str]) -> list[str]:
     warnings = []
     for d in domains:
-        # d is the parsed hostname, so "kemensos.go.id.bansos.xyz" or "x.go.id?.xyz" does not pass.
+        # d udah berupa hostname murni hasil parse, jadi trik tipuan kayak "kemensos.go.id.bansos.xyz" ga bakal lolos
         if d.endswith(OFFICIAL_SUFFIXES):
             continue
         if d in SHORTENERS:
@@ -104,7 +104,7 @@ def _kind_and_info(text: str, checked: list[dict], manip: dict) -> tuple[str, di
     return "pesan", None
 
 
-# Which result leads when a message holds several claims: the most worrying one.
+# urutan prioritas kl satu pesan memuat beberapa klaim sekaligus: tampilin status yg paling perlu diwaspadai di atas
 _SEVERITY = ["terbukti_salah", "tidak_yakin", "belum_ada_pemeriksaan", "dilaporkan_media", "sejalan_dengan_sumber"]
 _SHORT = {
     "terbukti_salah": "sudah dibantah", "tidak_yakin": "belum bisa dipastikan", "belum_ada_pemeriksaan": "belum ada yang memeriksa",
@@ -149,7 +149,7 @@ def _apply_evidence(ev, claim: str, status: str, reason: str, best):
         if (curated_false and ev.reason == "bukti_bertentangan") or status == "belum_ada_pemeriksaan":
             return "tidak_yakin", ev.reason, best
         return status, reason, best
-    # nothing decisive found: keep what we had, but say what the search found when we had nothing
+    # kl penelusuran web ga nemu bukti penentu, pertahanin status awal sambil tetep ngasih alasan hasil cari web
     return (status, ev.reason, best) if status == "belum_ada_pemeriksaan" else (status, reason, best)
 
 
@@ -256,8 +256,8 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
             f"Yang sudah dicek: {match.debunk.sederhana}"
         )
     if status == "tidak_yakin" and match and reason == "inti_klaim_tidak_ada" and not match.debunk.is_positive:
-        # Same topic as a known hoax, but the hoax's core (the payment, the date, the link...) is not in this message.
-        # Often a true message: never tell the family to hold it back as if it were the hoax.
+        # topiknya mirip hoaks lama, tp bagian bohong intinya (bayar admin, link palsu, tanggalnya) ga ada di pesan ini.
+        # seringnya malah info beneran, jadi jgn disuruh tahan seolah-olah ini hoaksnya.
         return (
             f"{sapaan}, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian "
             f"yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: {match.debunk.sederhana}"
@@ -318,12 +318,12 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
 
     best = candidates[0] if candidates else None
     if kind == "kumpulan_judul" and ((best and best.score >= cfg.unsure_threshold) or manip["techniques"]):
-        # A hoax chain message is also written in short lines. Only call it "headlines" if nothing matches and nothing pushes.
+        # pesan berantai hoaks juga kadang diketik baris pendek-pendek; baru anggap kumpulan judul kl bersih dari cocok & manipulasi
         kind, info = "pesan", None
     if kind == "pesan" and _depth == 0 and not _URL.search(text):
         units = claims.split_units(text)
-        # Sentences that only TOGETHER match a known hoax are one claim ("bagi uang tunai lewat video!" + "daftar di WhatsApp,
-        # bayar admin"): split, each half is too weak. A message with a hoax in one part and other claims is still split.
+        # dua kalimat yg baru keliatan cocok sm hoaks pas digabung ("bagi uang lewat video!" + "daftar WA bayar admin") itu satu klaim utuh;
+        # kl dipecah malah skor tiap potongannya jadi lemah. kl emang ada klaim lain yg terpisah tetep dipecah.
         if len(units) >= 2 and best and best.score >= cfg.match_threshold and not best.debunk.is_positive \
                 and best.debunk.core_present(text) and not is_correction(text):
             alone = [next((m.score for m in _search_sentences(index, u) if m.debunk.id == best.debunk.id), 0.0) for u in units]
@@ -332,8 +332,9 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         if len(units) >= 2:
             return _check_many(text, units, cfg, sapaan, manip, domains)
     correction = is_correction(text)
+    # jgn disentuh kl blm ngopi, urutan prioritas penentuan vonis di bawah ini krusial bgt biar ga salah tuduh
     if best and best.score >= cfg.unsure_threshold and correction and not best.debunk.is_positive:
-        # It warns about or corrects the hoax ("itu hoaks", "BMKG membantah"): never call that a hoax.
+        # pesannya lagi ngingetin/ngelurusin hoaks ("awas itu hoaks", "BMKG membantah"), jangan malah dicap hoaks!
         status, reason = "tidak_yakin", "tampak_meluruskan"
     elif not claim.is_factual and (not best or best.score < cfg.match_threshold):
         status, reason = "tidak_yakin", "bukan_klaim_faktual"
@@ -351,8 +352,8 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
     llm_note = None
     evidence_out = None
     engine_fallback = False
-    # The web agent can only accept official and fact-check pages as evidence. For an ordinary article from a known outlet,
-    # or a screenshot of several headlines, it would burn 30 seconds to report "0 verified", so it is skipped.
+    # khusus link artikel media biasa atau tangkapan kumpulan judul ga usah nyalain agen web,
+    # soalnya cuma bakal buang waktu 30 detik demi hasil "0 terverifikasi".
     if cfg.llm_enabled and cfg.llm_provider == "google" and claim.is_factual and kind == "pesan":
         seed_urls = [
             source["url"]
@@ -360,8 +361,8 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
             for source in candidate.debunk.sumber
             if source.get("jenis") in {"resmi", "cek_fakta"}
         ][:3]
-        # "Already checked" leads: fact-check articles about a very similar claim. They are only URLs for the engine to open and
-        # quote; the archive never decides anything by itself.
+        # tambahan petunjuk awal dari arsip judul cek fakta yg mirip: cuma disodorin sbg URL buat dibuka & dikutip mesin bukti,
+        # arsipnya sendiri ga pernah langsung mutusin vonis.
         seed_urls += [m.debunk.sumber[0]["url"] for m in archive.search(claim.text, cfg, k=3) if m.debunk.sumber[0]["url"] not in seed_urls]
         ev = evidence.investigate_v2(claim.text, cfg, seed_urls=seed_urls) if cfg.evidence_engine == "v2" else None
         if ev is not None:
@@ -370,11 +371,11 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
             status, reason, best = _apply_evidence(ev, claim.text, status, reason, best)
             agent = None
         else:
-            # v1 (HALIO_ENGINE=v1) and the fallback when v2's search or judging is unavailable.
+            # jalanin mesin v1 kl disetel HALIO_ENGINE=v1 atau pas pencarian/penilaian v2 lagi gangguan
             engine_fallback = cfg.evidence_engine == "v2"
             agent = google_agent.investigate(claim.text, cfg, seed_urls=seed_urls)
-        # A named, curated debunk stays when the web search is down or finds nothing new; only verified
-        # conflicting evidence may lower it (see the final branch below).
+        # bantahan dari korpus kurasi tetep dipertahanin kl pencarian web mati atau ga nemu apa-apa;
+        # cuma bukti terverifikasi yg bertentangan yg boleh nurunin statusnya.
         if agent is not None:
             method.append("gemini_search")
             llm_note = agent.note
@@ -395,8 +396,8 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         if j is not None:
             method.append("llm")
             hit = next((m for m in candidates if m.debunk.id == j.debunk_id), None)
-            # For a debunk the LLM may confirm, or lift a "mirip" case, but never past the core-claim
-            # guard or a correction. Positive evidence keeps its own gate below.
+            # LLM boleh nguatin bantahan atau ngangkat kasus "mirip", tp ga boleh ngelompatin penjaga inti klaim
+            # atau pesan klarifikasi. klaim positif tetep wajib lewat gerbang cek tersendiri di bawah.
             liftable = bool(hit) and (
                 hit.debunk.is_positive
                 or status == "terbukti_salah"
@@ -417,7 +418,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
                 status, reason = "tidak_yakin", "llm_tidak_dapat_membuktikan"
 
     if correction and status == "terbukti_salah" and not (best and best.debunk.is_positive):
-        # Any later stage (web agent, LLM) may only confirm a hoax, never turn a warning into one.
+        # pengaman berlapis: tahap web agent / LLM ga boleh ngubah pesan peringatan hoaks jadi divonis hoaks
         status, reason = "tidak_yakin", "tampak_meluruskan"
 
     if status == "belum_ada_pemeriksaan" and kind == "berita_media":
@@ -428,14 +429,14 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
     shown = best if status not in ("belum_ada_pemeriksaan", "dilaporkan_media") and reason != "bukan_klaim_faktual" else None
     reading_out = (evidence_out or {}).get("bacaan") or (llm_note or {}).get("bacaan", {"items": [], "disaring": 0})
     if status == "sejalan_dengan_sumber" and _factcheck_warns(reading_out):
-        # A fact-checker wrote about this very topic as a hoax: a green light next to that article would mislead.
+        # kl di daftar bacaan ada pemeriksa fakta yg ngebahas topik ini sbg hoaks, jgn kasih lampu hijau biar ga nyesatin
         status, reason = "tidak_yakin", "pemeriksa_fakta_membahas_topik_ini"
     attrib = None
     if shown is not None:
         d = shown.debunk
         attrib = attribution.mismatch(text, f"{d.klaim} {d.fakta} {d.sederhana}")
         if attrib and status == "sejalan_dengan_sumber":
-            # An official page supports a claim about ITS OWN statement; the message names someone else. Never green.
+            # situs resmi cuma ngedukung pernyataan lembaganya sendiri; kl pesan user nyatut nama lembaga lain, tahan jangan hijau
             status, reason = "tidak_yakin", "sumber_berbeda_dari_pesan"
     check_id = uuid.uuid4().hex
     return {

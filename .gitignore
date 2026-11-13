@@ -1,17 +1,20 @@
+# cache python & virtualenv lokal
 __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
 venv/
+# konfigrasi rahasia sm database sqlite lokal jgn smpe ke-push!
 .env
 *.db
 *.db-journal
+# runtime wasm & model onnx ekstensi (diambil pake scripts/fetch_models.py)
 extension/vendor/
 extension/models/
 *.zip
 .DS_Store
 Thumbs.db
 
-# fact-check headline archive (scripts/crawl_arsip.py); data you are licensed to use, not committed
+# arsip judul cek fakta hasil crawl_arsip.py & tangkapan layar presentasi ga ikut masuk repo
 data/arsip.jsonl
 docs/presentasi/shots/

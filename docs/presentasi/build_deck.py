@@ -11,11 +11,12 @@ test suite) as of 8 Nov 2026, with the public-sample result (eval/PUBLIC_RESULTS
 import re
 from pathlib import Path
 
+# ambil kerangka style sm 14 slide lama dari halio_deck.html
 HERE = Path(__file__).parent
 old = (HERE / "halio_deck.html").read_text(encoding="utf-8")
 head = old[: old.index('<div class="deck" id="deck">') + len('<div class="deck" id="deck">')]
-# The screen script scales the deck to the window (transform on .deck). A headless print runs that script first with a small
-# window, so without this the printed pages hold the slide at ~40% size in the top-left corner. Printing must ignore it.
+# script di browser nge-scale .deck ngikut ukuran window; pas cetak headless window-nya kecil
+# jd kl transform ga dimatiin pas print, slide di PDF malah menciut ~40% di pojok kiri atas
 PRINT_FIX = "@media print{.deck{transform:none!important;position:static!important;left:auto!important;top:auto!important;width:1920px!important}}"
 head = head.replace("</style>", PRINT_FIX + "\n</style>", 1)
 tail = old[old.index('</div>\n<div class="hud">'):]
@@ -25,7 +26,7 @@ S = {i + 1: s for i, s in enumerate(old_slides)}
 
 FOOT = '<div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><b>@@</b> / @@</span></div>'
 
-# ---- kept slides, lightly updated -----------------------------------------------------------------------------
+# ---- slide lama yg tetep dipake, dipoles dikit teksnya biar nyambung sm versi terbaru ----
 cover = S[1].replace(
     '<p class="lede" style="max-width:1000px">Teman cek pesan untuk keluarga Indonesia.</p>',
     '<p class="lede" style="max-width:1060px">Satu mesin bukti, <b style="color:#fff">dua pintu</b>: keluarga yang ingin jawaban sederhana, '
@@ -47,7 +48,7 @@ cara_kerja = S[8].replace(
     'yang tidak didukung kutipan dibuang.',
 )
 
-# ---- new slides ----------------------------------------------------------------------------------------------
+# ---- slide tambahan baru (telusur 7 agen, dosir analis, tampilan nenek, brief harian, hasil uji) ----
 apa_itu = f'''<section class="slide">
   <div class="kicker">## · Halio itu apa</div>
   <h2>Satu mesin bukti, <em>dua pintu.</em></h2>
@@ -236,6 +237,7 @@ penutup = S[14].replace(
 ).replace('<div class="foot"><span>Terima kasih</span>', '<div class="foot"><span>Terima kasih · Ardellio S. A. · Karya peserta Kartika Cyber Hackathon 2026</span>')
 assert penutup != S[14], "penutup tidak berubah"
 
+# susun urutan lengkap 20 slide dari cover sampe penutup
 order = [cover, S[2], S[3], S[4], apa_itu, cara_pakai, S[6], S[7], swarm, laporan, nenek, cara_kerja, S[9], S[10], radar, etika, hasil, batas, langkah, penutup]
 html = []
 for idx, sl in enumerate(order, 1):
@@ -243,7 +245,7 @@ for idx, sl in enumerate(order, 1):
 
 body = "\n\n".join(html)
 n_total = len(order)
-# number kickers (cover and closing have none) and footers
+# kasih nomor urut otomatis di kicker tiap slide (cover sm penutup ga pake kicker)
 counter = iter(range(1, 100))
 body = re.sub(r'<div class="kicker">(?:\d\d|##) · ', lambda m: f'<div class="kicker">{next(counter):02d} · ', body)
 pages = iter(range(1, n_total + 1))
@@ -253,7 +255,7 @@ def foot(m):
     return m.group(0)
 
 
-# footers: replace both the new placeholders and the old "NN / 14" per section, in slide order
+# benerin nomor halamn di footer tiap slide biar urut sesuai total slide yg baru
 parts = re.split(r"(?=<section class=\"slide)", body)
 out = []
 for i, part in enumerate(parts):
@@ -263,7 +265,7 @@ for i, part in enumerate(parts):
     part = re.sub(r"<b>(?:@@|\d\d)</b> / (?:@@|14)", f"<b>{num:02d}</b> / {n_total:02d}", part)
     out.append(part)
 html_out = head + "\n\n" + "".join(out) + "\n" + tail
-# The real site logo (web/icons/icon.svg), embedded so the deck and its PDF carry exactly the logo the website uses.
+# tanem logo asli icon.svg pake base64 biar di deck maupun hasil cetak PDF logonya persis sm versi web
 import base64
 
 svg = (HERE.parent.parent / "web" / "icons" / "icon.svg").read_bytes()

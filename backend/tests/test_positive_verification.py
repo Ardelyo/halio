@@ -9,6 +9,7 @@ from halio import pipeline
 from halio.config import Settings
 from halio.llm_verdict import LlmJudgement
 
+# bagian ngeri: info resmi yg bener jgn sampe kecap hoaks, tp ngasih lampu hijau jg wajib ekstra ketat
 CLAIM = "BMKG menyatakan gempa bumi belum dapat diprediksi secara pasti"
 QUOTE = "BMKG menyatakan bahwa gempa bumi belum dapat diprediksi secara pasti dan akurat."
 
@@ -44,6 +45,7 @@ def ground_positive(monkeypatch, quote=QUOTE, grounded=True):
 
 
 def test_grounded_current_official_evidence_is_green(tmp_path, monkeypatch):
+    # syarat mutlak status hijau: sumber resmi aktif + tanggal berlaku aman + kutipan lolos konfirmasi AI
     ground_positive(monkeypatch)
     result = pipeline.check(CLAIM, config(tmp_path, [entry()]))
     assert result["status"] == "sejalan_dengan_sumber"
@@ -54,12 +56,14 @@ def test_grounded_current_official_evidence_is_green(tmp_path, monkeypatch):
 
 
 def test_positive_match_never_turns_green_from_retrieval_alone(tmp_path):
+    # modal kemiripan teks lokal doang tanpa verifikasi AI ga boleh langsung tembus hijau
     result = pipeline.check(CLAIM, replace(config(tmp_path, [entry()]), llm_enabled=False))
     assert result["status"] == "tidak_yakin"
     assert result["reason"] == "memerlukan_verifikasi_ai"
     assert result["offer_human_review"]
 
 
+# data resmi yg udah kedaluwarsa atau belum masuk masa berlaku wajib ditahan di "tidak_yakin"
 @pytest.mark.parametrize(
     ("dates", "reason"),
     [
@@ -76,6 +80,7 @@ def test_expired_or_future_evidence_cannot_turn_green(tmp_path, monkeypatch, dat
 
 
 def test_competing_candidate_blocks_green_result(tmp_path, monkeypatch):
+    # kl ada kandidat lain yg skornya mepet bersaing, rem dulu biar ga salah kasih hijau
     ground_positive(monkeypatch)
     competing = entry(id="sumber-lain", klaim=CLAIM)
     result = pipeline.check(CLAIM, config(tmp_path, [entry(), competing]))
@@ -83,6 +88,7 @@ def test_competing_candidate_blocks_green_result(tmp_path, monkeypatch):
     assert result["reason"] == "bukti_bertentangan"
 
 
+# tes pagar pengaman sumber & kutipan: blog biasa atau kutipan karangan wajib mental (fail closed)
 @pytest.mark.parametrize(
     ("changes", "quote", "grounded", "reason"),
     [

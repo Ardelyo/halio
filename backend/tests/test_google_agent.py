@@ -43,6 +43,7 @@ def run_agent(sources):
 
 
 def test_official_verified_supporting_quote_produces_positive_evidence():
+    # kutipan pendukung dr sumber resmi yg lolos cek isi halaman baru boleh dapet status hijau
     result = run_agent([evidence()])
     assert result.status == "sejalan_dengan_sumber"
     assert result.match.debunk.jenis == "verifikasi_positif"
@@ -57,12 +58,14 @@ def test_verified_refutation_produces_bantahan():
 
 
 def test_conflicting_verified_sources_fail_closed():
+    # kl dua sumber resmi malah saling bertentangan, amanin ke "tidak_yakin"
     result = run_agent([evidence(), evidence(relation="refutes", url="https://www.bmkg.go.id/lain")])
     assert result.status == "tidak_yakin"
     assert result.reason == "bukti_bertentangan"
 
 
 def test_unverified_quote_never_becomes_evidence():
+    # kutipan karangan yg ga beneran tertulis di halaman web wajib ditolak mentah2
     item = evidence()
     result = google_agent.investigate(
         "Gempa belum dapat diprediksi secara pasti",
@@ -76,6 +79,7 @@ def test_unverified_quote_never_becomes_evidence():
 
 
 def test_media_support_is_not_enough_for_green():
+    # dukungan dr portal berita biasa blm cukup kuat buat ngasih cap hijau resmi
     item = evidence(url="https://news.example/fakta")
     result = google_agent.investigate(
         "Gempa belum dapat diprediksi secara pasti",
@@ -105,11 +109,13 @@ def test_agent_can_overrule_false_local_match(monkeypatch):
 
 
 def test_visible_text_excludes_scripts_and_preserves_quote():
+    # buang isi <script> sm <style> dulu sblm nyocokin teks kutipan
     text = source_verifier.visible_text(f"<html><script>karangan</script><p>{QUOTE}</p><style>x</style></html>")
     assert QUOTE in text
     assert "karangan" not in text
 
 
+# tolak URL non-https, localhost, IP privat, sm URL pake user:pass biar ga tembus SSRF
 @pytest.mark.parametrize("url", ["http://www.bmkg.go.id/a", "https://localhost/a", "https://127.0.0.1/a", "https://user:pass@bmkg.go.id/a"])
 def test_source_url_rejects_non_https_and_private_targets(url):
     with pytest.raises(source_verifier.SourceError):
@@ -133,6 +139,7 @@ def test_fabricated_quote_is_rejected_from_real_page_shape(monkeypatch):
 
 
 def test_agent_can_repair_quote_from_fetched_page():
+    # kl model sempet parafrase dikit, bolehin reparasi kutipan asal kalimat aslinya ada di teks halamn
     item = evidence(quote="Kutipan ringkasan yang tidak persis tetapi cukup panjang untuk diuji.")
     failed = Verification(
         False, "kutipan_tidak_ada_di_halaman", item,

@@ -21,6 +21,7 @@ from .safefetch import PinnedTransport
 from .source_verifier import source_kind
 
 URL_RE = re.compile(r"https?://[^\s<>\"')\]]+", re.I)
+# pemendek URL yg sering dipake nyembunyiin link phising di grup WA
 SHORTENERS = {"bit.ly", "s.id", "cutt.ly", "tinyurl.com", "shorturl.at", "rb.gy", "t.ly", "linktr.ee", "wa.me", "is.gd", "ow.ly"}
 OFFICIAL = (".go.id", ".mil.id")
 MAX_BYTES = 300_000
@@ -30,6 +31,7 @@ MAX_LINKS = 3
 def extract_urls(text: str) -> list[str]:
     seen: list[str] = []
     for raw in URL_RE.findall(text):
+        # buang tanda titik/koma yg suka ikut nempel di ujung link
         url = raw.rstrip(".,;:!?")
         if url not in seen:
             seen.append(url)
@@ -37,6 +39,7 @@ def extract_urls(text: str) -> list[str]:
 
 
 def _is_public(host: str) -> bool:
+    # pastiin semua IP hasil resolve beneran IP publik, jgn smpe tembus ke localhost/jaringan dalam
     try:
         infos = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
     except socket.gaierror:
@@ -81,9 +84,10 @@ def check_link(url: str, transport: httpx.BaseTransport | None = None) -> dict:
            "site_name": "", "description": "", "published": "", "outlet": "", "outlet_group": ""}
     current, hops = url, 0
     try:
-        # PinnedTransport connects to the address that passed the public-address check (no DNS rebinding in between).
+        # pake PinnedTransport biar konek ke IP publik yg udah lolos cek (aman dari celah DNS rebinding)
         with httpx.Client(timeout=httpx.Timeout(10.0, connect=5.0), follow_redirects=False, transport=transport or PinnedTransport(),
                           headers={"User-Agent": "Mozilla/5.0 (compatible; HalioLinkCheck/0.1; +cek tautan, tanpa menjalankan skrip)"}) as client:
+            # telusurin redirect manual satu per satu (maksmal 5 lompatan) biar tiap hop dicek ulang keamanannya
             while hops <= 5:
                 parsed = urlparse(current)
                 if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username:
@@ -105,7 +109,7 @@ def check_link(url: str, transport: httpx.BaseTransport | None = None) -> dict:
                     body = bytearray()
                     for chunk in r.iter_bytes():
                         body.extend(chunk)
-                        if len(body) > MAX_BYTES:
+                        if len(body) > MAX_BYTES:  # sedot secukupnya aja buat ambil judul & meta, jgn download file gede
                             break
                     if "html" in r.headers.get("content-type", "").lower():
                         t = _Title()
@@ -151,7 +155,7 @@ def warning_for(c: dict) -> str | None:
     if c["state"] != "terbuka":
         return f"Tautan {c['host']}: {c['note']}"
     if c.get("outlet") and not c["shortener"]:
-        return None  # an ordinary article from a known outlet: nothing to warn about, the answer describes it
+        return None  # artikel biasa dari media dikenal ga perlu dikasih peringatan, nanti dijelasin di isi jawaban
     if c["shortener"]:
         return f"Tautan pendek ini ternyata menuju {host}. {'Situs pemerintah.' if c['kind'] == 'resmi' else 'Bukan situs pemerintah, hati-hati bila diminta data.'}"
     if c["note"] and c["kind"] != "resmi":

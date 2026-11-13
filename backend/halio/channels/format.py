@@ -7,6 +7,7 @@ from html import escape
 from ..dates import human_date as _date
 from ..outlets import is_not_a_source
 
+# ikon bulat warna buat nandain status akhir di chat WA maupun Telegram
 ICON = {
     "terbukti_salah": "🔴",
     "sejalan_dengan_sumber": "🟢",
@@ -51,6 +52,7 @@ REJECTED = {
     "redirect_ke_domain_lain": "halaman dialihkan ke situs lain",
     "sumber_tidak_dapat_diakses": "halaman tidak bisa dibuka",
 }
+# kalimat saran praktis di penutup pesan sesuai status pengecekkan
 ACTION = {
     "dilaporkan_media": "Boleh dibagikan dengan menyebut sumbernya. Ini laporan media, bukan pemeriksaan fakta: cek tanggalnya dan bandingkan dulu.",
     "terbukti_salah": "Jangan diteruskan. Kirim kartu di bawah ke grup untuk meluruskan.",
@@ -62,6 +64,7 @@ ACTION = {
 
 def _how(result: dict) -> list[str]:
     """Short, true list of what Halio actually did for this message."""
+    # rangkum jujur langkah apa aja yg beneran dikerjain sistem buat ngecek pesan ini
     steps = []
     if result.get("media"):
         steps.append("Membaca isi foto/suara Anda (keasliannya tidak dinilai)")
@@ -97,8 +100,8 @@ def many_claims(result: dict) -> bool:
 
 
 def reply_text(result: dict, html: bool = False) -> str:
-    # In HTML mode every dynamic string is escaped: the sapaan and link hosts come from the user,
-    # and a stray "<" makes Telegram reject the whole message.
+    # di mode HTML semua string dinamis wajib di-escape dulu: sapaan & nama host asalnya dari input user,
+    # kl keselip tanda "<" sebiji aja Telegram bakal nolak ngirim seluruh pesannya.
     from .. import version_line
 
     e = (lambda s: escape(str(s), quote=False)) if html else str
@@ -118,6 +121,7 @@ def reply_text(result: dict, html: bool = False) -> str:
     plain = result.get("reason", "") in ("berita_media_dikenal", "kumpulan_judul")
     many = result.get("claims")
     if many:
+        # pesannya dipecah jadi beberapa klaim terpisah, jabarin hasilnya satu-satu
         for i, c in enumerate(many, 1):
             claim = c["claim"] if len(c["claim"]) <= 120 else c["claim"][:117].rsplit(" ", 1)[0] + "…"
             why = (c.get("match") or {}).get("sederhana") or (c.get("evidence") or {}).get("alasan") or REASON.get(c.get("reason", ""), "")
@@ -149,6 +153,7 @@ def reply_text(result: dict, html: bool = False) -> str:
         lines += ["", "📚 " + b("Sumber") + ": " + links]
     ev = result.get("evidence")
     if ev and ev.get("items"):
+        # tampilin indikator kekuatan bukti (0..4) bareng kutipan aslinya + link sorot kalimat
         bar = "■" * ev["kekuatan"] + "□" * (4 - ev["kekuatan"])
         lines += ["", "🔍 " + b("Yang Halio temukan") + f"  ·  kekuatan bukti {bar} {ev['kekuatan']}/4"]
         for it in ev["items"][:3]:

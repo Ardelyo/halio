@@ -9,6 +9,7 @@ import re
 
 from ..textnorm import tokens
 
+# daftar peran agen pencari yg jalan barengan ngisi satu kolam kandidat bukti
 AGENTS = {
     "umum": ("Perencana", "Kueri umum dari perencana AI: variasi kata kunci, nama, terjemahan."),
     "cek_fakta": ("Penelusur pemeriksa fakta", "TurnBackHoax/Mafindo, Kompas, Liputan6, Tempo Cek Fakta, AFP, ClaimReview."),
@@ -21,6 +22,7 @@ AGENTS = {
 
 
 def keywords(core: str, n: int = 6) -> str:
+    # saring kata kunci yg cukup spesifik (>=4 huruf) tanpa dobel
     seen: list[str] = []
     for t in tokens(core):
         if len(t) >= 4 and t not in seen:
@@ -33,6 +35,7 @@ TNI_TOPIC = re.compile(r"\b(tni|tentara|kodam|korem|kodim|koramil|kostrad|kopass
 
 
 def tasks(core: str) -> list[tuple[str, str]]:
+    # bagi tugas pencarian terarah ke situs pemeriksa fakta, domain resmi .go.id/.mil.id, sm media berita
     k = keywords(core)
     if len(k.split()) < 2:
         return []
@@ -44,8 +47,8 @@ def tasks(core: str) -> list[tuple[str, str]]:
         ("media", f"{k} berita terbaru"),
     ]
     if TNI_TOPIC.search(core):
-        # Anything about the army is first checked against the army's own channels: they are the authority on recruitment
-        # rules, impersonation warnings and announcements.
+        # kl nyangkut isu TNI, wajib cek langsung ke kanal resmi TNI & Kemhan krn mereka rujukan utma soal aturan
+        # rekrutmen, pengumuman resmi, sm peringatan modus penipuan catut nama
         out += [
             ("resmi", f"{k} site:tniad.mil.id"),
             ("resmi", f"{k} site:rekrutmen-tni.mil.id OR site:penerimaan.tniad.mil.id"),
@@ -55,6 +58,7 @@ def tasks(core: str) -> list[tuple[str, str]]:
 
 
 def summary(queries: dict[str, int], hits: dict[str, int], pages: list[dict]) -> list[dict]:
+    # rekap hasil kerja tiap agen buat ditampilin transparan di metode laporan
     out = []
     for key, (label, what) in AGENTS.items():
         relevant = sum(1 for p in pages if p["relevan"] and key in p.get("agen", []))

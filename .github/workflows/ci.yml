@@ -1,3 +1,4 @@
+# cek otomatis tiap push / PR biar ga ada yg diem-diem pecah
 name: CI
 on:
   push:
@@ -15,11 +16,13 @@ jobs:
           cache: pip
       - run: pip install -r backend/requirements.txt pytest==9.2.0
       - run: cd backend && python -m pytest
+      # pastin angka evaluasi offline masih sinkron sm eval/RESULTS.md
       - run: python eval/run_eval.py && git diff --exit-code -- eval/RESULTS.md
+      # cek sintaks python, js ekstensi/web, sm build docker sekalian
       - run: python -m compileall -q backend scripts eval
       - run: for file in extension/*.js web/*.js; do node --check "$file"; done
       - run: docker build .
-      # Known-vulnerability scan of the pinned Python dependencies. Warning only for now: it never fails the build.
+      # cek celah keamanan di paket python yg di-pin; sementra warning aja biar ga bikin gagal build kl advisories lg rewel
       - name: pip-audit (warning only)
         continue-on-error: true
         run: pip install pip-audit==2.9.0 && pip-audit -r backend/requirements.txt -r backend/requirements-optional.txt

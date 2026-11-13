@@ -35,6 +35,7 @@ def result(status="belum_ada_pemeriksaan"):
 
 
 def test_api_down_still_answers_the_user(monkeypatch, sent):
+    # biarpun backend API lagi mati, bot tetep wajib ngasih kabar ke user jgn diem aja
     def down(*a, **k):
         raise t.httpx.ConnectError("refused")
 
@@ -44,11 +45,13 @@ def test_api_down_still_answers_the_user(monkeypatch, sent):
 
 
 def test_rate_limit_gets_a_human_message(monkeypatch, sent):
+    # kl kena limit 429, bales pake bahasa manusia suruh tunggu sebentar
     monkeypatch.setattr(t.httpx, "post", lambda *a, **k: FakeResp(429))
     t.handle_message({"chat": {"id": 1}, "text": "Jembatan ditutup total besok pagi"})
     assert any("Tunggu sebentar" in (x or "") for x in texts(sent))
 
 
+# pastin bunyi caption kartu gambar selalu sinkron sm status vonisnya
 @pytest.mark.parametrize("status", list(t.CARD_CAPTION))
 def test_card_caption_matches_the_verdict(monkeypatch, sent, status):
     monkeypatch.setattr(t.httpx, "post", lambda *a, **k: FakeResp(200, result(status)))
@@ -60,6 +63,7 @@ def test_card_caption_matches_the_verdict(monkeypatch, sent, status):
 
 
 def test_card_failure_does_not_lose_the_text_answer(monkeypatch, sent):
+    # kl render kartu PNG sempet timeout, jawaban teks utamanya jgn ikut ilang
     monkeypatch.setattr(t.httpx, "post", lambda *a, **k: FakeResp(200, result()))
 
     def broken(*a, **k):
@@ -72,12 +76,14 @@ def test_card_failure_does_not_lose_the_text_answer(monkeypatch, sent):
 
 
 def test_bad_token_stops_with_a_clear_message(monkeypatch):
+    # kl token bot ditolak pas baru nyala, langsung stop pake pesan error yg jelas
     monkeypatch.setattr(t.httpx, "get", lambda *a, **k: FakeResp(200, {"ok": False, "description": "Unauthorized"}))
     with pytest.raises(SystemExit, match="Token Telegram ditolak"):
         t.startup_checks()
 
 
 def test_rejected_getupdates_sleeps_instead_of_spinning(monkeypatch):
+    # kl getUpdates ditolak (misal bentrok 2 bot jalan bareng), tidur 5 detik dulu biar CPU ga ngebut 100%
     monkeypatch.setattr(t, "TOKEN", "123:abc")
     monkeypatch.setattr(t, "startup_checks", lambda: None)
     monkeypatch.setattr(t.httpx, "get", lambda *a, **k: FakeResp(200, {"ok": False, "description": "Conflict"}))
@@ -95,6 +101,7 @@ def test_rejected_getupdates_sleeps_instead_of_spinning(monkeypatch):
 
 
 def test_unexpected_error_in_one_update_apologises_and_continues(monkeypatch, sent):
+    # satu pesan bikin error mendadak ga boleh matiin loop utama bot; minta maaf ke user trus lanjut jalan
     monkeypatch.setattr(t, "TOKEN", "123:abc")
     monkeypatch.setattr(t, "startup_checks", lambda: None)
     batches = iter([

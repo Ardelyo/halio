@@ -18,6 +18,7 @@ from ..config import Settings
 from ..textnorm import tokens
 
 log = logging.getLogger(__name__)
+# tangkep semua angka di kalimat laporan biar bisa dicek beneran ada di kutipan atau hasil karangan
 _NUM = re.compile(r"\d+(?:[.,]\d+)*")
 
 SYSTEM = (
@@ -43,6 +44,7 @@ class _Dossier(BaseModel):
 
 
 def supported(sentence: str, cited: list[str]) -> bool:
+    # pastin kata kunci sm semua angka/tanggal di kalimat emang muncul di bukti yg dirujuk
     words = {t for t in tokens(sentence) if len(t) >= 4}
     pool = set(tokens(" ".join(cited)))
     if not words or not cited:
@@ -54,6 +56,7 @@ def supported(sentence: str, cited: list[str]) -> bool:
 
 
 def check(raw: _Dossier, evidence: dict[int, str]) -> tuple[dict, dict]:
+    # saring satu2 kalimat buatan model: kl nomor sumbernya ngaco atau ga didukung kutipan, langsung buang
     kept, stats = {}, {"ditulis": 0, "dibuang": 0}
     for section in ("ringkasan", "temuan", "konteks"):
         kept[section] = []
@@ -73,6 +76,7 @@ def _ask(claim: str, status_label: str, numbered: list[dict], cfg: Settings) -> 
     from google import genai
     from google.genai import types
 
+    # minta model nyusun draf kalimat laporan murni dr daftar bukti bernomor yg udah dikunci kode
     client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
     payload = [{"no": b["no"], "penerbit": b["penerbit"], "jenis": b["tingkat_label"], "tanggal": b.get("tanggal") or None,
                 "hubungan": b.get("hubungan"), "kutipan": b["kutipan"]} for b in numbered]
@@ -90,6 +94,7 @@ def _ask(claim: str, status_label: str, numbered: list[dict], cfg: Settings) -> 
 
 def fallback(numbered: list[dict]) -> dict:
     """No model: list the strongest evidence verbatim, which is always 'supported'."""
+    # jaga-jaga kl model lagi down: tampilin kutipan paling kuat apa adanya
     top = [b for b in numbered if b.get("hubungan") in ("refutes", "supports")][:3] or numbered[:3]
     return {"ringkasan": [{"teks": f"{b['penerbit']} ({b['tingkat_label']}{', ' + b['tanggal'] if b.get('tanggal') else ''}): “{b['kutipan'][:300]}”",
                            "sumber": [b["no"]]} for b in top], "temuan": [], "konteks": []}
@@ -105,6 +110,7 @@ def write(claim: str, status_label: str, numbered: list[dict], cfg: Settings, as
         log.warning("dossier writer unavailable: %s", type(exc).__name__)
         return fallback(numbered), {"ditulis": 0, "dibuang": 0, "model": False}
     kept, stats = check(raw, evidence)
+    # kl semua kalimat ringkasan model mental disaring, isi pake fallback kutipan asli aja
     if not kept["ringkasan"]:
         kept["ringkasan"] = fallback(numbered)["ringkasan"]
     return kept, {**stats, "model": True}

@@ -17,13 +17,14 @@ from .store import SensorStore, utcnow
 
 log = logging.getLogger(__name__)
 
+# pake user-agent jujur aja, ga perlu nyamar jadi browser biasa
 DEFAULT_UA = "HalioSensor/0.1 (riset anti-disinformasi; hanya feed publik)"
 
 
 @dataclass
 class Outcome:
     source: Source
-    status: str                      # "ok" | "304" | "error"
+    status: str                      # "ok" | "304" | "error" (hasil sekali tarik feed)
     latency_ms: int | None
     error: str | None = None
     items: list[Item] | None = None
@@ -33,6 +34,7 @@ class Outcome:
 
 def fetch(source: Source, client: httpx.Client, prev_state: dict | None) -> Outcome:
     headers = {}
+    # kirim etag / last-modified dr tarikan sebelumnya biar hemat kuota kl feed blm update
     if prev_state:
         if prev_state.get("etag"):
             headers["If-None-Match"] = prev_state["etag"]
@@ -44,6 +46,7 @@ def fetch(source: Source, client: httpx.Client, prev_state: dict | None) -> Outc
     except httpx.HTTPError as exc:
         return Outcome(source, "error", None, error=type(exc).__name__)
     ms = int((time.perf_counter() - t0) * 1000)
+    # 304 artinya blm ada berita baru, langsung balik tanpa perlu parse xml lagi
     if resp.status_code == 304:
         return Outcome(source, "304", ms, etag=headers.get("If-None-Match"), last_modified=headers.get("If-Modified-Since"))
     if resp.status_code != 200:
@@ -71,6 +74,7 @@ def run_once(
     due = store.due(sources, now)
     if not due:
         return {"polled": 0, "ok": 0, "errors": 0, "new_items": 0}
+    # tarik jaringan paralel pake thread pool, tp tulis ke sqlite tetep satu pintu di thread utma
     with ThreadPoolExecutor(max_workers=max(1, min(workers, len(due)))) as pool:
         outcomes = list(pool.map(lambda s: fetch(s, client, store.state(s.id)), due))
     ok = errors = new_items = 0
@@ -110,9 +114,10 @@ class Poller:
                 summary = run_once(self.store, self._client, workers=self.workers)
                 if summary["polled"]:
                     log.info("sensor: %s", summary)
+                # bersih2 item sm log lama cukup sejam sekali aja
                 if time.monotonic() - self._last_prune > 3600:
                     self.store.prune(utcnow())
                     self._last_prune = time.monotonic()
-            except Exception:  # keep the sensor alive; the coverage panel will show what stopped working
+            except Exception:  # jgn sampe loop sensor mati total; sumber yg rusak biar keliatan di panel cakupan
                 log.exception("sensor loop error")
             self._stop.wait(self.tick_s)
