@@ -164,7 +164,9 @@ def _all_link_warnings(domains: list[str], checked: list[dict]) -> list[str]:
 def _match_payload(m: Match) -> dict:
     d = m.debunk
     return {
-        "debunk_id": d.id, "kategori": d.kategori, "score": m.score,
+        "debunk_id": d.id, "kategori": d.kategori,
+        # Web-evidence matches are chosen by the judge, not by text similarity: never show a made-up percentage.
+        "score": None if d.kategori == "penelusuran_web" else m.score,
         "klaim_dibantah": d.klaim, "fakta": d.fakta, "sederhana": d.sederhana, "sumber": d.sumber,
         "jenis": d.jenis, "kutipan_sumber": d.kutipan_sumber,
         "valid_from": d.valid_from, "valid_until": d.valid_until, "wilayah": d.wilayah,

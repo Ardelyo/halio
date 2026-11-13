@@ -150,7 +150,7 @@ function processPanel(result) {
   const used = (result.method || "").split("+");
   if (result.media) rows.push(["ok", `Membaca ${result.media.kind === "ucapan" ? "suara" : "foto"} dengan Gemini`, "Hanya isi tulisan/ucapan yang dibaca. Keaslian foto tidak dinilai."]);
   rows.push(["ok", "Mengenali klaim yang bisa dicek", `“${result.claim}”`]);
-  rows.push([m ? "ok" : "none", "Mencocokkan dengan bantahan dan sumber yang sudah terverifikasi", m ? `Cocok dengan: ${m.klaim_dibantah} (kemiripan ${Math.round((m.score || 0) * 100)}%)` : "Tidak ada yang cukup mirip. Halio tidak menebak."]);
+  rows.push([m ? "ok" : "none", "Mencocokkan dengan bantahan dan sumber yang sudah terverifikasi", m ? (m.score == null ? `Ditemukan lewat penelusuran web: ${(m.sumber && m.sumber[0] && m.sumber[0].nama) || "sumber"}. Halio menilai isi kutipannya, bukan persentase kemiripan.` : `Cocok dengan: ${m.klaim_dibantah} (kemiripan ${Math.round((m.score || 0) * 100)}%)`) : "Tidak ada yang cukup mirip. Halio tidak menebak."]);
   const ev = result.evidence;
   if (used.includes("bukti_v2") && ev) {
     const why = [...new Set((ev.ditolak || []).map((r) => REJECT_WHY[r.alasan] || "halaman tidak bisa dipakai"))].slice(0, 2);
