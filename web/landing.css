@@ -351,8 +351,8 @@ h1 em { color: #014BAA; }
   .workflow-mark { display: none; }
   .workflow-list h3 { font-size: 27px; }
   .privacy-art { min-height: 390px; margin-inline: -20px; transform: scale(.78); }
-  .note-one { right: -20px; }
-  .note-two { left: -15px; }
+  .note-one { right: 14px; }
+  .note-two { left: 14px; }
   .evidence-grid { grid-template-columns: 1fr 1fr; margin-top: 40px; }
   .evidence-stat { min-height: 160px; padding: 25px 15px; }
   .evidence-stat:first-child { padding-left: 15px; }
@@ -384,6 +384,8 @@ h1 em { color: #014BAA; }
 .cyber-card a { margin-top: auto; align-self: flex-start; padding-bottom: 3px; border-bottom: 1px solid var(--blue); color: var(--blue); font-size: 12px; font-weight: 600; }
 .cyber-note { max-width: 760px; margin: 30px 0 0; padding: 18px 22px; border-left: 3px solid var(--sun); background: var(--sun-soft); font-size: 13px; line-height: 1.7; }
 @media (max-width: 1100px) { .verdict-grid { grid-template-columns: repeat(2, 1fr); } }
+/* HP: harus ditaruh setelah aturan 1100px di atas, kalo ngga ketimpa & kartunya kepotong */
+@media (max-width: 820px) { .verdict-grid { grid-template-columns: 1fr; } .verdict-card > * { min-width: 0; } }
 @media (max-width: 900px) { .cyber-grid { grid-template-columns: 1fr; } .cyber-card { min-height: 0; } }
 
 h2 em { color: var(--blue); }
