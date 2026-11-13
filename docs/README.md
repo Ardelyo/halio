@@ -62,7 +62,7 @@ Setiap dokumen punya baris kepala di bawah judulnya. Aturan lengkapnya ada di [R
 | [submission/DRAF_DESKRIPSI.md](submission/DRAF_DESKRIPSI.md) | Deskripsi karya dan jawaban untuk sepuluh pertanyaan juri | Rujukan |
 | [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md) | Status tiap berkas pengumpulan | Rujukan |
 | [submission/](submission/) | Thumbnail dan lima screenshot alur penggunaan | Berkas |
-| [presentasi/](presentasi/) | Slide: `Halio_Presentasi_v2.pdf` adalah versi yang dipakai; versi pertama disimpan karena menjadi sumber skrip pembangun | Berkas |
+| [presentasi/](presentasi/) | Slide: **`Halio_Deck_Juri.pdf` adalah versi yang dikumpulkan** (deck cerita + lampiran teknis, dibangun oleh `build_juri_deck.py`). `Halio_Deck_Cerita.pdf` dan `Halio_Presentasi_v2.pdf` adalah sumbernya; versi pertama disimpan karena menjadi sumber skrip pembangun v2 | Berkas |
 | Video demo | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g): 5:01, publik | Tautan |
 
 ## Catatan kerja tim
