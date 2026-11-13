@@ -27,7 +27,7 @@ Pemeriksaan terakhir: 12 Nov 2026, dari `main` (kode dan server publik build `28
 | 2 | Thumbnail | 1200×630 px, JPG/PNG/WebP, ≤ 500 KB | SELESAI (resmi: kolase, 12 Nov) | **Dipakai:** `docs/submission/thumbnail_kolase.jpg`, 1200×630, JPEG, 181 KB (foto Nenek dan cucu, sama dengan gambar di README). Cadangan: `docs/submission/thumbnail.jpg`, 1200×630, JPEG, 183 KB | Pemilik: unggah |
 | 3 | Screenshot | Maks. 5 | SELESAI (berkas ada, 12 Nov) | `docs/submission/screenshot_01.png` sampai `screenshot_05.png` (1920×1080, dari rekaman layar build `e16d354`): 1) tempel pesan, 2) jawaban bersumber, 3) suara, trik, dan kartu, 4) "tidak mau menebak", 5) Radar (angka simulasi, disebut di gambar) | Pemilik: tinjau, unggah |
 | 4 | Video | ≤ 10 menit, YouTube | SELESAI (12 Nov) | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g): publik (bukan unlisted), durasi 5:01, tayang 12 Nov 2026 | Pemilik: tonton ulang (lihat baris verifikasi akhir) |
-| 5 | Slide | Fitur, arsitektur, teknologi, info lain; PDF | SELESAI (resmi: v2, 12 Nov) | **Dipakai:** `docs/presentasi/Halio_Presentasi_v2.pdf` (20 halaman), satu-satunya slide yang berasal dari repo dan sudah dicek terhadap angka kode | Pemilik: tinjau isi terakhir, unggah |
+| 5 | Slide | Fitur, arsitektur, teknologi, info lain; PDF | SELESAI (resmi: v2, 12 Nov) | **Dipakai:** `docs/presentasi/Halio_Presentasi_v2.pdf` (20 halaman, diperbarui 13 Nov: nama pembuat, tautan karya, video, dan kode di slide penutup, serta hasil sampel publik di slide hasil uji), sudah dicek terhadap angka kode | Pemilik: tinjau isi terakhir, unggah |
 
 ## Kepatuhan aturan (Rulebook §G "Ketentuan Karya" dan §N)
 
