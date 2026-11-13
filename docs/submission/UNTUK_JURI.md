@@ -26,6 +26,7 @@ Halaman ini memetakan Halio ke lima kriteria penilaian Kartika Cyber Hackathon 2
 |---|---|---|
 | **0 dari 76** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah", pada dua set uji tulisan tim (pengembangan dan holdout) | [eval/RESULTS.md](../../eval/RESULTS.md) |
 | **0 dari 1.043** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel publik di luar set tim. Evaluasi ini pernah menemukan satu kesalahan (pesan yang meluruskan hoaks), yang sudah diperbaiki dan dicatat terbuka | [eval/PUBLIC_RESULTS.md](../../eval/PUBLIC_RESULTS.md) |
+| **0 dari 197** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", diuji ulang dengan korpus 10 entri pada commit beku (13 Nov); batas atas 95%: 1,9% | [eval/PUBLIC_RECHECK.md](../../eval/PUBLIC_RECHECK.md) |
 | **88%** | Recall parafrase hoaks pada set holdout | [eval/RESULTS.md](../../eval/RESULTS.md) |
 | **0,5 ms** | Median pencocokan lokal tanpa AI (laptop pengembang Windows, 300 pemanggilan, korpus 10 bantahan, jaringan diblokir oleh tes) | [Arsitektur §1](../ARCHITECTURE.md) |
 | **5** | Ambang bawaan k-anonimitas Radar (`HALIO_K_ANON`): isi kabar baru hanya disimpan setelah dilaporkan sejumlah itu pelapor berbeda | [Privasi](../PRIVACY.md) |

@@ -10,6 +10,7 @@ Halio sudah dirancang agar jalur pencocokan (T1) tidak butuh AI. Dokumen ini men
 |---|---|---|
 | **Server on-premise (T1)** | API, web, kartu, Radar di satu mesin; `HALIO_LLM=0`, `HALIO_MEDIA=0`, `HALIO_LINK_CHECK=0`, `HALIO_SENSOR=0`. Profil: [`.env.offline.example`](../.env.offline.example) dan [`docker-compose.offline.yml`](../docker-compose.offline.yml) | Dibuktikan dengan tes yang memblokir semua akses jaringan dan dengan server uvicorn sungguhan memakai profil itu. **Compose belum diuji**: Docker tidak terpasang di mesin pengembang |
 | **Mesin di perangkat (browser/PWA)** | Pencocokan klaim, deteksi trik manipulasi, penjaga salah-tuduh, kartu, dan suara bawaan perangkat, semuanya di browser. Kode: [`web/engine/`](../web/engine/) | Dibuktikan dengan uji paritas terhadap Python dan uji Chrome dengan jaringan diputus |
+| **Paket folder (flashdisk)** | `python scripts/make_luring_package.py` membuat `dist/Halio-Luring.zip` (sekitar 640 KB): folder `web/`, peluncur Windows/macOS/Linux, `PANDUAN.txt`, `VERSI.txt`. Dibuka langsung dari berkas (`file://`), tanpa instalasi dan tanpa server | Diuji (`--selftest`): hasil ekstraksi dibuka dari `file://` di Chrome dengan jaringan diputus, tiga pesan dijawab benar. Belum diuji di mesin Windows lain atau Firefox/Safari |
 | **Ekstensi Chrome** | Lencana trik manipulasi dan blur gambar sudah sepenuhnya di perangkat | Belum memakai mesin cek yang sama (peta jalan) |
 
 Telegram **tidak** bisa luring: bot memakai long-polling ke server Telegram. Di jaringan tertutup, pakai antarmuka web di server lokal.
@@ -32,6 +33,7 @@ Telegram **tidak** bisa luring: bot memakai long-polling ke server Telegram. Di 
 | Paritas pada teks dunia nyata | 3.900 judul TurnBackHoax (sampel tersebar, satu kali jalan 13 Nov dengan korpus 10 entri, data tidak disimpan di repo): 0 perbedaan. Uji ini menemukan satu kelemahan (pemotongan teks ber-emoji) yang sudah diperbaiki dan dikunci di vektor | skrip sementara, tidak di repo |
 | Uji paritas sanggup mendeteksi kesalahan | Tiga kerusakan kecil sengaja disisipkan (ambang, urutan pengurutan, kamus slang): ketiganya tertangkap (128, 12, dan 140 perbedaan) | ubah satu baris di `halio-local.js` lalu jalankan uji |
 | Browser sungguhan tanpa jaringan | Chrome (viewport HP 390x844): beranda dan halaman cek dimuat, service worker aktif, jaringan diputus, reload, tiga pesan dijawab di perangkat dengan vonis sama seperti server | `python scripts/e2e_offline.py` (butuh `pip install playwright`) |
+| Tuduhan palsu pada data independen, korpus 10 entri | 0 dari 197 judul TurnBackHoax berlabel BENAR/KLARIFIKASI (sampel 3.700 judul, commit beku `69d1020`, batas atas 95%: 1,9%) | `python eval/eval_public_recheck.py` (laporan: [PUBLIC_RECHECK.md](../eval/PUBLIC_RECHECK.md)) |
 | Kecepatan | Median 0,52 ms, p95 0,56 ms per cek (300 pemanggilan, korpus 10 entri, Windows) | lihat `tests/test_offline.py` (batas longgar 50 ms) |
 
 ## Yang tidak bisa (dan tidak diklaim)

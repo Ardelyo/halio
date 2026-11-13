@@ -200,7 +200,7 @@ hasil = f'''<section class="slide">
     <div class="card grow" style="padding:16px 26px;background:var(--blue);border-color:transparent"><p style="font-size:22px;line-height:1.3;color:#fff"><b style="color:var(--sun)">Coba sendiri:</b> halaman <b style="color:#fff">/uji</b> menjalankan tiga uji hidup: halaman yang menyuruh AI berbohong, alamat palsu mirip situs pemerintah, dan kalimat karangan AI.</p></div>
     <div class="card grow" style="padding:16px 26px;background:var(--blue);border-color:transparent"><p style="font-size:22px;line-height:1.3;color:#fff"><b style="color:var(--sun)">Lihat sendiri:</b> klik nomor sumber di laporan, halaman asli terbuka dengan <b style="color:#fff">kalimat yang disalin disorot</b>. Dan satu saklar mematikan AI untuk membuktikan Halio tetap menjawab.</p></div>
   </div>
-  <p class="note" style="margin-top:10px;font-size:18px;line-height:1.3">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). <b>Sampel publik:</b> 0 / 236 judul TurnBackHoax berlabel benar atau klarifikasi dicap hoaks pada korpus 10 entri, dicek ulang 13 Nov (0 / 1.043 pada korpus 7 entri, eval/PUBLIC_RESULTS.md). Set uji tim: 0 / 76 (124 item). Bukan evaluasi independen.</p>
+  <p class="note" style="margin-top:10px;font-size:18px;line-height:1.3">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). <b>Sampel publik:</b> 0 / 197 judul TurnBackHoax berlabel benar atau klarifikasi dicap hoaks pada korpus 10 entri, diuji ulang 13 Nov (commit beku) (0 / 1.043 pada korpus 7 entri, eval/PUBLIC_RESULTS.md). Set uji tim: 0 / 76 (124 item). Bukan evaluasi independen.</p>
   {FOOT}
 </section>'''
 

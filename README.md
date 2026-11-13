@@ -79,9 +79,9 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 | Angka | Arti | Sumber |
 |---|---|---|
 | **273** | Tes otomatis lulus, dijalankan CI pada setiap perubahan | [CI](.github/workflows/ci.yml) |
-| **0 dari 76** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim) | [eval/RESULTS.md](eval/RESULTS.md) |
+| **0 dari 76** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim; batas atas 95%: 4,8%) | [eval/RESULTS.md](eval/RESULTS.md) |
 | **0 dari 1.043** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel publik yang tidak dipakai menyetel Halio (satu kesalahan ditemukan lalu diperbaiki, lihat catatan di laporan) | [eval/PUBLIC_RESULTS.md](eval/PUBLIC_RESULTS.md) |
-| **0 dari 236** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", dicek ulang pada sampel 3.700 judul setelah korpus tumbuh jadi 10 entri (13 Nov) | [Verifikasi korpus](docs/VERIFIKASI_KORPUS.md) |
+| **0 dari 197** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel 3.700 judul diuji ulang dengan korpus 10 entri (13 Nov, commit beku, batas atas 95%: 1,9%) | [eval/PUBLIC_RECHECK.md](eval/PUBLIC_RECHECK.md) |
 | **88%** | Recall parafrase hoaks pada set holdout | [eval/RESULTS.md](eval/RESULTS.md) |
 | **0,5 ms** | Median pencocokan lokal tanpa AI (13 Nov, 300 pemanggilan, korpus 10 entri, jaringan diblokir oleh tes) | [Arsitektur](docs/ARCHITECTURE.md) |
 | **23** | Feed terbuka yang dipantau sensor (opsional) | [Arsitektur sensor](docs/ARCHITECTURE_SENSOR.md) |
