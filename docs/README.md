@@ -61,6 +61,7 @@ Setiap dokumen punya baris kepala di bawah judulnya. Aturan lengkapnya ada di [R
 |---|---|---|
 | [submission/UNTUK_JURI.md](submission/UNTUK_JURI.md) | Halio dipetakan ke lima kriteria penilaian | Rujukan |
 | [submission/DRAF_DESKRIPSI.md](submission/DRAF_DESKRIPSI.md) | Deskripsi karya dan jawaban untuk sepuluh pertanyaan juri | Rujukan |
+| [submission/Halio_Ringkasan_Keputusan.pdf](submission/Halio_Ringkasan_Keputusan.pdf) | Ringkasan 2 halaman untuk pengambil keputusan: masalah, opsi, pilihan, linimasa, batas (sumber: `Halio_Ringkasan_Keputusan.html`, dibangun `build_ringkasan.py`) | Rujukan |
 | [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md) | Status tiap berkas pengumpulan | Rujukan |
 | [submission/](submission/) | Thumbnail dan lima screenshot alur penggunaan | Berkas |
 | [presentasi/](presentasi/) | Slide: **`Halio_Deck_Juri.pdf` adalah versi yang dikumpulkan** (deck cerita + lampiran teknis, dibangun oleh `build_juri_deck.py`). Slide 9 dan 10 deck cerita dirender ulang dari `halio_slide_update.html` (14 Nov) karena halaman aslinya gambar mentah tanpa sumber; angka dan pesan luringnya mutakhir. `Halio_Deck_Cerita.pdf` dan `Halio_Presentasi_v2.pdf` adalah sumbernya; versi pertama disimpan karena menjadi sumber skrip pembangun v2 | Berkas |

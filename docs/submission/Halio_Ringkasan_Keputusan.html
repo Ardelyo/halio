@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<title>Halio: ringkasan keputusan untuk pimpinan satuan</title>
+<!-- dokumen 2 halaman buat pengambil keputusan (masalah, opsi, pilihan, linimasa, batas). dirender build_ringkasan.py -->
+<link rel="stylesheet" href="../../web/fonts/fonts.css">
+<style>
+@page { size: A4; margin: 13mm 15mm 12mm }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:'Inter','Archivo',system-ui,sans-serif;font-size:9.6pt;line-height:1.42;color:#14162b;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.kicker{font-weight:700;font-size:7.6pt;letter-spacing:.18em;text-transform:uppercase;color:#0b4ea2}
+h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:25pt;line-height:1.05;letter-spacing:-.01em;margin:4px 0 4px}
+.sub{color:#5d6272;font-size:9.2pt;margin-bottom:9px}
+h2{font-weight:700;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#0b4ea2;margin:11px 0 5px;padding-bottom:3px;border-bottom:1.4px solid #14162b}
+p{margin-bottom:5px}
+table{width:100%;border-collapse:collapse;margin:3px 0 4px;font-size:8.7pt;line-height:1.35}
+th{text-align:left;font-weight:700;font-size:7.6pt;letter-spacing:.06em;text-transform:uppercase;color:#5d6272;padding:4px 6px;border-bottom:1.2px solid #14162b}
+td{vertical-align:top;padding:4px 6px;border-bottom:1px solid #e3dfda}
+tr.pick td{background:#eaf1fb}
+td b{font-weight:700}
+ul{margin:2px 0 4px 15px}li{margin-bottom:2px}
+.box{border:1px solid #d9d4ce;border-radius:6px;padding:7px 10px;margin:5px 0;background:#faf7f4}
+.cols{display:flex;gap:12px}.cols>div{flex:1}
+.num{font-family:'Instrument Serif',Georgia,serif;font-size:19pt;line-height:1;color:#0b4ea2}
+.cap{font-size:8.2pt;color:#5d6272;line-height:1.3}
+.foot{margin-top:7px;padding-top:4px;border-top:1px solid #d9d4ce;font-size:7.6pt;color:#5d6272}
+.warn{border-left:3px solid #d99a00;background:#fff8e6;padding:5px 9px;margin:5px 0;font-size:8.8pt}
+</style></head><body>
+
+<section class="page">
+  <div class="kicker">Halio · Kartika Cyber Hackathon 2026 · kategori Siber Sosial</div>
+  <h1>Ringkasan keputusan untuk pimpinan satuan</h1>
+  <p class="sub">Dua halaman: masalah, opsi, pilihan yang disarankan, linimasa, dan batas. Status: purwarupa lomba, belum disertifikasi atau disetujui pihak mana pun untuk lingkungan TNI AD.</p>
+
+  <h2>1. Masalah</h2>
+  <p>Penipuan dan hoaks yang mencatut nama TNI AD menyebar lewat pesan berantai di grup keluarga, tempat bantahan resmi jarang sampai. Contoh yang terdokumentasi: pada 2026 Kodam XV/Pattimura memburu oknum calo penerimaan Tamtama dengan kerugian korban sekitar Rp112 juta (Investortrust), padahal rekrutmen TNI AD tidak dipungut biaya. Penerima pesan, sering orang tua atau keluarga prajurit, tidak punya cara cepat untuk bertanya sebelum meneruskan.</p>
+  <p><b>Halio</b> adalah teman cek pesan untuk keluarga. Pesan ditempel (web atau Telegram), jawabannya bersumber, bisa didengar, dan jujur bila belum ada pemeriksaan. AI hanya mencari dan membaca bukti; <b>vonis ditetapkan kode</b>, dari kutipan yang disalin kata per kata. Untuk unit siber, <b>Radar</b> merangkum narasi yang naik, tanpa isi pesan dan tanpa identitas.</p>
+
+  <h2>2. Opsi</h2>
+  <table>
+    <tr><th style="width:21%">Opsi</th><th style="width:27%">Yang didapat</th><th style="width:26%">Yang tidak didapat</th><th>Data dan usaha</th></tr>
+    <tr><td><b>A. Imbauan manual saja</b></td><td>Tanpa risiko teknis</td><td>Tidak ada jawaban cepat per pesan; tidak ada gambaran narasi</td><td>Tidak ada data. Usaha berulang oleh personel</td></tr>
+    <tr><td><b>B. Layanan publik Halio</b> (cloud)</td><td>Web, Telegram, suara, kartu, Telusur (pencarian web dengan kutipan terverifikasi), Radar</td><td>Tidak cocok untuk jaringan tertutup</td><td>Teks klaim yang sudah dibersihkan (maks. 300 karakter) dikirim ke layanan AI. Server kecil di cloud, biaya belum dihitung</td></tr>
+    <tr class="pick"><td><b>C. Server satuan tanpa cloud</b> (luring)</td><td>Cek pesan, trik manipulasi, kartu, Radar di satu mesin (laptop atau mini-PC), diakses lewat Wi-Fi atau hotspot lokal. Pencocokan sekitar 0,5 ms</td><td>Kabar di luar korpus, Telusur, foto dan suara, Telegram</td><td><b>Tidak ada data keluar.</b> Cukup Python atau Docker. Profil siap pakai tersedia; belum diuji di jaringan satuan</td></tr>
+    <tr class="pick"><td><b>D. Paket folder di perangkat</b> (luring)</td><td>Folder sekitar 640 KB lewat flashdisk, dibuka di browser tanpa instalasi dan tanpa server</td><td>Sama dengan C, dan tanpa Radar atau kartu dari server</td><td><b>Tidak ada data keluar.</b> Tanpa server. Belum diuji di HP fisik</td></tr>
+  </table>
+
+  <h2>3. Pilihan yang disarankan</h2>
+  <p><b>Uji terbatas dengan C dan D untuk lingkungan dengan jaringan terbatas, B untuk khalayak umum.</b> Alasannya: C dan D tidak mengeluarkan data apa pun dan bisa dibawa ke tempat tanpa sinyal, sedangkan B memberi cakupan terluas lewat pencarian web. Ketiganya memakai kode keputusan yang sama, jadi hasil jujur "belum ada pemeriksaan" berlaku di semuanya.</p>
+
+  <div class="foot">Kode dan dokumen: github.com/Ardelyo/halio · Mode luring: docs/LURING.md · Profil penerapan dan data yang keluar: docs/PROFIL_PENERAPAN.md</div>
+</section>
+
+<section class="page">
+  <div class="kicker">Halio · ringkasan keputusan · halaman 2 dari 2</div>
+  <h1>Linimasa, bukti, dan batas</h1>
+
+  <h2>4. Linimasa</h2>
+  <table>
+    <tr><th style="width:22%">Kapan</th><th>Apa</th><th style="width:18%">Sifat</th></tr>
+    <tr><td>Sekarang</td><td>Purwarupa hidup: server publik, bot Telegram, mode luring, paket folder, korpus 10 bantahan</td><td>Fakta</td></tr>
+    <tr><td>16 Nov 2026</td><td>Penjurian online Kartika Cyber Hackathon</td><td>Jadwal lomba</td></tr>
+    <tr><td>20 Nov dan 24 Nov 2026</td><td>Pengumuman finalis dan final fisik di Jakarta</td><td>Jadwal lomba</td></tr>
+    <tr><td>Minggu 1 setelah persetujuan</td><td>Uji kecil dengan 5 sampai 10 keluarga atau personel di jaringan nyata (HP fisik, mode pesawat, jaringan satuan)</td><td>Usulan</td></tr>
+    <tr><td>Minggu 2 sampai 4</td><td>Perluas korpus bersama tim penerangan dan pemeriksa fakta; setiap entri wajib punya sumber yang dibuka dan dibaca</td><td>Usulan</td></tr>
+    <tr><td>Bulan 2 dan seterusnya</td><td>Sinkronisasi korpus berversi dan bertanda tangan; evaluasi independen; tinjauan hukum pelindungan data pribadi</td><td>Usulan</td></tr>
+  </table>
+  <p class="cap">Baris "Usulan" adalah rencana kerja yang belum disetujui dan belum dijanjikan; tanggalnya bergantung pada keputusan pimpinan.</p>
+
+  <h2>5. Bukti yang bisa diperiksa</h2>
+  <div class="cols">
+    <div class="box"><div class="num">0 dari 76</div><div class="cap">klaim benar yang salah dicap hoaks, pada set uji buatan tim sendiri (bukan akurasi dunia nyata)</div></div>
+    <div class="box"><div class="num">0 dari 197</div><div class="cap">judul TurnBackHoax berlabel benar atau klarifikasi yang salah dicap hoaks; batas atas 95%: 1,9% (eval/PUBLIC_RECHECK.md)</div></div>
+    <div class="box"><div class="num">273</div><div class="cap">tes otomatis lulus di CI, termasuk uji bahwa mesin luring sama dengan server (603 vektor, 0 perbedaan)</div></div>
+  </div>
+  <p class="cap">Uji lain: jalur tanpa AI dijalankan dengan semua akses jaringan diblokir dan tetap berjalan penuh; mode luring diuji di Chrome dengan jaringan diputus pada situs hidup.</p>
+
+  <h2>6. Batas yang harus diketahui</h2>
+  <ul>
+    <li><b>Korpus baru 10 bantahan.</b> Di luar itu, mode luring menjawab "belum ada pemeriksaan", bukan menebak. Nilai luring sepenuhnya ditentukan oleh isi dan kesegaran korpus.</li>
+    <li><b>Belum ada pengguna nyata</b> dan belum ada uji dengan pengguna lansia; evaluasi utama ditulis tim sendiri.</li>
+    <li>Telegram selalu butuh internet. Foto dan suara hanya dibaca isinya; keaslian dan deepfake <b>tidak</b> dinilai.</li>
+    <li>Data Radar pada demo adalah simulasi dan diberi label; Radar baru memantau 23 feed terbuka, belum media sosial.</li>
+    <li>Tinjauan hukum pelindungan data pribadi belum dilakukan. Pada mode cloud, teks klaim yang sudah dibersihkan dikirim ke layanan AI; foto atau suara asli ikut terkirim bila fitur media dinyalakan.</li>
+    <li>Belum diuji: HP fisik, Safari/iOS, dan profil Docker luring.</li>
+  </ul>
+  <div class="warn"><b>Bukan alat pengawasan.</b> Halio memeriksa klaim, bukan orang. Tidak ada akun atau prajurit yang diprofilkan, dan Radar tidak membaca percakapan pribadi.</div>
+
+  <h2>7. Yang diminta dari pimpinan</h2>
+  <ul>
+    <li><b>Izin uji terbatas</b> C dan D di satu satuan dengan jaringan terbatas, selama satu sampai dua minggu.</li>
+    <li><b>Penunjukan tim penerangan</b> sebagai pemilik korpus: memilih bantahan resmi dan menjaganya tetap mutakhir.</li>
+    <li><b>Kebijakan data</b> yang disetujui sebelum mode cloud dipakai untuk pesan yang berasal dari lingkungan satuan.</li>
+  </ul>
+
+  <div class="foot">Angka dihitung ulang dari repositori pada 14 Nov 2026. Halio belum disertifikasi atau disetujui pihak mana pun untuk dipakai di lingkungan TNI AD. Kontak: Ardellio S. A., github.com/Ardelyo/halio</div>
+</section>
+
+</body></html>

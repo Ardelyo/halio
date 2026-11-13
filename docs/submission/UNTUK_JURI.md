@@ -49,4 +49,5 @@ Jawaban untuk sepuluh pertanyaan juri yang diduga ada di [DRAF_DESKRIPSI.md](DRA
 | Thumbnail (1200×630) | [thumbnail_kolase.jpg](thumbnail_kolase.jpg) (cadangan: [thumbnail.jpg](thumbnail.jpg)) |
 | Screenshot alur penggunaan (5) | [01 Tempel pesan](screenshot_01.png) · [02 Jawaban bersumber](screenshot_02.png) · [03 Dengarkan dan bagikan](screenshot_03.png) · [04 Jujur saat belum tahu](screenshot_04.png) · [05 Radar](screenshot_05.png) |
 | Slide | [Halio_Deck_Juri.pdf](../presentasi/Halio_Deck_Juri.pdf): 11 slide cerita dan 10 halaman lampiran teknis (termasuk mode luring) yang dipetakan ke kriteria penilaian, plus QR code ke aplikasi, video, dan repo |
+| Ringkasan keputusan (2 halaman, untuk pimpinan satuan) | [Halio_Ringkasan_Keputusan.pdf](Halio_Ringkasan_Keputusan.pdf): masalah, opsi A sampai D, pilihan yang disarankan, linimasa, bukti, batas, dan permintaan |
 | Video demo | [youtu.be/s2EMpZI2r4g](https://youtu.be/s2EMpZI2r4g) (YouTube, publik, 5:01) |
