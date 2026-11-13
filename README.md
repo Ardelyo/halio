@@ -12,7 +12,7 @@ Berhenti sebentar. Tanya Halio. Baru bagikan.
 ![Python 3.12](https://img.shields.io/badge/python-3.12-0B4EA2)
 ![Status: purwarupa](https://img.shields.io/badge/status-purwarupa-B54708)
 
-[Tonton video demo](https://youtu.be/s2EMpZI2r4g) · [Coba sekarang](#coba-sekarang) · [Panduan untuk juri](docs/submission/UNTUK_JURI.md) · [Slide (PDF)](docs/presentasi/Halio_Presentasi_v2.pdf) · [Rilis v0.2.0](https://github.com/Ardelyo/halio/releases/tag/v0.2.0-submission) · [Semua dokumen](docs/README.md)
+[Tonton video demo](https://youtu.be/s2EMpZI2r4g) · [Coba sekarang](#coba-sekarang) · [Panduan untuk juri](docs/submission/UNTUK_JURI.md) · [Slide (PDF)](docs/presentasi/Halio_Deck_Juri.pdf) · [Rilis v0.2.0](https://github.com/Ardelyo/halio/releases/tag/v0.2.0-submission) · [Semua dokumen](docs/README.md)
 
 <img src="docs/submission/thumbnail_kolase.jpg" alt="Halio: berhenti sebentar, cek dulu. Kolase foto Nenek dan cucunya memakai Halio." width="760">
 
