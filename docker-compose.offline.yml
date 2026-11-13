@@ -1,0 +1,16 @@
+# profil luring: API Halio tanpa AI & tanpa akses internet keluar (jalur T1, lihat docs/PROFIL_PENERAPAN.md)
+# catatan jujur: compose ga bisa maksa blokir egress sendirian; buat jaringan tertutup beneran, pasang aturan
+# firewall di host (docs/DEPLOY_UPDATE.md §H2). Bot Telegram sengaja ga disertakan: dia butuh internet.
+services:
+  api:
+    build: .
+    env_file: .env.offline
+    # cuma bisa diakses dr mesin ini (atau lewat reverse proxy LAN yg kamu pasang sendiri)
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - halio-offline-data:/data
+    restart: unless-stopped
+
+volumes:
+  halio-offline-data:
