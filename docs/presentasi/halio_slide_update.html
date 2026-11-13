@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<title>Halio: slide 9 dan 10 (diperbarui 14 Nov 2026)</title>
+<!-- pengganti slide 9 & 10 deck cerita (halamannya gambar mentah, sumbernya ga ada di repo). dirender build_juri_deck.py -->
+<link rel="stylesheet" href="../../web/fonts/fonts.css">
+<style>
+@page { size: 1280px 720px; margin: 0 }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#f5f0ec}
+body{font-family:'Inter','Archivo',system-ui,sans-serif;color:#14162b;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.slide{position:relative;width:1280px;height:720px;overflow:hidden;background:#f5f0ec;padding:84px 85px 0;page-break-after:always;break-after:page}
+.slide:last-child{page-break-after:auto;break-after:auto}
+.kicker{font-weight:700;font-size:17px;letter-spacing:.2em;text-transform:uppercase;color:#0b4ea2}
+h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:62px;line-height:1.05;letter-spacing:-.015em;margin-top:20px;color:#14162b}
+.foot{position:absolute;left:85px;bottom:44px;font-size:15.5px;color:#676c7c}
+/* slide 9 */
+.cards{display:flex;gap:23px;margin-top:38px}
+.card{flex:1;background:#fff;border:1px solid #e6e1dd;border-radius:22px;padding:30px 30px 26px;height:410px}
+.card svg{width:30px;height:30px;stroke:#0b4ea2;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.card h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:34px;line-height:1.1;margin:14px 0 12px;color:#14162b}
+.card p{font-size:18.5px;line-height:1.5;color:#676c7c}
+.card p.fine{margin-top:12px;font-size:15.5px;line-height:1.45}
+/* slide 10 */
+.cols{display:flex;gap:30px;margin-top:30px}
+.col{flex:1}
+.col h3{font-weight:700;font-size:16.5px;letter-spacing:.2em;text-transform:uppercase;color:#0b4ea2;padding-bottom:12px;border-bottom:2px solid #14162b}
+.big{font-family:'Instrument Serif',Georgia,serif;font-size:62px;line-height:1;color:#0b4ea2;margin-top:18px}
+.cap{font-size:17px;line-height:1.45;color:#676c7c;margin-top:6px;padding-bottom:14px;border-bottom:2px solid #14162b}
+.cap.last{border-bottom:0}
+ul,ol{margin-top:18px;padding-left:22px;font-size:19px;line-height:1.5}
+li{margin-bottom:3px}
+</style></head><body>
+
+<section class="slide">
+  <div class="kicker">Relevansi dan potensi implementasi</div>
+  <h1>Pengamanan juga soal manusia di ujung pesan.</h1>
+  <div class="cards">
+    <div class="card">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3.2 2.6-5 5.5-5s5 1.8 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M16 13.8c2.6-.2 4.2 1.3 4.7 4"/></svg>
+      <h2>Keluarga prajurit<br>dan warga</h2>
+      <p>Hoaks rekrutmen palsu dan kabar palsu tentang prajurit menyasar keluarga lewat pesan berantai. Halio menemani mereka memeriksa dulu.</p>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 16l3-3 3 2 4-5"/></svg>
+      <h2>Sinyal dini untuk<br>unit siber</h2>
+      <p>Radar merangkum narasi yang naik dan trik yang dipakai, sebagai bahan kerja pemeriksa manusia, tanpa mengawasi orang.</p>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.2 15.7a5.6 5.6 0 0 1 7.6 0"/><circle cx="12" cy="19" r="1.1"/><path d="M4 4l16 16"/></svg>
+      <h2>Mudah diterapkan,<br>juga tanpa sinyal</h2>
+      <p>Berjalan di aplikasi pesan sehari-hari. Bisa juga luring: server satuan tanpa AI dan tanpa internet keluar, atau di browser tanpa jaringan.</p>
+      <p class="fine">Luring hanya mengenali 10 bantahan. Telegram tetap butuh internet.</p>
+    </div>
+  </div>
+  <div class="foot">Tema lomba: pemanfaatan AI untuk mendukung pengamanan IT/OT TNI AD · halio. · 9</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Bukti, batas, dan langkah berikutnya</div>
+  <h1>Jujur soal batasnya: ini masih purwarupa.</h1>
+  <div class="cols">
+    <div class="col">
+      <h3>Yang sudah diuji</h3>
+      <div class="big">0 dari 76</div>
+      <div class="cap">klaim benar yang salah dicap hoaks, pada data uji buatan tim sendiri.</div>
+      <div class="big">273</div>
+      <div class="cap last">tes otomatis lulus, dijalankan CI pada setiap perubahan, termasuk uji kesamaan mesin luring dengan server.</div>
+    </div>
+    <div class="col">
+      <h3>Batas saat ini</h3>
+      <ul>
+        <li>Belum ada pengguna nyata.</li>
+        <li>Korpus bantahan kurasi baru 10 entri.</li>
+        <li>Membaca isi foto, tidak menilai keasliannya.</li>
+        <li>Data Radar masih simulasi.</li>
+        <li>Mode luring hanya mengenali isi korpus; belum diuji di HP fisik.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Langkah berikutnya</h3>
+      <ol>
+        <li>Perbesar basis data bantahan.</li>
+        <li>Uji kecil bersama keluarga.</li>
+        <li>Evaluasi independen.</li>
+        <li>Sinkronisasi korpus luring dan uji di HP fisik.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="foot">Sampel publik TurnBackHoax: 0 dari 236 judul benar atau klarifikasi dicap hoaks (korpus 10 entri; 0 dari 1.043 pada korpus 7) · halio. · 10</div>
+</section>
+
+</body></html>

@@ -24,6 +24,7 @@ HERE = Path(__file__).parent
 STORY = HERE / "Halio_Deck_Cerita.pdf"
 V2 = HERE / "halio_deck_v2.html"
 APPENDIX_HTML = HERE / "halio_lampiran.html"
+UPDATE_HTML = HERE / "halio_slide_update.html"  # pengganti slide 9 & 10 (halaman asli gambar mentah, sumbernya ga ada)
 OUT = HERE / "Halio_Deck_Juri.pdf"
 EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
@@ -110,13 +111,20 @@ def main() -> None:
         subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=6000",
                         f"--user-data-dir={tmp}\\edge", f"--print-to-pdf={pdf}", APPENDIX_HTML.resolve().as_uri()],
                        check=True, capture_output=True)
-        story, appx = PdfReader(STORY), PdfReader(pdf)
+        # slide 9 (relevansi + luring) & 10 (bukti, batas) dirender ulang dr HTML biar angkanya mutakhir
+        upd_pdf = Path(tmp) / "update.pdf"
+        subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=6000",
+                        f"--user-data-dir={tmp}\\edge2", f"--print-to-pdf={upd_pdf}", UPDATE_HTML.resolve().as_uri()],
+                       check=True, capture_output=True)
+        story, appx, upd = PdfReader(STORY), PdfReader(pdf), PdfReader(upd_pdf)
+        assert len(upd.pages) == 2, len(upd.pages)
         assert len(story.pages) == 11, len(story.pages)
         w = float(story.pages[0].mediabox.width)
         h = float(story.pages[0].mediabox.height)
         out = PdfWriter()
-        for p in story.pages[:10]:
-            out.add_page(p)
+        replaced = {8: upd.pages[0], 9: upd.pages[1]}  # indeks 0: halaman 9 dan 10
+        for i, p in enumerate(story.pages[:10]):
+            out.add_page(replaced.get(i, p))
         for src in appx.pages:
             p = out.add_page(src)  # wajib transform salinan milik writer (pypdf 7 nolak ubah halaman reader langsung)
             k = w / float(p.mediabox.width)

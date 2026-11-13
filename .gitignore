@@ -18,3 +18,4 @@ Thumbs.db
 # arsip judul cek fakta hasil crawl_arsip.py & tangkapan layar presentasi ga ikut masuk repo
 data/arsip.jsonl
 docs/presentasi/shots/
+dist/

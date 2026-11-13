@@ -102,7 +102,7 @@ async function check(text) {
         // cuma gagal jaringan (bukan jawaban error dr server) yg dialihin ke mesin luring di perangkat
         if (error.http || !localReady()) throw error;
         result = local();
-        toast("Tidak ada koneksi. Halio menjawab di perangkat ini, hanya dari korpus bantahan.");
+        toast("Server tidak terjangkau. Halio menjawab di perangkat ini, hanya dari korpus bantahan.");
       }
     }
     render(result, text);
@@ -163,6 +163,13 @@ function sourceList(match) {
     </a></li>`).join("")}</ul>`;
 }
 
+// skor pencocokan itu campuran TF-IDF kata & trigram huruf, bukan probabilitas, jadi tampil sbg kata, bukan persen
+function simBand(score) {
+  if (score >= 0.6) return "kata-katanya sangat mirip";
+  if (score >= 0.4) return "kata-katanya mirip";
+  return "kata-katanya agak mirip";
+}
+
 // susun rincian langkah yg beneran dijalanin mesin bukti biar transparan ke pengguna
 function processPanel(result) {
   const rows = [];
@@ -170,7 +177,7 @@ function processPanel(result) {
   const used = (result.method || "").split("+");
   if (result.media) rows.push(["ok", `Membaca ${result.media.kind === "ucapan" ? "suara" : "foto"} dengan Gemini`, "Hanya isi tulisan/ucapan yang dibaca. Keaslian foto tidak dinilai."]);
   rows.push(["ok", "Mengenali klaim yang bisa dicek", `“${result.claim}”`]);
-  rows.push([m ? "ok" : "none", "Mencocokkan dengan bantahan dan sumber yang sudah terverifikasi", m ? `Cocok dengan: ${m.klaim_dibantah} (kemiripan ${Math.round((m.score || 0) * 100)}%)` : "Tidak ada yang cukup mirip. Halio tidak menebak."]);
+  rows.push([m ? "ok" : "none", "Mencocokkan dengan bantahan dan sumber yang sudah terverifikasi", m ? `Cocok dengan: ${m.klaim_dibantah} (${simBand(m.score || 0)}, bukan tingkat keyakinan)` : "Tidak ada yang cukup mirip. Halio tidak menebak."]);
   const ev = result.evidence;
   if (used.includes("bukti_v2") && ev) {
     const why = [...new Set((ev.ditolak || []).map((r) => REJECT_WHY[r.alasan] || "halaman tidak bisa dipakai"))].slice(0, 2);
@@ -215,6 +222,8 @@ function startStages(button) {
 }
 function stopStages() { clearInterval(stageTimer); }
 
+const isExample = (text) => EXAMPLES.some(([, t]) => t.trim() === String(text || "").trim());
+
 function render(result, original) {
   if (cardPreviewUrl) {
     URL.revokeObjectURL(cardPreviewUrl);
@@ -245,6 +254,7 @@ function render(result, original) {
 
   $("#result").innerHTML = `
     <article class="verdict-card ${esc(result.status)}">
+      ${isExample(original) ? '<p class="mode-banner">ℹ️ <b>Ini pesan contoh bawaan.</b> Isinya memang sudah ada di korpus bantahan, jadi pasti cocok. Tempel pesan lain untuk menguji Halio.</p>' : ""}
       ${result.on_device ? `<p class="mode-banner">📴 <b>Mode luring.</b> Dicocokkan di perangkat ini dengan ${window.HalioLocal.corpusSize} bantahan yang sudah dikurasi. Tidak ada AI, web, atau server yang dipakai. Kabar di luar daftar itu tidak akan dikenali, dan Halio tidak menebaknya.</p>` : ""}
       ${result.mode === "tanpa_ai" ? '<p class="mode-banner">🔌 <b>Mode tanpa AI.</b> Jawaban ini hanya dari korpus dan arsip bantahan; tidak ada model yang dipanggil.</p>' : ""}
       <div class="result-kicker"><span>Hasil pemeriksaan</span><span>${result.on_device ? "Luring · di perangkat" : window.HALIO_STATIC_DEMO ? "Simulasi lokal" : "Halio"}</span></div>
