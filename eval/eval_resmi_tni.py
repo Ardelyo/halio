@@ -27,7 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-from halio import pipeline  # noqa: E402
+from halio import claims, pipeline  # noqa: E402
+from halio.retrieval import get_index  # noqa: E402
 from halio.config import Settings  # noqa: E402
 
 URLS = ROOT / "eval" / "resmi_tni_urls.json"
@@ -162,9 +163,14 @@ def main() -> int:
             print(f"[{it['kategori']}] {title[:110]}\n    {lead[:230]}\n")
             continue
         r = pipeline.check(text, cfg)
-        rows.append({"kategori": it["kategori"], "url": it["url"], "title": title, "chars": len(text), "status": r["status"],
+        # diagnostik (ga mengubah hasil): skor leksikal tertinggi thd korpus, utk seluruh pesan dan tiap bagian klaimnya
+        idx = get_index(cfg.corpus_path)
+        parts = [claims.extract(text).text] + claims.split_units(text)
+        tops = [(m.score, m.debunk.id) for part in parts for m in pipeline._search_sentences(idx, part)[:1]]
+        top_score, top_id = max(tops, default=(0.0, None))
+        rows.append({"top_score": top_score, "top_id": top_id, "sub": [c["reason"] for c in (r.get("claims") or [])], **{"kategori": it["kategori"], "url": it["url"], "title": title, "chars": len(text), "status": r["status"],
                      "reason": r["reason"], "score": (r["match"] or {}).get("score"), "debunk": (r["match"] or {}).get("debunk_id"),
-                     "kind": r["kind"]})
+                     "kind": r["kind"]}})
         time.sleep(0.8)
     if only_extract:
         print(f"diunduh {len(items) - len(failed)} dari {len(items)}; gagal: {failed}")
@@ -174,6 +180,7 @@ def main() -> int:
     dirty = bool(git("status", "--porcelain", "--", "backend", "data", "eval/eval_resmi_tni.py", "eval/resmi_tni_urls.json"))
     n = len(rows)
     false_acc = [r for r in rows if r["status"] == "terbukti_salah"]
+    near = [r for r in rows if r["top_score"] >= cfg.match_threshold and r["status"] != "terbukti_salah"]
     by_status = collections.Counter(r["status"] for r in rows)
     lines = [
         "# Uji tuduhan palsu pada rilis resmi TNI dan Kemhan",
@@ -196,11 +203,19 @@ def main() -> int:
         f"| Tidak yakin | {by_status['tidak_yakin']} |",
         f"| Belum ada pemeriksaan | {by_status['belum_ada_pemeriksaan']} |",
         f"| Alasan \"tampak meluruskan\" (penjaga klarifikasi bekerja) | {sum(1 for r in rows if r['reason'] == 'tampak_meluruskan')} |",
+        f"| **Skor leksikal di atas ambang vonis ({cfg.match_threshold}) tetapi tidak dicap salah** (ditahan penjaga inti klaim) | **{len(near)} dari {n}** |",
         "",
     ]
     if false_acc:
         lines += ["## Tuduhan palsu (dicatat terbuka)", "", "| Kategori | Bantahan yang cocok | Skor | Judul |", "|---|---|---|---|"]
         lines += [f"| {r['kategori']} | {r['debunk']} | {r['score']} | {r['title'][:100]} ([tautan]({r['url']})) |" for r in false_acc]
+        lines.append("")
+    if near:
+        lines += ["## Hampir salah tuduh (dicatat terbuka)", "",
+                  "Skor kemiripan kata terhadap satu bantahan melewati ambang vonis, tetapi Halio tidak memvonis karena inti klaim palsu (mis. permintaan bayar) tidak ada pada rilis. "
+                  "Artinya perlindungan pada jenis teks ini bergantung pada penjaga itu, bukan pada skor.", "",
+                  "| Skor | Bantahan terdekat | Status akhir | Judul |", "|---|---|---|---|"]
+        lines += [f"| {r['top_score']} | {r['top_id']} | {r['status']} ({r['reason']}) | {r['title'][:90]} |" for r in near]
         lines.append("")
     lines += ["## Per rilis", "", "| Kategori | Status | Alasan | Skor | Judul |", "|---|---|---|---|---|"]
     lines += [f"| {r['kategori']} | {r['status']} | {r['reason']} | {r['score'] if r['score'] is not None else '-'} | [{r['title'][:80]}]({r['url']}) |" for r in rows]
