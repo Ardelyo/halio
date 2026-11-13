@@ -5,7 +5,7 @@
     msedge --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=Halio_Presentasi_v2.pdf file:///.../halio_deck_v2.html
 
 Every number on the new slides comes from a measured result in this repository (eval/AGENT_RESULTS.md, the server logs and the
-test suite) as of 8 Nov 2026. Nothing here is a target presented as a result.
+test suite) as of 8 Nov 2026, with the public-sample result (eval/PUBLIC_RESULTS.md) added on 13 Nov. Nothing here is a target presented as a result.
 """
 
 import re
@@ -28,9 +28,9 @@ FOOT = '<div class="foot"><span>Halio · Saring dulu, baru sharing</span><span><
 # ---- kept slides, lightly updated -----------------------------------------------------------------------------
 cover = S[1].replace(
     '<p class="lede" style="max-width:1000px">Teman cek pesan untuk keluarga Indonesia.</p>',
-    '<p class="lede" style="max-width:1200px">Satu mesin bukti, <b style="color:#fff">dua pintu</b>: keluarga yang ingin jawaban sederhana, '
+    '<p class="lede" style="max-width:1060px">Satu mesin bukti, <b style="color:#fff">dua pintu</b>: keluarga yang ingin jawaban sederhana, '
     'dan analis yang butuh investigasi.</p>',
-).replace("Prototipe · bukan produk jadi", "Prototipe hidup · diperbarui 8 Nov 2026")
+).replace("Prototipe · bukan produk jadi", "Ardellio S. A. · Prototipe hidup · diperbarui 13 Nov 2026")
 
 cara_pakai = S[5].replace(
     '<p>Kartu untuk grup keluarga, atau pesan suara.</p>', '<p>Kartu untuk grup keluarga, atau pesan suara dengan suara manusia.</p>'
@@ -199,7 +199,7 @@ hasil = f'''<section class="slide">
     <div class="card grow" style="padding:16px 26px;background:var(--blue);border-color:transparent"><p style="font-size:22px;line-height:1.3;color:#fff"><b style="color:var(--sun)">Coba sendiri:</b> halaman <b style="color:#fff">/uji</b> menjalankan tiga uji hidup: halaman yang menyuruh AI berbohong, alamat palsu mirip situs pemerintah, dan kalimat karangan AI.</p></div>
     <div class="card grow" style="padding:16px 26px;background:var(--blue);border-color:transparent"><p style="font-size:22px;line-height:1.3;color:#fff"><b style="color:var(--sun)">Lihat sendiri:</b> klik nomor sumber di laporan, halaman asli terbuka dengan <b style="color:#fff">kalimat yang disalin disorot</b>. Dan satu saklar mematikan AI untuk membuktikan Halio tetap menjawab.</p></div>
   </div>
-  <p class="note" style="margin-top:10px;font-size:18px;line-height:1.3">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). 0 / 66 dari uji tim terdahulu pada data buatan sendiri. Bukan evaluasi independen.</p>
+  <p class="note" style="margin-top:10px;font-size:18px;line-height:1.3">Sumber: eval/AGENT_RESULTS.md (18 klaim, 7 Nov 2026) dan evaluasi lanjutan (7 hoaks + 4 berita). <b>Sampel publik:</b> 0 / 1.043 judul TurnBackHoax berlabel benar atau klarifikasi dicap hoaks (eval/PUBLIC_RESULTS.md). Set uji tim: 0 / 70. Bukan evaluasi independen.</p>
   {FOOT}
 </section>'''
 
@@ -229,7 +229,14 @@ langkah = f'''<section class="slide">
   {FOOT}
 </section>'''
 
-order = [cover, S[2], S[3], S[4], apa_itu, cara_pakai, S[6], S[7], swarm, laporan, nenek, cara_kerja, S[9], S[10], radar, etika, hasil, batas, langkah, S[14]]
+penutup = S[14].replace(
+    '<p class="lede" style="margin-top:56px;max-width:none;font-size:42px">Coba di Telegram: cari <b style="color:#fff">Halio</b>. &nbsp;',
+    '<p class="lede" style="margin-top:56px;max-width:none;font-size:40px;line-height:1.5">Coba: <b style="color:#fff">halio.ardelyo.com</b> · Telegram <b style="color:#fff">@halioid_bot</b><br>'
+    'Video demo: <b style="color:#fff">youtu.be/s2EMpZI2r4g</b> · Kode: <b style="color:#fff">github.com/Ardelyo/halio</b><br>',
+).replace('<div class="foot"><span>Terima kasih</span>', '<div class="foot"><span>Terima kasih · Ardellio S. A. · Karya peserta Kartika Cyber Hackathon 2026</span>')
+assert penutup != S[14], "penutup tidak berubah"
+
+order = [cover, S[2], S[3], S[4], apa_itu, cara_pakai, S[6], S[7], swarm, laporan, nenek, cara_kerja, S[9], S[10], radar, etika, hasil, batas, langkah, penutup]
 html = []
 for idx, sl in enumerate(order, 1):
     html.append(sl)

@@ -10,12 +10,12 @@ Lisensi karya Halio sendiri: [Apache 2.0](../LICENSE). HKI tetap milik tim (Rule
 Repo dibuat pada 27 Okt 2026 (commit pertama), di dalam periode lomba, berangkat dari laporan riset tim sendiri. Tidak ada kode dari proyek sebelumnya yang dipakai ulang.
 
 ## Deklarasi pengembangan dengan bantuan AI
-Sebagian besar kode, tes, dan dokumen ditulis bersama agen coding AI (Claude, melalui Claude Code). Angka dari riwayat git `main` per `78b865c` (48 commit non-merge):
+Sebagian besar kode, tes, dan dokumen ditulis bersama agen coding AI (Claude, melalui Claude Code). Angka dari riwayat git `main` per `2561b37` (81 commit non-merge, dihitung 13 Nov 2026):
 
 | | Jumlah |
 |---|---|
 | Commit berpenulis "Claude" | 19 |
-| Commit berpenulis Ardelyo yang memuat trailer `Co-Authored-By: Claude` | 22 |
+| Commit berpenulis Ardelyo yang memuat trailer `Co-Authored-By: Claude` | 55 |
 | Commit berpenulis Ardelyo tanpa trailer AI | 7 |
 
 Pembagian peran:
