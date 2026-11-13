@@ -48,7 +48,7 @@ def appendix_html() -> str:
     head, tail = html[:first], html[last:]
     slides = re.findall(r'<section class="slide.*?</section>', html, flags=re.S)
     assert len(slides) == 20, len(slides)
-    n = len(PICK)
+    n = len(PICK) + 1  # + halaman mode luring (L10) yg dirakit di bawah
     foot = '<div class="foot"><span>Halio · Lampiran teknis untuk Dewan Juri</span><span><b>L{k}</b> / L{n}</span></div>'
 
     pages = []
@@ -64,10 +64,23 @@ def appendix_html() -> str:
   <div class="row" style="margin-top:52px;gap:28px;align-items:stretch;flex:1;margin-bottom:70px">
     <div class="card grow"><div class="kicker" style="font-size:22px;color:var(--sun)">Inovasi teknis · 25%</div><h3 style="color:#fff;margin-top:10px">L1 – L3</h3><p>Arsitektur dua pintu, cara AI dikekang (kode yang memutuskan), dan cara sumber dihitung adil.</p></div>
     <div class="card grow"><div class="kicker" style="font-size:22px;color:var(--sun)">Relevansi TNI AD · 25%</div><h3 style="color:#fff;margin-top:10px">L4 – L6</h3><p>Halio Telusur untuk analis, laporan yang bisa diaudit, dan brief harian narasi TNI AD.</p></div>
-    <div class="card grow"><div class="kicker" style="font-size:22px;color:var(--sun)">Kelayakan · 15%</div><h3 style="color:#fff;margin-top:10px">L7 – L8</h3><p>Privasi sejak awal dan batas yang dijaga: narasi dan klaim, bukan orang.</p></div>
+    <div class="card grow"><div class="kicker" style="font-size:22px;color:var(--sun)">Kelayakan · 15%</div><h3 style="color:#fff;margin-top:10px">L7, L8, L10</h3><p>Privasi sejak awal, batas yang dijaga, dan mode luring: tetap menjawab tanpa jaringan.</p></div>
     <div class="card grow"><div class="kicker" style="font-size:22px;color:var(--sun)">Fungsionalitas · 25%</div><h3 style="color:#fff;margin-top:10px">L9</h3><p>Hasil uji di server publik dan pada sampel publik TurnBackHoax, apa adanya.</p></div>
   </div>
   <div class="foot"><span>Semua angka bisa diperiksa di github.com/Ardelyo/halio</span><span>Lampiran</span></div>
+</section>'''
+
+    k_l = len(PICK) + 1
+    luring = f'''<section class="slide">
+  <div class="kicker">Lampiran L{k_l} · Mode luring</div>
+  <h2>Tanpa sinyal, <em>Halio tetap menjawab.</em></h2>
+  <div class="row" style="margin-top:44px;gap:28px;align-items:stretch;flex:1;margin-bottom:60px">
+    <div class="card grow"><h3>Di perangkat</h3><p style="font-size:30px;line-height:1.4">Mesin pencocokan yang sama berjalan di browser dan PWA. Pesan tidak keluar dari perangkat; tanpa AI, tanpa web, tanpa server.</p></div>
+    <div class="card grow"><h3>Identik dengan server</h3><p style="font-size:30px;line-height:1.4">603 vektor uji dan 3.900 judul nyata: <b>0 perbedaan</b> dengan Python. Diuji di Chrome dengan jaringan diputus.</p></div>
+    <div class="card grow"><h3>Batasnya jujur</h3><p style="font-size:30px;line-height:1.4">Hanya mengenali 10 bantahan di korpus; di luar itu "belum ada pemeriksaan", bukan tebakan. Telegram tetap butuh internet.</p></div>
+  </div>
+  <p class="note" style="font-size:24px">Server T1 tanpa AI: median 0,5 ms per cek · jalur T1 diuji tanpa satu pun akses jaringan · rincian di <b>docs/LURING.md</b></p>
+  {foot.format(k=k_l, n=n)}
 </section>'''
 
     links = [("Cek pesan sekarang", "halio.ardelyo.com/cek.html", "https://halio.ardelyo.com/cek.html"),
@@ -86,7 +99,7 @@ def appendix_html() -> str:
   <div class="foot"><span>Halio · Saring dulu, baru sharing</span><span>Ardellio S. A.</span></div>
 </section>'''
 
-    return head + "\n\n" + "\n\n".join([divider] + pages + [try_it]) + "\n" + tail
+    return head + "\n\n" + "\n\n".join([divider] + pages + [luring, try_it]) + "\n" + tail
 
 
 def main() -> None:
