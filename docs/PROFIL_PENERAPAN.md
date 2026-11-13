@@ -17,12 +17,16 @@ Konfigurasi: `HALIO_LLM=0` (bawaan), `HALIO_MEDIA=0`, tanpa `GOOGLE_FACTCHECK_AP
 - Ekstensi Chrome: lencana dan penyaringan gambar sepenuhnya di perangkat.
 
 **Yang tidak bisa:**
-- Memeriksa kabar yang belum ada di korpus. Hasilnya selalu "belum ada pemeriksaan". Cakupan sama persis dengan isi korpus (7 bantahan pada prototipe ini), jadi korpus perlu diisi tim penerangan atau pemeriksa fakta.
+- Memeriksa kabar yang belum ada di korpus. Hasilnya selalu "belum ada pemeriksaan". Cakupan sama persis dengan isi korpus (10 bantahan pada prototipe ini), jadi korpus perlu diisi tim penerangan atau pemeriksa fakta.
 - Halio Telusur dan brief harian (butuh Gemini).
 - Membaca foto dan rekaman suara.
 - Pencarian gambar terbalik.
 
 Sensor feed (`HALIO_SENSOR=1`) dan cek tautan (`HALIO_LINK_CHECK`) tidak memakai AI, tetapi butuh akses internet keluar ke situs publik. Di jaringan tertutup, matikan keduanya.
+
+## T0: luring di perangkat
+
+Mesin T1 yang sama berjalan di browser (`web/engine/`), jadi pesan dicocokkan di perangkat tanpa server dan tanpa jaringan. **Data yang keluar: nol.** Hanya mengenali isi korpus, tanpa cek tautan, bukti web, Telusur, foto, atau suara, dan hasilnya tidak tercatat di server. Dijaga identik dengan T1 server lewat uji paritas. Rincian: [LURING.md](LURING.md).
 
 ## T2: cloud opsional (Google Cloud, Vertex AI)
 

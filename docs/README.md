@@ -9,6 +9,7 @@ Semua dokumentasi ada di folder ini. Pilih jalur sesuai kebutuhanmu, atau cari l
 | **Juri** | 1. [Halio dalam lima menit](submission/UNTUK_JURI.md) · 2. [Arsitektur](ARCHITECTURE.md) · 3. [Bukti uji demo](BUKTI_UJI_DEMO.md) · 4. [Jawaban untuk pertanyaan juri](submission/DRAF_DESKRIPSI.md) |
 | **Pengembang** | 1. [Arsitektur](ARCHITECTURE.md) · 2. [Halio Telusur](ARCHITECTURE_AGENT.md) · 3. [Sensor](ARCHITECTURE_SENSOR.md) · 4. [Privasi](PRIVACY.md) · 5. [CONTRIBUTING](../CONTRIBUTING.md) |
 | **Analis atau satuan pengguna** | 1. [Profil penerapan](PROFIL_PENERAPAN.md) · 2. [Evaluasi Radar untuk TNI AD](EVALUASI_RADAR_TNI.md) · 3. [Kesiapan peluncuran](LAUNCH_READINESS.md) |
+| [LURING.md](LURING.md) | Mode luring: server tanpa AI, mesin di browser, bukti paritas, dan batasnya | Rujukan |
 
 ## Jenis dokumen
 

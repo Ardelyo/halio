@@ -78,17 +78,22 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 
 | Angka | Arti | Sumber |
 |---|---|---|
-| **266** | Tes otomatis lulus, dijalankan CI pada setiap perubahan | [CI](.github/workflows/ci.yml) |
-| **0 dari 70** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim) | [eval/RESULTS.md](eval/RESULTS.md) |
+| **273** | Tes otomatis lulus, dijalankan CI pada setiap perubahan | [CI](.github/workflows/ci.yml) |
+| **0 dari 76** | Pernyataan benar atau belum dikenal yang salah dicap "terbukti salah" (dua set uji tulisan tim) | [eval/RESULTS.md](eval/RESULTS.md) |
 | **0 dari 1.043** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", pada sampel publik yang tidak dipakai menyetel Halio (satu kesalahan ditemukan lalu diperbaiki, lihat catatan di laporan) | [eval/PUBLIC_RESULTS.md](eval/PUBLIC_RESULTS.md) |
+| **0 dari 236** | Judul TurnBackHoax berlabel BENAR atau KLARIFIKASI yang salah dicap "terbukti salah", dicek ulang pada sampel 3.700 judul setelah korpus tumbuh jadi 10 entri (13 Nov) | [Verifikasi korpus](docs/VERIFIKASI_KORPUS.md) |
 | **88%** | Recall parafrase hoaks pada set holdout | [eval/RESULTS.md](eval/RESULTS.md) |
-| **0,9 ms** | Median pencocokan lokal tanpa AI | [Arsitektur](docs/ARCHITECTURE.md) |
+| **0,5 ms** | Median pencocokan lokal tanpa AI (13 Nov, 300 pemanggilan, korpus 10 entri, jaringan diblokir oleh tes) | [Arsitektur](docs/ARCHITECTURE.md) |
 | **23** | Feed terbuka yang dipantau sensor (opsional) | [Arsitektur sensor](docs/ARCHITECTURE_SENSOR.md) |
+
+## Bisa jalan luring
+
+Jalur pencocokan (T1) tidak butuh AI maupun internet, jadi Halio bisa dipakai di satuan dengan jaringan terbatas atau tertutup, dan tidak ada data yang keluar dari perangkat. Ada tiga bentuk: server on-premise tanpa AI, mesin yang sama di browser/PWA (dijaga identik dengan Python lewat uji paritas pada 603 vektor, dan 3.900 judul nyata), serta ekstensi Chrome yang sebagian sudah di perangkat. Batasnya ditulis terus terang: kabar di luar korpus tidak dikenali, dan Telegram butuh internet. Rincian dan buktinya di [Mode luring](docs/LURING.md).
 
 ## Batas yang kami akui
 
 - Ini purwarupa. Set uji ditulis tim sendiri, jadi angkanya **bukan** akurasi dunia nyata.
-- Korpus bantahan kurasi baru **7 entri**. Di luar korpus, Halio memakai pencarian bukti atau berkata belum tahu.
+- Korpus bantahan kurasi baru **10 entri**. Di luar korpus, Halio memakai pencarian bukti atau berkata belum tahu.
 - Belum ada uji dengan pengguna lansia sungguhan; lembar ujinya sudah siap.
 - Data Radar pada demo adalah **simulasi** dan diberi label.
 - Halio membaca isi teks, foto, dan suara, tetapi **tidak menilai keaslian** foto atau video, dan tidak mendeteksi deepfake.
@@ -101,9 +106,9 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 | Server publik (API, kartu, suara, dan Telusur berjalan sungguhan) | [Cek pesan](https://halio.ardelyo.com/cek.html) · [Uji keamanan](https://halio.ardelyo.com/uji.html) |
 | Bot Telegram | [@halioid_bot](https://t.me/halioid_bot) (aktif selama proses bot dan API berjalan) |
 | Landing page | [ardelyo.github.io/halio](https://ardelyo.github.io/halio/) |
-| Demo di GitHub Pages (simulasi, tanpa server) | [Cek pesan](https://ardelyo.github.io/halio/cek.html) · [Radar](https://ardelyo.github.io/halio/radar.html) · [Cakupan sensor](https://ardelyo.github.io/halio/coverage.html) · [Feed untuk ekstensi](https://ardelyo.github.io/halio/demo-feed.html) |
+| Demo di GitHub Pages (Cek pesan: mesin Halio sungguhan di browser, tanpa server; Radar dan Cakupan: simulasi) | [Cek pesan](https://ardelyo.github.io/halio/cek.html) · [Radar](https://ardelyo.github.io/halio/radar.html) · [Cakupan sensor](https://ardelyo.github.io/halio/coverage.html) · [Feed untuk ekstensi](https://ardelyo.github.io/halio/demo-feed.html) |
 
-GitHub Pages menjalankan skenario lokal berlabel simulasi dan tidak mengirim pesan ke server. Situs dideploy otomatis dari `web/` oleh `.github/workflows/pages.yml`.
+GitHub Pages menjalankan mesin pencocokan Halio di browser (mode luring, hanya mengenali isi korpus) dan tidak mengirim pesan ke server. Radar dan Cakupan di sana tetap data simulasi berlabel. Situs dideploy otomatis dari `web/` oleh `.github/workflows/pages.yml`.
 
 ## Jalankan sendiri
 
@@ -173,7 +178,7 @@ Halio dapat memantau **23 feed terbuka** (berita, cek fakta, sumber resmi) hampi
 ```
 backend/halio/       pipeline cek (klaim, PII, retrieval, mesin bukti, vonis), kartu, suara, Radar, kanal
 backend/halio/ingest/  sensor: polling feed terbuka dan laporan cakupan
-backend/tests/       266 tes otomatis
+backend/tests/       273 tes otomatis
 data/debunks.json    korpus bantahan bersumber
 eval/                set uji dan evaluasi (tingkat salah tuduh hoaks)
 web/                 PWA cek pesan, Radar, laporan analis, feed simulasi

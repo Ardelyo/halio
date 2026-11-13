@@ -56,7 +56,8 @@ Model AI juga dipakai **di dalam produk** (bagian "Model & layanan" di bawah). I
 ## Data
 | Data | Isi | Catatan |
 |---|---|---|
-| Korpus bantahan `data/debunks.json` (7 entri) | Ringkasan kata sendiri + tautan sumber | Sumber: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (dengan Mafindo), MerahPutih, RRI, Kumparan. Tidak ada teks artikel yang disalin. Status tiap tautan: [VERIFIKASI_KORPUS.md](VERIFIKASI_KORPUS.md) |
+| Korpus bantahan `data/debunks.json` (10 entri) | Ringkasan kata sendiri + tautan sumber | Sumber: Katadata, Bisnis.com, Investortrust, BMKG, Kompas TV, Republika, Liputan6 Cek Fakta (dengan Mafindo), MerahPutih, RRI, Kumparan, RRI Cek Fakta, detikInet, detikFinance, Okezone, DDTC News, CNN Indonesia, dan situs resmi BCA (tiga entri ditambah 13 Nov). Tidak ada teks artikel yang disalin. Status tiap tautan: [VERIFIKASI_KORPUS.md](VERIFIKASI_KORPUS.md) |
+| Mesin luring `web/engine/halio-local.js` | Kode sendiri, hasil penulisan ulang jalur T1 backend; tanpa pustaka baru | Karya tim; data dari `data/debunks.json` |
 | Arsip judul cek fakta `data/arsip.jsonl` | Judul, tautan, dan metadata daftar dari turnbackhoax.id (Mafindo) | Dikumpulkan oleh `scripts/crawl_arsip.py`: `robots.txt` mengizinkan (diperiksa 7 Nov 2026), jeda 2 detik per permintaan, User-Agent beridentitas, tanpa teks artikel. Ketentuan penggunaan Mafindo **tidak ditemukan**, jadi berkas ini **tidak di-commit** (`.gitignore`). Untuk pemakaian di luar demo perlu kemitraan data dengan Mafindo |
 
 ## Aset video dan materi pengumpulan

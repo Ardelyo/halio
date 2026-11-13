@@ -209,7 +209,7 @@ batas = f'''<section class="slide blue">
   <h2>Yang <em>belum</em> bisa kami janjikan.</h2>
   <ul class="clean" style="margin-top:60px">
     <li>Masih <b>prototipe</b>. Belum ada pengguna nyata; pilot keluarga akan dicatat apa adanya.</li>
-    <li>Korpus bantahan kurasi <b>baru 7 entri</b>; arsip judul cek fakta ±6.000 dan bertambah.</li>
+    <li>Korpus bantahan kurasi <b>baru 10 entri</b>; arsip judul cek fakta ±6.000 dan bertambah.</li>
     <li>Sekitar <b>sepertiga halaman</b> menolak dibaca server; sebagian dibaca dari salinan arsip dan diberi label.</li>
     <li>“Kemunculan paling awal” berarti <b>yang kami temukan</b> di web terbuka, bukan asal pesan WhatsApp.</li>
     <li>Halio membaca <b>isi</b> foto; tidak menilai asli atau tidaknya. <b>Video</b> belum didukung.</li>

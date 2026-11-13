@@ -54,3 +54,9 @@
 {"text": "Semangat ya buat yang mau tes CPNS besok!", "expect": "opinion", "note": "greeting"}
 {"text": "Wah lucu banget kucingnya", "expect": "opinion", "note": "chit-chat"}
 {"text": "Mohon doanya untuk ibu saya yang sedang dirawat", "expect": "opinion", "note": "greeting"}
+{"text": "Polisi mengirim surat konfirmasi tilang ETLE lewat PT Pos Indonesia ke alamat pemilik kendaraan", "expect": "not_debunked", "note": "true near-topic (corpus entry apk-surat-tilang-whatsapp)"}
+{"text": "Cek status pelanggaran lalu lintas lewat situs resmi ETLE Korlantas Polri, jangan klik tautan dari nomor tidak dikenal", "expect": "not_debunked", "note": "true near-topic (corpus entry apk-surat-tilang-whatsapp)"}
+{"text": "Pendaftaran CPNS dilakukan lewat portal resmi SSCASN BKN dan tidak dipungut biaya", "expect": "not_debunked", "note": "true near-topic (corpus entry calo-cpns-bayar-lulus)"}
+{"text": "Pengumuman kelulusan seleksi PPPK akan diumumkan lewat akun SSCASN peserta masing-masing", "expect": "not_debunked", "note": "true near-topic (corpus entry calo-cpns-bayar-lulus)"}
+{"text": "Bank tidak pernah meminta kode OTP lewat telepon, jangan berikan OTP kepada siapa pun termasuk yang mengaku petugas bank", "expect": "not_debunked", "note": "true near-topic (corpus entry otp-petugas-bank)"}
+{"text": "Kode OTP Anda 482913, berlaku 5 menit. Jangan berikan kode ini kepada siapa pun termasuk pihak bank.", "expect": "not_debunked", "note": "true near-topic (real OTP notice, corpus entry otp-petugas-bank)"}

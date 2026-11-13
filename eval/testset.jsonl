@@ -54,3 +54,9 @@
 {"text": "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan", "expect": "not_debunked", "note": "correction verb: menepis"}
 {"text": "Kemenkes meluruskan isu air kelapa campur garam bisa menyembuhkan covid", "expect": "not_debunked", "note": "correction verb: meluruskan"}
 {"text": "Polres menyangkal kabar penculikan anak dengan mobil putih di Bekasi", "expect": "not_debunked", "note": "correction verb: menyangkal"}
+{"text": "Pak, ada surat tilang digital dari polisi di WA, katanya harus install file apk dulu buat lihat dendanya", "expect": "terbukti_salah", "debunk": "apk-surat-tilang-whatsapp", "note": "paraphrase"}
+{"text": "KAMU KENA E-TILANG! Unduh aplikasi APK ini di whatsapp untuk cek surat tilang dan kode bayar", "expect": "terbukti_salah", "debunk": "apk-surat-tilang-whatsapp", "note": "paraphrase"}
+{"text": "Bisa bantu anak lulus CPNS tahun ini lewat orang dalam, bayar dulu 80 juta dijamin lolos", "expect": "terbukti_salah", "debunk": "calo-cpns-bayar-lulus", "note": "paraphrase"}
+{"text": "Ada jalur khusus PPPK, transfer uang pelicin ke kenalan di instansi pasti diangkat jadi ASN", "expect": "terbukti_salah", "debunk": "calo-cpns-bayar-lulus", "note": "paraphrase"}
+{"text": "Kami dari bank, ada transaksi mencurigakan di rekening Anda. Sebutkan kode OTP yang masuk ke HP untuk membatalkan", "expect": "terbukti_salah", "debunk": "otp-petugas-bank", "note": "paraphrase"}
+{"text": "Customer service bank menghubungi nasabah, minta kirim PIN dan password agar rekening tidak diblokir", "expect": "terbukti_salah", "debunk": "otp-petugas-bank", "note": "paraphrase"}

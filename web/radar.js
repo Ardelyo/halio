@@ -2,7 +2,7 @@
 const API = window.HALIO_API || "";
 const STATIC = window.HALIO_STATIC_DEMO;
 const KATEGORI = {
-  penipuan_bansos: "Penipuan bansos", penipuan_catut_tni: "Penipuan mencatut TNI", bencana: "Bencana",
+  penipuan_bansos: "Penipuan bansos", penipuan_catut_tni: "Penipuan mencatut TNI", penipuan_rekrutmen: "Penipuan rekrutmen", bencana: "Bencana",
   kesehatan: "Kesehatan", phishing: "Phishing / pencurian data", keamanan_publik: "Keamanan publik", claimreview: "Pemeriksa fakta lain",
 };
 const TECH = {

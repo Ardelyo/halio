@@ -2,7 +2,7 @@
 
 > **Jenis:** Bukti · **Untuk:** juri · [Peta dokumen](README.md)
 
-Tanggal pemeriksaan: **10 Nov 2026**. Berkas: `data/debunks.json` (7 entri, 14 tautan). Setiap tautan dibuka dengan program (HTTP GET, User-Agent beridentitas). Halaman yang menolak program dibaca dari salinan Internet Archive. Kolom "Eksplisit?" menjawab satu pertanyaan: **apakah halaman itu sendiri menyatakan klaim tersebut salah, bohong, hoaks, penipuan, atau tidak terbukti**, bukan sekadar membahas topiknya. Catatan berisi ringkasan dengan kata-kata kami sendiri; teks artikel tidak disalin.
+Tanggal pemeriksaan: **10 Nov 2026**. Berkas: `data/debunks.json` (7 entri awal, 14 tautan; tiga entri ditambah 13 Nov, lihat bagian akhir). Setiap tautan dibuka dengan program (HTTP GET, User-Agent beridentitas). Halaman yang menolak program dibaca dari salinan Internet Archive. Kolom "Eksplisit?" menjawab satu pertanyaan: **apakah halaman itu sendiri menyatakan klaim tersebut salah, bohong, hoaks, penipuan, atau tidak terbukti**, bukan sekadar membahas topiknya. Catatan berisi ringkasan dengan kata-kata kami sendiri; teks artikel tidak disalin.
 
 Isi `data/debunks.json` **tidak diubah** dalam pemeriksaan ini. Usulan perubahan ada di bagian akhir.
 
@@ -32,3 +32,26 @@ Isi `data/debunks.json` **tidak diubah** dalam pemeriksaan ini. Usulan perubahan
 4. **Dua tautan Bisnis.com** menolak program. Pada demo langsung, bukti dari tautan ini akan berlabel "dibaca dari salinan arsip". Itu jujur, tetapi bisa memancing pertanyaan juri.
 
 Cara mengulang pemeriksaan ini: buka setiap `sumber[].url` di `data/debunks.json`; bila HTTP 403/429/503, periksa `https://archive.org/wayback/available?url=<url>`.
+
+## Penambahan 13 Nov 2026: tiga entri, delapan tautan baru
+
+Setiap tautan baru **dibuka dan dibaca** pada 13 Nov (bukan hanya dilihat di hasil pencarian). `eval` dijalankan sebelum dan sesudah.
+
+| Entri | Sumber | Eksplisit? | Catatan |
+|---|---|---|---|
+| `apk-surat-tilang-whatsapp` | RRI Cek Fakta: [SALAH] Surat Tilang Digital APK (31 Des 2023) | **Ya** | Kakorlantas Polri: Korlantas, Ditlantas, dan Satlantas hanya mengirim konfirmasi tilang ETLE lewat surat PT Pos; pesan APK disebut modus pencurian data |
+| `apk-surat-tilang-whatsapp` | detikInet: Awas, tidak ada e-tilang yang dikirim ke WhatsApp (23 Apr 2024) | **Ya** | Kominfo: tidak ada e-tilang yang dikirim lewat WhatsApp; kepolisian mengimbau waspada modus APK |
+| `calo-cpns-bayar-lulus` | detikFinance (19 Okt 2023), mengutip Plt Kepala BKN | **Ya** | Pelamar diminta tidak tergiur oknum yang mengaku bisa meloloskan tanpa seleksi resmi; yang menyerahkan uang dapat terkena pidana |
+| `calo-cpns-bayar-lulus` | Okezone (26 Sep 2021), mengutip Wakil Kepala BKN | **Ya** | "Jangan percaya dengan pihak yang menjanjikan kelulusan karena itu pasti bohong"; hasil seleksi tidak bisa dimanipulasi |
+| `calo-cpns-bayar-lulus` | DDTC News (6 Sep 2021), mengutip Sekretaris Kementerian PAN-RB | **Ya** | Janji membantu lulus dengan imbalan uang disebut penipuan |
+| `otp-petugas-bank` | BCA: Cukup kamu yang tahu, jangan bagikan kode OTP-mu (30 Okt 2026) | **Ya, untuk BCA** | BCA tidak pernah meminta OTP, PIN, atau password lewat telepon, SMS, email, atau media sosial; WhatsApp tidak disebut eksplisit di halaman itu |
+| `otp-petugas-bank` | BCA: Waspada penipuan mengatasnamakan BCA (9 Jan 2025) | **Sebagian** | BCA tidak pernah meminta nomor kartu, OTP, CVV, PIN, dan password; halaman tidak menyebut kanalnya |
+| `otp-petugas-bank` | CNN Indonesia (12 Mar 2025), mengutip OJK | **Sebagian** | OJK: bank pada dasarnya tidak menghubungi nasabah lebih dulu; modus SMS OTP lewat BTS palsu. Imbauan umum, bukan bantahan atas satu pesan |
+
+Catatan jujur: entri OTP ditulis sebagai **pola** ("petugas bank meminta OTP"), bukan klaim tentang bank tertentu, dan teks `fakta` menyebut BCA dan OJK apa adanya. Pernyataan BCA mewakili BCA saja.
+
+**Kandidat yang ditolak.** (1) "Siaga 1 TNI": berdasarkan hasil pencarian, perintah aslinya ada dan komunikasi resmi TNI sendiri beragam; yang dibantah Komdigi hanya satu unggahan yang diubah. Bukan bantahan bersih, dan topiknya sensitif secara politik, jadi tidak dimasukkan (Halio tidak menuduh). Halaman Bisnis.com untuk topik ini menolak akses program, jadi tidak saya buka langsung. (2) "Kartu SIM diblokir bila tidak registrasi ulang": hanya ada pernyataan kebijakan Komdigi, tidak ada bantahan eksplisit atas pesan semacam itu. (3) Undangan nikah berformat APK (Kominfo, 2023): satu sumber terbuka dibaca, tetapi sumber Bisnis.com menolak program; tidak dimasukkan agar entri APK tetap sempit pada klaim yang terverifikasi (surat tilang).
+
+**Dampak pada evaluasi.** Menambah dokumen mengubah bobot TF-IDF untuk semua entri. Dua item dev lama turun tipis di bawah ambang (0,385 dan 0,393 dari 0,424 dan 0,43) dan satu tes regresi (hoaks bansos dua kalimat) turun ke 0,398. Penanganannya, tanpa menyentuh ambang: dua varian umum ditambahkan ke entri bansos dan rekrutmen TNI, serta kata "whatsapp" dikurangi di entri baru. Satu percobaan varian yang terlalu mirip tes dibatalkan karena membuat pesan terbelah dua. Hasil akhir: dev false-hoax 0/36 (recall 100%), holdout false-hoax 0/40 (recall 88%, dua kegagalan yang sama seperti sebelumnya), 273 tes lulus. Set dev adalah set penyetelan; 12 item uji baru ditulis bersama entri baru, jadi tidak buta.
+
+**Pemeriksaan ulang pada data independen (13 Nov).** Sampel 3.700 judul TurnBackHoax (halaman tersebar dari dataset `Rifky/indonesian-hoax-news`; endpoint pencarian dataset sedang gagal sehingga dipakai pengambilan baris): dari 236 judul berlabel BENAR atau KLARIFIKASI, **0** dicap "terbukti salah"; 16 dari 2.519 judul SALAH dikenali (cakupan korpus, bukan akurasi). Angka 0/1.043 di `eval/PUBLIC_RESULTS.md` diukur dengan korpus 7 entri dan tidak dibuat ulang.

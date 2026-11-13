@@ -34,7 +34,7 @@ Dokumen teknis untuk Dewan Juri dan pengembang. Bagian bertanda **(estimasi)** b
 | Tingkat | Tempat | Fungsi | Latensi | Biaya |
 |---|---|---|---|---|
 | T0 | Perangkat | Lencana trik manipulasi, deteksi judol, blur gambar NudeNet (opsional) | puluhan ms/gambar **(estimasi)** | 0 |
-| T1 | Server | Pencocokan dengan korpus bantahan lokal, opsional ClaimReview | median 0,9 ms, p95 1,6 ms (diukur 27 Okt di laptop pengembang, korpus 7 bantahan, tanpa jaringan) | ≈ 0 |
+| T1 | Server | Pencocokan dengan korpus bantahan lokal, opsional ClaimReview | median 0,5 ms, p95 0,6 ms (diukur 13 Nov di laptop pengembang Windows, 300 pemanggilan, korpus 10 bantahan, jaringan diblokir oleh tes; pengukuran 27 Okt: median 0,9 ms, korpus 7) | ≈ 0 |
 | T2 | Cloud (opsional) | LLM menimbang klaim vs kandidat, wajib kutipan | 3–8 s **(estimasi)** | per panggilan; mati secara default |
 
 ## 2. Lima keadaan vonis
@@ -87,6 +87,10 @@ Jalur kedua di samping `/api/check`, untuk analis di Radar (`/api/investigate`, 
 
 Batas keras: kueri, halaman, detik per investigasi; `HALIO_AGENT_DAILY_CAP` per hari dan `HALIO_AGENT_PER_REPORTER` per pelapor. Pekerjaan disimpan di SQLite (`jobs.py`) sehingga bertahan saat restart. **Brief harian** (`brief.py`) mengelompokkan judul feed publik 48 jam terakhir (topik TNI AD/pertahanan atau feed cek fakta), lalu menjalankan Telusur pada narasi teratas. Yang diprofilkan hanya narasi dan klaim, bukan orang, akun, atau prajurit.
 
+## 4b. Mode luring: mesin T1 di perangkat
+
+Jalur T1 (tanpa AI) ditulis ulang di `web/engine/halio-local.js` agar berjalan di browser tanpa server dan tanpa jaringan. Data (korpus, kosakata, pola regex, ambang) diekspor dari Python oleh `scripts/build_engine_data.py` ke `web/engine/data.js`, sehingga ada satu sumber kebenaran. Kesamaan perilaku dijaga uji paritas: `scripts/gen_parity_vectors.py` menjalankan `pipeline.check` pada 603 teks dan `web/engine/parity.test.mjs` menuntut JS memberi jawaban identik. Web memakai server bila ada, dan beralih ke mesin ini bila browser offline atau jaringan gagal; di GitHub Pages mesin ini menggantikan skenario tulis-tangan. Tanpa AI, web, atau server; kabar di luar korpus tetap "belum ada pemeriksaan". Rincian, bukti, dan batasnya: [LURING.md](LURING.md).
+
 ## 5. Penerapan di lingkungan satuan
 
 ```bash
@@ -102,12 +106,12 @@ python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose
 
 ## 6. Pengujian
 
-- `pytest` (backend/tests): 266 tes lulus per 12 Nov 2026, dijalankan CI pada setiap perubahan. Cakupan: PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
+- `pytest` (backend/tests): 273 tes lulus per 13 Nov 2026 (termasuk uji paritas mesin luring dan tes tanpa jaringan), dijalankan CI pada setiap perubahan. Cakupan: PII, ekstraksi klaim, trik manipulasi, keadaan vonis, negasi, k-anonimitas, supresi sel kecil, alur API.
 - `python eval/run_eval.py`: metrik jujur termasuk tingkat salah tuduh hoaks; `--sweep` untuk kalibrasi ambang.
 
 ## 7. Keterbatasan yang kami akui
 
-- Korpus demo kecil (7 bantahan) dan kedua set uji (112 item: dev 56, holdout 56) ditulis tim sendiri, sehingga hasilnya optimistis. Evaluasi tambahan pada sampel publik: [PUBLIC_RESULTS.md](../eval/PUBLIC_RESULTS.md).
+- Korpus demo kecil (10 bantahan) dan kedua set uji (124 item: dev 62, holdout 62) ditulis tim sendiri, sehingga hasilnya optimistis. Evaluasi tambahan pada sampel publik: [PUBLIC_RESULTS.md](../eval/PUBLIC_RESULTS.md).
 - Pencocokan bersifat leksikal; parafrase berat tanpa kata yang sama akan jatuh ke "belum ada pemeriksaan" (aman, tapi recall turun).
 - Kualitas LLM berbahasa Indonesia dan cakupan ClaimReview Indonesia belum diukur.
 - Tidak ada uji pengguna lansia Indonesia; efek label peringatan (~25% pengurangan berbagi) berasal dari studi laboratorium Barat (Martel & Rand 2024).

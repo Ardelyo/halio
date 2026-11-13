@@ -1,7 +1,7 @@
 // file ini digenerate otomatis lewat scripts/build_engine_data.py dr kode python + data/debunks.json, jgn diedit manual ya
 globalThis.HalioEngineData = {
  "version": "luring-1",
- "corpusSha256": "cdab20671366bdee270cec7221ec3f45600d162465d971556229fd57ec3bdccd",
+ "corpusSha256": "d4ebb4bac9270fa530be6b5ebd9a7abb5202cab7c86db298ef2c420e6ca67926",
  "thresholds": {
   "match": 0.4,
   "unsure": 0.26
@@ -15,7 +15,8 @@ globalThis.HalioEngineData = {
     "Presiden bagi-bagi bantuan sosial tunai, hubungi nomor WhatsApp untuk mendaftar",
     "Prabowo bagikan bantuan Rp10 juta sampai Rp45 juta bagi yang follow dan share",
     "pendaftaran bansos tunai dari presiden lewat whatsapp, transfer biaya admin dulu",
-    "video menteri keuangan umumkan bantuan, daftar lewat nomor wa"
+    "video menteri keuangan umumkan bantuan, daftar lewat nomor wa",
+    "bantuan tunai dari presiden untuk rakyat, chat nomor WhatsApp untuk mendaftar lalu bayar biaya admin"
    ],
    "fakta": "Video semacam ini adalah deepfake (wajah dan suara buatan AI). Bareskrim Polri mengungkap penipuan yang memakai deepfake Presiden Prabowo dan Sri Mulyani: korban diarahkan ke WhatsApp lalu diminta membayar biaya administrasi berulang kali. Bantuannya tidak pernah ada.",
    "sederhana": "Itu video palsu buatan komputer. Bantuan resmi dari pemerintah tidak pernah meminta Ibu atau Bapak membayar biaya apa pun lewat WhatsApp.",
@@ -38,7 +39,8 @@ globalThis.HalioEngineData = {
     "dijamin lulus jadi tentara asal bayar uang pelicin",
     "jalur titipan penerimaan bintara tamtama TNI AD, transfer dulu biaya pendaftaran",
     "bisa bantu anak masuk TNI lewat kenalan di kodam, ada biayanya",
-    "pendaftaran prajurit TNI AD berbayar lewat calo"
+    "pendaftaran prajurit TNI AD berbayar lewat calo",
+    "kenalan di kodam bisa bantu lulus tes tamtama TNI AD, dijamin lulus asal siapkan uang jutaan"
    ],
    "fakta": "Rekrutmen TNI AD dilaksanakan terbuka, transparan, dan tidak dipungut biaya. Kelulusan ditentukan hasil seleksi, bukan pembayaran. Pada 2026 Kodam XV/Pattimura memburu oknum yang diduga menjadi calo penerimaan Tamtama dengan kerugian korban Rp112 juta, dan menegaskan itu perbuatan pribadi, bukan atas nama institusi.",
    "sederhana": "Masuk TNI AD itu gratis dan lewat tes resmi. Siapa pun yang minta uang supaya 'dijamin lulus' adalah penipu.",
@@ -196,6 +198,105 @@ globalThis.HalioEngineData = {
    ],
    "syarat": [
     "\\b(berkeliaran|keliling|menyamar|organ|organnya|komplotan|sindikat|mobil|mengincar|incar|sebarkan|sebarin|share)\\b"
+   ]
+  },
+  {
+   "id": "apk-surat-tilang-whatsapp",
+   "kategori": "phishing",
+   "klaim": "Surat tilang atau e-tilang dikirim lewat WhatsApp dalam bentuk file APK yang harus dipasang untuk melihat dendanya",
+   "varian": [
+    "ada surat tilang digital dari polisi, install file apk ini untuk lihat pelanggaran dan bayar denda",
+    "kamu kena etle, unduh aplikasi apk untuk cek surat tilang",
+    "surat konfirmasi tilang elektronik berupa file apk, klik untuk bayar",
+    "e-tilang masuk ke pesan, pasang apk dulu biar bisa lihat kode bayar"
+   ],
+   "fakta": "Kakorlantas Polri menyatakan Korlantas, Ditlantas, dan Satlantas hanya mengirim konfirmasi tilang ETLE lewat surat yang dikirim PT Pos Indonesia, dan menyebut pesan tilang berupa file APK sebagai modus pencurian data. Kominfo juga mengingatkan tidak ada e-tilang yang dikirim lewat WhatsApp. File APK dari pesan seperti ini bisa memasang program berbahaya di ponsel.",
+   "sederhana": "Polisi tidak mengirim surat tilang lewat WhatsApp. Kalau ada file APK atau aplikasi yang katanya surat tilang, jangan dibuka dan jangan dipasang. Itu penipuan untuk mencuri data di ponsel.",
+   "sumber": [
+    {
+     "nama": "RRI Cek Fakta: [SALAH] Surat Tilang Digital APK (mengutip Kakorlantas Polri)",
+     "url": "https://rri.co.id/samarinda/cek-fakta/498916/salah-surat-tilang-digital-apk",
+     "jenis": "cek_fakta"
+    },
+    {
+     "nama": "detikInet: Awas, tidak ada e-tilang yang dikirim ke WhatsApp (mengutip Kominfo dan Kepolisian)",
+     "url": "https://inet.detik.com/security/d-7305490/awas-tidak-ada-e-tilang-yang-dikirim-ke-whatsapp",
+     "jenis": "media"
+    }
+   ],
+   "syarat": [
+    "\\b(tilang|etle|e-tilang|pelanggaran lalu lintas|kode bayar)\\b",
+    "\\bapk\\b|\\b(unduh|download|install|pasang)\\b"
+   ]
+  },
+  {
+   "id": "calo-cpns-bayar-lulus",
+   "kategori": "penipuan_rekrutmen",
+   "klaim": "Ada orang dalam yang bisa menjamin lulus CPNS atau PPPK dengan membayar sejumlah uang",
+   "varian": [
+    "bisa bantu lulus cpns asal bayar, dijamin lolos lewat orang dalam bkn",
+    "jalur khusus pppk dan cpns, transfer dulu puluhan juta pasti diangkat jadi asn",
+    "calo cpns menjanjikan kelulusan tanpa tes, cukup bayar uang pelicin",
+    "ada kenalan di instansi yang bisa meloloskan seleksi asn, biayanya dicicil"
+   ],
+   "fakta": "BKN mengingatkan pelamar agar tidak percaya pihak yang menjanjikan kelulusan CPNS atau PPPK, karena janji itu bohong. Plt Kepala BKN pada Oktober 2023 menegaskan pelamar tidak boleh tergiur oknum yang mengaku bisa meloloskan tanpa seleksi resmi, dan yang menyerahkan uang bisa terkena pidana. Pada 2021, Sekretaris Kementerian PAN-RB juga menyebut janji membantu lulus dengan imbalan uang sebagai penipuan.",
+   "sederhana": "Lulus CPNS atau PPPK hanya lewat tes resmi, tidak bisa dibeli. Orang yang minta uang supaya \"dijamin lulus\" adalah penipu, dan yang membayar justru bisa ikut kena masalah hukum.",
+   "sumber": [
+    {
+     "nama": "detikFinance: Nekat jadi ASN lewat jalur calo siap-siap dipidana (mengutip Plt Kepala BKN, Okt 2023)",
+     "url": "https://finance.detik.com/cpns/d-6991690/nekat-jadi-asn-lewat-jalur-calo-siap-siap-dipidana",
+     "jenis": "media"
+    },
+    {
+     "nama": "Okezone: Peserta CPNS ditipu calo, BKN: seleksi transparan dan tidak bisa dimanipulasi (Sep 2021)",
+     "url": "https://economy.okezone.com/read/2021/09/26/320/2477012/peserta-cpns-ditipu-calo-bkn-seleksi-transparan-dan-tidak-bisa-dimanipulasi",
+     "jenis": "media"
+    },
+    {
+     "nama": "DDTC News: Pemerintah pastikan tidak ada jalur instan lulus ASN (mengutip Sekretaris Kementerian PAN-RB, Sep 2021)",
+     "url": "https://news.ddtc.co.id/berita/nasional/32595/pemerintah-pastikan-tidak-ada-jalur-instan-lulus-asn",
+     "jenis": "media"
+    }
+   ],
+   "syarat": [
+    "\\b(cpns|pppk|asn|pns|honorer|bkn)\\b",
+    "\\b(bayar|biaya|uang|transfer|calo|orang dalam|titip|titipan|pelicin|dicicil|\\d+ ?(juta|jt))\\b",
+    "\\b(lulus|lolos|diangkat|pengangkatan|jalur|meloloskan|bantu)\\b"
+   ]
+  },
+  {
+   "id": "otp-petugas-bank",
+   "kategori": "phishing",
+   "klaim": "Petugas bank menghubungi nasabah lewat telepon atau pesan lalu meminta kode OTP, PIN, atau password untuk verifikasi",
+   "varian": [
+    "kami dari bank, ada transaksi mencurigakan, sebutkan kode otp yang dikirim ke hp bapak ibu",
+    "customer service bank minta kirim kode otp dan pin untuk membatalkan transaksi",
+    "petugas bank hubungi nasabah, mohon berikan kode verifikasi otp supaya rekening tidak diblokir",
+    "akun mbanking anda akan diblokir, konfirmasi password dan otp ke petugas bank"
+   ],
+   "fakta": "BCA menyatakan di situs resminya bahwa pihaknya tidak pernah meminta kode OTP, PIN, atau password nasabah lewat telepon, SMS, email, atau media sosial, dan nasabah diminta berhenti berkomunikasi lalu memastikan lewat kanal resmi bank. OJK juga mengingatkan bahwa bank pada dasarnya tidak menghubungi nasabah lebih dulu, sehingga nasabah yang perlu urusan sebaiknya menghubungi bank sendiri.",
+   "sederhana": "Bank tidak pernah meminta kode OTP, PIN, atau password lewat telepon atau pesan. Kalau ada yang mengaku petugas bank lalu memintanya, itu penipu. Putuskan dan hubungi nomor resmi bank sendiri.",
+   "sumber": [
+    {
+     "nama": "BCA: Cukup kamu yang tahu, jangan bagikan kode OTP-mu (30 Okt 2026)",
+     "url": "https://www.bca.co.id/en/informasi/awas-modus/2026/10/30/09/23/cukup-kamu-yang-tahu-jangan-bagikan-kode-otp-mu",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "BCA: Waspada penipuan mengatasnamakan BCA (9 Jan 2025)",
+     "url": "https://www.bca.co.id/en/informasi/awas-modus/2025/01/09/04/34/waspada-penipuan-mengatasnamakan-bca",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "CNN Indonesia: Marak kasus fake BTS, OJK imbau nasabah waspada SMS OTP (12 Mar 2025)",
+     "url": "https://www.cnnindonesia.com/ekonomi/20250311201554-78-1207681/marak-kasus-fake-bts-ojk-imbau-nasabah-waspada-sms-otp",
+     "jenis": "media"
+    }
+   ],
+   "syarat": [
+    "\\b(otp|kode verifikasi|kode rahasia|pin|password|kata sandi)\\b",
+    "\\b(minta|meminta|kirim|kirimkan|sebutkan|berikan|bagikan|konfirmasi|verifikasi)\\b",
+    "\\b(bank|petugas|cs|customer service|call center|bca|bri|bni|mandiri|nasabah|rekening|mbanking)\\b"
    ]
   }
  ],

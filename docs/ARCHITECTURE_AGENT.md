@@ -53,7 +53,7 @@ memori selama penelusuran dan tidak ditulis ke basis data. Lihat juga `docs/PRIV
   kemunculan paling awal yang *ditemukan*, bukan pasti asalnya.
 - **Situs menolak server.** Pada uji di VM sekitar sepertiga sampai separuh halaman menolak dibuka (HTTP 403/202 tantangan bot).
   Kami tidak menyamar sebagai peramban; halaman itu ditulis sebagai titik buta.
-- **Korpus bantahan kurasi masih kecil (7 entri).** Kekuatan datang dari pencarian langsung, bukan dari korpus.
+- **Korpus bantahan kurasi masih kecil (10 entri).** Kekuatan datang dari pencarian langsung, bukan dari korpus.
 - **Kabar yang sangat baru** (jam-jaman) biasanya belum ditulis siapa pun: hasil ⚪ dengan tautan pencarian.
 - **Gambar terbalik** aktif hanya setelah Cloud Vision API diaktifkan di proyek; ia menunjukkan di mana gambar pernah muncul,
   bukan apakah gambar asli. Deteksi deepfake/AI tidak ada (SynthID tanpa API publik yang terkonfirmasi).
