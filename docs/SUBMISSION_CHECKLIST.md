@@ -8,6 +8,8 @@ Aturan dokumen ini: hanya tandai **SELESAI** bila ada bukti yang bisa dibuka. Si
 
 Pemeriksaan terakhir: 14 Nov 2026, dari `main` (`7a607da`; server publik build `7a607da-20261113-2224`, rilis `v0.2.1-luring`). Pada 14 Nov: 273 tes lulus di CI Linux dan lokal, uji mode luring lulus pada situs hidup dan GitHub Pages (Chrome, jaringan diputus), `eval/RESULTS.md` sesuai hasil run, `/health` server publik melaporkan build `7a607da`. Pemeriksaan 12 Nov: 266 tes lulus, `eval/RESULTS.md` identik dengan hasil run baru, semua tautan publik di dokumen ini menjawab HTTP 200, dan `/health` server publik melaporkan build `e16d354`.
 
+> **Catatan 15 Nov 2026:** server publik kini build `124733f` (kode cadangan model dan pencarian, `llmchain.py`); 283 tes lulus lokal. Panggilan Vertex AI dari proyek `gemma4good-494311` ditolak (HTTP 403) sehingga jalur AI memakai cadangan (kunci Gemini API, ON Token, Tavily) atau turun ke korpus. Video dan tangkapan layar tertanggal 12 Nov direkam saat Vertex masih berfungsi; perilaku langsung bisa lebih terbatas.
+
 ## Pendaftaran (Rulebook §E)
 
 | Item | Status | Bukti/URL | Pemilik tindakan |

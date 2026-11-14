@@ -49,6 +49,9 @@ Model AI juga dipakai **di dalam produk** (bagian "Model & layanan" di bawah). I
 | Google Fact Check Tools API (opsional) | Pencarian ClaimReview | `factcheck_api.py`, `investigate/tools.py` | Ketentuan Google API; isi ClaimReview milik penerbitnya |
 | GDELT DOC 2.0 API | Lini masa kemunculan berita di Telusur | `investigate/tools.py` | Akses publik GDELT Project; sitasi GDELT diminta |
 | Internet Archive (Wayback availability + CDX) | Salinan arsip untuk halaman yang diblokir (diberi label) dan tanggal tangkapan pertama | `source_verifier.py`, `investigate/tools.py` | Ketentuan penggunaan Internet Archive |
+| Gemini API (kunci AI Studio, cadangan) | Bila Vertex AI gagal: model yang sama (Gemini 3.5 Flash-Lite) untuk menilai kutipan, membaca foto/suara, perencana kueri dan penulis laporan Telusur | `llmchain.py` (dipakai `evidence.py`, `media.py`, `investigate/`) | Ketentuan Gemini API / Google AI Studio |
+| ON Token (gateway API berbayar rupiah), model DeepSeek V4.1 Flash (cadangan kedua) | Hanya menilai hubungan kutipan–klaim bila kedua jalur Gemini gagal; tanpa pencarian web | `llmchain.py` (`ontoken_json`) | Ketentuan ON Token dan DeepSeek; permintaan diteruskan ke penyedia model |
+| Tavily Search API (cadangan pencarian web) | Mencari halaman kandidat bila pencarian Google lewat Gemini gagal; hanya mengembalikan daftar URL, isi halaman tetap dibuka dan dikutip kode Halio | `llmchain.py` (`web_search`) | Ketentuan Tavily |
 | Anthropic API (penyedia lama, opsional) | Konfirmasi kecocokan dengan verifikasi kutipan persis | `llm_verdict.py` | Ketentuan penyedia |
 | NudeNet 3.4 (ONNX 320n) | Penyaringan gambar dewasa di perangkat (opsional) | `extension/offscreen.js` | MIT (menurut PyPI) |
 | 23 feed RSS/Atom terbuka (`HALIO_SENSOR=1`) | Sensor tren; hanya judul, tautan, waktu | `ingest/` | Feed publik; daftar di `docs/ARCHITECTURE_SENSOR.md` |
