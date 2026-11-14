@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel
 
-from . import outlets
+from . import llmchain, outlets
 from .textfrag import fragment_url
 from .config import Settings
 from .source_verifier import Page, SourceError, fetch_page, source_kind
@@ -301,19 +301,23 @@ JUDGE_SYSTEM = (
 
 def gemini_discover(claim: str, cfg: Settings) -> tuple[list[dict], list[str]]:
     """(candidate pages from search grounding, the queries that were run). Raises if the model is unavailable."""
-    from google import genai
     from google.genai import types
 
-    client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
     prompt = f"Tanggal hari ini: {datetime.now(WIB).date().isoformat()}\nKlaim:\n<klaim>{claim}</klaim>"
-    resp = client.models.generate_content(
-        model=cfg.llm_model, contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=DISCOVER_SYSTEM, tools=[types.Tool(google_search=types.GoogleSearch())],
-            max_output_tokens=800, thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
-            http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
-        ),
-    )
+    # Vertex dulu, kalau ditolak/gagal lanjut ke key Gemini API (llmchain). pencarian web cuma ada di dua jalur Gemini ini.
+    try:
+        resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
+            model=cfg.llm_model, contents=prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=DISCOVER_SYSTEM, tools=[types.Tool(google_search=types.GoogleSearch())],
+                max_output_tokens=800, thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+                http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
+            ),
+        ), "pencarian bukti")
+    except Exception:
+        # pencarian Google lewat Gemini mati: pakai mesin pencari alternatif (Tavily/Serper/DuckDuckGo). kalau itu juga gagal,
+        # error dilempar lagi dan pemanggil jatuh ke mode korpus seperti sebelumnya.
+        return llmchain.web_search(cfg, claim)
     found, queries = [], []
     for cand in resp.candidates or []:
         meta = getattr(cand, "grounding_metadata", None)
@@ -326,22 +330,32 @@ def gemini_discover(claim: str, cfg: Settings) -> tuple[list[dict], list[str]]:
 
 
 def gemini_judge(claim: str, passages: list[Passage], cfg: Settings) -> list[Judgement]:
-    from google import genai
     from google.genai import types
     import json
 
-    client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
     payload = [{"id": p.id, "penerbit": p.publisher, "tanggal": p.published.isoformat() if p.published else None, "kutipan": p.text} for p in passages]
-    resp = client.models.generate_content(
-        model=cfg.llm_model,
-        contents=f"<klaim>{claim}</klaim>\n<kutipan_json>{json.dumps(payload, ensure_ascii=False)}</kutipan_json>",
-        config=types.GenerateContentConfig(
-            system_instruction=JUDGE_SYSTEM, response_mime_type="application/json", response_schema=_JudgementList,
-            max_output_tokens=1500, thinking_config=types.ThinkingConfig(thinking_level="LOW"),
-            http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
-        ),
+    contents = f"<klaim>{claim}</klaim>\n<kutipan_json>{json.dumps(payload, ensure_ascii=False)}</kutipan_json>"
+    try:
+        resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
+            model=cfg.llm_model, contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=JUDGE_SYSTEM, response_mime_type="application/json", response_schema=_JudgementList,
+                max_output_tokens=1500, thinking_config=types.ThinkingConfig(thinking_level="LOW"),
+                http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
+            ),
+        ), "penilaian kutipan")
+        return [Judgement(j.id, j.relation, j.covers_all) for j in _JudgementList.model_validate_json(resp.text).penilaian]
+    except Exception:
+        # kedua jalur Gemini gagal: coba ON Token (murni penilaian kutipan yg sudah dipilih kode, tanpa pencarian web).
+        # kalau ON Token juga ga tersedia, error aslinya dilempar lagi dan pemanggil jatuh ke mode korpus seperti biasa.
+        if not cfg.ontoken_api_key:
+            raise
+    data = llmchain.ontoken_json(
+        cfg,
+        JUDGE_SYSTEM + ' Jawab HANYA dengan JSON: {"penilaian":[{"id":<nomor>,"relation":"supports|refutes|context|unrelated","covers_all":true|false}]}.',
+        contents,
     )
-    return [Judgement(j.id, j.relation, j.covers_all) for j in _JudgementList.model_validate_json(resp.text).penilaian]
+    return [Judgement(j.id, j.relation, j.covers_all) for j in _JudgementList.model_validate(data).penilaian]
 
 
 def sensor_candidates(claim: str, cfg: Settings, limit: int = 3) -> list[dict]:

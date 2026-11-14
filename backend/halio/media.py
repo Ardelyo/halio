@@ -12,6 +12,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from . import llmchain
 from .config import Settings
 
 log = logging.getLogger(__name__)
@@ -49,12 +50,11 @@ def read_media(data: bytes, mime: str, cfg: Settings) -> MediaReading | None:
     if not cfg.media_enabled or not supported(mime) or len(data) > MAX_BYTES:
         return None
     try:
-        from google import genai
         from google.genai import types
 
-        # Gemini di sini murni buat baca teks di gambar / transkrip suara, bukan nentuin fotonya asli atau rekayasa
-        client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
-        response = client.models.generate_content(
+        # Gemini di sini murni buat baca teks di gambar / transkrip suara, bukan nentuin fotonya asli atau rekayasa.
+        # Vertex dulu, kalau gagal lanjut ke key Gemini API (llmchain).
+        response = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
             model=cfg.media_model,
             contents=[types.Part.from_bytes(data=data, mime_type=mime), "Baca media ini sesuai aturan."],
             config=types.GenerateContentConfig(
@@ -65,7 +65,7 @@ def read_media(data: bytes, mime: str, cfg: Settings) -> MediaReading | None:
                 thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
                 http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
             ),
-        )
+        ), "baca media")
         return MediaReading.model_validate_json(response.text)
     except Exception as exc:  # jaringan putus, kuota abis, atau file rusak jgn smpe bikin bot ikutan tumbang
         log.warning("Media reading unavailable: %s", type(exc).__name__)

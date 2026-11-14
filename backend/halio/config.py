@@ -51,6 +51,18 @@ class Settings:
     google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
     agent_timeout_s: float = field(default_factory=lambda: float(os.getenv("HALIO_AGENT_TIMEOUT", "45")))
 
+    # cadangan kalau Vertex (proyek GCP) gagal/ditolak. dicoba berurutan: Vertex -> key Gemini API -> ON Token -> mode korpus.
+    # semuanya opsional: kosong = lompat ke lapis berikutnya. key cuma dibaca dari environment, jangan ditulis di kode/repo.
+    gemini_api_key: str | None = field(default_factory=lambda: os.getenv("GEMINI_API_KEY") or None)
+    # ON Token (gateway berbayar rupiah, kompatibel OpenAI). dipakai cuma buat penilaian kutipan (tanpa pencarian web).
+    ontoken_api_key: str | None = field(default_factory=lambda: os.getenv("ONTOKEN_API_KEY") or None)
+    ontoken_base_url: str = field(default_factory=lambda: os.getenv("ONTOKEN_BASE_URL", "https://api.ontoken.id/v1").rstrip("/"))
+    # pencarian web alternatif kalau kedua jalur Gemini gagal (urutan: Tavily -> Serper -> DuckDuckGo tanpa key). hasilnya cuma
+    # daftar URL kandidat: kutipan tetap dibuka & dicek kode Halio sendiri, jadi mesin pencarinya ga ikut menentukan vonis.
+    tavily_api_key: str | None = field(default_factory=lambda: os.getenv("TAVILY_API_KEY") or None)
+    serper_api_key: str | None = field(default_factory=lambda: os.getenv("SERPER_API_KEY") or None)
+    ontoken_model: str = field(default_factory=lambda: os.getenv("ONTOKEN_MODEL", "deepseek-v4.1-flash"))
+
     # baca foto & voice note jadi teks pake Gemini (media.py), dipisah dari HALIO_LLM biar logika vonis tetep stabil
     media_enabled: bool = field(default_factory=lambda: _bool("HALIO_MEDIA"))
     # Halio Telusur (agen investigasi mendalam): butuh HALIO_LLM=1, dibatasin ketat per hari krn lumayan makan kuota model
