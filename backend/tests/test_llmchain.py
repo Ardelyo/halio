@@ -143,3 +143,31 @@ def test_web_search_raises_when_everything_fails(monkeypatch):
     monkeypatch.setattr(llmchain, "_search_ddg", lambda c, q: [])
     with pytest.raises(RuntimeError):
         llmchain.web_search(CFG, "x")
+
+
+def test_web_search_prefers_mughu_and_falls_back_to_tavily(monkeypatch):
+    cfg = replace(CFG, mughu_api_key="m", tavily_api_key="t")
+    monkeypatch.setattr(llmchain, "_search_mughu", lambda c, q: (_ for _ in ()).throw(RuntimeError("mughu_quota_exceeded")))
+    monkeypatch.setattr(llmchain, "_search_tavily", lambda c, q: [{"uri": "https://kompas.com/cekfakta/1", "title": ""}])
+    found, _ = llmchain.web_search(cfg, "bantuan beras")
+    assert found[0]["uri"] == "https://kompas.com/cekfakta/1"
+    # kuota habis => Mughu diistirahatkan lama, request berikutnya langsung ke Tavily tanpa memanggil Mughu lagi
+    monkeypatch.setattr(llmchain, "_search_mughu", lambda c, q: pytest.fail("mughu masih diistirahatkan"))
+    assert llmchain.web_search(cfg, "x")[0][0]["uri"].startswith("https://kompas.com")
+
+
+def test_mughu_parses_results_and_sends_key(monkeypatch):
+    seen = {}
+
+    class R:
+        def raise_for_status(self): pass
+        def json(self): return {"ok": True, "results": [{"url": "https://komdigi.go.id/a", "title": "[HOAKS] x"}, {"title": "tanpa url"}]}
+
+    def get(url, params, headers, timeout):
+        seen.update(url=url, q=params["q"], key=headers["x-api-key"])
+        return R()
+
+    monkeypatch.setattr(llmchain.httpx, "get", get)
+    out = llmchain._search_mughu(replace(CFG, mughu_api_key="m-key"), "klaim")
+    assert out == [{"uri": "https://komdigi.go.id/a", "title": "[HOAKS] x"}]
+    assert seen == {"url": "https://mughu.id/api/v1/web-search-api", "q": "klaim", "key": "m-key"}

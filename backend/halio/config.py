@@ -59,6 +59,9 @@ class Settings:
     ontoken_base_url: str = field(default_factory=lambda: os.getenv("ONTOKEN_BASE_URL", "https://api.ontoken.id/v1").rstrip("/"))
     # pencarian web alternatif kalau kedua jalur Gemini gagal (urutan: Tavily -> Serper -> DuckDuckGo tanpa key). hasilnya cuma
     # daftar URL kandidat: kutipan tetap dibuka & dicek kode Halio sendiri, jadi mesin pencarinya ga ikut menentukan vonis.
+    # Mughu (mughu.id) = penyedia pertama: hasil cek fakta Indonesia paling relevan, kuota 100/hari & 3.000/bulan
+    mughu_api_key: str | None = field(default_factory=lambda: os.getenv("MUGHU_API_KEY") or None)
+    mughu_base_url: str = field(default_factory=lambda: os.getenv("MUGHU_BASE_URL", "https://mughu.id/api/v1").rstrip("/"))
     tavily_api_key: str | None = field(default_factory=lambda: os.getenv("TAVILY_API_KEY") or None)
     serper_api_key: str | None = field(default_factory=lambda: os.getenv("SERPER_API_KEY") or None)
     ontoken_model: str = field(default_factory=lambda: os.getenv("ONTOKEN_MODEL", "deepseek-v4.1-flash"))

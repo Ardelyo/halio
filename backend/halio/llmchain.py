@@ -38,9 +38,9 @@ def _is_down(name: str) -> bool:
         return _down.get(name, 0.0) > time.monotonic()
 
 
-def _mark_down(name: str) -> None:
+def _mark_down(name: str, seconds: float = COOLDOWN_S) -> None:
     with _lock:
-        _down[name] = time.monotonic() + COOLDOWN_S
+        _down[name] = time.monotonic() + seconds
 
 
 def run_genai(cfg: Settings, call: Callable[[object], T], label: str) -> T:
@@ -101,6 +101,15 @@ def ontoken_json(cfg: Settings, system: str, user: str, max_tokens: int = 1500) 
 
 # ---- pencarian web alternatif (dipakai kalau pencarian Google lewat Gemini gagal) -----------------------------------
 
+def _search_mughu(cfg: Settings, query: str) -> list[dict]:
+    r = httpx.get(f"{cfg.mughu_base_url}/web-search-api", params={"q": query}, headers={"x-api-key": cfg.mughu_api_key or ""}, timeout=20)
+    r.raise_for_status()
+    data = r.json()
+    if not data.get("ok", True):  # mis. kuota harian habis / key dicabut
+        raise RuntimeError("mughu_" + str(data.get("error", "gagal")))
+    return [{"uri": x["url"], "title": x.get("title") or ""} for x in data.get("results", []) if x.get("url")]
+
+
 def _search_tavily(cfg: Settings, query: str) -> list[dict]:
     r = httpx.post("https://api.tavily.com/search", headers={"Authorization": f"Bearer {cfg.tavily_api_key}"},
                    json={"query": query, "max_results": 8, "search_depth": "basic", "country": "indonesia"}, timeout=20)
@@ -136,6 +145,8 @@ def web_search(cfg: Settings, claim: str) -> tuple[list[dict], list[str]]:
     """(kandidat halaman, kueri yg dijalankan) dari penyedia pencarian alternatif. Lempar error kalau semuanya gagal/kosong."""
     query = f"{claim.strip()[:180]} hoaks cek fakta"
     providers = []
+    if cfg.mughu_api_key:
+        providers.append(("mughu", _search_mughu))
     if cfg.tavily_api_key:
         providers.append(("tavily", _search_tavily))
     if cfg.serper_api_key:
@@ -151,6 +162,8 @@ def web_search(cfg: Settings, claim: str) -> tuple[list[dict], list[str]]:
                 return found, [query]
         except Exception as exc:
             last = exc
-            _mark_down(name)
+            # kuota harian habis (429) ga akan pulih dalam semenit: istirahatkan lebih lama biar ga buang waktu tiap request
+            quota = getattr(getattr(exc, "response", None), "status_code", None) == 429 or "quota" in str(exc).lower()
+            _mark_down(name, 900.0 if quota else COOLDOWN_S)
             log.warning("pencarian %s gagal (%s)", name, type(exc).__name__)
     raise last or RuntimeError("pencarian_alternatif_kosong")
