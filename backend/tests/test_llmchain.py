@@ -171,3 +171,12 @@ def test_mughu_parses_results_and_sends_key(monkeypatch):
     out = llmchain._search_mughu(replace(CFG, mughu_api_key="m-key"), "klaim")
     assert out == [{"uri": "https://komdigi.go.id/a", "title": "[HOAKS] x"}]
     assert seen == {"url": "https://mughu.id/api/v1/web-search-api", "q": "klaim", "key": "m-key"}
+
+
+def test_web_search_merges_two_providers_interleaved_and_dedupes(monkeypatch):
+    cfg = replace(CFG, mughu_api_key="m", tavily_api_key="t")
+    monkeypatch.setattr(llmchain, "_search_mughu", lambda c, q: [{"uri": "https://a.go.id/1", "title": ""}, {"uri": "https://b.go.id/2", "title": ""}])
+    monkeypatch.setattr(llmchain, "_search_tavily", lambda c, q: [{"uri": "https://c.id/3", "title": ""}, {"uri": "https://a.go.id/1/", "title": ""}])
+    monkeypatch.setattr(llmchain, "_search_ddg", lambda c, q: pytest.fail("ddg tidak dipakai kalau sudah ada hasil"))
+    found, _ = llmchain.web_search(cfg, "klaim")
+    assert [x["uri"] for x in found] == ["https://a.go.id/1", "https://c.id/3", "https://b.go.id/2"]

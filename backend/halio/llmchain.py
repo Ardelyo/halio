@@ -141,8 +141,19 @@ def _search_ddg(cfg: Settings, query: str) -> list[dict]:
     return out[:8]
 
 
-def web_search(cfg: Settings, claim: str) -> tuple[list[dict], list[str]]:
-    """(kandidat halaman, kueri yg dijalankan) dari penyedia pencarian alternatif. Lempar error kalau semuanya gagal/kosong."""
+def _key(url: str) -> str:
+    from urllib.parse import urlparse
+
+    u = urlparse(url)
+    return (u.hostname or "") + u.path.rstrip("/")
+
+
+def web_search(cfg: Settings, claim: str, sources: int = 2) -> tuple[list[dict], list[str]]:
+    """(kandidat halaman, kueri yg dijalankan) dari penyedia pencarian alternatif. Lempar error kalau semuanya gagal/kosong.
+
+    Hasil dari sampai `sources` penyedia yg berhasil digabung selang-seling (peringkat 1 Mughu, peringkat 1 Tavily, ...) dan
+    dideduplikasi: sebagian halaman cek fakta gagal dibuka dari IP server, jadi kandidat dari dua mesin memperbesar peluang.
+    """
     query = f"{claim.strip()[:180]} hoaks cek fakta"
     providers = []
     if cfg.mughu_api_key:
@@ -153,17 +164,28 @@ def web_search(cfg: Settings, claim: str) -> tuple[list[dict], list[str]]:
         providers.append(("serper", _search_serper))
     providers.append(("duckduckgo", _search_ddg))
     last: Exception | None = None
+    batches: list[list[dict]] = []
     for name, fn in providers:
-        if _is_down(name):
+        if len(batches) >= sources:
+            break
+        if _is_down(name) or (name == "duckduckgo" and batches):   # DDG cuma pilihan terakhir kalau belum ada hasil lain
             continue
         try:
             found = fn(cfg, query)
             if found:
-                return found, [query]
+                batches.append(found)
         except Exception as exc:
             last = exc
             # kuota harian habis (429) ga akan pulih dalam semenit: istirahatkan lebih lama biar ga buang waktu tiap request
             quota = getattr(getattr(exc, "response", None), "status_code", None) == 429 or "quota" in str(exc).lower()
             _mark_down(name, 900.0 if quota else COOLDOWN_S)
             log.warning("pencarian %s gagal (%s)", name, type(exc).__name__)
-    raise last or RuntimeError("pencarian_alternatif_kosong")
+    if not batches:
+        raise last or RuntimeError("pencarian_alternatif_kosong")
+    merged, seen = [], set()
+    for rank in range(max(len(b) for b in batches)):
+        for b in batches:
+            if rank < len(b) and _key(b[rank]["uri"]) not in seen:
+                seen.add(_key(b[rank]["uri"]))
+                merged.append(b[rank])
+    return merged, [query]
