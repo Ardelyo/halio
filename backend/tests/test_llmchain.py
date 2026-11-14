@@ -12,6 +12,12 @@ PASSAGES = [evidence.Passage(id=1, text="Kemenkeu menyatakan tidak ada bansos tu
                              host="kemenkeu.go.id", publisher="Kemenkeu", tier="A", published=None, group="g1")]
 
 
+@pytest.fixture
+def needs_genai():
+    # CI tidak memasang google-genai (dependensi opsional); tes yg butuh SDK-nya dilewati di sana
+    pytest.importorskip("google.genai")
+
+
 @pytest.fixture(autouse=True)
 def _fresh():
     llmchain.reset()
@@ -46,13 +52,13 @@ def _call(behaviour, calls):
     return run
 
 
-def test_vertex_ok_does_not_touch_backup(monkeypatch):
+def test_vertex_ok_does_not_touch_backup(needs_genai, monkeypatch):
     calls, b = _fake_client(monkeypatch, {"vertex": "V", "gemini_key": "K"})
     assert llmchain.run_genai(CFG, _call(b, calls), "t") == "V"
     assert calls == ["vertex"]
 
 
-def test_vertex_rejected_falls_back_to_key_then_rests_vertex(monkeypatch):
+def test_vertex_rejected_falls_back_to_key_then_rests_vertex(needs_genai, monkeypatch):
     calls, b = _fake_client(monkeypatch, {"vertex": PermissionError("403"), "gemini_key": "K"})
     assert llmchain.run_genai(CFG, _call(b, calls), "t") == "K"
     assert calls == ["vertex", "gemini_key"]
@@ -61,14 +67,14 @@ def test_vertex_rejected_falls_back_to_key_then_rests_vertex(monkeypatch):
     assert calls == ["gemini_key"]
 
 
-def test_no_backup_key_raises_original_error(monkeypatch):
+def test_no_backup_key_raises_original_error(needs_genai, monkeypatch):
     calls, b = _fake_client(monkeypatch, {"vertex": PermissionError("403"), "gemini_key": "K"})
     with pytest.raises(PermissionError):
         llmchain.run_genai(replace(CFG, gemini_api_key=None), _call(b, calls), "t")
     assert calls == ["vertex"]
 
 
-def test_judge_falls_to_ontoken_when_both_gemini_fail(monkeypatch):
+def test_judge_falls_to_ontoken_when_both_gemini_fail(needs_genai, monkeypatch):
     def boom(*a, **k):
         raise PermissionError("403")
 
@@ -85,7 +91,7 @@ def test_judge_falls_to_ontoken_when_both_gemini_fail(monkeypatch):
     assert "<klaim>bansos tunai lewat WA</klaim>" in seen["user"]
 
 
-def test_judge_raises_when_no_ontoken_key(monkeypatch):
+def test_judge_raises_when_no_ontoken_key(needs_genai, monkeypatch):
     def boom(*a, **k):
         raise PermissionError("403")
 
@@ -115,7 +121,7 @@ def test_ontoken_without_key_is_a_clear_error():
         llmchain.ontoken_json(replace(CFG, ontoken_api_key=None), "s", "u")
 
 
-def test_discover_uses_alternative_search_when_gemini_search_dies(monkeypatch):
+def test_discover_uses_alternative_search_when_gemini_search_dies(needs_genai, monkeypatch):
     def boom(*a, **k):
         raise PermissionError("403")
 
