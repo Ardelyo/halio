@@ -73,22 +73,22 @@ def check(raw: _Dossier, evidence: dict[int, str]) -> tuple[dict, dict]:
 def _ask(claim: str, status_label: str, numbered: list[dict], cfg: Settings) -> _Dossier:
     import json
 
-    from google import genai
     from google.genai import types
 
-    # minta model nyusun draf kalimat laporan murni dr daftar bukti bernomor yg udah dikunci kode
-    client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
+    from .. import llmchain
+
+    # minta model nyusun draf kalimat laporan murni dr daftar bukti bernomor yg udah dikunci kode (Vertex dulu, lalu key Gemini API)
     payload = [{"no": b["no"], "penerbit": b["penerbit"], "jenis": b["tingkat_label"], "tanggal": b.get("tanggal") or None,
                 "hubungan": b.get("hubungan"), "kutipan": b["kutipan"]} for b in numbered]
-    resp = client.models.generate_content(
-        model=cfg.llm_model,
-        contents=f"<klaim>{claim}</klaim>\n<status>{status_label}</status>\n<bukti_json>{json.dumps(payload, ensure_ascii=False)}</bukti_json>",
+    contents = f"<klaim>{claim}</klaim>\n<status>{status_label}</status>\n<bukti_json>{json.dumps(payload, ensure_ascii=False)}</bukti_json>"
+    resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
+        model=cfg.llm_model, contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM, response_mime_type="application/json", response_schema=_Dossier,
             max_output_tokens=2500, thinking_config=types.ThinkingConfig(thinking_level="LOW"),
             http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
         ),
-    )
+    ), "penulis laporan")
     return _Dossier.model_validate_json(resp.text)
 
 

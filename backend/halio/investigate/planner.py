@@ -52,19 +52,19 @@ def _clean(queries: list[str], limit: int, avoid: set[str] = frozenset()) -> lis
 
 
 def _ask(system: str, content: str, cfg: Settings) -> list[str]:
-    from google import genai
     from google.genai import types
 
-    # minta Gemini bikin variasi kueri singkat pake mode thinking minimal biar ga lemot
-    client = genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)
-    resp = client.models.generate_content(
+    from .. import llmchain
+
+    # minta Gemini bikin variasi kueri singkat pake mode thinking minimal biar ga lemot (Vertex dulu, lalu key Gemini API)
+    resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
         model=cfg.llm_model, contents=content,
         config=types.GenerateContentConfig(
             system_instruction=system, response_mime_type="application/json", response_schema=_Plan,
             max_output_tokens=800, thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
             http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
         ),
-    )
+    ), "perencana kueri")
     return _Plan.model_validate_json(resp.text)
 
 
