@@ -723,3 +723,42 @@ def test_tni_topic_ignores_foreign_defence_ministers_but_keeps_indonesian_ones()
     titles = " | ".join(c["judul"] for c in out)
     assert "Hegseth" not in titles and "Menhan AS" not in titles
     assert "Wamenhan" in titles and "Barak Militer" in titles and "Menhan Rusia dan TNI" in titles
+
+
+def test_generic_pages_and_offtopic_sensor_items_stay_out_of_timeline_and_origin():
+    """Regresi dari laporan nyata: imbauan umum soal WhatsApp (2021) tampil sbg 'kemunculan paling awal' dan artikel sensor
+    'ganti nomor WhatsApp' ikut linimasa, padahal tidak membahas klaim."""
+    claim = "Langsung chat nomor WA untuk daftar, bayar biaya admin 150rb dulu."
+    generic = Page(text="Cek di situs Mafindo atau kirim pesan whatsapp ke chatbox Mafindo ke nomor 085921600500 untuk memastikan berita hoaks.",
+                   final_url="https://kominfo.magetan.go.id/x", title="Cek Kebenaran Berita Hoaks", published="2021-06-27")
+    scam = Page(text="Hoaks: langsung chat nomor WA untuk daftar bantuan dan bayar biaya admin 150rb dulu adalah penipuan, kata Komdigi.",
+                final_url="https://www.komdigi.go.id/y", title="Hoaks biaya admin bantuan", published="2026-08-26")
+
+    class Tools(FakeTools):
+        def search(self, q):
+            return [{"uri": generic.final_url, "title": "", "via": "google"}, {"uri": scam.final_url, "title": "", "via": "google"}]
+
+        def sensor(self, c):
+            return [{"uri": "https://www.viva.co.id/z", "title": "Ada Cara Mudah Ganti Nomor WhatsApp dengan Akun yang Sama",
+                     "via": "sensor", "seen": "2026-11-13"}]
+
+        def gdelt(self, q):
+            return []
+
+        def wayback_first(self, url):
+            return ""
+
+    pages = {generic.final_url: generic, scam.final_url: scam}
+    rep = investigate.run(claim, Settings(), toolbox=Tools(), fetch=lambda u: pages[u] if u in pages else (_ for _ in ()).throw(SourceError("http_403")),
+                          judge=lambda c, ps, cfg: [Judgement(p.id, "context", False) for p in ps], plan_ask=plan_ask,
+                          dossier_ask=dossier_ask, today=date(2026, 11, 15))
+    urls = [e["url"] for e in rep["linimasa"]]
+    assert generic.final_url not in urls and "https://www.viva.co.id/z" not in urls
+    assert rep["asal"] is None or rep["asal"]["pertama"]["url"] != generic.final_url
+
+
+def test_on_topic_requires_real_overlap():
+    c = "Langsung chat nomor WA untuk daftar, bayar biaya admin 150rb dulu."
+    assert investigate.on_topic(c, "Hoaks: chat nomor WA untuk daftar bantuan, bayar biaya admin 150rb")
+    assert not investigate.on_topic(c, "Ada Cara Mudah Ganti Nomor WhatsApp dengan Akun yang Sama")
+    assert not investigate.on_topic("kata dua", "kata dua tiga")

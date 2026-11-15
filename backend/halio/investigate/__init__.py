@@ -95,6 +95,16 @@ def verdict_sentences(core: str, text: str, title: str = "", limit: int = 2) -> 
     return out
 
 
+def on_topic(claim: str, title: str) -> bool:
+    """Judul temuan sampingan (sensor/GDELT) cuma boleh masuk linimasa kalau benar-benar sebangun dengan klaim:
+    minimal 3 kata isi sama dan separuh kata isi klaim. Tanpa ini artikel yg kebetulan berbagi 'nomor' & 'WhatsApp' ikut tampil."""
+    want = set(tokens(claim))
+    if len(want) < 3:
+        return False
+    shared = len(want & set(tokens(title)))
+    return shared >= 3 and shared / len(want) >= 0.5
+
+
 def _tier(url: str) -> str:
     return evidence.classify(url)[0]
 
@@ -311,14 +321,22 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         b["no"] = n
 
     # susun linimasa: gabungin halaman bertanggal, temuan sampingan, sm tangkapan paling awal dr Wayback
+    # sebuah halaman cuma dianggap "membahas klaim" (dan boleh jadi kemunculan paling awal) kalau (a) penilai menyatakan salah satu
+    # kutipannya mendukung/membantah klaim, atau (b) ada kalimat di halaman itu yg memuat >= 60% kata isi klaim (mis. blog/media
+    # yg mengulang klaimnya = calon asal-usul). halaman yg cuma berbagi 2-3 kata (imbauan umum soal WhatsApp) tidak cukup.
+    judged_on_topic = {i.passage.url for i in r.items if i.relation in ("supports", "refutes")}
+    want = set(tokens(r.core))
+    restates = {p.url for p in r.passages if want and len(want & set(tokens(p.text))) / len(want) >= 0.6}
+    discussed = lambda p: p["url"] in judged_on_topic or p["url"] in restates
     events = [{"tanggal": p["tanggal"], "judul": p["judul"], "url": p["url"], "penerbit": p["penerbit"], "tingkat": p["tingkat"],
-               "asal": "gambar" if p["gambar_sama"] and not p["relevan"] else "halaman",
-               "catatan": ("memuat gambar yang sama; " if p["gambar_sama"] else "") + ("membahas klaim" if p["relevan"] else "")}
-              for p in r.pages if p["relevan"] or p["gambar_sama"]]
+               "asal": "gambar" if p["gambar_sama"] and not discussed(p) else "halaman",
+               "catatan": ("memuat gambar yang sama; " if p["gambar_sama"] else "") + ("membahas klaim" if discussed(p) else "")}
+              for p in r.pages if discussed(p) or p["gambar_sama"]]
     events += [{"tanggal": h.get("seen") or h.get("tanggal", ""), "judul": h.get("title", ""), "url": h["uri"],
                 "penerbit": h.get("penerbit") or h.get("domain") or urlparse(h["uri"]).hostname, "tingkat": _tier(h["uri"]),
-                "asal": h["via"], "catatan": h.get("penilaian", "")} for h in r.side]
-    dated = sorted((p for p in r.pages if p["relevan"]), key=lambda p: p["tanggal"] or "9999")[:3]
+                "asal": h["via"], "catatan": h.get("penilaian", "")} for h in r.side
+               if h.get("via") not in ("sensor", "gdelt") or on_topic(claim, h.get("title", ""))]
+    dated = sorted((p for p in r.pages if discussed(p)), key=lambda p: p["tanggal"] or "9999")[:3]
     if r.left() > 8:
         with ThreadPoolExecutor(max_workers=3) as pool:
             for p, first in zip(dated, pool.map(r.tools.wayback_first, [p["url"] for p in dated])):
