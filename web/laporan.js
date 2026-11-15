@@ -145,6 +145,7 @@ function renderReport(r, job) {
     ${r.inti ? `<p class="lp-muted">Inti klaim yang dicari: ${esc(r.inti)}</p>` : ""}
     <span class="lp-chip ${esc(r.status)}">${STATUS_ICON[r.status] || ""} ${esc(r.status_label)}</span><span class="lp-strength">kekuatan bukti ${bar} ${esc(r.kekuatan)}/4</span>
     <p>${esc(r.alasan)}</p>
+    ${r.pemeriksaan_cepat ? `<p class="lp-muted"><b>Cek cepat:</b> pesan ini cocok dengan bantahan yang sudah dikurasi (${esc(r.pemeriksaan_cepat.status_label)}): “${esc(r.pemeriksaan_cepat.klaim_dibantah)}” ${(r.pemeriksaan_cepat.sumber || []).map((s) => `<a href="${esc(s.url)}" rel="noopener noreferrer">${esc(s.nama || s.url)}</a>`).join(" · ")}. Penelusuran di bawah menilai bukti web saja.</p>` : ""}
     <div class="lp-stats"><span>${esc(m.kueri)} kueri</span><span>${esc(m.kandidat)} kandidat URL</span><span>${esc(m.dibuka)} halaman dibuka</span><span>${esc(m.gagal)} gagal dibuka</span><span>${esc(m.kutipan)} kutipan</span><span>${esc(m.detik)} detik</span></div>
     ${(r.klaim_lain || []).length ? `<p class="lp-muted">Klaim lain dalam pesan (tidak ditelusuri di laporan ini): ${r.klaim_lain.map(esc).join(" · ")}</p>` : ""}
   </header>`);

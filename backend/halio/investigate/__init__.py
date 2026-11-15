@@ -95,6 +95,27 @@ def verdict_sentences(core: str, text: str, title: str = "", limit: int = 2) -> 
     return out
 
 
+def quick_check(text: str, cfg: Settings) -> dict | None:
+    """Hasil cek biasa yang hanya memakai korpus kurasi (tanpa AI, tanpa jaringan), supaya laporan Telusur tidak tampak
+    bertentangan dengan cek biasa untuk teks yang sama. Hanya ditampilkan bila korpus benar-benar cocok; TIDAK mengubah status
+    Telusur (yang tetap diputuskan bukti web dan aturan kode)."""
+    from dataclasses import replace
+
+    from .. import pipeline
+
+    try:
+        res = pipeline.check(text, replace(cfg, llm_enabled=False, link_check_enabled=False, google_factcheck_key=None))
+    except Exception as exc:
+        log.info("quick check unavailable: %s", type(exc).__name__)
+        return None
+    m = res.get("match")
+    if not m or res.get("status") not in ("terbukti_salah", "sejalan_dengan_sumber"):
+        return None
+    return {"status": res["status"], "status_label": res.get("status_label", res["status"]), "debunk_id": m["debunk_id"],
+            "skor": round(m["score"], 3), "klaim_dibantah": m["klaim_dibantah"], "sederhana": m["sederhana"],
+            "sumber": (m.get("sumber") or [])[:2]}
+
+
 def on_topic(claim: str, title: str) -> bool:
     """Judul temuan sampingan (sensor/GDELT) cuma boleh masuk linimasa kalau benar-benar sebangun dengan klaim:
     minimal 3 kata isi sama dan separuh kata isi klaim. Tanpa ini artikel yg kebetulan berbagi 'nomor' & 'WhatsApp' ikut tampil."""
@@ -377,6 +398,7 @@ def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: B
         "status": d.status, "status_label": status_label, "reason": d.reason, "kekuatan": d.kekuatan, "alasan": d.alasan,
         "laporan": text_out,
         "bukti": numbered,
+        "pemeriksaan_cepat": quick_check(text, cfg),
         "linimasa": line,
         "asal": origin.earliest(line),
         "varian": origin.variants(quotes),

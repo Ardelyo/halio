@@ -762,3 +762,40 @@ def test_on_topic_requires_real_overlap():
     assert investigate.on_topic(c, "Hoaks: chat nomor WA untuk daftar bantuan, bayar biaya admin 150rb")
     assert not investigate.on_topic(c, "Ada Cara Mudah Ganti Nomor WhatsApp dengan Akun yang Sama")
     assert not investigate.on_topic("kata dua", "kata dua tiga")
+
+
+def test_sentence_citing_two_unrelated_sources_is_dropped():
+    """Regresi dari laporan nyata: bantahan Pemprov Jateng (Purbaya) dan bantahan Pertamina (lowongan kerja) disatukan jadi satu
+    kalimat umum. Setiap kutipan yg dirujuk harus membahas hal yang sama dengan kalimatnya."""
+    evidence = {
+        2: "[HOAKS] Purbaya Minta Masyarakat Hubungi Nomor WhatsApp untuk Klaim Bantuan, kata Pemerintah Provinsi Jawa Tengah.",
+        6: "Vice President Pertamina memastikan informasi lowongan kerja melalui nomor WhatsApp tersebut adalah hoaks.",
+    }
+    merged = dossier._Sentence(teks="Pemerintah Provinsi Jawa Tengah dan Pertamina memastikan informasi yang meminta masyarakat "
+                                    "menghubungi nomor WhatsApp tertentu adalah tidak benar.", sumber=[2, 6])
+    single = dossier._Sentence(teks="Pemerintah Provinsi Jawa Tengah menyatakan permintaan menghubungi nomor WhatsApp untuk klaim bantuan adalah hoaks.", sumber=[2])
+    kept, stats = dossier.check(dossier._Dossier(temuan=[merged, single]), evidence)
+    assert [s["sumber"] for s in kept["temuan"]] == [[2]]
+    assert stats["dibuang"] == 1
+
+
+def test_sentence_citing_two_sources_on_the_same_claim_is_kept():
+    evidence = {
+        1: "[HOAKS] Video Presiden Prabowo membagikan bantuan tunai lewat WhatsApp dengan biaya administrasi adalah rekayasa.",
+        2: "Komdigi menegaskan video Presiden Prabowo membagikan bantuan tunai lewat WhatsApp dengan biaya administrasi adalah hoaks.",
+    }
+    ok = dossier._Sentence(teks="TurnBackHoax dan Komdigi menyatakan video Presiden Prabowo membagikan bantuan tunai lewat WhatsApp adalah hoaks.", sumber=[1, 2])
+    kept, stats = dossier.check(dossier._Dossier(ringkasan=[ok]), evidence)
+    assert len(kept["ringkasan"]) == 1 and stats["dibuang"] == 0
+
+
+def test_quick_check_reports_curated_corpus_match_without_changing_status():
+    """Teks yang cocok korpus: cek biasa bilang terbukti_salah, Telusur (bukti web saja) bisa bilang lain; laporan memuat keduanya."""
+    q = investigate.quick_check("Ada video Presiden bagi-bagi bantuan tunai, daftar lewat WA dan bayar biaya admin Rp150 ribu. SEBARKAN!!", Settings())
+    assert q and q["status"] == "terbukti_salah" and q["debunk_id"] and q["skor"] >= 0.4
+    assert investigate.quick_check("Besok Jakarta akan diguyur hujan es sebesar bola tenis menurut ramalan warga.", Settings()) is None
+
+
+def test_report_has_quick_check_field():
+    rep = run()
+    assert "pemeriksaan_cepat" in rep
