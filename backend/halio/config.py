@@ -64,6 +64,9 @@ class Settings:
     mughu_base_url: str = field(default_factory=lambda: os.getenv("MUGHU_BASE_URL", "https://mughu.id/api/v1").rstrip("/"))
     tavily_api_key: str | None = field(default_factory=lambda: os.getenv("TAVILY_API_KEY") or None)
     serper_api_key: str | None = field(default_factory=lambda: os.getenv("SERPER_API_KEY") or None)
+    # pencarian web lewat Claude (tool web_search Anthropic, diteruskan ON Token): lapis TERAKHIR, hanya dipakai bila Mughu/Tavily/Serper
+    # tidak memberi hasil (kuota habis, gangguan). berbayar per token dari saldo ON Token.
+    ontoken_search_model: str = field(default_factory=lambda: os.getenv("ONTOKEN_SEARCH_MODEL", "claude-haiku-5.5"))
     ontoken_model: str = field(default_factory=lambda: os.getenv("ONTOKEN_MODEL", "deepseek-v4.1-flash"))
 
     # baca foto & voice note jadi teks pake Gemini (media.py), dipisah dari HALIO_LLM biar logika vonis tetep stabil

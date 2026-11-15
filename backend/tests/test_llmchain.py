@@ -140,6 +140,7 @@ def test_web_search_prefers_tavily_then_serper(monkeypatch):
 
 
 def test_web_search_raises_when_everything_fails(monkeypatch):
+    monkeypatch.setattr(llmchain, "_search_claude", lambda c, q: [])
     monkeypatch.setattr(llmchain, "_search_ddg", lambda c, q: [])
     with pytest.raises(RuntimeError):
         llmchain.web_search(CFG, "x")
@@ -180,3 +181,38 @@ def test_web_search_merges_two_providers_interleaved_and_dedupes(monkeypatch):
     monkeypatch.setattr(llmchain, "_search_ddg", lambda c, q: pytest.fail("ddg tidak dipakai kalau sudah ada hasil"))
     found, _ = llmchain.web_search(cfg, "klaim")
     assert [x["uri"] for x in found] == ["https://a.go.id/1", "https://c.id/3", "https://b.go.id/2"]
+
+
+def test_claude_search_parses_urls_and_uses_anthropic_endpoint(monkeypatch):
+    seen = {}
+
+    class R:
+        def raise_for_status(self): pass
+        def json(self): return {"content": [
+            {"type": "thinking"}, {"type": "server_tool_use", "input": {"query": "q"}},
+            {"type": "web_search_tool_result", "content": [
+                {"type": "web_search_result", "url": "https://turnbackhoax.id/a", "title": "[HOAKS] a"},
+                {"type": "web_search_result", "title": "tanpa url"}]},
+            {"type": "text", "text": "ok"}]}
+
+    def post(url, headers, json, timeout):
+        seen.update(url=url, key=headers["x-api-key"], model=json["model"], tool=json["tools"][0]["type"])
+        return R()
+
+    monkeypatch.setattr(llmchain.httpx, "post", post)
+    out = llmchain._search_claude(CFG, "klaim")
+    assert out == [{"uri": "https://turnbackhoax.id/a", "title": "[HOAKS] a"}]
+    assert seen == {"url": "https://api.ontoken.id/v1/messages", "key": "o-key", "model": "claude-haiku-5.5", "tool": "web_search_20250305"}
+
+
+def test_claude_search_is_last_resort_only(monkeypatch):
+    cfg = replace(CFG, mughu_api_key="m")
+    monkeypatch.setattr(llmchain, "_search_mughu", lambda c, q: [{"uri": "https://a.go.id/1", "title": ""}])
+    monkeypatch.setattr(llmchain, "_search_claude", lambda c, q: pytest.fail("Claude berbayar tidak boleh dipakai bila Mughu berhasil"))
+    assert llmchain.web_search(cfg, "x")[0][0]["uri"] == "https://a.go.id/1"
+    # semua mesin gratis gagal -> baru Claude
+    llmchain.reset()
+    monkeypatch.setattr(llmchain, "_search_mughu", lambda c, q: (_ for _ in ()).throw(RuntimeError("mughu_quota")))
+    monkeypatch.setattr(llmchain, "_search_claude", lambda c, q: [{"uri": "https://infopublik.id/z", "title": ""}])
+    monkeypatch.setattr(llmchain, "_search_ddg", lambda c, q: pytest.fail("ddg setelah Claude berhasil tidak boleh"))
+    assert llmchain.web_search(cfg, "x")[0][0]["uri"] == "https://infopublik.id/z"
