@@ -8,7 +8,7 @@ Aturan dokumen ini: hanya tandai **SELESAI** bila ada bukti yang bisa dibuka. Si
 
 Pemeriksaan terakhir: 14 Nov 2026, dari `main` (`7a607da`; server publik build `7a607da-20261113-2224`, rilis `v0.2.1-luring`). Pada 14 Nov: 273 tes lulus di CI Linux dan lokal, uji mode luring lulus pada situs hidup dan GitHub Pages (Chrome, jaringan diputus), `eval/RESULTS.md` sesuai hasil run, `/health` server publik melaporkan build `7a607da`. Pemeriksaan 12 Nov: 266 tes lulus, `eval/RESULTS.md` identik dengan hasil run baru, semua tautan publik di dokumen ini menjawab HTTP 200, dan `/health` server publik melaporkan build `e16d354`.
 
-> **Catatan 15 Nov 2026:** server publik kini build `91ab4b2` (rantai cadangan model dan pencarian, `llmchain.py`); 286 tes lulus di CI dan lokal. Jalur AI memakai rantai Vertex AI → kunci Gemini API → ON Token (GLM 5.3 Flash) untuk penilaian, dan Mughu + Tavily untuk pencarian web cadangan, lalu korpus kurasi bila semuanya tidak tersedia. Vonis tetap diputuskan kode dan kutipan tetap dicek di halaman sumber. Video dan tangkapan layar tertanggal 12 Nov direkam dengan jalur Vertex; di jalur cadangan, jawaban bisa lebih sering `tidak yakin`.
+> **Catatan 15 Nov 2026:** server publik kini build `76d12aa` (rantai cadangan model dan pencarian, `llmchain.py`); 288 tes lulus di CI dan lokal. Jalur AI memakai rantai Vertex AI → kunci Gemini API → ON Token (GLM 5.3 Flash) untuk penilaian, dan Mughu + Tavily untuk pencarian web cadangan, lalu korpus kurasi bila semuanya tidak tersedia. Vonis tetap diputuskan kode dan kutipan tetap dicek di halaman sumber. Video dan tangkapan layar tertanggal 12 Nov direkam dengan jalur Vertex; di jalur cadangan, jawaban bisa lebih sering `tidak yakin`.
 
 ## Pendaftaran (Rulebook §E)
 
