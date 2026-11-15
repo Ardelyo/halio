@@ -116,3 +116,5 @@ python -m halio.channels.telegram   # bot (atau sebagai layanan kedua di compose
 - Kualitas LLM berbahasa Indonesia dan cakupan ClaimReview Indonesia belum diukur.
 - Tidak ada uji pengguna lansia Indonesia; efek label peringatan (~25% pengurangan berbagi) berasal dari studi laboratorium Barat (Martel & Rand 2024).
 - Halio **tidak** mendeteksi deepfake. Ia mencocokkan klaim dengan bantahan yang sudah ada.
+
+> **Ketahanan penyedia model (15 Nov 2026):** bila Vertex AI tidak tersedia, Halio mencoba berurutan kunci Gemini API (model sama), lalu ON Token (penilaian saja), dengan pencarian web cadangan lewat Mughu dan Tavily (hasil digabung, hanya daftar URL). Kode tetap membuka setiap halaman dan memverifikasi kutipan persis, jadi model cadangan tidak bisa mengubah vonis sendirian. Rincian: `backend/halio/llmchain.py`, `docs/PROFIL_PENERAPAN.md`.

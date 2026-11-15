@@ -27,6 +27,8 @@ Cek: `git log --oneline -1` harus menunjukkan commit terbaru, dan `git status` b
 | `HALIO_RETENTION_DAYS` | `30` (retensi data, lihat `docs/PRIVACY.md`) |
 | `HALIO_MAX_BODY_MB` | `16`; samakan dengan `request_body max_size` di Caddy (`deploy/Caddyfile.example`) |
 
+Opsional untuk ketahanan: isi `GEMINI_API_KEY`, `ONTOKEN_API_KEY` (`ONTOKEN_MODEL=glm-5.3-flash`), `MUGHU_API_KEY`, `TAVILY_API_KEY` di `.env.systemd`; tanpa itu Halio langsung turun ke korpus bila Vertex tidak tersedia. Key hanya di server, jangan di-commit.
+
 Pastikan di proyek GCP: **Vertex AI API aktif**, dan akun layanan VM punya peran `Vertex AI User` (VM dibuat dengan `--scopes cloud-platform`).
 
 ## C. Deploy ke server (dari akar repo, sudah `gcloud auth login`)

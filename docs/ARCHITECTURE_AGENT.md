@@ -60,3 +60,5 @@ memori selama penelusuran dan tidak ditulis ke basis data. Lihat juga `docs/PRIV
 - **Biaya**: setiap investigasi ±20 panggilan model ber-grounding. Harga grounding per permintaan tidak kami verifikasi;
   pasang peringatan anggaran.
 - **Video** belum.
+
+> **Ketahanan penyedia model (15 Nov 2026):** bila Vertex AI tidak tersedia, Halio mencoba berurutan kunci Gemini API (model sama), lalu ON Token (penilaian saja), dengan pencarian web cadangan lewat Mughu dan Tavily (hasil digabung, hanya daftar URL). Kode tetap membuka setiap halaman dan memverifikasi kutipan persis, jadi model cadangan tidak bisa mengubah vonis sendirian. Rincian: `backend/halio/llmchain.py`, `docs/PROFIL_PENERAPAN.md`.
