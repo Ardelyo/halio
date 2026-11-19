@@ -306,11 +306,11 @@ def gemini_discover(claim: str, cfg: Settings) -> tuple[list[dict], list[str]]:
     prompt = f"Tanggal hari ini: {datetime.now(WIB).date().isoformat()}\nKlaim:\n<klaim>{claim}</klaim>"
     # Vertex dulu, kalau ditolak/gagal lanjut ke key Gemini API (llmchain). pencarian web cuma ada di dua jalur Gemini ini.
     try:
-        resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
-            model=cfg.llm_model, contents=prompt,
+        resp = llmchain.run_genai(cfg, lambda client, model: client.models.generate_content(
+            model=model, contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction=DISCOVER_SYSTEM, tools=[types.Tool(google_search=types.GoogleSearch())],
-                max_output_tokens=800, thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+                max_output_tokens=800, thinking_config=llmchain.thinking(model, "MINIMAL"),
                 http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
             ),
         ), "pencarian bukti")
@@ -326,6 +326,14 @@ def gemini_discover(claim: str, cfg: Settings) -> tuple[list[dict], list[str]]:
             web = getattr(chunk, "web", None)
             if web and web.uri:
                 found.append({"uri": web.uri, "title": web.title or ""})
+    if not found:
+        # Gemini jawab tapi tanpa halaman rujukan (model ga memicu pencarian): coba mesin pencari alternatif, kalau gagal tetap kosong
+        try:
+            alt, alt_q = llmchain.web_search(cfg, claim)
+            if alt:
+                return alt, alt_q
+        except Exception:
+            pass
     return found, queries[:4]
 
 
@@ -336,11 +344,11 @@ def gemini_judge(claim: str, passages: list[Passage], cfg: Settings) -> list[Jud
     payload = [{"id": p.id, "penerbit": p.publisher, "tanggal": p.published.isoformat() if p.published else None, "kutipan": p.text} for p in passages]
     contents = f"<klaim>{claim}</klaim>\n<kutipan_json>{json.dumps(payload, ensure_ascii=False)}</kutipan_json>"
     try:
-        resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
-            model=cfg.llm_model, contents=contents,
+        resp = llmchain.run_genai(cfg, lambda client, model: client.models.generate_content(
+            model=model, contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=JUDGE_SYSTEM, response_mime_type="application/json", response_schema=_JudgementList,
-                max_output_tokens=1500, thinking_config=types.ThinkingConfig(thinking_level="LOW"),
+                max_output_tokens=1500, thinking_config=llmchain.thinking(model, "LOW"),
                 http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
             ),
         ), "penilaian kutipan")

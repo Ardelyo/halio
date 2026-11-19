@@ -54,18 +54,18 @@ def read_media(data: bytes, mime: str, cfg: Settings) -> MediaReading | None:
 
         # Gemini di sini murni buat baca teks di gambar / transkrip suara, bukan nentuin fotonya asli atau rekayasa.
         # Vertex dulu, kalau gagal lanjut ke key Gemini API (llmchain).
-        response = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
-            model=cfg.media_model,
+        response = llmchain.run_genai(cfg, lambda client, model: client.models.generate_content(
+            model=model,
             contents=[types.Part.from_bytes(data=data, mime_type=mime), "Baca media ini sesuai aturan."],
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM,
                 response_mime_type="application/json",
                 response_schema=MediaReading,
                 max_output_tokens=3000,
-                thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+                thinking_config=llmchain.thinking(model, "MINIMAL"),
                 http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
             ),
-        ), "baca media")
+        ), "baca media", models=tuple(llmchain.model_chain(cfg.media_model, cfg.media_fallback_models)))
         return MediaReading.model_validate_json(response.text)
     except Exception as exc:  # jaringan putus, kuota abis, atau file rusak jgn smpe bikin bot ikutan tumbang
         log.warning("Media reading unavailable: %s", type(exc).__name__)

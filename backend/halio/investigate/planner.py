@@ -57,11 +57,11 @@ def _ask(system: str, content: str, cfg: Settings) -> list[str]:
     from .. import llmchain
 
     # minta Gemini bikin variasi kueri singkat pake mode thinking minimal biar ga lemot (Vertex dulu, lalu key Gemini API)
-    resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
-        model=cfg.llm_model, contents=content,
+    resp = llmchain.run_genai(cfg, lambda client, model: client.models.generate_content(
+        model=model, contents=content,
         config=types.GenerateContentConfig(
             system_instruction=system, response_mime_type="application/json", response_schema=_Plan,
-            max_output_tokens=800, thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+            max_output_tokens=800, thinking_config=llmchain.thinking(model, "MINIMAL"),
             http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
         ),
     ), "perencana kueri")

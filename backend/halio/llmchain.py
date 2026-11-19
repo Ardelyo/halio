@@ -43,27 +43,50 @@ def _mark_down(name: str, seconds: float = COOLDOWN_S) -> None:
         _down[name] = time.monotonic() + seconds
 
 
-def run_genai(cfg: Settings, call: Callable[[object], T], label: str) -> T:
-    """Jalanin call(client) ke Vertex dulu, lalu ke key Gemini API. Lempar error terakhir kalau semuanya gagal."""
+def thinking(model: str, level: str):
+    """ThinkingConfig yg cocok buat modelnya. Seri gemini-4 menolak level MINIMAL (400) dan thinking defaultnya menghabiskan
+    batas token (hasil pencarian kosong), jadi MINIMAL dinaikkan jadi LOW."""
+    from google.genai import types
+
+    if model.startswith("gemini-4") and level.upper() == "MINIMAL":
+        level = "LOW"
+    return types.ThinkingConfig(thinking_level=level)
+
+
+def model_chain(primary: str, fallbacks: tuple[str, ...] = ()) -> list[str]:
+    """Model utama diikuti cadangan, tanpa duplikat, urutan terjaga."""
+    out: list[str] = []
+    for m in (primary, *fallbacks):
+        if m and m not in out:
+            out.append(m)
+    return out
+
+
+def run_genai(cfg: Settings, call: Callable[[object, str], T], label: str, *, models: tuple[str, ...] | None = None) -> T:
+    """Jalanin call(client, model). Urutan: tiap model (utama lalu cadangan) x tiap jalur (Vertex lalu key Gemini API).
+
+    Pasangan (jalur, model) yg gagal diistirahatkan 60 detik. Lempar error terakhir kalau semuanya gagal."""
     from google import genai
 
-    makers: list[tuple[str, Callable[[], object]]] = [
+    providers: list[tuple[str, Callable[[], object]]] = [
         ("vertex", lambda: genai.Client(vertexai=True, project=cfg.google_cloud_project, location=cfg.google_cloud_location)),
     ]
     if cfg.gemini_api_key:
-        makers.append(("gemini_key", lambda: genai.Client(api_key=cfg.gemini_api_key)))
+        providers.append(("gemini_key", lambda: genai.Client(api_key=cfg.gemini_api_key)))
+    chain = models if models is not None else tuple(model_chain(cfg.llm_model, cfg.llm_fallback_models))
+    attempts = [(f"{pname}:{model}", make, model) for model in chain for pname, make in providers]
 
     last: Exception | None = None
-    for i, (name, make) in enumerate(makers):
-        # penyedia yg lagi diistirahatkan dilompati, kecuali tinggal dia satu-satunya yg belum dicoba
-        if _is_down(name) and i < len(makers) - 1:
+    for i, (name, make, model) in enumerate(attempts):
+        # pasangan yg lagi diistirahatkan dilompati, kecuali tinggal dia satu-satunya yg belum dicoba
+        if _is_down(name) and i < len(attempts) - 1:
             continue
         try:
-            return call(make())
+            return call(make(), model)
         except Exception as exc:
             last = exc
             _mark_down(name)
-            log.warning("%s: %s gagal (%s)%s", label, name, type(exc).__name__, ", coba cadangan" if i < len(makers) - 1 else "")
+            log.warning("%s: %s gagal (%s)%s", label, name, type(exc).__name__, ", coba cadangan" if i < len(attempts) - 1 else "")
     assert last is not None
     raise last
 

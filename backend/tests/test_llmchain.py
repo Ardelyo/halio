@@ -43,7 +43,7 @@ def _fake_client(monkeypatch, behaviour):
 
 
 def _call(behaviour, calls):
-    def run(client):
+    def run(client, model=None):
         calls.append(client.name)
         out = behaviour[client.name]
         if isinstance(out, Exception):
@@ -216,3 +216,40 @@ def test_claude_search_is_last_resort_only(monkeypatch):
     monkeypatch.setattr(llmchain, "_search_claude", lambda c, q: [{"uri": "https://infopublik.id/z", "title": ""}])
     monkeypatch.setattr(llmchain, "_search_ddg", lambda c, q: pytest.fail("ddg setelah Claude berhasil tidak boleh"))
     assert llmchain.web_search(cfg, "x")[0][0]["uri"] == "https://infopublik.id/z"
+
+
+def test_model_fallback_order_and_thinking(needs_genai, monkeypatch):
+    # model utama gagal di semua jalur -> pindah ke model cadangan; MINIMAL jadi LOW buat seri gemini-4
+    calls, seen = [], []
+
+    class Fake:
+        name = "vertex"
+
+    from google import genai
+    monkeypatch.setattr(genai, "Client", lambda *a, **k: Fake())
+    cfg = replace(CFG, gemini_api_key=None, llm_model="gemini-4-hydrogen", llm_fallback_models=("gemini-4-neon", "gemini-3.5-flash-lite"))
+
+    def run(client, model):
+        seen.append(model)
+        if model != "gemini-3.5-flash-lite":
+            raise RuntimeError("404")
+        return model
+
+    assert llmchain.run_genai(cfg, run, "t") == "gemini-3.5-flash-lite"
+    assert seen == ["gemini-4-hydrogen", "gemini-4-neon", "gemini-3.5-flash-lite"]
+    seen.clear()
+    assert llmchain.run_genai(cfg, run, "t") == "gemini-3.5-flash-lite"   # dua model pertama lagi diistirahatkan
+    assert seen == ["gemini-3.5-flash-lite"]
+    assert llmchain.thinking("gemini-4-neon", "MINIMAL").thinking_level.value.endswith("LOW")
+    assert llmchain.thinking("gemini-3.5-flash-lite", "MINIMAL") is not None
+    assert llmchain.model_chain("a", ("a", "b", "")) == ["a", "b"]
+
+
+def test_discover_empty_grounding_uses_alt_search(needs_genai, monkeypatch):
+    class Resp:
+        candidates = []
+
+    monkeypatch.setattr(llmchain, "run_genai", lambda *a, **k: Resp())
+    monkeypatch.setattr(llmchain, "web_search", lambda cfg, claim: ([{"uri": "https://x.go.id/a", "title": "A"}], ["q"]))
+    found, q = evidence.gemini_discover("klaim", CFG)
+    assert found and found[0]["uri"] == "https://x.go.id/a"

@@ -9,6 +9,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _csv(name: str, default: str = "") -> tuple[str, ...]:
+    return tuple(x.strip() for x in os.getenv(name, default).split(",") if x.strip())
+
+
 def _bool(name: str, default: bool = False) -> bool:
     return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
 
@@ -46,6 +50,9 @@ class Settings:
             "claude-haiku-5-5" if os.getenv("HALIO_LLM_PROVIDER", "google") == "anthropic" else "gemini-3.5-flash-lite",
         )
     )
+    # model cadangan (dicoba berurutan kalau model utama gagal/ditolak/ga tersedia), dipisah koma. tiap model dicoba di Vertex lalu key Gemini API.
+    llm_fallback_models: tuple[str, ...] = field(default_factory=lambda: _csv("HALIO_LLM_FALLBACK_MODELS", "gemini-3.5-flash-lite"))
+    media_fallback_models: tuple[str, ...] = field(default_factory=lambda: _csv("HALIO_MEDIA_FALLBACK_MODELS", "gemini-3.5-flash-lite"))
     google_cloud_project: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_PROJECT", "gemma4good-494311"))
     # Gemini 3.5 Flash-Lite adanya di endpoint "global" (atau multi-region us/eu), bukan di us-central1
     google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global"))

@@ -96,11 +96,11 @@ def _ask(claim: str, status_label: str, numbered: list[dict], cfg: Settings) -> 
     payload = [{"no": b["no"], "penerbit": b["penerbit"], "jenis": b["tingkat_label"], "tanggal": b.get("tanggal") or None,
                 "hubungan": b.get("hubungan"), "kutipan": b["kutipan"]} for b in numbered]
     contents = f"<klaim>{claim}</klaim>\n<status>{status_label}</status>\n<bukti_json>{json.dumps(payload, ensure_ascii=False)}</bukti_json>"
-    resp = llmchain.run_genai(cfg, lambda client: client.models.generate_content(
-        model=cfg.llm_model, contents=contents,
+    resp = llmchain.run_genai(cfg, lambda client, model: client.models.generate_content(
+        model=model, contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM, response_mime_type="application/json", response_schema=_Dossier,
-            max_output_tokens=2500, thinking_config=types.ThinkingConfig(thinking_level="LOW"),
+            max_output_tokens=2500, thinking_config=llmchain.thinking(model, "LOW"),
             http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
         ),
     ), "penulis laporan")
