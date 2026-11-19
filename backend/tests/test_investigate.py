@@ -345,7 +345,7 @@ def test_brief_build_and_latest_merge_investigations(tmp_path, monkeypatch):
     monkeypatch.setattr(SensorStore, "items_since", lambda self, since, limit=3000: _rows())
 
     class FakeJobs:
-        def submit(self, text, reporter, channel):
+        def submit(self, text, reporter, channel, image=None, effort="medium"):
             return "j" * 32
 
         def get(self, job_id):
@@ -696,7 +696,7 @@ def test_brief_recognises_fact_check_labels_and_investigates_only_signalled_narr
     submitted = []
 
     class FakeJobs:
-        def submit(self, text, reporter, channel):
+        def submit(self, text, reporter, channel, image=None, effort="medium"):
             submitted.append(text)
             return "j" * 32
 
@@ -799,3 +799,13 @@ def test_quick_check_reports_curated_corpus_match_without_changing_status():
 def test_report_has_quick_check_field():
     rep = run()
     assert "pemeriksaan_cepat" in rep
+
+
+def test_brief_effort_high_for_big_narratives_low_for_small(tmp_path, monkeypatch):
+    from halio.investigate import brief
+
+    assert brief.effort_for({"jumlah_sumber": 4, "jenis_sumber": ["berita"], "skor": 5}) == "high"
+    assert brief.effort_for({"jumlah_sumber": 2, "jenis_sumber": ["cek_fakta", "berita"], "skor": 5}) == "high"
+    assert brief.effort_for({"jumlah_sumber": 1, "jenis_sumber": ["resmi"], "skor": 3}) == "low"
+    assert brief.effort_for({"jumlah_sumber": 2, "jenis_sumber": ["berita"], "skor": 6}) == "low"
+    assert brief.effort_for({"jumlah_sumber": 1, "jenis_sumber": ["berita"], "skor": 20}) == "high"

@@ -432,7 +432,7 @@ function renderBrief(data) {
         <p class="brief-meta">${h.asal ? `Kemunculan paling awal yang ditemukan: ${esc(h.asal.tanggal)} · ${esc(h.asal.penerbit)} · ` : ""}${esc(h.bukti)} bukti · ${esc(h.dibuka ?? 0)} halaman dibuka</p>${link}</div>`;
     } else if (n.catatan) result = `<div class="brief-result">${esc(n.catatan)}</div>`;
     return `<article class="brief-card"><span class="brief-rank">NARASI ${i + 1} · SKOR ${esc(n.skor)}</span><h3>${esc(n.judul)}</h3>
-      <div class="brief-tags"><span>${esc(n.jumlah_berita)} berita</span><span>${esc(n.jumlah_sumber)} sumber</span>${n.jenis_sumber.includes("cek_fakta") ? '<span class="hot">pemeriksa fakta terlibat</span>' : ""}${n.berbau_hoaks ? '<span class="hot">kata hoaks/penipuan</span>' : ""}<span>pertama ${esc(formatDate(n.pertama, true))}</span></div>
+      <div class="brief-tags"><span>${esc(n.jumlah_berita)} berita</span><span>${esc(n.jumlah_sumber)} sumber</span>${n.upaya ? `<span>upaya ${esc(n.upaya)}</span>` : ""}${n.jenis_sumber.includes("cek_fakta") ? '<span class="hot">pemeriksa fakta terlibat</span>' : ""}${n.berbau_hoaks ? '<span class="hot">kata hoaks/penipuan</span>' : ""}<span>pertama ${esc(formatDate(n.pertama, true))}</span></div>
       <ul class="brief-heads">${n.berita.map((x) => `<li><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.judul)}</a> <small>· ${esc(x.sumber)}</small></li>`).join("")}</ul>${result}</article>`;
   }).join("") + context;
 }

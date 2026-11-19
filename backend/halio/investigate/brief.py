@@ -38,6 +38,13 @@ _HOAX = re.compile(r"\bhoa[xk]s?\b|cek fakta|tidak benar|keliru|disinformasi|pen
                    r"\[\s*(salah|hoaks?|penipuan|misleading|menyesatkan|disinformasi|fitnah|satire|konten palsu)\s*\]", re.I)
 _PREFIX = re.compile(r"^\s*(\[[^\]]{2,20}\]|hoaks?!?:?|cek fakta:?|klarifikasi:?)\s*", re.I)
 
+def effort_for(n: dict) -> str:
+    """Tingkat usaha telusur otomatis (Radar): narasi besar (banyak sumber / pemeriksa fakta + beberapa sumber) = high, sisanya yg kecil = low.
+    Sengaja ga ada medium: rangkuman pagi harus hemat kuota pencarian (Mughu 100/hari), jadi yg ga jelas besar dibiarin low."""
+    big = n.get("jumlah_sumber", 0) >= 3 or ("cek_fakta" in n.get("jenis_sumber", []) and n.get("jumlah_sumber", 0) >= 2) or n.get("skor", 0) >= 14
+    return "high" if big else "low"
+
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS briefs (id TEXT PRIMARY KEY, created TEXT NOT NULL, day TEXT NOT NULL, topic TEXT NOT NULL, data TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS idx_briefs_topic ON briefs (topic, created);
@@ -116,9 +123,10 @@ class Briefs:
                    for c in found if not c["perlu_ditelusuri"] and "resmi" in c["jenis_sumber"]][:6]
         for n in narratives[:top]:
             n["investigasi"] = None
+            n["upaya"] = effort_for(n)
             if jobs is not None:
                 try:
-                    n["investigasi"] = jobs.submit(n["judul"], "brief", "demo")
+                    n["investigasi"] = jobs.submit(n["judul"], "brief", "demo", effort=n["upaya"])
                 except Exception as exc:  # kl kuota harian abis atau model mati, daftar narasinya tetep ditampilin
                     n["catatan"] = f"Belum ditelusuri: {exc}"
         brief = {
