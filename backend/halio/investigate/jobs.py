@@ -56,12 +56,12 @@ class Jobs:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def _run(self, text: str, progress: Callable, image=None) -> dict:
+    def _run(self, text: str, progress: Callable, image=None, effort: str = "medium") -> dict:
         if self._runner:
             return self._runner(text, progress)
         from . import run
 
-        return run(text, self.cfg, progress=progress, image=image)
+        return run(text, self.cfg, progress=progress, image=image, effort=effort)
 
     def prune(self) -> None:
         """Delete finished or failed investigations older than the retention window. Queued and running jobs stay."""
@@ -76,7 +76,7 @@ class Jobs:
             return None
         return hashlib.sha256(f"{daily_salt(c, day)}|telusur|{reporter}".encode()).hexdigest()[:16]
 
-    def submit(self, text: str, reporter: str | None, channel: str, image: tuple[bytes, str] | None = None) -> str:
+    def submit(self, text: str, reporter: str | None, channel: str, image: tuple[bytes, str] | None = None, effort: str = "medium") -> str:
         """The image (if any) stays in memory for the run only; it is never written to the database."""
         day = datetime.now(WIB).date().isoformat()
         if self._last_prune != day:
@@ -95,7 +95,7 @@ class Jobs:
             job_id = uuid.uuid4().hex
             c.execute("INSERT INTO investigations (id, created, day, reporter, channel, status, stage, progress) VALUES (?,?,?,?,?,?,?,?)",
                       (job_id, datetime.now(WIB).isoformat(timespec="seconds"), day, reporter, channel, "antre", "antre", "{}"))
-        self._pool.submit(self._work, job_id, text, image)
+        self._pool.submit(self._work, job_id, text, image, effort)
         return job_id
 
     def _progress(self, job_id: str) -> Callable:
@@ -108,11 +108,11 @@ class Jobs:
                 c.execute("UPDATE investigations SET stage=?, progress=? WHERE id=?", (stage, json.dumps(counts), job_id))
         return say
 
-    def _work(self, job_id: str, text: str, image=None) -> None:
+    def _work(self, job_id: str, text: str, image=None, effort: str = "medium") -> None:
         with self._conn() as c:
             c.execute("UPDATE investigations SET status='berjalan' WHERE id=?", (job_id,))
         try:
-            report = self._run(text, self._progress(job_id), image)
+            report = self._run(text, self._progress(job_id), image, effort)
             with self._conn() as c:
                 c.execute("UPDATE investigations SET status='selesai', stage='selesai', report=?, claim=? WHERE id=?",
                           (json.dumps(report, ensure_ascii=False, default=str), report.get("klaim", ""), job_id))

@@ -307,6 +307,7 @@ class InvestigateIn(BaseModel):
     check_id: str | None = Field(default=None, min_length=32, max_length=32)
     image_b64: str | None = Field(default=None, max_length=12_000_000)
     mime: str | None = Field(default=None, max_length=40)
+    effort: str = Field(default="medium", pattern="^(low|medium|high)$", description="tingkat usaha: low (flash-lite), medium (hydrogen), high (neon)")
 
     @field_validator("text")
     @classmethod
@@ -347,7 +348,7 @@ def api_investigate(body: InvestigateIn, request: Request) -> dict:
         except ValueError:
             raise HTTPException(400, "Berkas foto rusak.")
     try:
-        job_id = jobs().submit(text, reporter_for(request, settings, body.reporter), body.channel, image=image)
+        job_id = jobs().submit(text, reporter_for(request, settings, body.reporter), body.channel, image=image, effort=body.effort)
     except LimitReached as exc:
         raise HTTPException(429, str(exc))
     return {"id": job_id, "url": f"/laporan.html?id={job_id}", "status": "antre"}

@@ -51,6 +51,15 @@ class Budget:
     judge_batch: int = 14
     passages: int = 42         # total kutipan yg dikirim buat dinilai model
 
+    @classmethod
+    def for_effort(cls, effort: str) -> "Budget":
+        """low = cepat & hemat, medium = bawaan, high = lebih banyak kueri, halaman, dan waktu."""
+        if effort == "low":
+            return cls(queries=6, followups=2, pages=30, seconds=90.0, passages=28)
+        if effort == "high":
+            return cls(queries=14, followups=6, pages=90, seconds=210.0, passages=60)
+        return cls()
+
 
 _CHATTY = {"bapak", "ibu", "langsung", "chat", "daftar", "sebarkan", "segera", "tolong", "teruskan", "grup", "dulu", "waspada"}
 
@@ -285,10 +294,11 @@ class _Run:
 
 def run(text: str, cfg: Settings, *, progress: Callable | None = None, budget: Budget | None = None, toolbox=None,
         fetch=fetch_page, judge=evidence.gemini_judge, plan_ask=planner._ask, dossier_ask=dossier._ask,
-        today: date | None = None, clock=time.monotonic, image: tuple[bytes, str] | None = None) -> dict:
+        today: date | None = None, clock=time.monotonic, image: tuple[bytes, str] | None = None, effort: str = "medium") -> dict:
     from ..pipeline import STATUS_LABEL
 
-    budget = budget or Budget()
+    budget = budget or Budget.for_effort(effort)
+    cfg = cfg.with_effort(effort)
     today = today or datetime.now(WIB).date()
     claim = claims.extract(text).text
     r = _Run(claim, cfg, budget, toolbox or Toolbox(cfg), fetch, judge, progress, clock)

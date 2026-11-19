@@ -31,7 +31,7 @@ function fail(text, retry = false) {
 async function start(text) {
   $("#go").disabled = true;
   try {
-    const body = { text, channel: "web" };
+    const body = { text, channel: "web", effort: $("#effort")?.value || "medium" };
     const file = $("#photo")?.files?.[0];
     if (file) {
       if (file.size > 6_000_000) throw new Error("Foto terlalu besar (maksimal 6 MB).");

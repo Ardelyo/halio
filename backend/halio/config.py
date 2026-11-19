@@ -47,12 +47,16 @@ class Settings:
     llm_model: str = field(
         default_factory=lambda: os.getenv(
             "HALIO_LLM_MODEL",
-            "claude-haiku-5-5" if os.getenv("HALIO_LLM_PROVIDER", "google") == "anthropic" else "gemini-3.5-flash-lite",
+            "claude-haiku-5-5" if os.getenv("HALIO_LLM_PROVIDER", "google") == "anthropic" else "gemini-4-hydrogen",
         )
     )
     # model cadangan (dicoba berurutan kalau model utama gagal/ditolak/ga tersedia), dipisah koma. tiap model dicoba di Vertex lalu key Gemini API.
-    llm_fallback_models: tuple[str, ...] = field(default_factory=lambda: _csv("HALIO_LLM_FALLBACK_MODELS", "gemini-3.5-flash-lite"))
-    media_fallback_models: tuple[str, ...] = field(default_factory=lambda: _csv("HALIO_MEDIA_FALLBACK_MODELS", "gemini-3.5-flash-lite"))
+    llm_fallback_models: tuple[str, ...] = field(default_factory=lambda: _csv("HALIO_LLM_FALLBACK_MODELS", "gemini-4-neon,gemini-3.5-flash-lite"))
+    media_fallback_models: tuple[str, ...] = field(default_factory=lambda: _csv("HALIO_MEDIA_FALLBACK_MODELS", "gemini-4-neon,gemini-3.5-flash-lite"))
+    # Telusur (riset mendalam) punya tingkat usaha: low = flash-lite, medium = hydrogen, high = neon. tiap tingkat punya rantai cadangan sendiri.
+    effort_low: str = field(default_factory=lambda: os.getenv("HALIO_MODEL_LOW", "gemini-3.5-flash-lite"))
+    effort_medium: str = field(default_factory=lambda: os.getenv("HALIO_MODEL_MEDIUM", "gemini-4-hydrogen"))
+    effort_high: str = field(default_factory=lambda: os.getenv("HALIO_MODEL_HIGH", "gemini-4-neon"))
     google_cloud_project: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_PROJECT", "gemma4good-494311"))
     # Gemini 3.5 Flash-Lite adanya di endpoint "global" (atau multi-region us/eu), bukan di us-central1
     google_cloud_location: str = field(default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
@@ -91,7 +95,7 @@ class Settings:
     csp_mode: str = field(default_factory=lambda: os.getenv("HALIO_CSP", "enforce").strip().lower())
     # rangkuman pagi analis (investigate/brief.py): jalan tiap lewat jam 06:00 WIB kl dinyalain (butuh sensor + HALIO_LLM=1)
     brief_enabled: bool = field(default_factory=lambda: _bool("HALIO_BRIEF"))
-    media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-3.5-flash-lite"))
+    media_model: str = field(default_factory=lambda: os.getenv("HALIO_MEDIA_MODEL", "gemini-4-hydrogen"))
     # intip isi link yg diterusin user biar ketauan beneran situs resmi atau jebakan (link_check.py)
     link_check_enabled: bool = field(default_factory=lambda: os.getenv("HALIO_LINK_CHECK", "1") != "0")
 
@@ -126,5 +130,21 @@ class Settings:
     # Meta ngasih tanda tangan HMAC (X-Hub-Signature-256) pake app secret ini di tiap POST webhook, wajib ada
     wa_app_secret: str | None = field(default_factory=lambda: os.getenv("WHATSAPP_APP_SECRET") or None)
 
+    def with_effort(self, effort: str) -> "Settings":
+        """Salinan setelan dgn model utama + cadangan sesuai tingkat usaha Telusur (low|medium|high; selain itu dianggap medium).
+        Rantai selalu naik/turun ke dua tingkat lain sbg cadangan, ditambah cadangan bawaan di belakangnya."""
+        from dataclasses import replace
+
+        order = {"low": (self.effort_low, self.effort_medium, self.effort_high),
+                 "medium": (self.effort_medium, self.effort_high, self.effort_low),
+                 "high": (self.effort_high, self.effort_medium, self.effort_low)}[effort if effort in EFFORTS else "medium"]
+        chain: list[str] = []
+        for m in (*order, *self.llm_fallback_models):
+            if m and m not in chain:
+                chain.append(m)
+        return replace(self, llm_model=chain[0], llm_fallback_models=tuple(chain[1:]))
+
+
+EFFORTS = ("low", "medium", "high")
 
 settings = Settings()

@@ -231,7 +231,7 @@ def test_gemini_defaults(monkeypatch):
     for k in ("HALIO_LLM_MODEL", "HALIO_LLM_PROVIDER", "GOOGLE_CLOUD_LOCATION"):
         monkeypatch.delenv(k, raising=False)
     cfg = Settings()
-    assert (cfg.llm_provider, cfg.llm_model, cfg.google_cloud_location) == ("google", "gemini-3.5-flash-lite", "global")
+    assert (cfg.llm_provider, cfg.llm_model, cfg.google_cloud_location) == ("google", "gemini-4-hydrogen", "global")
     monkeypatch.setenv("HALIO_LLM_PROVIDER", "anthropic")
     assert Settings().llm_model == "claude-haiku-5-5"
 

@@ -70,7 +70,7 @@ def test_vertex_rejected_falls_back_to_key_then_rests_vertex(needs_genai, monkey
 def test_no_backup_key_raises_original_error(needs_genai, monkeypatch):
     calls, b = _fake_client(monkeypatch, {"vertex": PermissionError("403"), "gemini_key": "K"})
     with pytest.raises(PermissionError):
-        llmchain.run_genai(replace(CFG, gemini_api_key=None), _call(b, calls), "t")
+        llmchain.run_genai(replace(CFG, gemini_api_key=None, llm_fallback_models=()), _call(b, calls), "t")
     assert calls == ["vertex"]
 
 
@@ -253,3 +253,36 @@ def test_discover_empty_grounding_uses_alt_search(needs_genai, monkeypatch):
     monkeypatch.setattr(llmchain, "web_search", lambda cfg, claim: ([{"uri": "https://x.go.id/a", "title": "A"}], ["q"]))
     found, q = evidence.gemini_discover("klaim", CFG)
     assert found and found[0]["uri"] == "https://x.go.id/a"
+
+
+def test_effort_levels_pick_models_and_chains():
+    from halio import investigate
+
+    c = Settings()
+    lo, me, hi = c.with_effort("low"), c.with_effort("medium"), c.with_effort("high")
+    assert lo.llm_model == "gemini-3.5-flash-lite" and me.llm_model == "gemini-4-hydrogen" and hi.llm_model == "gemini-4-neon"
+    for x in (lo, me, hi):   # tiap rantai memuat ketiga model tanpa duplikat
+        assert sorted([x.llm_model, *x.llm_fallback_models]) == sorted(["gemini-3.5-flash-lite", "gemini-4-hydrogen", "gemini-4-neon"])
+    assert lo.llm_fallback_models[0] == "gemini-4-hydrogen" and hi.llm_fallback_models[0] == "gemini-4-hydrogen"
+    assert c.with_effort("aneh").llm_model == "gemini-4-hydrogen"
+    assert Settings().llm_model == "gemini-4-hydrogen"   # cek hoaks biasa
+    assert investigate.Budget.for_effort("low").pages < investigate.Budget().pages < investigate.Budget.for_effort("high").pages
+
+
+def test_api_investigate_accepts_effort_only_valid(monkeypatch):
+    from fastapi.testclient import TestClient
+    from halio import api
+
+    seen = {}
+
+    class J:
+        def submit(self, text, reporter, channel, image=None, effort="medium"):
+            seen["effort"] = effort
+            return "a" * 32
+
+    monkeypatch.setattr(api, "jobs", lambda: J())
+    monkeypatch.setattr(api, "settings", replace(api.settings, llm_enabled=True, llm_provider="google"))
+    cl = TestClient(api.app)
+    r = cl.post("/api/investigate", json={"text": "klaim yang cukup panjang sekali", "effort": "high"})
+    assert r.status_code == 202 and seen["effort"] == "high"
+    assert cl.post("/api/investigate", json={"text": "klaim yang cukup panjang sekali", "effort": "ultra"}).status_code == 422
