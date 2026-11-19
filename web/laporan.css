@@ -100,3 +100,27 @@ details.lp-method summary { cursor: pointer; font-weight: 600; }
 .fam-advice { background: var(--sun-soft); border-radius: 14px; padding: .9rem 1.1rem; margin: 1.2rem 0; }
 .fam-advice p { margin: .3rem 0 0; }
 @media (max-width: 600px) { .fam { font-size: 1.1rem; padding: 18px; } .fam-head { font-size: 1.6rem; } }
+
+/* pilihan tingkat usaha telusur: tiga kartu radio, satu kolom di ponsel */
+.lp-effort { border: 0; margin: 1rem 0 0; padding: 0; min-width: 0; }
+.lp-effort legend { font: 700 1rem var(--display); color: var(--ink); padding: 0; margin-bottom: .6rem; }
+.lp-effort-grid { display: grid; gap: .6rem; grid-template-columns: 1fr; }
+@media (min-width: 680px) { .lp-effort-grid { grid-template-columns: repeat(3, 1fr); } }
+.lp-eff { display: block; cursor: pointer; }
+.lp-eff input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.lp-eff-card { position: relative; display: flex; flex-direction: column; gap: .3rem; height: 100%; padding: .85rem .95rem; background: var(--white);
+  border: 1.5px solid var(--line); border-radius: 14px; transition: border-color .15s, background .15s, box-shadow .15s; }
+.lp-eff:hover .lp-eff-card { border-color: var(--sky); }
+.lp-eff input:checked + .lp-eff-card { border-color: var(--blue); background: var(--blue-soft); box-shadow: 0 0 0 3px rgba(1, 75, 170, .12); }
+.lp-eff input:focus-visible + .lp-eff-card { outline: 3px solid var(--sun); outline-offset: 2px; }
+.lp-eff-top { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.lp-eff-top b { font: 700 1.05rem var(--display); color: var(--ink); }
+.lp-eff-meter { display: inline-flex; gap: 3px; }
+.lp-eff-meter i { width: 14px; height: 8px; border-radius: 3px; background: var(--cream-2); }
+.lp-eff-meter i.on { background: var(--blue); }
+.lp-eff-time { font: 600 .85rem var(--sans); color: var(--blue); }
+.lp-eff-desc { font-size: .88rem; line-height: 1.4; color: var(--ink-2); }
+.lp-eff-tag { position: absolute; top: -9px; right: 12px; background: var(--sun); color: var(--ink); font: 700 .68rem var(--sans); letter-spacing: .04em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+.lp-eff-note { margin: .6rem 0 0; font-size: .85rem; }
+@media (prefers-reduced-motion: reduce) { .lp-eff-card { transition: none; } }

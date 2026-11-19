@@ -31,7 +31,7 @@ function fail(text, retry = false) {
 async function start(text) {
   $("#go").disabled = true;
   try {
-    const body = { text, channel: "web", effort: $("#effort")?.value || "medium" };
+    const body = { text, channel: "web", effort: effortValue() };
     const file = $("#photo")?.files?.[0];
     if (file) {
       if (file.size > 6_000_000) throw new Error("Foto terlalu besar (maksimal 6 MB).");
@@ -212,6 +212,27 @@ async function version() {
 }
 
 // kl ada parameter id di url langsung pantau laporannya, kl ada q langsung isiin ke kotak
+// tingkat usaha: kartu pilihan (radio) yg diingat di browser; nilai ga valid selalu jatuh ke "medium"
+const EFFORTS = { low: "Cepat", medium: "Seimbang", high: "Mendalam" };
+function effortValue() {
+  const v = document.querySelector('input[name="effort"]:checked')?.value;
+  return v in EFFORTS ? v : "medium";
+}
+function initEffort() {
+  let saved = "";
+  try { saved = localStorage.getItem("halio-effort") || ""; } catch {}
+  const wanted = new URLSearchParams(location.search).get("upaya") || saved;
+  const radio = document.querySelector(`input[name="effort"][value="${wanted in EFFORTS ? wanted : "medium"}"]`);
+  if (radio) radio.checked = true;
+  const sync = () => {
+    const v = effortValue();
+    $("#go").textContent = `Mulai penelusuran · ${EFFORTS[v]}`;
+    try { localStorage.setItem("halio-effort", v); } catch {}
+  };
+  document.querySelectorAll('input[name="effort"]').forEach((r) => r.addEventListener("change", sync));
+  sync();
+}
+
 function init() {
   $("#print").onclick = () => window.print();
   if (window.HALIO_STATIC_DEMO) return fail("Halio Telusur membutuhkan server Halio (pencarian web sungguhan). Halaman ini sedang dibuka sebagai demo statis.");
@@ -220,7 +241,7 @@ function init() {
   if (q.get("id")) return poll(q.get("id"));
   show("#start");
   if (q.get("q")) $("#claim").value = q.get("q");
-  if (q.get("q") && q.get("mulai") === "1") return start(q.get("q"));
+  initEffort();
   $("#go").onclick = () => {
     const t = $("#claim").value.trim();
     if (t.length >= 10 || $("#photo")?.files?.length) start(t);
