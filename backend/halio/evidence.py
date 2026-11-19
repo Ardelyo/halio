@@ -304,28 +304,35 @@ def gemini_discover(claim: str, cfg: Settings) -> tuple[list[dict], list[str]]:
     from google.genai import types
 
     prompt = f"Tanggal hari ini: {datetime.now(WIB).date().isoformat()}\nKlaim:\n<klaim>{claim}</klaim>"
-    # Vertex dulu, kalau ditolak/gagal lanjut ke key Gemini API (llmchain). pencarian web cuma ada di dua jalur Gemini ini.
-    try:
-        resp = llmchain.run_genai(cfg, lambda client, model: client.models.generate_content(
-            model=model, contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=DISCOVER_SYSTEM, tools=[types.Tool(google_search=types.GoogleSearch())],
-                max_output_tokens=800, thinking_config=llmchain.thinking(model, "MINIMAL"),
-                http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
-            ),
-        ), "pencarian bukti")
-    except Exception:
-        # pencarian Google lewat Gemini mati: pakai mesin pencari alternatif (Tavily/Serper/DuckDuckGo). kalau itu juga gagal,
-        # error dilempar lagi dan pemanggil jatuh ke mode korpus seperti sebelumnya.
-        return llmchain.web_search(cfg, claim)
+    # Google Search grounding lewat project GCP adalah mesin pencari UTAMA. tiap model di rantai dicoba bergantian (Vertex lalu key Gemini API);
+    # model yg menjawab tanpa memicu pencarian (0 halaman) atau gagal diganti model berikutnya. mesin lain (Mughu/Tavily/...) cuma cadangan.
     found, queries = [], []
-    for cand in resp.candidates or []:
-        meta = getattr(cand, "grounding_metadata", None)
-        queries += list(getattr(meta, "web_search_queries", None) or [])
-        for chunk in getattr(meta, "grounding_chunks", None) or []:
-            web = getattr(chunk, "web", None)
-            if web and web.uri:
-                found.append({"uri": web.uri, "title": web.title or ""})
+    any_ok = False
+    for model in llmchain.model_chain(cfg.llm_model, cfg.llm_fallback_models):
+        try:
+            resp = llmchain.run_genai(cfg, lambda client, m: client.models.generate_content(
+                model=m, contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=DISCOVER_SYSTEM, tools=[types.Tool(google_search=types.GoogleSearch())],
+                    max_output_tokens=800, thinking_config=llmchain.thinking(m, "MINIMAL"),
+                    http_options=types.HttpOptions(timeout=int(cfg.agent_timeout_s * 1000)),
+                ),
+            ), "pencarian bukti", models=(model,))
+        except Exception:
+            continue
+        any_ok = True
+        for cand in resp.candidates or []:
+            meta = getattr(cand, "grounding_metadata", None)
+            queries += list(getattr(meta, "web_search_queries", None) or [])
+            for chunk in getattr(meta, "grounding_chunks", None) or []:
+                web = getattr(chunk, "web", None)
+                if web and web.uri:
+                    found.append({"uri": web.uri, "title": web.title or ""})
+        if found:
+            break
+    if not any_ok:
+        # semua model Google gagal: pakai mesin pencari alternatif. kalau itu juga gagal, error dilempar lagi dan pemanggil jatuh ke mode korpus.
+        return llmchain.web_search(cfg, claim)
     if not found:
         # Gemini jawab tapi tanpa halaman rujukan (model ga memicu pencarian): coba mesin pencari alternatif, kalau gagal tetap kosong
         try:

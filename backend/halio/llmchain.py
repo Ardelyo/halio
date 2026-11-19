@@ -53,6 +53,11 @@ def thinking(model: str, level: str):
     return types.ThinkingConfig(thinking_level=level)
 
 
+def _is_quota(exc: Exception) -> bool:
+    text = f"{getattr(exc, 'code', '')} {getattr(exc, 'status', '')} {exc}"
+    return "429" in text or "RESOURCE_EXHAUSTED" in text
+
+
 def model_chain(primary: str, fallbacks: tuple[str, ...] = ()) -> list[str]:
     """Model utama diikuti cadangan, tanpa duplikat, urutan terjaga."""
     out: list[str] = []
@@ -82,10 +87,16 @@ def run_genai(cfg: Settings, call: Callable[[object, str], T], label: str, *, mo
         if _is_down(name) and i < len(attempts) - 1:
             continue
         try:
-            return call(make(), model)
+            try:
+                return call(make(), model)
+            except Exception as exc:
+                if not _is_quota(exc):
+                    raise
+                time.sleep(1.5)   # kuota/laju sesaat (429): coba sekali lagi di model & jalur yg sama sblm pindah
+                return call(make(), model)
         except Exception as exc:
             last = exc
-            _mark_down(name)
+            _mark_down(name, 15.0 if _is_quota(exc) else COOLDOWN_S)
             log.warning("%s: %s gagal (%s)%s", label, name, type(exc).__name__, ", coba cadangan" if i < len(attempts) - 1 else "")
     assert last is not None
     raise last

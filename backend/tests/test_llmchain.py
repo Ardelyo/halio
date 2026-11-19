@@ -286,3 +286,51 @@ def test_api_investigate_accepts_effort_only_valid(monkeypatch):
     r = cl.post("/api/investigate", json={"text": "klaim yang cukup panjang sekali", "effort": "high"})
     assert r.status_code == 202 and seen["effort"] == "high"
     assert cl.post("/api/investigate", json={"text": "klaim yang cukup panjang sekali", "effort": "ultra"}).status_code == 422
+
+
+def test_discover_tries_next_google_model_before_alt_search(needs_genai, monkeypatch):
+    class Chunk:
+        class web:
+            uri = "https://cekfakta.go.id/a"
+            title = "A"
+
+    class Meta:
+        web_search_queries = ["q"]
+        grounding_chunks = [Chunk]
+
+    class Cand:
+        grounding_metadata = Meta
+
+    class Full:
+        candidates = [Cand]
+
+    class Empty:
+        candidates = []
+
+    order = []
+
+    def fake(cfg, call, label, models=None):
+        order.append(models[0])
+        return Empty() if models[0] == "gemini-4-neon" else Full()
+
+    monkeypatch.setattr(llmchain, "run_genai", fake)
+    monkeypatch.setattr(llmchain, "web_search", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Mughu tidak boleh dipakai")))
+    cfg = replace(CFG, llm_model="gemini-4-neon", llm_fallback_models=("gemini-4-hydrogen",))
+    found, q = evidence.gemini_discover("klaim", cfg)
+    assert order == ["gemini-4-neon", "gemini-4-hydrogen"] and found[0]["uri"].startswith("https://cekfakta")
+
+
+def test_quota_error_retries_once_then_rests_briefly(needs_genai, monkeypatch):
+    from google import genai
+    monkeypatch.setattr(genai, "Client", lambda *a, **k: object())
+    monkeypatch.setattr(llmchain.time, "sleep", lambda s: None)
+    n = {"c": 0}
+
+    def run(client, model):
+        n["c"] += 1
+        if n["c"] == 1:
+            raise RuntimeError("429 RESOURCE_EXHAUSTED")
+        return "ok"
+
+    cfg = replace(CFG, gemini_api_key=None, llm_fallback_models=())
+    assert llmchain.run_genai(cfg, run, "t") == "ok" and n["c"] == 2
