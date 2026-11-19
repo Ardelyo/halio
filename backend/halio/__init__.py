@@ -1,7 +1,7 @@
 """Halio: asisten cek pesan untuk keluarga Indonesia."""
 import os
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 # diisi pas deploy lewat deploy_gce.sh (hash pendek + tanggal) biar ketauan build mana yg lagi bales chat
 BUILD = os.getenv("HALIO_BUILD", "lokal")
 
