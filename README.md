@@ -219,7 +219,7 @@ Juga lewat halaman `/verifikasi.html`, `POST /api/verify`, dan `GET /api/pubkey`
 
 ### Medan Uji: 8 serangan hidup
 
-`/uji.html` memanggil fungsi asli Halio, bukan tiruan. Tujuh uji berjalan lokal tanpa AI dan tanpa jaringan; uji prompt injection memanggil model sungguhan (pada tangkapan di bawah AI mati, jadi uji 1 berstatus "Tidak dijalankan", dan itu ditampilkan apa adanya).
+`/uji.html` memanggil fungsi asli Halio, bukan tiruan. Tujuh uji berjalan lokal tanpa AI dan tanpa jaringan; uji 1 (prompt injection) memanggil model sungguhan (Gemini lewat Vertex) dan butuh `HALIO_LLM=1`. Tangkapan di bawah diambil dengan AI aktif: kedelapan uji **lulus**, dan pada uji 1 model menilai halaman jebakan sebagai `unrelated` dalam 10,6 detik, vonis akhir `tidak_yakin`, tidak pernah hijau.
 
 <img src="docs/img/medan-uji.png" alt="Medan Uji: delapan serangan hidup beserta langkah-langkah buktinya" width="100%">
 
