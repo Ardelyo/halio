@@ -2,7 +2,7 @@
 globalThis.HalioEngineData = {
  "version": "luring-1",
  "corpusSha256": "a55d114871506dba4abd9700116ea18a35bc8348867237609cf3b08d5db7d585",
- "registrySha256": "d44d05e7f640b8add720f25e966d6e93a0de4edf5b344fcb403f4050f9e767f9",
+ "registrySha256": "c5addcd86b33575b0015e1fd98b69557c9f6df6252b0d0fb1583a5b0eaf171d6",
  "thresholds": {
   "match": 0.4,
   "unsure": 0.26
