@@ -40,6 +40,21 @@ function shortDate(value) {
   return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short" }).format(new Date(`${value}T00:00:00+07:00`));
 }
 
+// unduh LAPSUS Siber Sosial (JSON bertanda tangan Ed25519). Periksa di verifikasi.html atau: python -m halio.verify berkas.json
+async function exportLapsus() {
+  if (STATIC) return toast("Demo statis tidak punya server penanda tangan.", true);
+  try {
+    const data = await request(`/api/radar/lapsus?days=${state.days}`);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `lapsus-siber-sosial-${data.payload.period.until}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast("LAPSUS diunduh. Periksa keasliannya di halaman Verifikasi.");
+  } catch (error) { toast(error.status === 401 ? "Perlu akses analis (token Radar)." : error.message, true); }
+}
+
 function toast(text, error = false) {
   const item = document.createElement("div");
   item.className = `toast${error ? " error" : ""}`;
@@ -490,6 +505,7 @@ function init() {
   $("#resolve-form").onsubmit = resolveTicket;
   $("#refresh").onclick = loadDashboard;
   $("#access").onclick = openAccess;
+  $("#lapsus").onclick = exportLapsus;
   $("#access-close").onclick = () => $("#access-dialog").close();
   $("#access-dialog").addEventListener("click", (event) => { if (event.target === event.currentTarget) event.currentTarget.close(); });
   $("#access-form").onsubmit = (event) => {

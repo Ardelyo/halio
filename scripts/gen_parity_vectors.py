@@ -25,6 +25,16 @@ OUT = ROOT / "backend" / "tests" / "parity_vectors.json"
 CFG = replace(Settings(), google_factcheck_key=None, llm_enabled=False, link_check_enabled=False)
 
 HAND = [
+    "Pendaftaran Bintara TNI AD 2026 dibuka di ad.rekrutmen-tni.mil.id, gratis tanpa biaya apa pun.",
+    "Pendaftaran Bintara TNI AD gratis, tapi bayar 5 juta lewat calo supaya lulus",
+    "Seleksi masuk TNI AD sama sekali tidak dipungut biaya, biaya pendidikan ditanggung negara",
+    "Pendaftaran tamtama TNI AD gratis, daftar di rekrutmen-tniad.xyz",
+    "Pendaftaran Bintara TNI AD tidak gratis, bayar dulu",
+    "bisa bantu masuk bintara TNI lwt kenalan perwira, ada uang pelicin dikit",
+    "Mau anaknya jadi tentara? Saya punya orang dalam di Kodam, pasti lulus, siapkan 150 juta",
+    "Undangan nikah.apk silakan dibuka, install aplikasinya sekarang",
+    "Paket anda sudah sampai, lihat foto paket di resi.apk dari kurir",
+    "Ibu, anak ibu kecelakaan harus dioperasi, tolong transfer sekarang ke rekening ini",
     "Selamat pagi semua, semoga hari ini menyenangkan.",
     "INFO VALID!!! SEGERA SEBARKAN KE 10 GRUP!!! GEMPA BESAR DAN TSUNAMI AKAN MELANDA JAKARTA MINGGU DEPAN TANGGAL 12!!!",
     "Hati-hati penipuan bansos, itu hoaks. Pemerintah tidak pernah minta biaya admin lewat WhatsApp.",

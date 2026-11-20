@@ -12,6 +12,8 @@ from collections import OrderedDict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+import math
+
 from .textnorm import tokens
 
 WIB = timezone(timedelta(hours=7))
@@ -54,6 +56,15 @@ def today() -> str:
 
 def now_iso() -> str:
     return datetime.now(WIB).isoformat(timespec="seconds")
+
+
+def zscore(now: int, earlier: list[int]) -> float:
+    """Seberapa jauh hari ini dari hari-hari sebelumnya. Simpangan baku dilantai 0.5 supaya hari-hari sepi (semua nol) tidak meledakkan angka."""
+    if not earlier:
+        return 0.0
+    mean = sum(earlier) / len(earlier)
+    std = math.sqrt(sum((x - mean) ** 2 for x in earlier) / len(earlier))
+    return round((now - mean) / max(std, 0.5), 2)
 
 
 def claim_hash(text: str) -> str:
@@ -285,6 +296,50 @@ class Store:
             "hari_ini": self._suppress(now),
             "rata_rata_sebelumnya": avg,
             "harian": [{"day": d, "n": self._suppress(counts.get(d, 0)) if counts.get(d, 0) else 0} for d in series],
+        }
+
+    def lapsus(self, days: int = 14) -> dict:
+        """Isi LAPSUS Siber Sosial: lonjakan topik (z-score), sebaran trik, kategori. Hanya agregat: tanpa teks pesan, tanpa pelapor,
+        semua angka kecil (< min_cell) disamarkan. Ditandatangani di lapisan API (crypto_sign)."""
+        days = max(3, min(days, 90))
+        end = date.fromisoformat(today())
+        since = (end - timedelta(days=days - 1)).isoformat()
+        series = [(end - timedelta(days=i)).isoformat() for i in range(days - 1, -1, -1)]
+        with self._conn() as c:
+            deb = c.execute("SELECT day, debunk_id, kategori, COUNT(*) n FROM events WHERE day>=? AND debunk_id IS NOT NULL GROUP BY day, debunk_id", (since,)).fetchall()
+            kat = c.execute("SELECT kategori, COUNT(*) n FROM events WHERE day>=? AND kategori IS NOT NULL GROUP BY kategori ORDER BY n DESC", (since,)).fetchall()
+            tni = c.execute("SELECT day, COUNT(*) n FROM events WHERE day>=? AND kategori='penipuan_catut_tni' GROUP BY day", (since,)).fetchall()
+            tech = c.execute("SELECT techniques FROM events WHERE day>=? AND techniques<>''", (since,)).fetchall()
+            total = c.execute("SELECT COUNT(*) n FROM events WHERE day>=?", (since,)).fetchone()["n"]
+        per: dict[str, dict] = {}
+        for r in deb:
+            item = per.setdefault(r["debunk_id"], {"kategori": r["kategori"], "harian": {}})
+            item["harian"][r["day"]] = r["n"]
+        topics = []
+        for debunk_id, item in per.items():
+            counts = [item["harian"].get(d, 0) for d in series]
+            now, earlier = counts[-1], counts[:-1]
+            z = zscore(now, earlier)
+            burst = now >= self.min_cell and z >= 2.0
+            topics.append({"debunk_id": debunk_id, "kategori": item["kategori"], "hari_ini": self._suppress(now),
+                           "rata_rata_sebelumnya": round(sum(earlier) / len(earlier), 1), "z": z,
+                           "peringatan": "lonjakan" if burst else "normal"})
+        topics.sort(key=lambda t: (t["peringatan"] != "lonjakan", -t["z"]))
+        techniques: dict[str, int] = {}
+        for row in tech:
+            for t in row["techniques"].split(","):
+                techniques[t] = techniques.get(t, 0) + 1
+        return {
+            "kind": "lapsus_siber_sosial",
+            "period": {"since": since, "until": end.isoformat(), "days": days},
+            "k_anonymity": self.k,
+            "total_cek": self._suppress(total) if total else 0,
+            "topik_melonjak": topics[:10],
+            "peringatan_dini": any(t["peringatan"] == "lonjakan" for t in topics),
+            "distribusi_trik": [{"trik": k, "n": self._suppress(v)} for k, v in sorted(techniques.items(), key=lambda kv: -kv[1])],
+            "kategori": [{"kategori": r["kategori"], "n": self._suppress(r["n"])} for r in kat],
+            "penipuan_catut_tni": self._tni_trend(tni, days),
+            "catatan_privasi": f"Hanya agregat. Angka di bawah {self.min_cell} disamarkan, tidak memuat teks pesan atau identitas pelapor, dan klaim baru baru muncul di Radar setelah {self.k} pelapor berbeda.",
         }
 
     def radar(self, days: int = 14) -> dict:

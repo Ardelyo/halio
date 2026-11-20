@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Res
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from . import BUILD, __version__, card, pipeline, review, voice
+from . import BUILD, __version__, card, crypto_sign, forensics, pipeline, review, verify, voice
 from .channels import whatsapp
 from .config import settings
 from .ingest import coverage
@@ -228,7 +228,9 @@ def api_check_media(body: MediaIn, request: Request) -> dict:
     result = run_check(CheckIn(text=reading.text, channel=body.channel, sapaan=body.sapaan),
                        reporter_for(request, settings, body.reporter))
     result["readable"] = True
-    result["media"] = {**reading.model_dump(), "authenticity_checked": False}
+    # forensik metadata jalan lokal; hasilnya indikator teknis, bukan vonis keaslian (authenticity_checked tetap False)
+    result["media"] = {**reading.model_dump(), "authenticity_checked": False,
+                       "forensik": forensics.inspect_image_bytes(data) if body.mime.startswith("image/") else None}
     return result
 
 
@@ -239,7 +241,25 @@ def api_get(check_id: str) -> dict:
 
 @app.get("/api/card/{check_id}.png")
 def api_card(check_id: str) -> Response:
-    return Response(card.render(_cached(check_id)), media_type="image/png")
+    return Response(card.render(_cached(check_id), signer=crypto_sign.get_signer()), media_type="image/png")
+
+
+@app.get("/api/pubkey")
+def api_pubkey() -> dict:
+    """Kunci publik satuan: dipakai siapa pun untuk memeriksa Kartu Halio / LAPSUS secara mandiri (halio.verify --pubkey)."""
+    signer = crypto_sign.get_signer()
+    return {"alg": signer.alg, "key_id": signer.key_id, "public_key_pem": signer.public_pem}
+
+
+@app.post("/api/verify")
+async def api_verify(request: Request) -> dict:
+    """Badan permintaan = byte mentah Kartu Halio PNG atau JSON laporan. Batas ukuran dijaga middleware `protect`."""
+    data = await request.body()
+    if not data or len(data) > MAX_BODY_BYTES:
+        raise HTTPException(400, "Kirim berkas Kartu Halio (PNG) atau laporan JSON.")
+    res = verify.verify_bytes(data, crypto_sign.get_signer().public_pem)
+    res["key_id"] = crypto_sign.get_signer().key_id
+    return res
 
 
 @app.get("/api/voice/{check_id}.mp3")
@@ -443,6 +463,14 @@ def api_resolve_review(request: Request, item_type: str, item_id: int, body: Rev
 def api_radar(request: Request, days: int = 14, authorization: str | None = Header(default=None)) -> dict:
     _require_radar_token(authorization, request)
     return store.radar(days=max(1, min(days, 90)))
+
+
+@app.get("/api/radar/lapsus")
+def api_radar_lapsus(request: Request, days: int = 14, authorization: str | None = Header(default=None)) -> dict:
+    """LAPSUS Siber Sosial: ringkasan lonjakan topik + sebaran trik + kategori catut TNI, ditandatangani Ed25519.
+    Periksa dengan `python -m halio.verify lapsus.json` (simpan seluruh respons) atau halaman /verifikasi.html."""
+    _require_radar_token(authorization, request)
+    return crypto_sign.sign_payload(store.lapsus(days=max(3, min(days, 90))))
 
 
 @app.get("/api/sensor/coverage")

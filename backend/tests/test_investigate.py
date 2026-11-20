@@ -586,7 +586,7 @@ def test_live_safety_tests_that_need_no_model():
     from halio import selftest
 
     a = selftest.domain_palsu()
-    assert a["lulus"] is True and len(a["langkah"]) == 5
+    assert a["lulus"] is True and len(a["langkah"]) == 10  # 6 alamat + 4 uji forensik
     b = selftest.kalimat_dikarang()
     assert b["lulus"] is True and "2 dibuang" in b["catatan"] and "dibuang oleh pemeriksa" in b["catatan"]
 
@@ -615,7 +615,8 @@ def test_uji_api_lists_and_runs(monkeypatch):
     from halio import api
 
     c = TestClient(api.app)
-    assert {t["nama"] for t in c.get("/api/uji").json()} == {"injeksi", "domain_palsu", "kalimat_dikarang"}
+    assert {t["nama"] for t in c.get("/api/uji").json()} == {"injeksi", "domain_palsu", "kalimat_dikarang", "kartu_dipalsukan", "rilis_resmi",
+                                                              "parafrase_calo", "apk_jebakan", "k_anonimitas"}
     r = c.post("/api/uji/domain_palsu").json()
     assert r["lulus"] is True and r["judul"]
     assert c.post("/api/uji/tidak_ada").status_code == 404

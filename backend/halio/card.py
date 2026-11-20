@@ -103,7 +103,8 @@ def draw_mark(img: Image.Image, x: int, y: int, s: int) -> None:
 
 
 # bagian favorit nih ngerender kartu gambar 1080x1080 buat diterusin ke grup wa keluarga
-def render(result: dict) -> bytes:
+def render(result: dict, signer=None) -> bytes:
+    """Kartu PNG. Dgn `signer` (crypto_sign.Signer): stempel ID Verifikasi di footer + tanda tangan Ed25519 di chunk PNG."""
     color, title = THEME[result["status"]]
     img = Image.new("RGB", (SIZE, SIZE), CREAM)
     d = ImageDraw.Draw(img)
@@ -148,6 +149,23 @@ def render(result: dict) -> bytes:
     d.text((wx + word_w, SIZE - 118), ".", font=wf, fill=BLUE)
     draw_mark(img, int(wx - 70), SIZE - 112, 54)
 
+    payload = None
+    if signer is not None:
+        from . import crypto_sign
+
+        payload = {
+            "kind": "kartu_halio", "check_id": result.get("id"), "status": result["status"], "claim": result["claim"],
+            "debunk_id": (match or {}).get("debunk_id"), "created": result["created"],
+        }
+        short = crypto_sign.sha256_hex(crypto_sign.canonical(payload))[:10].upper()
+        d.text((PAD, SIZE - 60), f"ID Verifikasi: {short}  ·  Ditandatangani {signer.alg}", font=font("regular", 20), fill=MUTED)
+        payload["verif_id"] = short
+
     buf = io.BytesIO()
     img.save(buf, format="PNG", optimize=True)
-    return buf.getvalue()
+    data = buf.getvalue()
+    if payload is not None:
+        # hash piksel ikut ditandatangani, jadi mengubah isi gambar (bukan cuma teks metadata) juga ketahuan
+        payload["pixels_sha256"] = crypto_sign.pixel_hash(data)
+        data = crypto_sign.embed_png_signature(data, crypto_sign.sign_payload(payload, signer))
+    return data

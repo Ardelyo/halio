@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <!-- halaman uji keamanan langsung: pembuktian kl ai nyari tp kode yg mutusin -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Uji keamanan — Halio</title>
-  <meta name="description" content="Tiga uji hidup yang memanggil fungsi asli Halio: perintah tersembunyi di halaman, alamat palsu, dan kalimat yang dikarang AI.">
+  <title>Medan Uji — Halio</title>
+  <meta name="description" content="Delapan uji hidup yang memanggil fungsi asli Halio: perintah tersembunyi, alamat palsu, kalimat karangan AI, kartu dipalsukan, rilis resmi, calo berbahasa chat, berkas .apk, dan privasi k-anonimitas.">
   <meta name="theme-color" content="#014BAA">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="fonts/fonts.css">
@@ -27,17 +27,17 @@
 </head>
 <body>
   <header class="lp-top">
-    <a class="lp-brand" href="./"><img src="icons/icon.svg" alt="" width="32" height="32"><span>halio. <b>Uji keamanan</b></span></a>
-    <nav><a href="cek.html">Cek pesan</a><a href="laporan.html">Telusur</a><a href="radar.html">Radar</a></nav>
+    <a class="lp-brand" href="./"><img src="icons/icon.svg" alt="" width="32" height="32"><span>halio. <b>Medan Uji</b></span></a>
+    <nav><a href="cek.html">Cek pesan</a><a href="laporan.html">Telusur</a><a href="radar.html">Radar</a><a href="verifikasi.html">Verifikasi</a></nav>
   </header>
   <main class="lp-main">
     <!-- kartu pengantar tiga skenario pengujian asli ke server -->
     <section class="lp-card">
       <h1>Jangan percaya, coba sendiri.</h1>
-      <p class="lp-muted intro">Halio mengatakan: <b>AI mencari, kode memutuskan.</b> Tiga uji di bawah memanggil fungsi asli Halio di server ini, bukan tiruan.
-        Uji pertama memanggil model sungguhan, jadi butuh beberapa detik. Sebuah uji bisa <b>gagal</b>; bila itu terjadi, hasilnya tetap ditampilkan.</p>
+      <p class="lp-muted intro">Halio mengatakan: <b>AI mencari, kode memutuskan.</b> Delapan serangan di bawah memanggil fungsi asli Halio di server ini, bukan tiruan.
+        Uji pertama memanggil model sungguhan (bila AI aktif), jadi butuh beberapa detik; tujuh lainnya berjalan lokal tanpa AI dan tanpa jaringan. Sebuah uji bisa <b>gagal</b>; bila itu terjadi, hasilnya tetap ditampilkan.</p>
     </section>
-    <!-- daftar 3 kartu uji diisi otomatis dr /api/uji lewat uji.js -->
+    <!-- daftar 8 kartu uji diisi otomatis dr /api/uji lewat uji.js -->
     <div id="tests"></div>
   </main>
   <footer class="lp-foot"><p>Kode uji: <code>backend/halio/selftest.py</code>. <small id="version"></small></p></footer>

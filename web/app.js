@@ -234,6 +234,9 @@ function render(result, original) {
   const match = result.match;
   const techniques = result.manipulation?.techniques || [];
   const warnings = result.links?.warnings || [];
+  // temuan forensik lokal (domain tiruan, berkas .apk): indikator teknis, bukan vonis
+  const forensicNotes = [...(result.forensics?.domain || []).filter((f) => f.tingkat !== "rendah").map((f) => `${f.host}: ${f.penjelasan}`),
+    ...(result.forensics?.lampiran || []).map((f) => f.penjelasan)];
   const tricks = techniques.map((technique) => `<div class="trick">
     <h3>${esc(technique.label)}</h3><p>${esc(technique.lesson)}</p>
     <small>Kalimat yang memicu perhatian: “${technique.evidence.map(esc).join("”, “")}”</small>
@@ -271,6 +274,7 @@ function render(result, original) {
       ${readingPanel(result)}
       <div class="next-steps"><h3>Yang bisa Anda lakukan</h3><ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></div>
       ${warnings.map((warning) => `<p class="warning">${esc(warning)}</p>`).join("")}
+      ${forensicNotes.map((note) => `<p class="warning">⚠ ${esc(note)}</p>`).join("")}
       <details class="claim-details"><summary>Lihat klaim yang diperiksa</summary><p>“${esc(result.claim)}”</p></details>
       <div class="main-actions">
         <button id="share" class="action-button primary" type="button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Bagikan kartu</button>

@@ -17,6 +17,7 @@
   const pyRound = (x, n) => Number(x.toFixed(n)); // python round(): sama utk skor non-dyadic
   const slang = new Map(Object.entries(D.slang));
   const stop = new Set(D.stopwords);
+  const PHRASES = (D.phrases || []).map(([p, repl]) => [new RegExp(p, "g"), repl]);
   const cues = new Set(D.claimCues);
   const re = (p, f) => new RegExp(p, f || "");
   const R = {
@@ -35,9 +36,13 @@
   function fold(text) {
     return text.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase();
   }
+  function canon(low) {
+    for (const [rx, repl] of PHRASES) low = low.replace(rx, (m) => " " + m + " " + repl + " ");
+    return low;
+  }
   function tokens(text, dropStop = true) {
     const out = [];
-    for (let tok of fold(text).match(/[a-z0-9]+/g) || []) {
+    for (let tok of canon(fold(text)).match(/[a-z0-9]+/g) || []) {
       if (slang.has(tok)) tok = slang.get(tok);
       tok = tok.replace(/(.)\1{2,}/g, "$1");
       if (dropStop && (stop.has(tok) || tok.length < 2)) continue;
@@ -115,7 +120,7 @@
     }
   }
   const debunks = D.corpus.map((d) => Object.assign({
-    varian: [], syarat: [], jenis: "bantahan", kutipan_sumber: "", valid_from: null, valid_until: null, wilayah: "",
+    varian: [], syarat: [], jenis: "bantahan", kutipan_sumber: "", valid_from: null, valid_until: null, wilayah: "", tolak: [], signed: false,
   }, d));
   const isPositive = (d) => d.jenis === "verifikasi_positif";
   const rows = [];
@@ -149,6 +154,12 @@
     }
     return true;
   }
+
+  const blocked = (d, text) => { const low = fold(text); return d.tolak.some((p) => re(p).test(low)); };
+  const isCurrent = (d, today) => !!d.valid_from && d.valid_from <= today && (!d.valid_until || today <= d.valid_until);
+  // gerbang yg sama dgn pipeline._signed_bulletin_ok (python): semua syarat harus lolos
+  const signedBulletinOk = (d, text, domains, today) => d.signed && isCurrent(d, today) && corePresent(d, text) && !blocked(d, text)
+    && domains.every((h) => D.officialSuffixes.some((s) => h.endsWith(s)));
 
   // ---------- claims ----------
   function sentences(text) {
@@ -280,6 +291,10 @@
       const src = match.debunk.sumber[0].nama.split(":")[0];
       return `${sapaan}, pesan ini sudah dicek dan ternyata tidak benar. ${match.debunk.sederhana} Sumbernya dari ${src}. Sebaiknya jangan diteruskan, ya.`;
     }
+    if (status === "sejalan_dengan_sumber" && match) {
+      const src = match.debunk.sumber[0].nama.split(":")[0];
+      return `${sapaan}, isi pesan ini sejalan dengan keterangan dari ${src}. ${match.debunk.sederhana} Tetap cek tanggal dan konteksnya sebelum diteruskan.`;
+    }
     if (status === "tidak_yakin" && match && reason === "tampak_meluruskan") {
       return `${sapaan}, pesan ini tampaknya justru memperingatkan soal kabar bohong, bukan menyebarkannya. Yang sudah dicek: ${match.debunk.sederhana}`;
     }
@@ -317,9 +332,11 @@
       if (units.length >= 2) return checkMany(text, units, sapaan, manip, domains);
     }
     const correction = isCorrection(text);
+    const method = ["lokal"];
     let status, reason;
-    if (best && best.score >= T.unsure && correction && !isPositive(best.debunk)) [status, reason] = ["tidak_yakin", "tampak_meluruskan"];
+    if (best && best.score >= T.unsure && correction && (!isPositive(best.debunk) || best.debunk.signed)) [status, reason] = ["tidak_yakin", "tampak_meluruskan"];
     else if (!claim.is_factual && (!best || best.score < T.match)) [status, reason] = ["tidak_yakin", "bukan_klaim_faktual"];
+    else if (best && best.score >= T.match && best.debunk.signed && signedBulletinOk(best.debunk, text, domains, wibNow().slice(0, 10))) { [status, reason] = ["sejalan_dengan_sumber", "cocok_dengan_buletin_resmi"]; method.push("buletin_resmi"); }
     else if (best && best.score >= T.match && isPositive(best.debunk)) [status, reason] = ["tidak_yakin", "memerlukan_verifikasi_ai"];
     else if (best && best.score >= T.match && !corePresent(best.debunk, text)) [status, reason] = ["tidak_yakin", "inti_klaim_tidak_ada"];
     else if (best && best.score >= T.match) [status, reason] = ["terbukti_salah", "cocok_dengan_bantahan"];
@@ -331,6 +348,8 @@
 
     const shown = !["belum_ada_pemeriksaan", "dilaporkan_media"].includes(status) && reason !== "bukan_klaim_faktual" ? best : null;
     const attrib = shown ? mismatch(text, `${shown.debunk.klaim} ${shown.debunk.fakta} ${shown.debunk.sederhana}`) : null;
+    // situs resmi cuma mendukung pernyataan lembaganya sendiri: kl pesan mencatut lembaga lain, tahan jangan hijau
+    if (attrib && status === "sejalan_dengan_sumber") [status, reason] = ["tidak_yakin", "sumber_berbeda_dari_pesan"];
     return {
       id: uuid(), created: wibNow(), status, status_label: D.statusLabel[status], reason, claim: claim.text,
       checkworthiness: pyRound(claim.score, 2), match: shown ? matchPayload(shown) : null, llm: null, evidence: null,
@@ -339,7 +358,7 @@
       attribution: attrib, manipulation: manip, links: { domains, warnings: linkWarnings(domains), checked: [] }, kind, info,
       voice_script: voice(status, reason, sapaan, shown, manip),
       offer_human_review: !["terbukti_salah", "sejalan_dengan_sumber"].includes(status) && !D.plainKinds.includes(reason),
-      method: "lokal", disclaimer: D.disclaimer, on_device: true, card_url: "", voice_url: "",
+      method: method.join("+"), disclaimer: D.disclaimer, on_device: true, card_url: "", voice_url: "",
     };
   }
   function checkMany(text, units, sapaan, manip, domains) {

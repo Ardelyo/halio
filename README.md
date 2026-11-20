@@ -91,6 +91,14 @@ Ada lima keadaan karena kabar yang benar tidak boleh dicap hoaks, dan tidak ada 
 
 Jalur pencocokan (T1) tidak butuh AI maupun internet, jadi Halio bisa dipakai di satuan dengan jaringan terbatas atau tertutup, dan tidak ada data yang keluar dari perangkat. Ada tiga bentuk: server on-premise tanpa AI, mesin yang sama di browser/PWA (dijaga identik dengan Python lewat uji paritas pada 603 vektor, dan 3.900 judul nyata), serta ekstensi Chrome yang sebagian sudah di perangkat. Batasnya ditulis terus terang: kabar di luar korpus tidak dikenali, dan Telegram butuh internet. Rincian dan buktinya di [Mode luring](docs/LURING.md).
 
+## Bukti keaslian dan Medan Uji (v1.0)
+
+- **Kartu Halio dan LAPSUS bertanda tangan Ed25519.** Kartu PNG membawa tanda tangan di chunk `halio-sig-v1` (tetap PNG biasa) yang mengikat teks vonis **dan** hash piksel gambar. Periksa dengan `python -m halio.verify kartu.png` (exit 0 = SAH, 1 = TIDAK SAH), halaman `/verifikasi.html`, atau `POST /api/verify`. Kunci publik satuan: `GET /api/pubkey`. Simpan kunci privat di tempat tetap lewat `HALIO_SIGN_KEY_FILE` (atau `HALIO_SIGN_KEY`); tanpa itu, kunci dibuat di `~/.halio/` dan kartu lama tidak sah bila kunci berganti. Skema pluggable untuk ML-DSA-65 (pasca-kuantum) belum diisi: `crypto_sign.ALGORITHMS`.
+- **Registri buletin resmi** (`data/official_bulletins.json`, bertanda tangan, 3 buletin) memungkinkan pernyataan resmi TNI AD yang cocok dikonfirmasi **luring** sebagai "sejalan dengan sumber", dengan penjaga ketat: masih berlaku, tidak ada unsur bayar/calo/angka rupiah, tidak ada tautan non-`.go.id`/`.mil.id`. Tanda tangan salah = registri diabaikan. Tandatangani ulang dengan `python scripts/sign_bulletins.py` dan ganti `data/registry_pubkey.pem` bila satuan Anda memakai kunci sendiri.
+- **Forensik zero-cloud** (`backend/halio/forensics.py`): domain tiruan/homograph/punycode, jebakan berkas `.apk`/`.exe`, dan metadata gambar (tag generator AI, C2PA, jejak editor). Selalu dilaporkan sebagai indikator teknis, bukan vonis.
+- **Medan Uji** (`/uji.html`, `backend/halio/selftest.py`): 8 serangan hidup yang memanggil fungsi asli; tujuh jalan lokal tanpa AI. **Ekspor LAPSUS** Siber Sosial (lonjakan topik dengan z-score, tanpa teks pesan) dari Radar: `GET /api/radar/lapsus`.
+- **Korpus 35 entri** (`data/debunks.json`). **Catatan jujur:** 25 entri tambahan belum dibuka satu per satu; lihat `docs/VERIFIKASI_KORPUS.md`. Angka recall holdout 100% sudah disetel setelah melihat kegagalan, jadi bukan estimasi akurasi.
+
 ## Batas yang kami akui
 
 - Ini purwarupa. Set uji ditulis tim sendiri, jadi angkanya **bukan** akurasi dunia nyata.

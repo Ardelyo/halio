@@ -55,3 +55,42 @@ Catatan jujur: entri OTP ditulis sebagai **pola** ("petugas bank meminta OTP"), 
 **Dampak pada evaluasi.** Menambah dokumen mengubah bobot TF-IDF untuk semua entri. Dua item dev lama turun tipis di bawah ambang (0,385 dan 0,393 dari 0,424 dan 0,43) dan satu tes regresi (hoaks bansos dua kalimat) turun ke 0,398. Penanganannya, tanpa menyentuh ambang: dua varian umum ditambahkan ke entri bansos dan rekrutmen TNI, serta kata "whatsapp" dikurangi di entri baru. Satu percobaan varian yang terlalu mirip tes dibatalkan karena membuat pesan terbelah dua. Hasil akhir: dev false-hoax 0/36 (recall 100%), holdout false-hoax 0/40 (recall 88%, dua kegagalan yang sama seperti sebelumnya), 273 tes lulus. Set dev adalah set penyetelan; 12 item uji baru ditulis bersama entri baru, jadi tidak buta.
 
 **Pemeriksaan ulang pada data independen (13 Nov).** Dijalankan dengan `eval/eval_public_recheck.py` pada commit beku `69d1020` (laporan: [PUBLIC_RECHECK.md](../eval/PUBLIC_RECHECK.md)): dari 197 judul berlabel BENAR atau KLARIFIKASI dalam sampel 3.700 judul, **0** dicap "terbukti salah" (batas atas 95%: 1,9%); 17 dari 2.582 judul SALAH dikenali (cakupan korpus, bukan akurasi). Tiga halaman unduhan gagal dan dilewati. Satu pengukuran awal pada korpus perantara (sebelum varian yang berlebihan dibatalkan) tidak dipakai. Angka 0/1.043 di `eval/PUBLIC_RESULTS.md` diukur dengan korpus 7 entri dan tidak dibuat ulang.
+
+
+---
+
+## Tambahan v1.0 (20 Nov 2026): 25 entri baru + registri buletin resmi
+
+**Status jujur:** 25 entri di bawah dikumpulkan dari hasil pencarian web pada 20 Nov 2026. URL berasal dari hasil pencarian dan `fakta` ditulis mengikuti ringkasan hasil itu (kata-kata sendiri), tetapi **tautannya belum dibuka satu per satu oleh program maupun tim**. Beberapa sumber hanya media (bukan rilis resmi) dan ditandai `media`. Sebelum demo: buka setiap tautan, isi kolom "Eksplisit?" seperti tabel di atas, dan buang entri yang sumbernya tidak menyatakan klaim itu salah. Entri `apk-tagihan-pln` hanya punya satu sumber media dan bukan pernyataan PLN; `obat-cacing-imunisasi-virus-baru` hanya mengikuti judul cek fakta Tirto.
+
+| Entri | Jumlah sumber | Jenis sumber | Eksplisit? |
+|---|---|---|---|
+| `calo-akmil-akpol-bayar` | 3 | media, media, media | Belum dibuka |
+| `surat-kelulusan-palsu-tni` | 2 | media, media | Belum dibuka |
+| `akun-palsu-pejabat-militer` | 2 | media, resmi | Belum dibuka |
+| `lelang-kendaraan-dinas-palsu` | 3 | resmi, resmi, media | Belum dibuka |
+| `apk-undangan-nikah-whatsapp` | 4 | media, resmi, resmi, media | Belum dibuka |
+| `apk-resi-kurir-whatsapp` | 3 | resmi, media, media | Belum dibuka |
+| `apk-tagihan-bpjs` | 2 | media, media | Belum dibuka |
+| `apk-surat-pajak-djp` | 2 | resmi, media | Belum dibuka |
+| `apk-tagihan-pln` | 1 | media | Belum dibuka |
+| `apk-undangan-pemilu-pps` | 1 | media | Belum dibuka |
+| `deepfake-pejabat-saham-grup-wa` | 2 | media, media | Belum dibuka |
+| `anak-kecelakaan-minta-transfer` | 3 | media, media, resmi | Belum dibuka |
+| `hadiah-undian-catut-ecommerce` | 3 | cek_fakta, cek_fakta, media | Belum dibuka |
+| `investasi-pinjol-ilegal-untung-pasti` | 2 | resmi, resmi | Belum dibuka |
+| `lowongan-kerja-bumn-palsu-bayar` | 3 | cek_fakta, media, cek_fakta | Belum dibuka |
+| `cpns-portal-surat-panggilan-palsu` | 3 | resmi, cek_fakta, media | Belum dibuka |
+| `herbal-sembuhkan-semua-penyakit` | 2 | resmi, cek_fakta | Belum dibuka |
+| `herbal-sembuhkan-tbc` | 2 | media, media | Belum dibuka |
+| `polisi-penyidikan-online-transfer` | 2 | media, media | Belum dibuka |
+| `lowongan-mbg-tautan-palsu` | 1 | cek_fakta | Belum dibuka |
+| `calo-akpol-bintara-polri` | 3 | media, media, media | Belum dibuka |
+| `pembajakan-whatsapp-kode-verifikasi` | 2 | media, media | Belum dibuka |
+| `biaya-masuk-akmil-hoaks` | 2 | media, resmi | Belum dibuka |
+| `bantuan-bpjs-puluhan-juta` | 2 | media, cek_fakta | Belum dibuka |
+| `obat-cacing-imunisasi-virus-baru` | 2 | cek_fakta, resmi | Belum dibuka |
+
+**Registri buletin resmi (`data/official_bulletins.json`)** berisi 3 buletin. Kutipan `ad.rekrutmen-tni.mil.id` dan PPID TNI AD (22364) disalin persis dari halaman yang diunduh program pada 20 Nov 2026; kutipan SSCASN hanya judul halaman. Kanal resmi BMKG dan ETLE Korlantas **tidak** dimasukkan karena belum ada kalimat resmi yang bisa dikutip persis. Registri ditandatangani Ed25519 (`python scripts/sign_bulletins.py`); kunci publik di `data/registry_pubkey.pem` adalah jangkar kepercayaan. Tanda tangan salah = seluruh registri diabaikan.
+
+**Metrik setelah perubahan (`python eval/run_eval.py`):** dev 0/36 salah tuduh, holdout 0/40 salah tuduh, recall 100% pada keduanya, 0/27 rilis resmi TNI/Kemhan dicap terbukti salah (1 dikonfirmasi `sejalan_dengan_sumber` oleh registri). **Catatan:** holdout sudah tidak bersih (varian disetel setelah melihat kegagalan); lihat riwayat di `eval/RESULTS.md`.
