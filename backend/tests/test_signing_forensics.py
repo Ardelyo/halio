@@ -221,7 +221,7 @@ DATA = ROOT / "data"
 
 def test_committed_registry_is_validly_signed():
     reg = retrieval.load_registry(DATA)
-    assert len(reg) == 3 and all(d.signed and d.is_positive for d in reg)
+    assert len(reg) == 5 and all(d.signed and d.is_positive for d in reg)
 
 
 def test_tampered_registry_is_ignored_entirely(tmp_path):

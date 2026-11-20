@@ -59,38 +59,61 @@ Catatan jujur: entri OTP ditulis sebagai **pola** ("petugas bank meminta OTP"), 
 
 ---
 
-## Tambahan v1.0 (20 Nov 2026): 25 entri baru + registri buletin resmi
+---
 
-**Status jujur:** 25 entri di bawah dikumpulkan dari hasil pencarian web pada 20 Nov 2026. URL berasal dari hasil pencarian dan `fakta` ditulis mengikuti ringkasan hasil itu (kata-kata sendiri), tetapi **tautannya belum dibuka satu per satu oleh program maupun tim**. Beberapa sumber hanya media (bukan rilis resmi) dan ditandai `media`. Sebelum demo: buka setiap tautan, isi kolom "Eksplisit?" seperti tabel di atas, dan buang entri yang sumbernya tidak menyatakan klaim itu salah. Entri `apk-tagihan-pln` hanya punya satu sumber media dan bukan pernyataan PLN; `obat-cacing-imunisasi-virus-baru` hanya mengikuti judul cek fakta Tirto.
+## Pemeriksaan tautan otomatis (20 Nov 2026)
 
-| Entri | Jumlah sumber | Jenis sumber | Eksplisit? |
-|---|---|---|---|
-| `calo-akmil-akpol-bayar` | 3 | media, media, media | Belum dibuka |
-| `surat-kelulusan-palsu-tni` | 2 | media, media | Belum dibuka |
-| `akun-palsu-pejabat-militer` | 2 | media, resmi | Belum dibuka |
-| `lelang-kendaraan-dinas-palsu` | 3 | resmi, resmi, media | Belum dibuka |
-| `apk-undangan-nikah-whatsapp` | 4 | media, resmi, resmi, media | Belum dibuka |
-| `apk-resi-kurir-whatsapp` | 3 | resmi, media, media | Belum dibuka |
-| `apk-tagihan-bpjs` | 2 | media, media | Belum dibuka |
-| `apk-surat-pajak-djp` | 2 | resmi, media | Belum dibuka |
-| `apk-tagihan-pln` | 1 | media | Belum dibuka |
-| `apk-undangan-pemilu-pps` | 1 | media | Belum dibuka |
-| `deepfake-pejabat-saham-grup-wa` | 2 | media, media | Belum dibuka |
-| `anak-kecelakaan-minta-transfer` | 3 | media, media, resmi | Belum dibuka |
-| `hadiah-undian-catut-ecommerce` | 3 | cek_fakta, cek_fakta, media | Belum dibuka |
-| `investasi-pinjol-ilegal-untung-pasti` | 2 | resmi, resmi | Belum dibuka |
-| `lowongan-kerja-bumn-palsu-bayar` | 3 | cek_fakta, media, cek_fakta | Belum dibuka |
-| `cpns-portal-surat-panggilan-palsu` | 3 | resmi, cek_fakta, media | Belum dibuka |
-| `herbal-sembuhkan-semua-penyakit` | 2 | resmi, cek_fakta | Belum dibuka |
-| `herbal-sembuhkan-tbc` | 2 | media, media | Belum dibuka |
-| `polisi-penyidikan-online-transfer` | 2 | media, media | Belum dibuka |
-| `lowongan-mbg-tautan-palsu` | 1 | cek_fakta | Belum dibuka |
-| `calo-akpol-bintara-polri` | 3 | media, media, media | Belum dibuka |
-| `pembajakan-whatsapp-kode-verifikasi` | 2 | media, media | Belum dibuka |
-| `biaya-masuk-akmil-hoaks` | 2 | media, resmi | Belum dibuka |
-| `bantuan-bpjs-puluhan-juta` | 2 | media, cek_fakta | Belum dibuka |
-| `obat-cacing-imunisasi-virus-baru` | 2 | cek_fakta, resmi | Belum dibuka |
+`python scripts/verify_corpus_urls.py` membuka **setiap** tautan sumber (101 tautan, 35 entri) dengan identitas jujur (`halio-eval`), lalu menghitung berapa persen kata kunci klaim muncul di teks halaman dan apakah ada kata bantahan/peringatan. Hasil mentah (tanpa isi halaman): [`verifikasi_korpus.json`](verifikasi_korpus.json).
 
-**Registri buletin resmi (`data/official_bulletins.json`)** berisi 3 buletin. Kutipan `ad.rekrutmen-tni.mil.id` dan PPID TNI AD (22364) disalin persis dari halaman yang diunduh program pada 20 Nov 2026; kutipan SSCASN hanya judul halaman. Kanal resmi BMKG dan ETLE Korlantas **tidak** dimasukkan karena belum ada kalimat resmi yang bisa dikutip persis. Registri ditandatangani Ed25519 (`python scripts/sign_bulletins.py`); kunci publik di `data/registry_pubkey.pem` adalah jangkar kepercayaan. Tanda tangan salah = seluruh registri diabaikan.
+**Ini pemeriksaan otomatis yang konservatif, bukan pengganti membaca.** Situs yang menolak program (HTTP 403: Bisnis.com, Tirto, Kompas TV, RRI, VOI, Komdigi, Kemenkes, dan lain-lain) **tidak dicari jalan lain**; begitu pula halaman yang dirender JavaScript (OJK, DJP, BI). Keduanya dicatat "tidak terbaca program". Tidak satu pun tautan mengembalikan 404.
 
-**Metrik setelah perubahan (`python eval/run_eval.py`):** dev 0/36 salah tuduh, holdout 0/40 salah tuduh, recall 100% pada keduanya, 0/27 rilis resmi TNI/Kemhan dicap terbukti salah (1 dikonfirmasi `sejalan_dengan_sumber` oleh registri). **Catatan:** holdout sudah tidak bersih (varian disetel setelah melihat kegagalan); lihat riwayat di `eval/RESULTS.md`.
+| Hasil per entri | Jumlah |
+|---|---|
+| Terverifikasi: isi dibaca dan mendukung | 20 |
+| Sebagian: dibaca, topik cocok sebagian | 3 |
+| Perlu mata manusia: terbaca tetapi tidak cocok otomatis | 4 |
+| Tidak terbaca program (403 / dirender JS) | 8 |
+
+Entri "tidak terbaca program" tetap ada di korpus karena sumbernya institusi resmi atau media besar yang judul dan ringkasannya tampil di hasil pencarian, tetapi **isinya belum dikonfirmasi siapa pun**. Tim wajib membukanya lewat peramban sebelum demo. Entri `apk-tagihan-pln` dan `akun-palsu-pejabat-militer` paling lemah untuk bagian TNI/PLN: belum ada klarifikasi dari TNI AD atau PLN yang bisa dibuka program.
+
+| Entri | Kelompok | Sumber | Terbaca | Ditolak 403 | Hasil |
+|---|---|---|---|---|---|
+| `anak-kecelakaan-minta-transfer` | v1.0 | 3 | 3 | 0 | Terverifikasi: isi dibaca dan mendukung |
+| `apk-resi-kurir-whatsapp` | v1.0 | 5 | 1 | 4 | Terverifikasi: isi dibaca dan mendukung |
+| `calo-akmil-akpol-bayar` | v1.0 | 3 | 2 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `calo-akpol-bintara-polri` | v1.0 | 3 | 1 | 2 | Terverifikasi: isi dibaca dan mendukung |
+| `cpns-portal-surat-panggilan-palsu` | v1.0 | 3 | 2 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `deepfake-pejabat-saham-grup-wa` | v1.0 | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `hadiah-undian-catut-ecommerce` | v1.0 | 3 | 2 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `herbal-sembuhkan-semua-penyakit` | v1.0 | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `herbal-sembuhkan-tbc` | v1.0 | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `lowongan-kerja-bumn-palsu-bayar` | v1.0 | 5 | 2 | 3 | Terverifikasi: isi dibaca dan mendukung |
+| `lowongan-mbg-tautan-palsu` | v1.0 | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `pembajakan-whatsapp-kode-verifikasi` | v1.0 | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `polisi-penyidikan-online-transfer` | v1.0 | 2 | 2 | 0 | Terverifikasi: isi dibaca dan mendukung |
+| `surat-kelulusan-palsu-tni` | v1.0 | 2 | 2 | 0 | Terverifikasi: isi dibaca dan mendukung |
+| `lelang-kendaraan-dinas-palsu` | v1.0 | 3 | 3 | 0 | Sebagian: dibaca, topik cocok sebagian |
+| `apk-surat-pajak-djp` | v1.0 | 4 | 2 | 2 | Perlu mata manusia: terbaca tetapi tidak cocok otomatis |
+| `apk-undangan-nikah-whatsapp` | v1.0 | 5 | 1 | 4 | Perlu mata manusia: terbaca tetapi tidak cocok otomatis |
+| `biaya-masuk-akmil-hoaks` | v1.0 | 2 | 1 | 1 | Perlu mata manusia: terbaca tetapi tidak cocok otomatis |
+| `akun-palsu-pejabat-militer` | v1.0 | 4 | 0 | 3 | Tidak terbaca program (403 / dirender JS) |
+| `apk-tagihan-bpjs` | v1.0 | 5 | 0 | 5 | Tidak terbaca program (403 / dirender JS) |
+| `apk-tagihan-pln` | v1.0 | 4 | 0 | 3 | Tidak terbaca program (403 / dirender JS) |
+| `apk-undangan-pemilu-pps` | v1.0 | 3 | 0 | 3 | Tidak terbaca program (403 / dirender JS) |
+| `bantuan-bpjs-puluhan-juta` | v1.0 | 4 | 0 | 4 | Tidak terbaca program (403 / dirender JS) |
+| `investasi-pinjol-ilegal-untung-pasti` | v1.0 | 2 | 0 | 0 | Tidak terbaca program (403 / dirender JS) |
+| `obat-cacing-imunisasi-virus-baru` | v1.0 | 3 | 0 | 3 | Tidak terbaca program (403 / dirender JS) |
+| `air-kelapa-garam-obat` | awal | 2 | 2 | 0 | Terverifikasi: isi dibaca dan mendukung |
+| `bansos-deepfake-presiden` | awal | 1 | 1 | 0 | Terverifikasi: isi dibaca dan mendukung |
+| `bmkg-prediksi-gempa-tanggal` | awal | 5 | 3 | 2 | Terverifikasi: isi dibaca dan mendukung |
+| `calo-cpns-bayar-lulus` | awal | 3 | 2 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `kuota-gratis-operator` | awal | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `rekrutmen-tni-ad-berbayar` | awal | 2 | 1 | 1 | Terverifikasi: isi dibaca dan mendukung |
+| `apk-surat-tilang-whatsapp` | awal | 2 | 1 | 1 | Sebagian: dibaca, topik cocok sebagian |
+| `penculikan-anak-berantai` | awal | 2 | 1 | 1 | Sebagian: dibaca, topik cocok sebagian |
+| `otp-petugas-bank` | awal | 3 | 2 | 1 | Perlu mata manusia: terbaca tetapi tidak cocok otomatis |
+| `saldo-etoll-gratis` | awal | 1 | 0 | 1 | Tidak terbaca program (403 / dirender JS) |
+
+Kelompok `awal` = 10 entri yang sudah diperiksa manual 10 Nov (tabel di atas dokumen ini); kolom hasil di sini hanya cek otomatis tambahan.
+
+**Registri buletin resmi (`data/official_bulletins.json`)**: kutipan `ad.rekrutmen-tni.mil.id` dan PPID TNI AD (22364) disalin persis dari halaman yang diunduh program pada 20 Nov 2026 (keduanya terbuka tanpa penolakan); kutipan SSCASN hanya judul halaman.

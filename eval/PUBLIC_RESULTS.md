@@ -19,8 +19,8 @@ Sumber: dataset Hugging Face `Rifky/indonesian-hoax-news` (17.806 judul TurnBack
 | Jawaban | `[BENAR]` | `[KLARIFIKASI]` | `[SALAH]` (sampel) |
 |---|---|---|---|
 | terbukti_salah | 0 | 0 | 1 |
-| tidak_yakin | 94 | 150 | 196 |
-| belum_ada_pemeriksaan | 373 | 426 | 403 |
+| tidak_yakin | 104 | 147 | 202 |
+| belum_ada_pemeriksaan | 363 | 429 | 397 |
 | sejalan_dengan_sumber | 0 | 0 | 0 |
 | dilaporkan_media | 0 | 0 | 0 |
 
@@ -35,6 +35,7 @@ Hoaks yang salah diberi "sejalan dengan sumber" atau "dilaporkan media": **0** d
 ## Riwayat dan catatan integritas
 
 Run pertama (12 Nov 2026) menemukan **1 judul** yang salah dicap "terbukti salah" (tampil pada dua label): *"BMKG Papua Mengklarifikasi Isu Akan Terjadi Tsunami di Papua"*. Pesan itu justru meluruskan hoaks, tetapi kata "mengklarifikasi" belum dikenali sebagai pelurusan. Pola pelurusan di `backend/halio/retrieval.py` diperluas (klarifikasi, meluruskan, menepis, menyangkal, dan sejenisnya), kasusnya ditambahkan ke `eval/testset.jsonl` dan `backend/tests/test_core.py`, lalu evaluasi dijalankan ulang: 0 tuduhan palsu. **Karena perbaikan dibuat setelah melihat sampel ini, hasil 0/1.043 tidak sepenuhnya independen untuk judul itu.** Rekaman 2022 ini juga belum menguji pesan berantai nyata.
+
 ## Keterbatasan
 
 - Judul artikel bukan pesan berantai; hasil pada pesan nyata bisa berbeda.

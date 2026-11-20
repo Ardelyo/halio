@@ -1,0 +1,807 @@
+{
+ "bansos-deepfake-presiden": [
+  {
+   "url": "https://katadata.co.id/amp/digital/teknologi/67a5dc910647b/penipuan-bansos-pakai-ai-wajah-prabowo-ratusan-korban-rugi-puluhan-juta/",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.93,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "rekrutmen-tni-ad-berbayar": [
+  {
+   "url": "https://kabar24.bisnis.com/read/20260107/243/1942271/syarat-dan-cara-daftar-rekrutmen-tni-ad-2026-simak-beserta-jadwalnya",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://investortrust.id/national/118301/kodam-pattimura-buru-serma-su-buronan-kasus-calo-penerimaan-prajurit-tni-ad",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.6,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "bmkg-prediksi-gempa-tanggal": [
+  {
+   "url": "https://www.bmkg.go.id/siaran-pers/prediksi-gempa-7-0-earthquakes-weather-bmkg-sebut-itu-hoaks",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.kompas.tv/article/359382/beredar-di-medsos-ada-gempa-dan-tsunami-besar-di-20-desember-sampai-23-januari-ini-kata-bmkg",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://news.republika.co.id/berita/pvntjd377/bmkg-sebut-gempa-susulan-m-90-hoaks",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.67,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.metrotvnews.com/read/NG9C36QD-megathrust-disebut-hanya-potensi-bukan-prediksi",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.67,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://setkab.go.id/tidak-bisa-diprediksi-bmkg-kembali-minta-masyarakat-tenang-hadapi-isu-megathrust",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.0,
+   "isyarat": false,
+   "cuplikan_ada": false
+  }
+ ],
+ "air-kelapa-garam-obat": [
+  {
+   "url": "https://www.liputan6.com/cek-fakta/read/4332289/cek-fakta-tidak-ada-bukti-air-kelapa-dicampur-jeruk-nipis-dan-garam-manjur-menyembuhkan-penderita-covid-19",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.88,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.liputan6.com/cek-fakta/read/4676230/cek-fakta-belum-terbukti-mengonsumsi-air-kelapa-muda-madu-jeruk-nipis-dan-garam-bisa-sembuhkan-covid-19",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.88,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "kuota-gratis-operator": [
+  {
+   "url": "https://www.merahputih.com/post/read/hoaks-atau-fakta-kuota-internet-gratis-30gb-hut-ri-dibagikan-berbagai-operator-seluler",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.55,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://kabar24.bisnis.com/read/20210208/621/1353735/cek-fakta-subsidi-kuota-internet-75-gb-kominfo-benar-atau-hoaks",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "saldo-etoll-gratis": [
+  {
+   "url": "https://www.kompas.tv/nasional/583065/phishing-berkedok-saldo-e-toll-gratis-marak-jasa-marga-ingatkan-pengguna-tol",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "penculikan-anak-berantai": [
+  {
+   "url": "https://rri.co.id/tanjungpinang/cek-fakta/189264/4-tips-menghindari-berita-hoax-penculikan-anak",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://kumparan.com/kumparannews/diamuk-massa-akibat-kabar-hoax-penculikan-anak",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.4,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "apk-surat-tilang-whatsapp": [
+  {
+   "url": "https://rri.co.id/samarinda/cek-fakta/498916/salah-surat-tilang-digital-apk",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://inet.detik.com/security/d-7305490/awas-tidak-ada-e-tilang-yang-dikirim-ke-whatsapp",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.45,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "calo-cpns-bayar-lulus": [
+  {
+   "url": "https://finance.detik.com/cpns/d-6991690/nekat-jadi-asn-lewat-jalur-calo-siap-siap-dipidana",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.75,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://economy.okezone.com/read/2021/09/26/320/2477012/peserta-cpns-ditipu-calo-bkn-seleksi-transparan-dan-tidak-bisa-dimanipulasi",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.62,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://news.ddtc.co.id/berita/nasional/32595/pemerintah-pastikan-tidak-ada-jalur-instan-lulus-asn",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "otp-petugas-bank": [
+  {
+   "url": "https://www.bca.co.id/en/informasi/awas-modus/2026/10/30/09/23/cukup-kamu-yang-tahu-jangan-bagikan-kode-otp-mu",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.18,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.bca.co.id/en/informasi/awas-modus/2025/01/09/04/34/waspada-penipuan-mengatasnamakan-bca",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.18,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.cnnindonesia.com/ekonomi/20250311201554-78-1207681/marak-kasus-fake-bts-ojk-imbau-nasabah-waspada-sms-otp",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "calo-akmil-akpol-bayar": [
+  {
+   "url": "https://kumparan.com/paluposo/seleksi-taruna-akmil-danrem-132-tadulako-jangan-percaya-calo-mereka-penipu-1yBKnOz6UA8",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.43,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://voi.id/en/amp/403801",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.jawapos.com/nasional/014716678/terapkan-prinsip-betah-polri-tegaskan-tidak-ada-pungutan-biaya-alias-gratis-untuk-masuk-akpol",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.71,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "surat-kelulusan-palsu-tni": [
+  {
+   "url": "https://www.metrotvnews.com/read/b3JCpAVL-korban-penipuan-rekrutmen-tni-di-kulon-progo-rugi-rp310-juta-tiga-pelaku-ditangkap",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.57,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://megapolitan.antaranews.com/berita/23840/ini-modus-aparat-gadungan-tipu-calon-bintara",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.43,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "akun-palsu-pejabat-militer": [
+  {
+   "url": "https://kabar24.bisnis.com/read/20170409/78/643859/akun-facebook-palsu-catut-nama-pangdam-siliwangi",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://hai.kemenkeu.go.id/id/news/posts/pdf/info-waspada-penipuan-melalui-whatsapp",
+   "status": "gagal",
+   "http": 500,
+   "cara": "gagal"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-akun-whatsapp-mengatasnamakan-direktur-pengolahan-hasil-kementerian-kelautan-dan-perikanan",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-akun-whatsapp-mengatasnamakan-pegawai-dinas-pertanian-kabupaten-ciamis",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "lelang-kendaraan-dinas-palsu": [
+  {
+   "url": "https://www.djkn.kemenkeu.go.id/artikel/baca/15257/Waspada-Penipuan-Lelang-Ayo-Ikut-Lelang-Yang-Aman-dan-Terpercaya.html",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.22,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.djkn.kemenkeu.go.id/kpknl-pekanbaru/baca-artikel/13239/Cara-Mudah-Mendapatkan-Mobil-Melalui-Lelang-dengan-Harga-yang-Murah-Trik-Menghindari-Penipuan.html",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.33,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.gridoto.com/amp/224406385/akhirnya-12-orang-penipu-jual-beli-motor-dan-mobil-bekas-di-marketplace-facebook-dicekik-polda-jabar",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.44,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "apk-undangan-nikah-whatsapp": [
+  {
+   "url": "https://finansial.bisnis.com/read/20240313/55/1748953/nekat-penipu-kirim-whatsapp-apk-bobol-rekening-ke-komisioner-ojk",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.bi.go.id/id/publikasi/ruang-media/cerita-bi/Pages/modus-penipuan-online-apk.aspx",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.0,
+   "isyarat": false,
+   "cuplikan_ada": false
+  },
+  {
+   "url": "https://www.bankmandiri.co.id/waspada-modus-pencurian-data-dengan-unduh-file",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://nu.or.id/nasional/waspada-modus-penipuan-undangan-pernikahan-bisa-kuras-rekening-korban-wCg6H",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-aplikasi-undangan-pernikahan-digital",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "apk-resi-kurir-whatsapp": [
+  {
+   "url": "https://www.bca.co.id/id/informasi/awas-modus/2022/12/14/10/11/waspadai-penipuan-dengan-modus-kurir-paket-yang-mengirimkan-file-apk",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.78,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.suara.com/tekno/2022/12/06/112300/jt-peringatkan-pelanggan-waspadai-viral-kasus-penipuan-via-aplikasi-palsu?page=all",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://finansial.bisnis.com/read/20221211/90/1607375/viral-penipuan-mengaku-jadi-kurir-paket-begini-kata-ojk",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-pesan-whatsapp-mengatasnamakan-kurir-pengiriman-paket",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-pengiriman-paket-mengatasnamakan-j-t-express",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "apk-tagihan-bpjs": [
+  {
+   "url": "https://finansial.bisnis.com/read/20230130/55/1622729/bpjs-kesehatan-wanti-wanti-modus-penipu-berkedok-tagihan-tunggakan-iuran",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://finansial.bisnis.com/read/20230130/215/1622823/waspada-wa-atas-nama-bpjs-kesehatan-yang-bisa-retas-m-banking",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-akun-media-sosial-mengatasnamakan-chika-bot-bpjs-kesehatan",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-tagihan-mengatasnamakan-bpjs-kesehatan",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-cek-tagihan-bpjs-kesehatan-oleh-puskesmas-pacet-mojokerto",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "apk-surat-pajak-djp": [
+  {
+   "url": "https://pajak.go.id/id/artikel/waspada-penipuan-djp-selalu-amankan-seluruh-data-wajib-pajak",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.14,
+   "isyarat": false,
+   "cuplikan_ada": false
+  },
+  {
+   "url": "https://ekonomi.bisnis.com/read/20240124/259/1735083/waspada-awas-ada-penipuan-di-musim-lapor-pajak-berupa-file-apk",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-pesan-whatsapp-mengatasnamakan-direktorat-jenderal-pajak",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.pajak.go.id/en/node/111162",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.14,
+   "isyarat": false,
+   "cuplikan_ada": false
+  }
+ ],
+ "apk-tagihan-pln": [
+  {
+   "url": "https://techno.viva.co.id/lifestyle/2775-hindari-jebakan-penipu-begini-cara-aman-dari-serangan-file-apk?page=1",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-tagihan-listrik-mengatasnamakan-pln",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-penagihan-biaya-listrik-mengatasnamakan-pt-pln-persero",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://web.pln.co.id/media/siaran-pers/2023/08/waspada-penipuan-semua-layanan-pln-terpusat-hanya-lewat-pln-mobile",
+   "status": "gagal",
+   "http": 0,
+   "cara": "gagal"
+  }
+ ],
+ "apk-undangan-pemilu-pps": [
+  {
+   "url": "https://finansial.bisnis.com/read/20240115/90/1732310/waspada-modus-penipuan-undangan-pps-pemilu-di-wa-lakukan-ini-jika-telanjur-klik",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-aplikasi-pps-pemilu-2024",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-file-apk-data-tps-pemilu-2024",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "deepfake-pejabat-saham-grup-wa": [
+  {
+   "url": "https://katadata.co.id/digital/teknologi/6a60b3e6dca91/waspada-nama-deputi-gubernur-bi-dan-menkeu-dicatut-hoaks-rekomendasi-saham",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.92,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://kabar24.bisnis.com/read/20250123/16/1834393/bareskrim-gandeng-komdigi-cegah-kasus-video-deepfake-ai",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "anak-kecelakaan-minta-transfer": [
+  {
+   "url": "https://m.jpnn.com/news/kombes-eko-saputro-waspada-aksi-penipuan-modus-kecelakaan",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.8,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.jawapos.com/kasuistika/1611060159/penipuan-modus-baru-yakni-anak-kecelakaan",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.7,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.bca.co.id/id/informasi/awas-modus/2021/01/06/09/15/Awas-Modus-Ngaku-ngaku-Orang-Yang-Kamu-Kenal-Padahal-Penipu",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.3,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "hadiah-undian-catut-ecommerce": [
+  {
+   "url": "https://www.kompas.com/tren/read/2021/03/29/123000965/-hoaks-pengumuman-pemenang-hadiah-undian-shopee-2021?page=all",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.67,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://rri.co.id/banjarmasin/cek-fakta/2177538/hoaks-tautan-untuk-klaim-voucher-cashback-rp2-juta-dari-shopee",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://inet.detik.com/security/d-7988830/kenali-modus-penipuan-fake-bts-yang-catut-nama-shopee",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.89,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "investasi-pinjol-ilegal-untung-pasti": [
+  {
+   "url": "https://ojk.go.id/id/berita-dan-kegiatan/info-terkini/Pages/Satgas-PASTI-Hentikan-953-Entitas-Pinjol-Ilegal-dan-Penawaran-Investasi-Ilegal-Mei-2026.aspx",
+   "status": "gagal",
+   "http": 200,
+   "cara": "gagal"
+  },
+  {
+   "url": "https://ojk.go.id/waspada-investasi/id/siaran-pers/Pages/Satgas-Pasti-Blokir-585-Pinjol-Ilegal-dan-Pinpri-serta-17-Investasi-Ilegal-.aspx",
+   "status": "gagal",
+   "http": 200,
+   "cara": "gagal"
+  }
+ ],
+ "lowongan-kerja-bumn-palsu-bayar": [
+  {
+   "url": "https://www.liputan6.com/cek-fakta/read/4358081/deretan-hoaks-lowongan-kerja-mengatasnamakan-bumn",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.62,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://finance.detik.com/bumn/d-7272271/hati-hati-marak-info-loker-bodong-atas-nama-telkom-ini-yang-benar",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.75,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://tirto.id/hoaks-lowongan-kerja-mengatasnamakan-bnn-g497",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-tautan-rekrutmen-pegawai-bumn",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pendaftaran-rekrutmen-pegawai-bumn-2024",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "cpns-portal-surat-panggilan-palsu": [
+  {
+   "url": "https://setkab.go.id/termasuk-simulasi-soal-bkn-banyak-modus-penipuan-jelang-penerimaan-cpns/",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.0,
+   "isyarat": false,
+   "cuplikan_ada": false
+  },
+  {
+   "url": "https://finance.detik.com/berita-ekonomi-bisnis/d-8517357/poster-pendaftaran-cpns-2026-hoaks",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.5,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.kompas.tv/article/298859/bkn-minta-masyarakat-waspada-panggilan-palsu-terkait-cpns-pengganti",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "herbal-sembuhkan-semua-penyakit": [
+  {
+   "url": "https://kemkes.go.id/id/tidak-ada-satu-obat-yang-menyembuhkan-berbagai-penyakit",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://merahputih.com/post/read/hoaks-atau-fakta-rumput-paragis-dapat-obati-kanker/",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.8,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "herbal-sembuhkan-tbc": [
+  {
+   "url": "https://health.detik.com/detiktv/d-8403254/video-kemenkes-belum-ada-bukti-ilmiah-obat-herbal-bisa-sembuhkan-tbc",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.67,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.cnbcindonesia.com/lifestyle/20260321150733-33-720623/pokoknya-jangan-ikut-tersesat-klaim-herbal-bisa-obati-tbc-ini-faktanya",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "polisi-penyidikan-online-transfer": [
+  {
+   "url": "https://www.metrotvnews.com/read/NOlC9Qar-masyarakat-diminta-waspadai-penipuan-modus-penyidikan-online",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.5,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://www.gridoto.com/read/01227324/awas-modus-baru-penipuan-mengatasnamakan-polisi",
+   "status": "sebagian",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.33,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "lowongan-mbg-tautan-palsu": [
+  {
+   "url": "https://rri.co.id/banjarmasin/cek-fakta/2177548/hoaks-tautan-pendaftaran-lowongan-kerja-untuk-program-mbg-2026",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://turnbackhoax.id/articles/35161-penipuan-tautan-pendaftaran-lowongan-kerja-program-mbg",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.82,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "calo-akpol-bintara-polri": [
+  {
+   "url": "https://www.jawapos.com/nasional/014716678/terapkan-prinsip-betah-polri-tegaskan-tidak-ada-pungutan-biaya-alias-gratis-untuk-masuk-akpol",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.86,
+   "isyarat": true,
+   "cuplikan_ada": true
+  },
+  {
+   "url": "https://rmol.id/read/2024/07/31/630762/seleksi-catar-akpol-rampung-polri-imbau-waspada-penipuan-modus-kuota-susulan",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://rmol.id/read/2026/05/27/708643/warga-pati-jadi-korban-penipuan-masuk-akpol-bayar-rp1-5-miliar",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "pembajakan-whatsapp-kode-verifikasi": [
+  {
+   "url": "https://www.cnbcindonesia.com/tech/20210212061331-37-222897/kamu-harus-waspada-ini-tanda-whatsapp-mau-dibajak",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://inet.detik.com/security/d-4418667/waspada-penipuan-teman-gadungan-di-whatsapp",
+   "status": "eksplisit",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.55,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "biaya-masuk-akmil-hoaks": [
+  {
+   "url": "https://voi.id/en/amp/403801",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.kemhan.go.id/itjen/2015/01/15/tni-ad-bertekad-berantas-praktik-percaloan-seleksi-tentara.html",
+   "status": "tidak_cocok",
+   "http": 200,
+   "cara": "langsung",
+   "topik": 0.25,
+   "isyarat": true,
+   "cuplikan_ada": true
+  }
+ ],
+ "bantuan-bpjs-puluhan-juta": [
+  {
+   "url": "https://finansial.bisnis.com/read/20230202/215/1624163/bos-bpjs-kesehatan-ingatkan-peserta-tidak-tertipu-penipuan-berkedok-hadiah",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://tirto.id/penipuan-berkedok-bantuan-bpjs-kesehatan-senilai-puluhan-juta-gYfk",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-bantuan-bpjs-kesehatan-sebesar-rp75-juta",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-dana-bantuan-dari-bpjs-kesehatan",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ],
+ "obat-cacing-imunisasi-virus-baru": [
+  {
+   "url": "https://tirto.id/tidak-benar-obat-cacing-dan-imunisasi-sebarkan-virus-baru-hhxJ",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.kemkes.go.id/id/kemenkes-serius-perangi-hoax-kesehatan",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  },
+  {
+   "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-virus-baru-disebarkan-ke-anak-sekolah-lewat-pembagian-obat-cacing",
+   "status": "gagal",
+   "http": 403,
+   "cara": "ditolak"
+  }
+ ]
+}

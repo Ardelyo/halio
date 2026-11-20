@@ -2,7 +2,7 @@
   "_meta": {
     "description": "Registri buletin resmi TNI AD / instansi yang boleh dikonfirmasi LURING sebagai 'sejalan dengan sumber'. Hanya dimuat bila tanda tangan Ed25519 di bawah sah terhadap data/registry_pubkey.pem; satu huruf diubah = seluruh registri diabaikan.",
     "collected": "2026-11-20",
-    "status": "Tiap kutipan_sumber disalin PERSIS dari halaman resmi yang diunduh pada 2026-11-20 (portal rekrutmen dan PPID TNI AD) atau dari judul halaman (SSCASN). Tim wajib membuka ulang halaman sebelum demo; buletin kedaluwarsa otomatis lewat valid_until. Cakupan sengaja kecil: hanya yang kutipannya bisa dibuktikan. Kanal resmi BMKG dan ETLE Korlantas BELUM dimasukkan karena belum ada kalimat resmi yang bisa dikutip persis.",
+    "status": "Tiap kutipan_sumber disalin PERSIS dari halaman resmi yang diunduh pada 2026-11-20 (portal rekrutmen dan empat halaman PPID TNI AD: seleksi gratis, Akmil, klarifikasi Danrem 161) atau dari judul halaman (SSCASN). Tim wajib membuka ulang halaman sebelum demo; buletin kedaluwarsa otomatis lewat valid_until. Cakupan sengaja kecil: hanya yang kutipannya bisa dibuktikan. Kanal resmi BMKG dan ETLE Korlantas BELUM dimasukkan karena belum ada kalimat resmi yang bisa dikutip persis.",
     "tolak_note": "'tolak' = pola yang membatalkan konfirmasi. Pesan yang mengaku 'gratis' tetapi memuat bayar/transfer/calo/angka rupiah tidak pernah dihijaukan."
   },
   "bulletins": [
@@ -103,19 +103,83 @@
       "valid_from": "2026-11-20",
       "valid_until": "2027-11-20",
       "wilayah": "Nasional"
+    },
+    {
+      "id": "resmi-ppid-akmil-tidak-dipungut-biaya",
+      "kategori": "buletin_resmi",
+      "jenis": "verifikasi_positif",
+      "klaim": "Seleksi Calon Taruna Akademi Militer (Akmil) sama sekali tidak dipungut biaya",
+      "varian": [
+        "seleksi taruna Akmil tidak dipungut biaya",
+        "masuk Akademi Militer gratis tanpa biaya",
+        "pendaftaran catar Akmil gratis"
+      ],
+      "fakta": "Halaman resmi PPID TNI AD menyatakan: \"Proses seleksi Calon Taruna Akademi Militer (Catar Akmil) sama sekali tidak dipungut biaya (GRATIS).\"",
+      "sederhana": "Seleksi taruna Akmil gratis. Tidak ada tarif dan tidak ada jalur bayar.",
+      "sumber": [
+        {
+          "nama": "PPID TNI AD: TNI AD Tegaskan Seleksi Taruna Akmil Tidak Dipungut Biaya",
+          "url": "https://ppid.tniad.mil.id/index.php/i/17096/tni%20-ad%20-tegaskan%20-seleksi%20-taruna%20-akmil%20-tidak%20-dipungut%20-biaya",
+          "jenis": "resmi"
+        }
+      ],
+      "syarat": [
+        "\\b(akmil|akademi militer|taruna|catar)\\b",
+        "\\b(gratis|tidak dipungut biaya|tanpa biaya|bebas biaya)\\b"
+      ],
+      "tolak": [
+        "\\b(bayar|membayar|transfer|setor|calo|pelicin|orang dalam|ordal|titip|titipan|dp|uang muka|cicil)\\b",
+        "\\b(rp ?\\d|\\d+ ?(juta|jt|ribu|rb|miliar))\\b"
+      ],
+      "kutipan_sumber": "Proses seleksi Calon Taruna Akademi Militer (Catar Akmil) sama sekali tidak dipungut biaya (GRATIS).",
+      "valid_from": "2026-11-20",
+      "valid_until": "2027-06-30",
+      "wilayah": "Nasional"
+    },
+    {
+      "id": "resmi-danrem-161-casis-gratis",
+      "kategori": "buletin_resmi",
+      "jenis": "verifikasi_positif",
+      "klaim": "Rekrutmen calon prajurit TNI AD di NTT dibuka umum dan 100% gratis tanpa pungutan biaya apa pun",
+      "varian": [
+        "rekrutmen prajurit TNI AD di NTT 100% gratis",
+        "pendaftaran casis TNI AD Nusa Tenggara Timur tanpa pungutan biaya",
+        "rekrutmen tentara di NTT dibuka umum gratis"
+      ],
+      "fakta": "Halaman resmi PPID TNI AD menyatakan: \"proses rekrutmen ini dibuka secara umum dan 100% GRATIS untuk seluruh warga negara Indonesia, khususnya putra Nusa Tenggara Timur (NTT), tanpa ada pungutan biaya apapun\"",
+      "sederhana": "Rekrutmen calon prajurit TNI AD di NTT dibuka untuk umum dan 100% gratis.",
+      "sumber": [
+        {
+          "nama": "PPID TNI AD: Klarifikasi Danrem 161/Wira Sakti soal pengumuman casis di medsos",
+          "url": "https://ppid.tniad.mil.id/i/26649/terkait%20-pengumuman%20-casis%20-yang%20-beredar%20-di%20-medsos%20-ini%20-klarifikasi%20-danrem%20-161wira%20-sakti.",
+          "jenis": "resmi"
+        }
+      ],
+      "syarat": [
+        "\\b(rekrutmen|pendaftaran|casis|prajurit|tamtama|bintara|tni)\\b",
+        "\\b(gratis|tidak dipungut biaya|tanpa biaya|bebas biaya|tanpa ada pungutan)\\b"
+      ],
+      "tolak": [
+        "\\b(bayar|membayar|transfer|setor|calo|pelicin|orang dalam|ordal|titip|titipan|dp|uang muka|cicil)\\b",
+        "\\b(rp ?\\d|\\d+ ?(juta|jt|ribu|rb|miliar))\\b"
+      ],
+      "kutipan_sumber": "proses rekrutmen ini dibuka secara umum dan 100% GRATIS untuk seluruh warga negara Indonesia, khususnya putra Nusa Tenggara Timur (NTT), tanpa ada pungutan biaya apapun",
+      "valid_from": "2026-11-20",
+      "valid_until": "2027-06-30",
+      "wilayah": "NTT"
     }
   ],
   "signature": {
     "version": 1,
     "alg": "Ed25519",
     "key_id": "2111262870adf249",
-    "issued_at": "2026-11-20T09:45:25+00:00",
+    "issued_at": "2026-11-20T11:08:06+00:00",
     "payload": {
       "kind": "buletin_resmi_tni",
-      "count": 3,
-      "bulletins_sha256": "85dc3f8f1cbba16f307af02006273ea266c75a3a874ad4711759e6675a49ed61"
+      "count": 5,
+      "bulletins_sha256": "9d4d4937a6f02126deb409c4803892ebcd7d29c6d9d2c3fb939b85c434c77e91"
     },
-    "sha256": "cb5f7b4d7eaa1e11a516ba4c424281967e10c84013c79bfde990ed3fd912f950",
-    "signature_b64": "F6JTmlVz7ZKQLfmcIuEHo86prC+r4UX+yBL6Cm+8aRfz5qB2jB5PifTsvz6kxtLFxJD8KJrM5gyLchhlLHoyDA=="
+    "sha256": "9b10fffc262d90feb25b42c09f502c16ec3dbcb15966530c60c27a7a73ad997c",
+    "signature_b64": "qVrsaUoDvpNGfmOOcgR8BnzCP8guZcqhz1mWU5ZHpKlSFkRNC2/dKioOAKCho6sxf627Fg0v+ftJTPAWwMtHCQ=="
   }
 }

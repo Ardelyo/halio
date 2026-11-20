@@ -8,7 +8,7 @@
 "claim": "Bapak ibu, ada video Pak Prabowo bagi-bagi uang tunai buat rakyat, langsung chat nomor WA ini untuk daftar ya, bayar admin 150rb",
 "checkworthiness": 0.5,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.421,
+"score": 0.422,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -32,7 +32,7 @@
 "claim": "Daftar bantuan langsung tunai dari Presiden, cukup kirim KTP ke WhatsApp dan transfer biaya administrasi",
 "checkworthiness": 0.75,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.467,
+"score": 0.466,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -76,7 +76,7 @@
 "claim": "Menteri keuangan umumkan bansos tunai, pendaftaran lewat wa, buruan sebelum ditutup",
 "checkworthiness": 0.6,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.491,
+"score": 0.489,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -162,7 +162,7 @@
 "claim": "Jalur khusus masuk tentara, pasti lulus, bayar ke orang dalam",
 "checkworthiness": 0.3,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.624,
+"score": 0.627,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -196,7 +196,7 @@
 "claim": "Penerimaan bintara TNI AD tahun ini ada jalur titipan, hubungi saya, biaya bisa dicicil",
 "checkworthiness": 0.45,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.622,
+"score": 0.619,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -254,7 +254,7 @@
 "claim": "gempa besar diprediksi terjadi minggu depan di pulau jawa, sebarkan ke keluarga",
 "checkworthiness": 0.6,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.865,
+"score": 0.866,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -298,7 +298,7 @@
 "claim": "Prediksi gempa susulan lebih besar M9 akan datang dalam 3 hari",
 "checkworthiness": 0.65,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.592,
+"score": 0.593,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -322,7 +322,7 @@
 "claim": "Obat covid paling ampuh: air kelapa muda campur garam dan perasan jeruk nipis, diminum pagi hari langsung sembuh",
 "checkworthiness": 0.3,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.601,
+"score": 0.599,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -346,7 +346,7 @@
 "claim": "air klapa + garem + jeruk nipis bs nyembuhin corona, udh dibuktiin",
 "checkworthiness": 0.15,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.509,
+"score": 0.51,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -370,7 +370,7 @@
 "claim": "Telkomsel XL Indosat bagi kuota gratis 50GB dalam rangka HUT RI, klik link ini dan isi nomor HP kamu",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.524,
+"score": 0.521,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -464,7 +464,7 @@
 "claim": "Jasa Marga kasih saldo e-toll gratis 100 ribu buat pengguna tol, klaim di link berikut",
 "checkworthiness": 0.95,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.612,
+"score": 0.602,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -499,7 +499,7 @@
 "claim": "Hati-hati ada komplotan penculik anak naik mobil putih keliling sekolah, anak diculik diambil organ tubuhnya",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.544,
+"score": 0.545,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -577,7 +577,7 @@
 "claim": "Pendaftaran rekrutmen TNI AD 2026 dibuka secara online dan tidak dipungut biaya",
 "checkworthiness": 0.8,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.437,
+"score": 0.431,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -601,7 +601,7 @@
 "claim": "BMKG mencatat gempa magnitudo 5,1 di selatan Jawa pagi ini, tidak berpotensi tsunami",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.474,
+"score": 0.475,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -685,7 +685,7 @@
 "claim": "Air kelapa mengandung elektrolit seperti kalium yang membantu mengganti cairan tubuh",
 "checkworthiness": 0.3,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.383,
+"score": 0.384,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -722,7 +722,7 @@
 "claim": "Jasa Marga memberlakukan diskon tarif tol 20 persen saat libur Natal",
 "checkworthiness": 0.65,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.301,
+"score": 0.302,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -843,7 +843,7 @@
 "claim": "Minum air rebusan daun sirsak setiap hari bisa menyembuhkan kanker stadium akhir",
 "checkworthiness": 0.3,
 "debunk_id": "herbal-sembuhkan-semua-penyakit",
-"score": 0.371,
+"score": 0.374,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1186,7 +1186,7 @@
 "claim": "Pemerintah resmi membuka pendaftaran bansos PKH tahap 2, cek nama penerima lewat situs [TAUTAN]",
 "checkworthiness": 0.8,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.292,
+"score": 0.299,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1280,7 +1280,7 @@
 "claim": "BMKG: gempa magnitudo 5,3 mengguncang Cianjur, tidak berpotensi tsunami, warga diimbau tetap tenang dan waspada gempa susulan",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.364,
+"score": 0.365,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1327,7 +1327,7 @@
 "claim": "BMKG akan memperbarui peringatan dini cuaca ekstrem pekan depan, pantau terus aplikasi InfoBMKG",
 "checkworthiness": 0.45,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.277,
+"score": 0.276,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1412,7 +1412,7 @@
 "claim": "Pendaftaran Bintara TNI AD 2026 dibuka tanggal 5 Januari melalui [TAUTAN], biaya gratis",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.463,
+"score": 0.453,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1448,7 +1448,7 @@
 "claim": "Rekrutmen tamtama TNI AD gratis tidak dipungut biaya, waspada calo yang menjanjikan jalur khusus",
 "checkworthiness": 0.6,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.434,
+"score": 0.418,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1541,7 +1541,7 @@
 "claim": "Air kelapa muda baik untuk menjaga hidrasi, bisa diminum dengan sedikit garam setelah olahraga",
 "checkworthiness": 0.15,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.542,
+"score": 0.538,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1615,7 +1615,7 @@
 "claim": "Telkomsel memberi bonus kuota gratis 5GB untuk pelanggan setia yang mengisi pulsa Rp100 ribu, cek di aplikasi MyTelkomsel",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.289,
+"score": 0.288,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1767,7 +1767,7 @@
 "claim": "Jasa Marga memberikan diskon tarif tol 20 persen, saldo e-toll bisa diisi lewat aplikasi Travoy",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.459,
+"score": 0.461,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1814,7 +1814,7 @@
 "claim": "Hati-hati penculikan anak, polisi sudah menangkap pelakunya di Bekasi, warga diminta tetap waspada",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.439,
+"score": 0.44,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -1976,7 +1976,7 @@
 "claim": "Hubungi nomor 112 untuk layanan darurat, gratis dari semua operator",
 "checkworthiness": 0.5,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.323,
+"score": 0.328,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2032,7 +2032,7 @@
 "claim": "Daftar BPJS Kesehatan gratis untuk warga kurang mampu lewat kantor desa dan dinas sosial",
 "checkworthiness": 0.45,
 "debunk_id": "bantuan-bpjs-puluhan-juta",
-"score": 0.296,
+"score": 0.297,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2079,7 +2079,7 @@
 "claim": "Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja bergaji di bawah 3,5 juta, cek di [TAUTAN]",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.265,
+"score": 0.266,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2166,7 +2166,7 @@
 "claim": "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan",
 "checkworthiness": 0.75,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.398,
+"score": 0.4,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2250,7 +2250,7 @@
 "claim": "Polres menyangkal kabar penculikan anak dengan mobil putih di Bekasi",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.349,
+"score": 0.35,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2297,7 +2297,7 @@
 "claim": "Pak, ada surat tilang digital dari polisi di WA, katanya harus install file apk dulu buat lihat dendanya",
 "checkworthiness": 0.15,
 "debunk_id": "apk-surat-tilang-whatsapp",
-"score": 0.615,
+"score": 0.616,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2345,7 +2345,7 @@
 "claim": "Bisa bantu anak lulus CPNS tahun ini lewat orang dalam, bayar dulu 80 juta dijamin lolos",
 "checkworthiness": 0.4,
 "debunk_id": "calo-cpns-bayar-lulus",
-"score": 0.697,
+"score": 0.698,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2413,7 +2413,7 @@
 "claim": "Sebutkan kode OTP yang masuk ke HP untuk membatalkan",
 "checkworthiness": 0.15,
 "debunk_id": "otp-petugas-bank",
-"score": 0.427,
+"score": 0.429,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2482,7 +2482,7 @@
 "claim": "Bapak2 ibu2 ada bantuan tunai dari Pak Presiden 5 juta per KK, japri nomor ini ya buat daftar, ada biaya admin 75rb",
 "checkworthiness": 0.95,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.535,
+"score": 0.534,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2568,7 +2568,7 @@
 "claim": "presiden prabowo bagi2 duit 10jt bagi yg follow & share video ini",
 "checkworthiness": 0.5,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.518,
+"score": 0.514,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2602,7 +2602,7 @@
 "claim": "Saya punya orang dalam di Kodam, pasti lulus, siapkan 150 juta",
 "checkworthiness": 0.8,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.43,
+"score": 0.432,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2660,7 +2660,7 @@
 "claim": "bisa bantu masuk bintara TNI lwt kenalan perwira, ada uang pelicin dikit",
 "checkworthiness": 0.3,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.433,
+"score": 0.451,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2684,7 +2684,7 @@
 "claim": "BMKG memprediksi gempa M8,7 dan tsunami akan melanda selatan Jawa tanggal 12 bulan ini, segera mengungsi",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.413,
+"score": 0.414,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2718,7 +2718,7 @@
 "claim": "Info dari teman di BMKG, gempa besar akan datang dalam 5 hari, jangan tidur di dalam rumah",
 "checkworthiness": 0.65,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.452,
+"score": 0.453,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2752,7 +2752,7 @@
 "claim": "akan ada gempa susulan lebih besar M9 minggu depan, sebarin ke keluarga",
 "checkworthiness": 0.5,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.531,
+"score": 0.532,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2800,7 +2800,7 @@
 "claim": "kalo kena corona minum aja air kelapa campur garem, manjur bgt",
 "checkworthiness": 0.15,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.482,
+"score": 0.48,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2824,7 +2824,7 @@
 "claim": "Kuota gratis 40GB dari Telkomsel Indosat XL untuk merayakan ulang tahun, klik tautan lalu isi nomor kamu",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.406,
+"score": 0.403,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2867,7 +2867,7 @@
 "claim": "Subsidi kuota internet dari pemerintah 50GB, isi data di link ini lalu sebarkan ke 10 grup",
 "checkworthiness": 0.65,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.525,
+"score": 0.523,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2910,7 +2910,7 @@
 "claim": "Klaim saldo e-toll gratis Rp200.000 dari Jasa Marga, buka link dan isi data kartu",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.59,
+"score": 0.587,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -2955,7 +2955,7 @@
 "claim": "Ada komplotan penculik anak keliling pakai mobil van hitam di dekat SD, organ anak dijual, tolong sebarkan",
 "checkworthiness": 0.3,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.522,
+"score": 0.523,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3116,7 +3116,7 @@
 "claim": "Kemensos mengingatkan bansos tidak pernah dipungut biaya dan tidak didaftarkan lewat WhatsApp",
 "checkworthiness": 0.45,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.36,
+"score": 0.366,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3172,7 +3172,7 @@
 "claim": "Hati-hati video Presiden bagi-bagi uang itu hoaks buatan AI, jangan transfer biaya admin ke siapapun",
 "checkworthiness": 0.75,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.38,
+"score": 0.382,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3220,7 +3220,7 @@
 "claim": "Pendaftaran Tamtama TNI AD gelombang 2 dibuka mulai 1 Juli, seluruh tahapan tidak dipungut biaya",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.473,
+"score": 0.465,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3244,7 +3244,7 @@
 "claim": "Kodam XV Pattimura memburu oknum calo penerimaan prajurit yang merugikan korban Rp112 juta",
 "checkworthiness": 0.8,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.275,
+"score": 0.264,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3291,7 +3291,7 @@
 "claim": "Awas penipuan rekrutmen TNI AD, siapa pun yang menjanjikan pasti lulus dengan bayar uang adalah calo",
 "checkworthiness": 0.45,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.319,
+"score": 0.329,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3346,7 +3346,7 @@
 "claim": "Seleksi Bintara TNI AD meliputi tes kesehatan, jasmani, psikologi, dan akademik",
 "checkworthiness": 0.45,
 "debunk_id": "resmi-ppid-tni-ad-seleksi-gratis",
-"score": 0.342,
+"score": 0.332,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3494,7 +3494,7 @@
 "claim": "Pesan prediksi gempa besar minggu depan itu hoaks, BMKG sudah membantahnya",
 "checkworthiness": 0.6,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.486,
+"score": 0.487,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3578,7 +3578,7 @@
 "claim": "Tidak ada bukti air kelapa dan garam menyembuhkan covid, kata Kementerian Kesehatan",
 "checkworthiness": 0.45,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.523,
+"score": 0.524,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3700,7 +3700,7 @@
 "claim": "Komdigi mengingatkan pesan kuota gratis dari pemerintah yang meminta klik link adalah penipuan",
 "checkworthiness": 0.6,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.37,
+"score": 0.365,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3801,7 +3801,7 @@
 "claim": "Jasa Marga mengimbau pengguna tol memastikan saldo kartu e-toll cukup sebelum mudik",
 "checkworthiness": 0.45,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.422,
+"score": 0.424,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3848,7 +3848,7 @@
 "claim": "Jasa Marga membantah membagikan saldo e-toll gratis lewat link, itu penipuan",
 "checkworthiness": 0.75,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.688,
+"score": 0.685,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -3896,7 +3896,7 @@
 "claim": "Polres Bekasi menangkap dua pelaku penculikan anak, korban sudah kembali ke orang tuanya",
 "checkworthiness": 0.6,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.29,
+"score": 0.291,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4212,7 +4212,7 @@
 "claim": "Ada promo tiket kereta gratis untuk lansia, cek di aplikasi Access by KAI",
 "checkworthiness": 0.45,
 "debunk_id": "apk-resi-kurir-whatsapp",
-"score": 0.3,
+"score": 0.304,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4413,11 +4413,11 @@
 {
 "text": "Prajurit TNI AD membantu evakuasi korban banjir di Demak",
 "status": "tidak_yakin",
-"reason": "inti_klaim_tidak_ada",
+"reason": "mirip_tapi_tidak_sama",
 "claim": "Prajurit TNI AD membantu evakuasi korban banjir di Demak",
 "checkworthiness": 0.6,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.409,
+"score": 0.388,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4443,7 +4443,7 @@
 "url": "https://turnbackhoax.id/?s=Prajurit+TNI+AD+membantu+evakuasi+korban+banjir+di+Demak"
 }
 ],
-"voice_script": "Bapak, Ibu, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: Masuk TNI AD itu gratis dan lewat tes resmi. Siapa pun yang minta uang supaya 'dijamin lulus' adalah penipu.",
+"voice_script": "Bapak, Ibu, Halio belum yakin. Pesan ini mirip dengan kabar bohong yang pernah beredar, tapi buktinya belum cukup. Lebih aman ditahan dulu. Kalau mau, Halio bisa tanyakan ke pemeriksa manusia.",
 "offer_human_review": true,
 "method": "lokal"
 },
@@ -4760,7 +4760,7 @@
 "claim": "Pendaftaran CPNS dilakukan lewat portal resmi SSCASN BKN dan tidak dipungut biaya",
 "checkworthiness": 0.6,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.47,
+"score": 0.471,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4834,7 +4834,7 @@
 "claim": "Bank tidak pernah meminta kode OTP lewat telepon, jangan berikan OTP kepada siapa pun termasuk yang mengaku petugas bank",
 "checkworthiness": 0.15,
 "debunk_id": "otp-petugas-bank",
-"score": 0.504,
+"score": 0.492,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4882,7 +4882,7 @@
 "claim": "Kode OTP Anda 482913, berlaku 5 menit.",
 "checkworthiness": 0.5,
 "debunk_id": "otp-petugas-bank",
-"score": 0.273,
+"score": 0.274,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4930,7 +4930,7 @@
 "claim": "Pendaftaran Bintara TNI AD 2026 dibuka di [TAUTAN], gratis tanpa biaya apa pun.",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.511,
+"score": 0.474,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -4966,7 +4966,7 @@
 "claim": "Pendaftaran Bintara TNI AD gratis, tapi bayar 5 juta lewat calo supaya lulus",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.441,
+"score": 0.436,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5013,7 +5013,7 @@
 "claim": "Seleksi masuk TNI AD sama sekali tidak dipungut biaya, biaya pendidikan ditanggung negara",
 "checkworthiness": 0.6,
 "debunk_id": "resmi-ppid-tni-ad-seleksi-gratis",
-"score": 0.645,
+"score": 0.63,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5037,7 +5037,7 @@
 "claim": "Pendaftaran tamtama TNI AD gratis, daftar di [TAUTAN]",
 "checkworthiness": 0.6,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.371,
+"score": 0.367,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5088,7 +5088,7 @@
 "claim": "Pendaftaran Bintara TNI AD tidak gratis, bayar dulu",
 "checkworthiness": 0.75,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.508,
+"score": 0.501,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5135,7 +5135,7 @@
 "claim": "Undangan nikah.apk silakan dibuka, install aplikasinya sekarang",
 "checkworthiness": 0.3,
 "debunk_id": "apk-undangan-nikah-whatsapp",
-"score": 0.387,
+"score": 0.39,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5328,7 +5328,7 @@
 "claim": "Pemerintah tidak pernah minta biaya admin lewat WhatsApp.",
 "checkworthiness": 0.6,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.356,
+"score": 0.354,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5440,7 +5440,7 @@
 "claim": "Ada calo penerimaan TNI AD, bayar 90 juta dijamin lulus. Hubungi [NOMOR] atau email [EMAIL] segera.",
 "checkworthiness": 0.4,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.437,
+"score": 0.449,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5504,7 +5504,7 @@
 "claim": "Pendaftaran Bintara TNI AD 2026 dibuka di [TAUTAN], gratis tanpa biaya apa pun.",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.511,
+"score": 0.474,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5607,7 +5607,7 @@
 "claim": "Gempa 8,5 SR akan terjadi tanggal 5 Desember menurut peramal.",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.394,
+"score": 0.393,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5702,7 +5702,7 @@
 "claim": "Klik [TAUTAN] untuk klaim saldo e-toll gratis Rp500 ribu, isi data sekarang juga",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.597,
+"score": 0.596,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5888,7 +5888,7 @@
 "claim": "Air kelapa dicampur garam dan jeruk nipis bisa menyembuhkan covid, ampuh dan manjur!",
 "checkworthiness": 0.3,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.617,
+"score": 0.618,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5912,7 +5912,7 @@
 "claim": "Air kelapa tidak bisa menyembuhkan covid, tidak ada bukti klinis dari Kemenkes.",
 "checkworthiness": 0.6,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.47,
+"score": 0.469,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5949,7 +5949,7 @@
 "claim": "Penculik anak berkeliaran naik mobil, sebarkan ke semua grup sebelum terlambat!!!",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.47,
+"score": 0.471,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -5992,7 +5992,7 @@
 "claim": "Info dari PMI: gempa dan tsunami akan terjadi bulan depan, sebarkan.",
 "checkworthiness": 0.6,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.461,
+"score": 0.462,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -6034,7 +6034,7 @@
 "claim": "tolong dong min, kuota gratis 30GB dari operator, klik link ini bagikan ke 5 grup",
 "checkworthiness": 0.65,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.739,
+"score": 0.737,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -6251,7 +6251,7 @@
 "claim": "BANSOS CAIR BESOK, DAFTAR WA [NOMOR], BAYAR ADMIN, SEBARKAN!!!",
 "checkworthiness": 0.35,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.365,
+"score": 0.367,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -6378,7 +6378,7 @@
 "claim": "😀😀😀 gempa tsunami akan terjadi tanggal 10 😱",
 "checkworthiness": 0.8,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.487,
+"score": 0.489,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -6823,7 +6823,7 @@
 "claim": "Presiden Prabowo bagi-bagi uang.",
 "checkworthiness": 0.45,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.416,
+"score": 0.417,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -9214,11 +9214,11 @@
 "method": "lokal"
 },
 {
-"text": "Akun atau nomor WhatsApp yang mengaku Pangdam, perwira, atau pejabat satuan meminta uang atau bantuan",
-"status": "terbukti_salah",
-"reason": "cocok_dengan_bantahan",
-"claim": "Akun atau nomor WhatsApp yang mengaku Pangdam, perwira, atau pejabat satuan meminta uang atau bantuan",
-"checkworthiness": 0.45,
+"text": "Akun atau nomor WhatsApp yang mengaku pejabat (termasuk pimpinan satuan TNI) meminta uang, pulsa, atau bantuan dana",
+"status": "tidak_yakin",
+"reason": "inti_klaim_tidak_ada",
+"claim": "Akun atau nomor WhatsApp yang mengaku pejabat (termasuk pimpinan satuan TNI) meminta uang, pulsa, atau bantuan dana",
+"checkworthiness": 0.6,
 "debunk_id": "akun-palsu-pejabat-militer",
 "score": 1.0,
 "kind": "pesan",
@@ -9232,9 +9232,22 @@
 "attribution": null,
 "domains": [],
 "warnings": [],
-"cari_sendiri": [],
-"voice_script": "Bapak, Ibu, pesan ini sudah dicek dan ternyata tidak benar. Pejabat tidak meminta uang lewat nomor atau akun baru. Hubungi satuannya lewat nomor resmi sebelum mentransfer apa pun. Sumbernya dari Bisnis.com. Sebaiknya jangan diteruskan, ya.",
-"offer_human_review": false,
+"cari_sendiri": [
+{
+"nama": "Cari beritanya di Google",
+"url": "https://www.google.com/search?q=Akun+atau+nomor+WhatsApp+yang+mengaku+pejabat+%28termasuk+pimpinan+satuan+TNI%29+meminta+uang%2C+pulsa%2C+atau+bantuan+dana"
+},
+{
+"nama": "Cari di Google dengan kata \"hoaks\" / \"cek fakta\"",
+"url": "https://www.google.com/search?q=Akun+atau+nomor+WhatsApp+yang+mengaku+pejabat+%28termasuk+pimpinan+satuan+TNI%29+meminta+uang%2C+pulsa%2C+atau+bantuan+dana+hoaks+OR+%22cek+fakta%22"
+},
+{
+"nama": "Cari di TurnBackHoax",
+"url": "https://turnbackhoax.id/?s=Akun+atau+nomor+WhatsApp+yang+mengaku+pejabat+%28termasuk+pimpinan+satuan+TNI%29+meminta+uang%2C+pulsa%2C+atau+bantuan+dana"
+}
+],
+"voice_script": "Bapak, Ibu, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: Pejabat tidak meminta uang lewat nomor atau akun baru. Hubungi satuannya lewat nomor resmi sebelum mentransfer apa pun.",
+"offer_human_review": true,
 "method": "lokal"
 },
 {
@@ -11132,7 +11145,7 @@
 "claim": "link pendaftaran CPNS resmi di [TAUTAN], isi data dan bayar biaya",
 "checkworthiness": 0.6,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.728,
+"score": 0.726,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -11170,7 +11183,7 @@
 "claim": "surat panggilan tes CPNS dikirim lewat WhatsApp, buka [TAUTAN]",
 "checkworthiness": 0.3,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.784,
+"score": 0.785,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -12508,7 +12521,7 @@
 "claim": "Tidak ada bukti air kelapa dan garam menyembuhkan covid, kata Kementerian Kesehatan Obat covid paling ampuh: air kelapa muda campur garam dan perasan jeruk nipis, diminum pagi hari langsung sembuh",
 "checkworthiness": 0.45,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.658,
+"score": 0.657,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -12545,7 +12558,7 @@
 "claim": "Surat kelulusan atau panggilan TNI",
 "checkworthiness": 0.15,
 "debunk_id": "surat-kelulusan-palsu-tni",
-"score": 0.684,
+"score": 0.687,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -12619,7 +12632,7 @@
 "claim": "Polisi mengimbau warga waspada berita hoaks penculikan",
 "checkworthiness": 0.3,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.358,
+"score": 0.359,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -12766,7 +12779,7 @@
 "claim": "gempaa besaar diprediksi terjadi minggu depan di pulau jawa, sebarkan ke keluarga",
 "checkworthiness": 0.45,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.79,
+"score": 0.791,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -12857,7 +12870,7 @@
 "claim": "Cek [TAUTAN] sekarang juga. Undangan pernikahan digital berupa file APK yang dikirim lewat WhatsApp.",
 "checkworthiness": 0.35,
 "debunk_id": "apk-undangan-nikah-whatsapp",
-"score": 0.887,
+"score": 0.888,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13011,7 +13024,7 @@
 "claim": "Jasa Marga kasih saldo e-toll gratis 100 ribu buat pengguna tol, klaim di link berikut.",
 "checkworthiness": 0.95,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.612,
+"score": 0.602,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13150,11 +13163,11 @@
 {
 "text": "prajurit tni ad membantu evakuasi korban banjir di demak",
 "status": "tidak_yakin",
-"reason": "inti_klaim_tidak_ada",
+"reason": "mirip_tapi_tidak_sama",
 "claim": "prajurit tni ad membantu evakuasi korban banjir di demak",
 "checkworthiness": 0.45,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.409,
+"score": 0.388,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13180,7 +13193,7 @@
 "url": "https://turnbackhoax.id/?s=prajurit+tni+ad+membantu+evakuasi+korban+banjir+di+demak"
 }
 ],
-"voice_script": "Bapak, Ibu, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: Masuk TNI AD itu gratis dan lewat tes resmi. Siapa pun yang minta uang supaya 'dijamin lulus' adalah penipu.",
+"voice_script": "Bapak, Ibu, Halio belum yakin. Pesan ini mirip dengan kabar bohong yang pernah beredar, tapi buktinya belum cukup. Lebih aman ditahan dulu. Kalau mau, Halio bisa tanyakan ke pemeriksa manusia.",
 "offer_human_review": true,
 "method": "lokal"
 },
@@ -13191,7 +13204,7 @@
 "claim": "ADA PROMO TIKET KERETA GRATIS UNTUK LANSIA, CEK DI APLIKASI ACCESS BY KAI",
 "checkworthiness": 0.3,
 "debunk_id": "apk-resi-kurir-whatsapp",
-"score": 0.3,
+"score": 0.304,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13319,7 +13332,7 @@
 "claim": "Pemerintah resmi membuka pendaftaran bansos PKH tahap 2, cek nama penerima lewat situs [TAUTAN] Mohon diteruskan.",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.283,
+"score": 0.29,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13413,7 +13426,7 @@
 "claim": "Info dari teman di BMKG, gempa besar akan datang dalam 5 hari, jangan tidur di dalam rumah",
 "checkworthiness": 0.65,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.452,
+"score": 0.453,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13491,7 +13504,7 @@
 "claim": "kuota susulan Akpol masih tersedia, transfer dulu Menurut saya ini bahaya.",
 "checkworthiness": 0.2,
 "debunk_id": "calo-akpol-bintara-polri",
-"score": 0.915,
+"score": 0.916,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13558,7 +13571,7 @@
 "claim": "Jasa Marga membagikan saldo e-toll",
 "checkworthiness": 0.6,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.771,
+"score": 0.775,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13700,7 +13713,7 @@
 "claim": "Minum air rebusan daun sirsak setiap hari bisa menyembuhkan kanker stadium akhir Hubungi [NOMOR].",
 "checkworthiness": 0.65,
 "debunk_id": "herbal-sembuhkan-semua-penyakit",
-"score": 0.334,
+"score": 0.336,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13784,7 +13797,7 @@
 "claim": "Hati-hati video Presiden bagi-bagi uang itu hoaks buatan AI, jangan transfer biaya admin ke siapapun",
 "checkworthiness": 0.75,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.38,
+"score": 0.382,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13832,7 +13845,7 @@
 "claim": "Rekrutmen tamtama TNI AD gratis tidak dipungut biaya, waspada calo yang menjanjikan jalur khusus obral mobil randis Kemhan, bayar panjar sekarang",
 "checkworthiness": 0.6,
 "debunk_id": "lelang-kendaraan-dinas-palsu",
-"score": 0.651,
+"score": 0.657,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -13888,7 +13901,7 @@
 "claim": "air klapa + garem + jeruk nipis bs nyembuhin corona, udh dibuktiin Menurut saya ini bahaya.",
 "checkworthiness": 0.0,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.461,
+"score": 0.463,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14058,7 +14071,7 @@
 "claim": "voucher caashbaack Rp2 juta dari Shopee, klik tautan untuk mengambil",
 "checkworthiness": 0.65,
 "debunk_id": "hadiah-undian-catut-ecommerce",
-"score": 0.926,
+"score": 0.927,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14096,12 +14109,12 @@
 },
 {
 "text": "bisaa baantu masuk bintara TNI lwt kenalan perwira, ada uang pelicin dikit",
-"status": "tidak_yakin",
-"reason": "mirip_tapi_tidak_sama",
+"status": "terbukti_salah",
+"reason": "cocok_dengan_bantahan",
 "claim": "bisaa baantu masuk bintara TNI lwt kenalan perwira, ada uang pelicin dikit",
 "checkworthiness": 0.3,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.399,
+"score": 0.414,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14113,22 +14126,9 @@
 "attribution": null,
 "domains": [],
 "warnings": [],
-"cari_sendiri": [
-{
-"nama": "Cari beritanya di Google",
-"url": "https://www.google.com/search?q=bisaa+baantu+masuk+bintara+TNI+lwt+kenalan+perwira%2C+ada+uang+pelicin+dikit"
-},
-{
-"nama": "Cari di Google dengan kata \"hoaks\" / \"cek fakta\"",
-"url": "https://www.google.com/search?q=bisaa+baantu+masuk+bintara+TNI+lwt+kenalan+perwira%2C+ada+uang+pelicin+dikit+hoaks+OR+%22cek+fakta%22"
-},
-{
-"nama": "Cari di TurnBackHoax",
-"url": "https://turnbackhoax.id/?s=bisaa+baantu+masuk+bintara+TNI+lwt+kenalan+perwira%2C+ada+uang+pelicin+dikit"
-}
-],
-"voice_script": "Bapak, Ibu, Halio belum yakin. Pesan ini mirip dengan kabar bohong yang pernah beredar, tapi buktinya belum cukup. Lebih aman ditahan dulu. Kalau mau, Halio bisa tanyakan ke pemeriksa manusia.",
-"offer_human_review": true,
+"cari_sendiri": [],
+"voice_script": "Bapak, Ibu, pesan ini sudah dicek dan ternyata tidak benar. Masuk TNI AD itu gratis dan lewat tes resmi. Siapa pun yang minta uang supaya 'dijamin lulus' adalah penipu. Sumbernya dari Bisnis.com. Sebaiknya jangan diteruskan, ya.",
+"offer_human_review": false,
 "method": "lokal"
 },
 {
@@ -14138,7 +14138,7 @@
 "claim": "Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja bergaji di bawah 3,5 juta, cek di [TAUTAN]. Pemerintah resmi membuka pendaftaran bansos PKH tahap 2, cek nama penerima lewat situs [TAUTAN]",
 "checkworthiness": 0.8,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.292,
+"score": 0.299,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14349,7 +14349,7 @@
 "claim": "kurir ekspedisi kirim file foto",
 "checkworthiness": 0.15,
 "debunk_id": "apk-resi-kurir-whatsapp",
-"score": 0.75,
+"score": 0.749,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14423,7 +14423,7 @@
 "claim": "tolong teruskan kode yang baru masuk lewat SMS Mohon diteruskan.",
 "checkworthiness": 0.3,
 "debunk_id": "pembajakan-whatsapp-kode-verifikasi",
-"score": 0.959,
+"score": 0.961,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14470,7 +14470,7 @@
 "claim": "hati-hati penculikan anak, polisi sudah menangkap pelakunya di bekasi, warga diminta tetap waspada",
 "checkworthiness": 0.3,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.439,
+"score": 0.44,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14613,7 +14613,7 @@
 "claim": "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan",
 "checkworthiness": 0.75,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.398,
+"score": 0.4,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14670,7 +14670,7 @@
 "claim": "Subsidi kuotaa internet daari pemerintah 50GB, isi data di link ini lalu sebarkan ke 10 grup",
 "checkworthiness": 0.5,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.452,
+"score": 0.45,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14713,7 +14713,7 @@
 "claim": "lelang mobil dinas TNI murah",
 "checkworthiness": 0.3,
 "debunk_id": "lelang-kendaraan-dinas-palsu",
-"score": 0.707,
+"score": 0.705,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14865,7 +14865,7 @@
 "claim": "BMKG: gempa magnitudo 5,3 mengguncang Cianjur, tidak berpotensi",
 "checkworthiness": 0.8,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.467,
+"score": 0.468,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -14978,7 +14978,7 @@
 "claim": "Surat kelulusan atau panggilan TNI yang meminta transfer biaya bertahap Hubungi [NOMOR].",
 "checkworthiness": 0.95,
 "debunk_id": "surat-kelulusan-palsu-tni",
-"score": 0.91,
+"score": 0.909,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15070,7 +15070,7 @@
 "claim": "Ada kenalan di kodam bisa bantu anak ibu lulus tes tamtama TNI AD, dijamin lulus asal siapkan uang 80 juta Hubungi [NOMOR].",
 "checkworthiness": 0.55,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.844,
+"score": 0.843,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15141,7 +15141,7 @@
 "claim": "Komdigi mengingatkan pesan kuota gratis dari pemerintah yang meminta klik link adalah penipuan.",
 "checkworthiness": 0.6,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.37,
+"score": 0.365,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15228,7 +15228,7 @@
 "claim": "Prediksi gempa susulan lebih besar M9 akan datang dalam 3 hari",
 "checkworthiness": 0.65,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.592,
+"score": 0.593,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15397,7 +15397,7 @@
 "claim": "Subsidi kuota internet dari pemerintah 50GB, isi data di link ini lalu sebarkan ke 10 grup Polisi mengimbau warga waspada berita hoaks penculikan anak yang beredar di WhatsApp, pelaku sudah dibantah",
 "checkworthiness": 0.65,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.394,
+"score": 0.393,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15497,7 +15497,7 @@
 "claim": "Kuota gratis 40GB dari Telkomsel Indosat XL untuk merayakan ulang tahun, klik tautan lalu isi nomor kamu",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.406,
+"score": 0.403,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15587,7 +15587,7 @@
 "claim": "kode otp anda 482913, berlaku 5 menit.",
 "checkworthiness": 0.35,
 "debunk_id": "otp-petugas-bank",
-"score": 0.273,
+"score": 0.274,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15669,7 +15669,7 @@
 "claim": "Tagihan listrik PLN dikirim sebagai",
 "checkworthiness": 0.0,
 "debunk_id": "apk-tagihan-pln",
-"score": 0.718,
+"score": 0.717,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15706,7 +15706,7 @@
 "claim": "Jasa Marga memberikan diskon tarif tol 20 persen, saldo e-toll bisa diisi lewat aplikasi Travoy",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.459,
+"score": 0.461,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15771,7 +15771,7 @@
 "claim": "BMKG mencatat gempa magnitudo 5,1 di selatan Jawa pagi ini, tidak berpotensi tsunami SEBARKAN!!!",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.442,
+"score": 0.443,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15876,7 +15876,7 @@
 "claim": "informasi biaya pendaftaran prajurit TNI AD jalur khusus katanya gempa dahsyat akan mengguncang dalam waktu seminggu, jangan tidur di dalam rumah",
 "checkworthiness": 0.6,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.775,
+"score": 0.779,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15968,7 +15968,7 @@
 "claim": "info loker Telkom, ada biaya seragam dan pemberkasan Mohon diteruskan.",
 "checkworthiness": 0.45,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.94,
+"score": 0.943,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -15992,7 +15992,7 @@
 "claim": "Kominfo meluncurkan program internet gratis",
 "checkworthiness": 0.3,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.271,
+"score": 0.273,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16047,7 +16047,7 @@
 "claim": "dapatkan kuota gratis dengan",
 "checkworthiness": 0.3,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.645,
+"score": 0.641,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16094,7 +16094,7 @@
 "claim": "pendaftaran lowongan SPPG program",
 "checkworthiness": 0.15,
 "debunk_id": "lowongan-mbg-tautan-palsu",
-"score": 0.704,
+"score": 0.703,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16195,7 +16195,7 @@
 "claim": "Jasa Marga kasih saldo e-toll gratis 100",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.664,
+"score": 0.642,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16403,7 +16403,7 @@
 "claim": "program bantuan BPJS puluhan",
 "checkworthiness": 0.15,
 "debunk_id": "bantuan-bpjs-puluhan-juta",
-"score": 0.693,
+"score": 0.692,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16440,7 +16440,7 @@
 "claim": "informaasi biaaya pendaftaran prajurit TNI AD jalur khusus",
 "checkworthiness": 0.45,
 "debunk_id": "biaya-masuk-akmil-hoaks",
-"score": 0.913,
+"score": 0.912,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16545,7 +16545,7 @@
 "claim": "Kodam Jaya buka pendaftaran Bintara, hubungi panitia di kodam untuk informasi, jangan bayar uang kepada siapapun. Ada komplotan penculik anak keliling pakai mobil van hitam di dekat SD, organ anak dijual, tolong sebarkan",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.522,
+"score": 0.523,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16729,7 +16729,7 @@
 "claim": "ramalan gempa susulan yang lebih besar akan datang dalam beberapa hari Segera, hari ini terakhir!",
 "checkworthiness": 0.45,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.923,
+"score": 0.924,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -16977,7 +16977,7 @@
 "claim": "Saya punya orang dalam di Kodam, pasti lulus, siapkan 150 juta",
 "checkworthiness": 0.8,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.43,
+"score": 0.432,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17080,7 +17080,7 @@
 "claim": "Ada kenalan di kodam bisa bantu anak ibu lulus tes tamtama TNI AD, dijamin lulus asal siapkan uang 80 juta katanya gempa dahsyat akan mengguncang dalam waktu seminggu, jangan tidur di dalam rumah",
 "checkworthiness": 0.4,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.674,
+"score": 0.673,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17114,7 +17114,7 @@
 "claim": "BMKG memprediksi gempa M8,7 dan tsunami akan melanda selatan Jawa tanggal 12 bulan ini, segera mengungsi",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.413,
+"score": 0.414,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17196,7 +17196,7 @@
 "claim": "Pendaftaran rekrutmen TNI AD 2026 dibuka secara online dan tidak dipungut biaya Segera, hari ini terakhir!",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.416,
+"score": 0.409,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17255,7 +17255,7 @@
 "claim": "Polisi memastikan kabar penculikan anak di grup WhatsApp warga tidak benar Mohon diteruskan.",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.293,
+"score": 0.294,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17302,7 +17302,7 @@
 "claim": "info pendaftaran CPNS dari poster ini, transfer biaya pendaftaran dulu pejabat negara umumkan program investasi, daftar lewat WhatsApp",
 "checkworthiness": 0.6,
 "debunk_id": "deepfake-pejabat-saham-grup-wa",
-"score": 0.771,
+"score": 0.772,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17385,7 +17385,7 @@
 "claim": "air kelapa muda dan garam menyembuhkan virus Mohon diteruskan.",
 "checkworthiness": 0.6,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.942,
+"score": 0.945,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17409,7 +17409,7 @@
 "claim": "pemberitahuan BPJS menunggak, unduh file berikut Mohon diteruskan.",
 "checkworthiness": 0.3,
 "debunk_id": "apk-tagihan-bpjs",
-"score": 0.945,
+"score": 0.948,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17433,7 +17433,7 @@
 "claim": "Menteri keuangan umumkan bansos",
 "checkworthiness": 0.15,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.573,
+"score": 0.57,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17489,7 +17489,7 @@
 "claim": "nomor wa baru Kasatker, mohon bantu transfer pulsa dan dana akun facebook atas nama Pangdam minta bantuan dana",
 "checkworthiness": 0.45,
 "debunk_id": "akun-palsu-pejabat-militer",
-"score": 0.757,
+"score": 0.758,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -17523,7 +17523,7 @@
 "claim": "Menteri keuangan umumkan bansos tunai, pendaftaran lewat wa, buruan sebelum ditutup.",
 "checkworthiness": 0.6,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.491,
+"score": 0.489,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18067,7 +18067,7 @@
 {
 "claim": "Prajurit TNI AD membantu evakuasi korban banjir di Demak",
 "status": "tidak_yakin",
-"reason": "inti_klaim_tidak_ada",
+"reason": "mirip_tapi_tidak_sama",
 "debunk_id": "rekrutmen-tni-ad-berbayar"
 }
 ]
@@ -18103,7 +18103,7 @@
 "claim": "aakaan ada gempa susulan lebih besar M9 minggu depan, sebarin ke keluarga",
 "checkworthiness": 0.5,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.515,
+"score": 0.516,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18151,7 +18151,7 @@
 "claim": "akan ada gempa susulan lebih besar M9 minggu depan, sebarin ke keluarga Awas penculik anak menyamar jadi pengemis keliling kampung, share ke grup RT",
 "checkworthiness": 0.5,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.453,
+"score": 0.452,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18410,7 +18410,7 @@
 "claim": "surat panggilan tes cpns dikirim lewat whatsapp, buka [TAUTAN]",
 "checkworthiness": 0.15,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.784,
+"score": 0.785,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18533,7 +18533,7 @@
 "claim": "AIR KELAPA MENGANDUNG ELEKTROLIT SEPERTI KALIUM YANG MEMBANTU MENGGANTI CAIRAN TUBUH",
 "checkworthiness": 0.3,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.383,
+"score": 0.384,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18570,7 +18570,7 @@
 "claim": "pengumuman pemenang hadiah resmi, isi data dan bayar biaya admin Menurut saya ini bahaya.",
 "checkworthiness": 0.35,
 "debunk_id": "hadiah-undian-catut-ecommerce",
-"score": 0.929,
+"score": 0.93,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18707,7 +18707,7 @@
 "claim": "Indosat memberikan bonus kuota 10GB untuk",
 "checkworthiness": 0.5,
 "debunk_id": "investasi-pinjol-ilegal-untung-pasti",
-"score": 0.267,
+"score": 0.266,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18874,7 +18874,7 @@
 "claim": "ada penculik anak pakai mobil di dekat sekolah, culik anak untuk diambil organnya Pemerintah menyalurkan bansos beras lewat kantor pos dan bank Himbara, tanpa biaya apa pun",
 "checkworthiness": 0.6,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.81,
+"score": 0.794,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -18925,7 +18925,7 @@
 "claim": "jaalur titipaan penerimaan bintara tamtama TNI AD, transfer dulu biaya pendaftaran",
 "checkworthiness": 0.6,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.865,
+"score": 0.864,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19062,7 +19062,7 @@
 "claim": "link pendaftaran CPNS resmi di [TAUTAN], isi data dan bayar biaya.",
 "checkworthiness": 0.6,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.728,
+"score": 0.726,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19134,7 +19134,7 @@
 "claim": "Lowongaan kerjaa BUMN atau instansi pemerintah yg meminta biaya pendaftaran atau tes",
 "checkworthiness": 0.6,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.918,
+"score": 0.917,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19181,7 +19181,7 @@
 "claim": "katanya gempa dahsyat akan mengguncang dalam waktu seminggu, jangan tidur di dalam rumah Terima kasih.",
 "checkworthiness": 0.05,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.965,
+"score": 0.966,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19242,7 +19242,7 @@
 "claim": "jalur khusus pppk dan cpns, transfer dulu puluhan juta pasti diangkat jadi asn Timnas Indonesia menang 2-0 tadi malam",
 "checkworthiness": 0.65,
 "debunk_id": "calo-cpns-bayar-lulus",
-"score": 0.906,
+"score": 0.902,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19324,7 +19324,7 @@
 "claim": "Deputi Gubernur BI rekomendasikan saham cuan, gabung grup WhatsApp ini Cek [TAUTAN] sekarang juga.",
 "checkworthiness": 0.5,
 "debunk_id": "deepfake-pejabat-saham-grup-wa",
-"score": 0.922,
+"score": 0.923,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19406,7 +19406,7 @@
 "claim": "hadiah dari BPJS Kesehatan untuk peserta aktif, hubungi nomor ini Cek [TAUTAN] sekarang juga.",
 "checkworthiness": 0.65,
 "debunk_id": "bantuan-bpjs-puluhan-juta",
-"score": 0.883,
+"score": 0.884,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19490,7 +19490,7 @@
 "claim": "rekrutmen tamtama tni ad gratis tidak dipungut biaya, waspada calo yang menjanjikan jalur khusus",
 "checkworthiness": 0.6,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.434,
+"score": 0.418,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19546,7 +19546,7 @@
 "claim": "kuota gratis 30GB HUT RI",
 "checkworthiness": 0.65,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.792,
+"score": 0.789,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19757,7 +19757,7 @@
 "claim": "masuk Akademi Militer lewat jalur khusus orang dalam, ada biayanya Info penting hari ini.",
 "checkworthiness": 0.3,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.978,
+"score": 0.977,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19791,7 +19791,7 @@
 "claim": "Polisi menangkap pelaku penculikan anak",
 "checkworthiness": 0.3,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.341,
+"score": 0.342,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -19838,7 +19838,7 @@
 "claim": "Jasa Marga membagikan saldo e-toll gratis, klik tautan untuk klaim Segera, hari ini terakhir!",
 "checkworthiness": 0.75,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.933,
+"score": 0.932,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20067,7 +20067,7 @@
 "claim": "Prediksi gempa susulan lebih besar M9 akan datang dalam 3 hari",
 "checkworthiness": 0.65,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.592,
+"score": 0.593,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20152,7 +20152,7 @@
 "claim": "Vaksin terbaru mengandung chip untuk melacak masyarakat, sebarkan sebelum dihapus. Jalur khusus masuk tentara, pasti lulus, bayar ke orang dalam",
 "checkworthiness": 0.45,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.624,
+"score": 0.627,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20237,8 +20237,8 @@
 "reason": "inti_klaim_tidak_ada",
 "claim": "Jalur khusus masuk tentara, pasti",
 "checkworthiness": 0.15,
-"debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.483,
+"debunk_id": "calo-akmil-akpol-bayar",
+"score": 0.49,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20264,7 +20264,7 @@
 "url": "https://turnbackhoax.id/?s=Jalur+khusus+masuk+tentara%2C+pasti"
 }
 ],
-"voice_script": "Bapak, Ibu, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: Masuk TNI AD itu gratis dan lewat tes resmi. Siapa pun yang minta uang supaya 'dijamin lulus' adalah penipu.",
+"voice_script": "Bapak, Ibu, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: Seleksi Akmil dan Akpol gratis dan tidak ada jalur bayar. Orang yang menjanjikan lulus dengan uang adalah penipu.",
 "offer_human_review": true,
 "method": "lokal"
 },
@@ -20387,7 +20387,7 @@
 "claim": "Hubungi [NOMOR].",
 "checkworthiness": 0.2,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.474,
+"score": 0.476,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20424,7 +20424,7 @@
 "claim": "suraat teguraan pajak.apk dari kantor pajak",
 "checkworthiness": 0.15,
 "debunk_id": "apk-surat-pajak-djp",
-"score": 0.855,
+"score": 0.856,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20448,7 +20448,7 @@
 "claim": "Kemensos mengingatkan bansos tidak pernah dipungut biaya dan tidak didaftarkan lewat WhatsApp Mohon diteruskan.",
 "checkworthiness": 0.45,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.343,
+"score": 0.348,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20547,7 +20547,7 @@
 "claim": "Bapak ibu, ada video Pak Prabowo bagi-bagi uang tunai buat rakyat,",
 "checkworthiness": 0.3,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.304,
+"score": 0.305,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20584,7 +20584,7 @@
 "claim": "Kemensos mengingatkan bansos tidak pernah dipungut biaya dan tidak didaftarkan lewat WhatsApp Cek [TAUTAN] sekarang juga.",
 "checkworthiness": 0.65,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.312,
+"score": 0.314,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20653,7 +20653,7 @@
 "claim": "Info dari teman di BMKG, gempa besar akan datang dalam 5 hari, jangan tidur di dalam rumah",
 "checkworthiness": 0.65,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.452,
+"score": 0.453,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20701,7 +20701,7 @@
 "claim": "Jasa Marga memberikan diskon tarif tol 20 persen, saldo e-toll bisa diisi lewat aplikasi Travoy",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.459,
+"score": 0.461,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20772,7 +20772,7 @@
 "claim": "BMKG menepis kabar akan terjadi tsunami besar di Papua pekan depan",
 "checkworthiness": 0.75,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.398,
+"score": 0.4,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20819,7 +20819,7 @@
 "claim": "dibuka rekrutmen relawan makan bergizi",
 "checkworthiness": 0.3,
 "debunk_id": "lowongan-mbg-tautan-palsu",
-"score": 0.735,
+"score": 0.731,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20893,7 +20893,7 @@
 "claim": "Campuran air kelapa muda, jeruk nipis, dan garam bisa menyembuhkan COVID-19 Mohon diteruskan.",
 "checkworthiness": 0.65,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.97,
+"score": 0.971,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -20958,10 +20958,10 @@
 "method": "lokal"
 },
 {
-"text": "Cek https://bit.ly/x1 sekarang juga. selamat anda lulus tamtama TNI AD, ini surat kelulusannya, transfer biaya administrasi dulu. Akun atau nomor WhatsApp yang mengaku Pangdam, perwira, atau pejabat satuan meminta uang atau bantuan",
-"status": "terbukti_salah",
-"reason": "cocok_dengan_bantahan",
-"claim": "selamat anda lulus tamtama TNI AD, ini surat kelulusannya, transfer biaya administrasi dulu. Akun atau nomor WhatsApp yang mengaku Pangdam, perwira, atau pejabat satuan meminta uang atau bantuan",
+"text": "Cek https://bit.ly/x1 sekarang juga. selamat anda lulus tamtama TNI AD, ini surat kelulusannya, transfer biaya administrasi dulu. Akun atau nomor WhatsApp yang mengaku pejabat (termasuk pimpinan satuan TNI) meminta uang, pulsa, atau bantuan dana",
+"status": "tidak_yakin",
+"reason": "inti_klaim_tidak_ada",
+"claim": "selamat anda lulus tamtama TNI AD, ini surat kelulusannya, transfer biaya administrasi dulu. Akun atau nomor WhatsApp yang mengaku pejabat (termasuk pimpinan satuan TNI) meminta uang, pulsa, atau bantuan dana",
 "checkworthiness": 0.6,
 "debunk_id": "akun-palsu-pejabat-militer",
 "score": 1.0,
@@ -21000,9 +21000,22 @@
 "warnings": [
 "Tautan bit.ly menyembunyikan alamat aslinya. Jangan diklik sebelum tahu tujuannya."
 ],
-"cari_sendiri": [],
-"voice_script": "Bapak, Ibu, pesan ini sudah dicek dan ternyata tidak benar. Pejabat tidak meminta uang lewat nomor atau akun baru. Hubungi satuannya lewat nomor resmi sebelum mentransfer apa pun. Sumbernya dari Bisnis.com. Sebaiknya jangan diteruskan, ya.",
-"offer_human_review": false,
+"cari_sendiri": [
+{
+"nama": "Cari beritanya di Google",
+"url": "https://www.google.com/search?q=selamat+anda+lulus+tamtama+TNI+AD%2C+ini+surat+kelulusannya%2C+transfer+biaya+administrasi+dulu.+Akun+atau+nomor+WhatsApp+yang+mengaku+pejabat+%28"
+},
+{
+"nama": "Cari di Google dengan kata \"hoaks\" / \"cek fakta\"",
+"url": "https://www.google.com/search?q=selamat+anda+lulus+tamtama+TNI+AD%2C+ini+surat+kelulusannya%2C+transfer+biaya+administrasi+dulu.+Akun+atau+nomor+WhatsApp+yang+mengaku+pejabat+%28+hoaks+OR+%22cek+fakta%22"
+},
+{
+"nama": "Cari di TurnBackHoax",
+"url": "https://turnbackhoax.id/?s=selamat+anda+lulus+tamtama+TNI+AD%2C+ini+surat+kelulusannya%2C+transfer+biaya+administrasi+dulu.+Akun+atau+nomor+WhatsApp+yang+mengaku+pejabat+%28"
+}
+],
+"voice_script": "Bapak, Ibu, topik pesan ini sama dengan kabar bohong yang pernah beredar, tetapi pesan ini tidak memuat bagian yang bohong itu. Halio belum memeriksa isinya lebih jauh. Yang sudah dicek: Pejabat tidak meminta uang lewat nomor atau akun baru. Hubungi satuannya lewat nomor resmi sebelum mentransfer apa pun.",
+"offer_human_review": true,
 "method": "lokal"
 },
 {
@@ -21176,7 +21189,7 @@
 "claim": "Kode OTP Anda 482913, berlaku 5 menit.",
 "checkworthiness": 0.5,
 "debunk_id": "otp-petugas-bank",
-"score": 0.273,
+"score": 0.274,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -21242,7 +21255,7 @@
 "claim": "Ada jalur khusus masuk TNI AD dijamin",
 "checkworthiness": 0.05,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.697,
+"score": 0.695,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -21279,7 +21292,7 @@
 "claim": "Ada jalur khusus PPPK, transfer uang pelicin ke kenalan di instansi pasti diangkat jadi ASN Mohon diteruskan.",
 "checkworthiness": 0.45,
 "debunk_id": "calo-cpns-bayar-lulus",
-"score": 0.613,
+"score": 0.615,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -21449,7 +21462,7 @@
 "claim": "air klapa + garem + jeruk nipis bs nyembuhin corona, udh dibuktiin Mohon diteruskan.",
 "checkworthiness": 0.3,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.494,
+"score": 0.495,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -21540,7 +21553,7 @@
 "claim": "Pendaftaran CPNS dilakukan lewat portal resmi",
 "checkworthiness": 0.45,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.38,
+"score": 0.379,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -21750,7 +21763,7 @@
 "claim": "Pemerintah akan membagikan bantuan tunai Rp600 ribu untuk pekerja bergaji di bawah 3,5 juta, cek di [TAUTAN]",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.265,
+"score": 0.266,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -21800,7 +21813,7 @@
 "claim": "Rekrutmen tamtama TNI AD gratis tidak dipungut biaya, waspada calo yang menjanjikan jalur khusus",
 "checkworthiness": 0.6,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.434,
+"score": 0.418,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22062,7 +22075,7 @@
 "claim": "Obat covid paling ampuh: air kelapa muda campur garam dan perasan jeruk nipis, diminum pagi hari langsung sembuh Mohon diteruskan.",
 "checkworthiness": 0.45,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.586,
+"score": 0.585,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22086,7 +22099,7 @@
 "claim": "presiden praabowo baagi2 duit 10jt bagi yg follow & share video ini",
 "checkworthiness": 0.5,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.495,
+"score": 0.491,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22144,7 +22157,7 @@
 "claim": "Bapak2 ibu2 ada bantuan tunai dari Pak Presiden 5 juta per KK, japri nomor ini ya buat daftar, ada biaya admin 75rb",
 "checkworthiness": 0.95,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.535,
+"score": 0.534,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22289,7 +22302,7 @@
 "claim": "bisaa dibaantu lolos taruna Akmil asal siapkan uang ratusan juta lewat kenalan jenderal",
 "checkworthiness": 0.45,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.955,
+"score": 0.954,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22420,7 +22433,7 @@
 "claim": "Polres menyangkal kabar penculikan anak dengan mobil putih di Bekasi",
 "checkworthiness": 0.45,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.349,
+"score": 0.35,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22683,7 +22696,7 @@
 "claim": "Menurut BMKG akan terjadi gempa magnitudo 8,9 disertai",
 "checkworthiness": 0.8,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.551,
+"score": 0.552,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22768,7 +22781,7 @@
 "claim": "BMKG: gempa magnitudo 5,3 mengguncang Cianjur, tidak berpotensi tsunami, warga diimbau tetap tenang dan waspada gempa susulan",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.364,
+"score": 0.365,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -22870,7 +22883,7 @@
 "claim": "Pendaftaran Bintara TNI AD 2026 dibuka tanggal 5 Januari melalui [TAUTAN], biaya gratis",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.463,
+"score": 0.453,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23179,7 +23192,7 @@
 "claim": "kalo kena corona minum aja air kelapa campur garem, manjur bgt",
 "checkworthiness": 0.15,
 "debunk_id": "air-kelapa-garam-obat",
-"score": 0.482,
+"score": 0.48,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23213,7 +23226,7 @@
 "claim": "bisa bantu anak lulus cpns tahun ini lewat orang dalam, bayar dulu 80 juta dijamin lolos",
 "checkworthiness": 0.4,
 "debunk_id": "calo-cpns-bayar-lulus",
-"score": 0.697,
+"score": 0.698,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23284,7 +23297,7 @@
 "claim": "Lowongan kerja BUMN atau instansi pemerintah",
 "checkworthiness": 0.3,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.811,
+"score": 0.813,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23358,7 +23371,7 @@
 "claim": "kodam xv pattimura memburu oknum calo penerimaan prajurit yang merugikan korban rp112 juta",
 "checkworthiness": 0.65,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.275,
+"score": 0.264,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23405,7 +23418,7 @@
 "claim": "Cek [TAUTAN] sekarang juga. program imunisasi dan obat cacing sengaja menularkan virus.",
 "checkworthiness": 0.45,
 "debunk_id": "obat-cacing-imunisasi-virus-baru",
-"score": 0.9,
+"score": 0.901,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23480,7 +23493,7 @@
 "claim": "tunggakan iuran BPJS anda, buka lembar tagihan instal.apk Mohon diteruskan.",
 "checkworthiness": 0.3,
 "debunk_id": "apk-tagihan-bpjs",
-"score": 0.946,
+"score": 0.947,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23504,7 +23517,7 @@
 "claim": "hati-hati video presiden bagi-bagi uang itu hoaks buatan ai, jangan transfer biaya admin ke siapapun",
 "checkworthiness": 0.6,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.38,
+"score": 0.382,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23552,7 +23565,7 @@
 "claim": "Petugas bank menghubungi nasabah lewat telepon atau pesan",
 "checkworthiness": 0.15,
 "debunk_id": "otp-petugas-bank",
-"score": 0.731,
+"score": 0.73,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23670,7 +23683,7 @@
 "claim": "masuk Akademi Militer lewat jalur khusus orang dalam, ada biayanya BMKG memprakirakan hujan lebat akan terjadi di Jabodetabek pada Jumat sore",
 "checkworthiness": 0.6,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.844,
+"score": 0.839,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23932,7 +23945,7 @@
 "claim": "telkomsel memberi bonus kuota gratis 5gb untuk pelanggan setia yang mengisi pulsa rp100 ribu, cek di aplikasi mytelkomsel",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.289,
+"score": 0.288,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -23981,7 +23994,7 @@
 "claim": "Klaim saldo e-toll gratis Rp200.000 dari Jasa Marga, buka link dan isi data kartu.",
 "checkworthiness": 0.8,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.59,
+"score": 0.587,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24026,7 +24039,7 @@
 "claim": "info pendaftaran CPNS dari poster",
 "checkworthiness": 0.15,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.748,
+"score": 0.747,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24245,7 +24258,7 @@
 "claim": "info loker Telkom, ada biaya seragam dan pemberkasan Info penting hari ini.",
 "checkworthiness": 0.45,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.962,
+"score": 0.963,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24293,7 +24306,7 @@
 "claim": "info loker Telkom, ada biaya seragam dan pemberkasan Terima kasih.",
 "checkworthiness": 0.05,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.943,
+"score": 0.944,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24460,7 +24473,7 @@
 "claim": "BMKG memprediksi gempa M8,7 dan tsunami akan melanda selatan Jawa tanggal 12 bulan ini, segera mengungsi",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.413,
+"score": 0.414,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24528,7 +24541,7 @@
 "claim": "BMKG mencatat gempa magnitudo 5,1 di selatan Jawa pagi ini, tidak berpotensi tsunami",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.474,
+"score": 0.475,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24594,7 +24607,7 @@
 "claim": "SURAT PANGGILAN TES CPNS DIKIRIM LEWAT WHATSAPP, BUKA [TAUTAN]",
 "checkworthiness": 0.15,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.784,
+"score": 0.785,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24622,7 +24635,7 @@
 "claim": "Undangan PPS atau KPU untuk pemilu",
 "checkworthiness": 0.0,
 "debunk_id": "apk-undangan-pemilu-pps",
-"score": 0.731,
+"score": 0.729,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24659,7 +24672,7 @@
 "claim": "BMKG mengimbaau maasyarakat waspada potensi gempa besar di zona megathrust, siapkan tas siaga bencana",
 "checkworthiness": 0.45,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.281,
+"score": 0.282,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24744,7 +24757,7 @@
 "claim": "BMKG mencatat gempa magnitudo 5,1 di selatan Jawa pagi ini, tidak berpotensi tsunami.",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.474,
+"score": 0.475,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24920,7 +24933,7 @@
 "claim": "BMKG memprediksi gempa M8,7 dan tsunami akan melanda selatan Jawa tanggal 12 bulan ini, segera mengungsi.",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.413,
+"score": 0.414,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -24956,7 +24969,7 @@
 {
 "claim": "Prajurit TNI AD membantu evakuasi korban banjir di Demak",
 "status": "tidak_yakin",
-"reason": "inti_klaim_tidak_ada",
+"reason": "mirip_tapi_tidak_sama",
 "debunk_id": "rekrutmen-tni-ad-berbayar"
 }
 ]
@@ -24968,7 +24981,7 @@
 "claim": "Pendaaftaaran rekrutmen TNI AD 2026 dibuka secara online dan tidak dipungut biaya",
 "checkworthiness": 0.8,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.418,
+"score": 0.412,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25016,7 +25029,7 @@
 "claim": "Customer service bank menghubungi nasabah, minta kirim PIN dan password agar rekening tidak diblokir. Penerimaan bintara TNI AD tahun ini ada jalur titipan, hubungi saya, biaya bisa dicicil",
 "checkworthiness": 0.45,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.622,
+"score": 0.619,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25127,7 +25140,7 @@
 "claim": "Ada komplotan penculik anak keliling pakai mobil van hitam di dekat SD, organ anak dijual, tolong sebarkan",
 "checkworthiness": 0.3,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.522,
+"score": 0.523,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25213,7 +25226,7 @@
 "claim": "pengumuman pemenang hadiah resmi, isi data dan bayar biaya admin imunisasi anak justru menyebarkan virus baru",
 "checkworthiness": 0.6,
 "debunk_id": "hadiah-undian-catut-ecommerce",
-"score": 0.734,
+"score": 0.732,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25352,7 +25365,7 @@
 "claim": "Komdigi mengingatkan pesan kuota gratis dari pemerintah yang meminta klik link adalah penipuan",
 "checkworthiness": 0.6,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.37,
+"score": 0.365,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25425,7 +25438,7 @@
 "claim": "link pendaaftaaran CPNS resmi di [TAUTAN], isi data dan bayar biaya",
 "checkworthiness": 0.45,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.654,
+"score": 0.652,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25738,7 +25751,7 @@
 "claim": "ada promo tiket kereta gratis untuk lansia, cek di aplikasi access by kai",
 "checkworthiness": 0.3,
 "debunk_id": "apk-resi-kurir-whatsapp",
-"score": 0.3,
+"score": 0.304,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -25829,7 +25842,7 @@
 "claim": "Bisa bantu anak lulus CPNS tahun ini lewat",
 "checkworthiness": 0.3,
 "debunk_id": "calo-akpol-bintara-polri",
-"score": 0.395,
+"score": 0.397,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26007,7 +26020,7 @@
 "claim": "BMKG memprediksi gempa M8,7 dan tsunami akan melanda selatan Jawa tanggal 12 bulan ini, segera mengungsi.",
 "checkworthiness": 0.95,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.413,
+"score": 0.414,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26108,7 +26121,7 @@
 "claim": "Telkomsel XL Indosat bagi kuota gratis 50GB dalam rangka HUT RI, klik link ini dan isi nomor HP kamu. Kodam Jaya buka pendaftaran Bintara, hubungi panitia di kodam untuk informasi, jangan bayar uang kepada siapapun",
 "checkworthiness": 0.8,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.524,
+"score": 0.521,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26227,7 +26240,7 @@
 "claim": "selamat anda lulus tamtama TNI AD, ini surat kelulusannya, transfer biaya administrasi dulu Mohon diteruskan.",
 "checkworthiness": 0.75,
 "debunk_id": "surat-kelulusan-palsu-tni",
-"score": 0.96,
+"score": 0.962,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26309,7 +26322,7 @@
 "claim": "Surat tilang atau e-tilang dikirim lewat WhatsApp dalam",
 "checkworthiness": 0.3,
 "debunk_id": "apk-surat-tilang-whatsapp",
-"score": 0.639,
+"score": 0.64,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26484,7 +26497,7 @@
 "claim": "JASA MARGA MEMBANTAH MEMBAGIKAN SALDO E-TOLL GRATIS LEWAT LINK, ITU PENIPUAN",
 "checkworthiness": 0.6,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.688,
+"score": 0.685,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26579,7 +26592,7 @@
 "claim": "klaim saldo e-money gratis dari jasa marga lewat link ini Menurut saya ini bahaya.",
 "checkworthiness": 0.2,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.926,
+"score": 0.927,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26660,7 +26673,7 @@
 "claim": "BMKG menegaskan sampai saat ini belum ada teknologi yang bisa memprediksi gempa secara tepat Awas penipuan rekrutmen TNI AD, siapa pun yang menjanjikan pasti lulus dengan bayar uang adalah calo",
 "checkworthiness": 0.45,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.291,
+"score": 0.292,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26707,7 +26720,7 @@
 "claim": "Surat pajak atau SPT dari DJP dikirim",
 "checkworthiness": 0.15,
 "debunk_id": "apk-surat-pajak-djp",
-"score": 0.769,
+"score": 0.768,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26781,7 +26794,7 @@
 "claim": "baantuaan tunai dari presiden untuk rakyat, chat nomor WhatsApp untuk mendaftar lalu bayar biaya admin",
 "checkworthiness": 0.6,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.96,
+"score": 0.959,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26815,7 +26828,7 @@
 "claim": "masuk Akademi Militer lewat jalur",
 "checkworthiness": 0.3,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.687,
+"score": 0.669,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26915,7 +26928,7 @@
 "claim": "Jasa Marga kasih saldo e-toll gratis 100 ribu buat pengguna tol, klaim di link berikut",
 "checkworthiness": 0.95,
 "debunk_id": "saldo-etoll-gratis",
-"score": 0.612,
+"score": 0.602,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -26950,7 +26963,7 @@
 "claim": "Bapak2 ibu2 ada bantuan tunai dari Pak Presiden 5 juta per KK, japri nomor ini ya buat daftar, ada biaya admin 75rb.",
 "checkworthiness": 0.95,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.535,
+"score": 0.534,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27124,7 +27137,7 @@
 "claim": "Pendaaftaaran Tamtama TNI AD gelombang 2 dibuka mulai 1 Juli, seluruh tahapan tidak dipungut biaya",
 "checkworthiness": 0.95,
 "debunk_id": "resmi-portal-rekrutmen-tni-ad",
-"score": 0.456,
+"score": 0.445,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27148,7 +27161,7 @@
 "claim": "Telkomsel memberi bonus kuota gratis 5GB untuk pelanggan setia yang mengisi pulsa Rp100 ribu, cek di aplikasi MyTelkomsel gempa susulan yang jauh lebih besar akan terjadi pekan depan, sebarkan ke keluarga",
 "checkworthiness": 0.8,
 "debunk_id": "bmkg-prediksi-gempa-tanggal",
-"score": 0.702,
+"score": 0.707,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27193,7 +27206,7 @@
 "claim": "Beredar poster atau rincian biaya pendaftaran dan pendidikan masuk Akmil atau TNI AD SEBARKAN!!!",
 "checkworthiness": 0.75,
 "debunk_id": "biaya-masuk-akmil-hoaks",
-"score": 0.957,
+"score": 0.956,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27375,7 +27388,7 @@
 "claim": "jalur titipan penerimaan bintara tamtama",
 "checkworthiness": 0.15,
 "debunk_id": "rekrutmen-tni-ad-berbayar",
-"score": 0.798,
+"score": 0.8,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27479,7 +27492,7 @@
 "claim": "ini nomor baru Pangdam, tolong",
 "checkworthiness": 0.15,
 "debunk_id": "akun-palsu-pejabat-militer",
-"score": 0.554,
+"score": 0.56,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27554,7 +27567,7 @@
 "claim": "SEBUTKAN KODE OTP YANG MASUK KE HP UNTUK MEMBATALKAN",
 "checkworthiness": 0.15,
 "debunk_id": "otp-petugas-bank",
-"score": 0.427,
+"score": 0.429,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27660,7 +27673,7 @@
 "claim": "SPT kurang bayar anda, buka file ini segera SEBARKAN!!!",
 "checkworthiness": 0.15,
 "debunk_id": "apk-surat-pajak-djp",
-"score": 0.933,
+"score": 0.932,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27773,7 +27786,7 @@
 "claim": "kuota gratis 40gb dari telkomsel indosat xl untuk merayakan ulang tahun, klik tautan lalu isi nomor kamu",
 "checkworthiness": 0.65,
 "debunk_id": "kuota-gratis-operator",
-"score": 0.406,
+"score": 0.403,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27920,7 +27933,7 @@
 "claim": "lowongan BNN, hubungi nomor ini dan setor biaya pendaftaran Cek [TAUTAN] sekarang juga.",
 "checkworthiness": 0.8,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.876,
+"score": 0.877,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -27967,7 +27980,7 @@
 "claim": "ada penculik anak pakai mobil di",
 "checkworthiness": 0.15,
 "debunk_id": "penculikan-anak-berantai",
-"score": 0.665,
+"score": 0.664,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28038,7 +28051,7 @@
 "claim": "Link pendaftaran atau surat panggilan tes CPNS dari situs selain portal resmi SSCASN Hubungi [NOMOR].",
 "checkworthiness": 0.8,
 "debunk_id": "cpns-portal-surat-panggilan-palsu",
-"score": 0.935,
+"score": 0.934,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28127,7 +28140,7 @@
 "claim": "saya petugas WhatsApp, sebutkan kode enam digit untuk verifikasi akun gempa besar diprediksi terjadi minggu depan di pulau jawa, sebarkan ke keluarga",
 "checkworthiness": 0.6,
 "debunk_id": "pembajakan-whatsapp-kode-verifikasi",
-"score": 0.711,
+"score": 0.712,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28171,7 +28184,7 @@
 "claim": "rekrutmen BUMN lewat WhatsApp,",
 "checkworthiness": 0.15,
 "debunk_id": "lowongan-kerja-bumn-palsu-bayar",
-"score": 0.678,
+"score": 0.674,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28348,7 +28361,7 @@
 "claim": "Hati-hati video Presiden bagi-bagi uang itu hoaks buatan AI, jangan transfer biaya admin ke siapapun Segera, hari ini terakhir!",
 "checkworthiness": 0.75,
 "debunk_id": "bansos-deepfake-presiden",
-"score": 0.362,
+"score": 0.363,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28464,7 +28477,7 @@
 "claim": "Obat herbal atau ramuan bisa menyembuhkan TBC tanpa obat dari dokter INFO VALID!!",
 "checkworthiness": 0.6,
 "debunk_id": "herbal-sembuhkan-tbc",
-"score": 0.989,
+"score": 0.99,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28530,7 +28543,7 @@
 "claim": "Ada jalur bayar atau orang dalam",
 "checkworthiness": 0.0,
 "debunk_id": "calo-akmil-akpol-bayar",
-"score": 0.65,
+"score": 0.656,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28577,7 +28590,7 @@
 "claim": "loker ahli gizi MBG daftar lewat WhatsApp nomor ini Menurut saya ini bahaya.",
 "checkworthiness": 0.0,
 "debunk_id": "lowongan-mbg-tautan-palsu",
-"score": 0.916,
+"score": 0.917,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28648,7 +28661,7 @@
 "claim": "pinjaman online cair 5",
 "checkworthiness": 0.2,
 "debunk_id": "investasi-pinjol-ilegal-untung-pasti",
-"score": 0.6,
+"score": 0.606,
 "kind": "pesan",
 "info": null,
 "manipulation": {
@@ -28685,7 +28698,7 @@
 "claim": "kami mengundang bapak ibu ke",
 "checkworthiness": 0.0,
 "debunk_id": "apk-undangan-nikah-whatsapp",
-"score": 0.618,
+"score": 0.616,
 "kind": "pesan",
 "info": null,
 "manipulation": {
