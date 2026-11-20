@@ -68,12 +68,27 @@ _SCAN: list[tuple[str, str]] | None = None
 def scan_all() -> list[tuple[str, str]]:
     """Cadangan bila endpoint /search sedang membangun indeks (HTTP 500): baca semua baris lewat /rows lalu saring di sini."""
     global _SCAN
+    import os
+
+    cache = os.environ.get("HALIO_SCAN_CACHE")  # opsional: berkas JSON lokal (di luar repo) agar ulangan tidak mengunduh lagi
+    if _SCAN is None and cache and Path(cache).exists():
+        _SCAN = [tuple(x) for x in json.loads(Path(cache).read_text(encoding="utf-8"))]
     if _SCAN is None:
         total = get(f"{API}/size?dataset={DATASET}")["size"]["dataset"]["num_rows"]
         _SCAN = []
         for offset in range(0, total, 100):
-            r = get(f"{API}/rows?dataset={DATASET}&config=default&split=train&offset={offset}&length=100")
+            r = {}
+            for attempt in range(4):  # galat sementara server dataset: coba lagi beberapa kali per halaman
+                try:
+                    r = get(f"{API}/rows?dataset={DATASET}&config=default&split=train&offset={offset}&length=100")
+                    break
+                except RuntimeError:
+                    time.sleep(15 * (attempt + 1))
+            else:
+                raise RuntimeError(f"gagal membaca baris {offset} dari dataset")
             _SCAN += [(x["row"]["url"], x["row"]["title"]) for x in r["rows"]]
+        if cache:
+            Path(cache).write_text(json.dumps(_SCAN, ensure_ascii=False), encoding="utf-8")
     return _SCAN
 
 
