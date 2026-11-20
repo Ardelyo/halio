@@ -32,11 +32,42 @@ def check(page, text: str, name: str, mobile: bool = False) -> None:
     page.locator("#result").screenshot(path=str(OUT / name))
 
 
+def uji_sheet(page) -> None:
+    # Medan Uji: jalankan semua kartu
+    page.goto(f"{BASE}/uji.html")
+    page.wait_for_selector("[data-nama] button")
+    for b in page.locator("[data-nama] button").all():
+        b.click()
+        page.wait_for_timeout(700)
+    page.wait_for_timeout(2500)
+    # susun kartu uji utuh jadi dua kolom (tanpa memotong kartu di tengah)
+    from PIL import Image
+    import io
+
+    shots = [Image.open(io.BytesIO(c.screenshot())).convert("RGB") for c in page.locator("[data-nama]").all()]
+    cols = [shots[:4], shots[4:]]
+    gap, width = 24, shots[0].width
+    height = max(sum(i.height for i in col) + gap * (len(col) - 1) for col in cols)
+    sheet = Image.new("RGB", (width * 2 + gap * 3, height + gap * 2), (248, 243, 240))
+    for ci, col in enumerate(cols):
+        y = gap
+        for im in col:
+            sheet.paste(im, (gap + ci * (width + gap), y))
+            y += im.height + gap
+    sheet.save(OUT / "medan-uji.png", optimize=True)
+
+
+
 def main() -> int:
     with sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome")
         desk = browser.new_context(viewport={"width": 1280, "height": 860}, device_scale_factor=1.5, locale="id-ID")
         page = desk.new_page()
+
+        if "--uji" in sys.argv:  # hanya tangkapan Medan Uji (mis. setelah AI diaktifkan)
+            uji_sheet(page)
+            browser.close()
+            return 0
 
         check(page, CALO, "cek-calo-tni.png")
         # kartu Halio bertanda tangan dari hasil yang sama
@@ -52,28 +83,7 @@ def main() -> int:
 
         check(page, APK, "cek-apk-forensik.png")
 
-        # Medan Uji: jalankan semua kartu
-        page.goto(f"{BASE}/uji.html")
-        page.wait_for_selector("[data-nama] button")
-        for b in page.locator("[data-nama] button").all():
-            b.click()
-            page.wait_for_timeout(700)
-        page.wait_for_timeout(2500)
-        # susun kartu uji utuh jadi dua kolom (tanpa memotong kartu di tengah)
-        from PIL import Image
-        import io
-
-        shots = [Image.open(io.BytesIO(c.screenshot())).convert("RGB") for c in page.locator("[data-nama]").all()]
-        cols = [shots[:4], shots[4:]]
-        gap, width = 24, shots[0].width
-        height = max(sum(i.height for i in col) + gap * (len(col) - 1) for col in cols)
-        sheet = Image.new("RGB", (width * 2 + gap * 3, height + gap * 2), (248, 243, 240))
-        for ci, col in enumerate(cols):
-            y = gap
-            for im in col:
-                sheet.paste(im, (gap + ci * (width + gap), y))
-                y += im.height + gap
-        sheet.save(OUT / "medan-uji.png", optimize=True)
+        uji_sheet(page)
 
         # Verifikasi: kartu asli, lalu diubah 1 byte
         page.goto(f"{BASE}/verifikasi.html")
