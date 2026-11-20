@@ -62,7 +62,30 @@ def label(title: str) -> str:
     return m.group(1).strip().upper() if m else ""
 
 
+_SCAN: list[tuple[str, str]] | None = None
+
+
+def scan_all() -> list[tuple[str, str]]:
+    """Cadangan bila endpoint /search sedang membangun indeks (HTTP 500): baca semua baris lewat /rows lalu saring di sini."""
+    global _SCAN
+    if _SCAN is None:
+        total = get(f"{API}/size?dataset={DATASET}")["size"]["dataset"]["num_rows"]
+        _SCAN = []
+        for offset in range(0, total, 100):
+            r = get(f"{API}/rows?dataset={DATASET}&config=default&split=train&offset={offset}&length=100")
+            _SCAN += [(x["row"]["url"], x["row"]["title"]) for x in r["rows"]]
+    return _SCAN
+
+
 def search(query: str, want_prefix: str) -> list[tuple[str, str]]:
+    try:
+        return _search_api(query, want_prefix)
+    except RuntimeError:
+        print("endpoint /search belum siap; membaca semua baris lewat /rows ...", flush=True)
+        return list({u: t for u, t in scan_all() if label(t) == want_prefix}.items())
+
+
+def _search_api(query: str, want_prefix: str) -> list[tuple[str, str]]:
     found: dict[str, str] = {}
     offset = 0
     # ambil semua baris yg cocok sm kata kunci lewat endpoint search per 100 baris

@@ -236,7 +236,7 @@ Juga lewat halaman `/verifikasi.html`, `POST /api/verify`, dan `GET /api/pubkey`
 
 ### Registri buletin resmi: konfirmasi luring yang tetap hati-hati
 
-`data/official_bulletins.json` (3 buletin, bertanda tangan) memungkinkan pernyataan resmi TNI AD dikonfirmasi **luring** sebagai "sejalan dengan sumber". Semua penjaga harus lolos: buletin masih berlaku, inti klaim ada, **tidak ada** unsur bayar/calo/angka rupiah, dan **tidak ada** tautan di luar `.go.id`/`.mil.id`. Tanda tangan salah berarti seluruh registri diabaikan. Tandatangani ulang dengan `python scripts/sign_bulletins.py` dan ganti `data/registry_pubkey.pem` bila satuan Anda memakai kunci sendiri.
+`data/official_bulletins.json` (5 buletin, bertanda tangan) memungkinkan pernyataan resmi TNI AD dikonfirmasi **luring** sebagai "sejalan dengan sumber". Semua penjaga harus lolos: buletin masih berlaku, inti klaim ada, **tidak ada** unsur bayar/calo/angka rupiah, dan **tidak ada** tautan di luar `.go.id`/`.mil.id`. Tanda tangan salah berarti seluruh registri diabaikan. Tandatangani ulang dengan `python scripts/sign_bulletins.py` dan ganti `data/registry_pubkey.pem` bila satuan Anda memakai kunci sendiri.
 
 ### Forensik zero-cloud dan LAPSUS
 
@@ -247,16 +247,16 @@ Juga lewat halaman `/verifikasi.html`, `POST /api/verify`, dan `GET /api/pubkey`
 
 <p align="center"><img src="docs/img/komposisi-korpus.svg" alt="Komposisi korpus bantahan 35 entri menurut kategori" width="900"></p>
 
-> **Catatan jujur:** 25 entri tambahan dikumpulkan dari hasil pencarian dan **belum dibuka satu per satu**; lihat [`docs/VERIFIKASI_KORPUS.md`](docs/VERIFIKASI_KORPUS.md). Recall holdout 100% sudah disetel, jadi bukan estimasi akurasi.
+> **Catatan jujur:** pada 20 Nov 2026 setiap tautan dibuka dengan program (`scripts/verify_corpus_urls.py`): 20 entri terverifikasi isinya, 3 sebagian, 4 perlu mata manusia, dan 8 **tidak terbaca program** karena situs menolak (HTTP 403) atau dirender JavaScript; lihat [`docs/VERIFIKASI_KORPUS.md`](docs/VERIFIKASI_KORPUS.md). Recall holdout 100% sudah disetel, jadi bukan estimasi akurasi.
 
 <sub>Gambar dibuat ulang dengan `python scripts/make_readme_shots.py` (server dev harus jalan) dan `python scripts/make_readme_charts.py`.</sub>
 
 ## Batas yang kami akui
 
 - Ini purwarupa. Set uji ditulis tim sendiri, jadi angkanya **bukan** akurasi dunia nyata.
-- Korpus bantahan kurasi baru **35 entri** (25 di antaranya belum diverifikasi satu per satu). Di luar korpus, Halio memakai pencarian bukti atau berkata belum tahu.
+- Korpus bantahan kurasi baru **35 entri** (20 terverifikasi isinya oleh program, 8 tidak terbaca program karena situs menolak; sisanya sebagian atau perlu mata manusia). Di luar korpus, Halio memakai pencarian bukti atau berkata belum tahu.
 - Belum ada uji dengan pengguna lansia sungguhan; lembar ujinya sudah siap.
-- Pada rilis resmi rekrutmen TNI AD, Halio di mode lokal menjawab "tidak yakin" (7 dari 7), bukan mengenalinya sebagai benar: ia tidak menuduh, tetapi juga belum bisa membenarkan tanpa mesin bukti. Rincian di [eval/RESMI_TNI_RESULTS.md](eval/RESMI_TNI_RESULTS.md).
+- Dari 27 rilis resmi TNI/Kemhan yang diuji, **0 dicap hoaks**, tetapi hanya **1** dikenali sebagai sejalan dengan sumber (lewat registri 5 buletin); 9 dijawab "tidak yakin" dan 17 "belum ada pemeriksaan". Halio tidak menuduh, tetapi di mode lokal juga belum bisa membenarkan sebagian besar rilis resmi. Rincian di [eval/RESMI_TNI_RESULTS.md](eval/RESMI_TNI_RESULTS.md).
 - Data Radar pada demo adalah **simulasi** dan diberi label.
 - Halio membaca isi teks, foto, dan suara, tetapi **tidak menilai keaslian** foto atau video, dan tidak mendeteksi deepfake.
 - Telegram dan web aktif. Kode kanal WhatsApp (webhook Meta) tersedia dan membutuhkan token Meta milik pemakai.

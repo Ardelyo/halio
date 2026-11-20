@@ -2,7 +2,7 @@
   "_meta": {
     "description": "Halio demo corpus: debunks that already exist from named fact-checkers or official sources. Halio never invents a verdict; every entry must link to a public source.",
     "collected": "2026-10-27",
-    "status": "10 entri awal dikumpulkan 2026-10-27. 25 entri tambahan (v1.0) dikumpulkan 2026-11-20 dari hasil pencarian web; URL berasal dari hasil pencarian dan ringkasannya mengikuti isi hasil itu, tetapi BELUM dibuka satu per satu oleh tim. WAJIB buka setiap URL dan cocokkan redaksi sebelum demo (lihat docs/VERIFIKASI_KORPUS.md).",
+    "status": "10 entri awal dikumpulkan 2026-10-27; 25 entri tambahan 2026-11-20. Pada 2026-11-20 setiap tautan dibuka dengan program (scripts/verify_corpus_urls.py); hasilnya di docs/VERIFIKASI_KORPUS.md. Sumber yang menolak program (HTTP 403) atau dirender JavaScript tidak bisa dibaca program dan ditandai; entri hanya dianggap terverifikasi bila setidaknya satu sumber terbaca dan mendukung.",
     "license_note": "Only short factual summaries in our own words plus links. Do not copy article text.",
     "syarat_note": "Each pattern group in 'syarat' is the core of the false claim (e.g. predicting a date, paying to pass). A lexical match without it (or with it negated: 'tidak', 'tanpa', 'bukan') is capped at 'tidak yakin'. This prevents true same-topic statements from being labelled hoax.",
     "positive_note": "Entries with jenis='verifikasi_positif' also require an official named source, kutipan_sumber copied exactly from fakta, valid_from, optional valid_until and wilayah. They never produce a green result from retrieval alone: grounded AI must support the whole claim and no competing candidate may pass the match threshold."
@@ -387,14 +387,14 @@
     {
       "id": "akun-palsu-pejabat-militer",
       "kategori": "penipuan_catut_tni",
-      "klaim": "Akun atau nomor WhatsApp yang mengaku Pangdam, perwira, atau pejabat satuan meminta uang atau bantuan",
+      "klaim": "Akun atau nomor WhatsApp yang mengaku pejabat (termasuk pimpinan satuan TNI) meminta uang, pulsa, atau bantuan dana",
       "varian": [
         "ini nomor baru Pangdam, tolong transfer dulu untuk keperluan dinas mendesak",
         "saya Kolonel komandan satuan, pinjam uang dulu nanti diganti, kirim ke rekening ini",
         "akun facebook atas nama Pangdam minta bantuan dana",
         "nomor wa baru Kasatker, mohon bantu transfer pulsa dan dana"
       ],
-      "fakta": "Kodam III/Siliwangi pernah menemukan akun palsu yang mencatut nama Pangdam dan melaporkannya ke Puspen TNI dan Dispen TNI AD. Pola yang sama dipakai pada pejabat sipil: akun memakai foto dinas lalu meminta uang atau bantuan, dan instansi menegaskan itu penipuan.",
+      "fakta": "Kodam III/Siliwangi pernah menemukan akun palsu yang mencatut nama Pangdam dan melaporkannya ke Puspen TNI dan Dispen TNI AD. Komdigi juga mencatat akun WhatsApp yang mengaku direktur atau pegawai instansi dan meminta transfer uang sebagai hoaks. Catatan: belum ada klarifikasi resmi TNI AD yang bisa dibuka untuk entri ini; bagian TNI hanya berdasar pemberitaan 2017.",
       "sederhana": "Pejabat tidak meminta uang lewat nomor atau akun baru. Hubungi satuannya lewat nomor resmi sebelum mentransfer apa pun.",
       "sumber": [
         {
@@ -405,6 +405,16 @@
         {
           "nama": "Kemenkeu: Info waspada penipuan melalui WhatsApp",
           "url": "https://hai.kemenkeu.go.id/id/news/posts/pdf/info-waspada-penipuan-melalui-whatsapp",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Akun WhatsApp mengatasnamakan Direktur Pengolahan Hasil KKP",
+          "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-akun-whatsapp-mengatasnamakan-direktur-pengolahan-hasil-kementerian-kelautan-dan-perikanan",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Akun WhatsApp mengatasnamakan pegawai Dinas Pertanian Kabupaten Ciamis",
+          "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-akun-whatsapp-mengatasnamakan-pegawai-dinas-pertanian-kabupaten-ciamis",
           "jenis": "resmi"
         }
       ],
@@ -482,6 +492,11 @@
           "nama": "NU Online: Waspada modus penipuan undangan pernikahan bisa kuras rekening",
           "url": "https://nu.or.id/nasional/waspada-modus-penipuan-undangan-pernikahan-bisa-kuras-rekening-korban-wCg6H",
           "jenis": "media"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Aplikasi undangan pernikahan digital",
+          "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-aplikasi-undangan-pernikahan-digital",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -516,6 +531,16 @@
           "nama": "Bisnis.com: Viral penipuan mengaku jadi kurir paket, begini kata OJK",
           "url": "https://finansial.bisnis.com/read/20221211/90/1607375/viral-penipuan-mengaku-jadi-kurir-paket-begini-kata-ojk",
           "jenis": "media"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp mengatasnamakan kurir pengiriman paket",
+          "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-pesan-whatsapp-mengatasnamakan-kurir-pengiriman-paket",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp pengiriman paket mengatasnamakan J&T Express",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-pengiriman-paket-mengatasnamakan-j-t-express",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -545,6 +570,21 @@
           "nama": "Bisnis.com: Waspada WA atas nama BPJS Kesehatan yang bisa retas m-banking",
           "url": "https://finansial.bisnis.com/read/20230130/215/1622823/waspada-wa-atas-nama-bpjs-kesehatan-yang-bisa-retas-m-banking",
           "jenis": "media"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Akun media sosial mengatasnamakan Chika Bot BPJS Kesehatan (file .apk)",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-akun-media-sosial-mengatasnamakan-chika-bot-bpjs-kesehatan",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Tagihan mengatasnamakan BPJS Kesehatan",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-tagihan-mengatasnamakan-bpjs-kesehatan",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp cek tagihan BPJS Kesehatan",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-cek-tagihan-bpjs-kesehatan-oleh-puskesmas-pacet-mojokerto",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -574,6 +614,16 @@
           "nama": "Bisnis.com: Awas ada penipuan di musim lapor pajak berupa file APK",
           "url": "https://ekonomi.bisnis.com/read/20240124/259/1735083/waspada-awas-ada-penipuan-di-musim-lapor-pajak-berupa-file-apk",
           "jenis": "media"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp mengatasnamakan Direktorat Jenderal Pajak",
+          "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-pesan-whatsapp-mengatasnamakan-direktorat-jenderal-pajak",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "DJP: Waspada penipuan mengatasnamakan Direktorat Jenderal Pajak",
+          "url": "https://www.pajak.go.id/en/node/111162",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -590,13 +640,28 @@
         "petugas PLN kirim lampiran tagihan.apk",
         "listrik akan diputus hari ini, unduh aplikasi pembayaran dari tautan"
       ],
-      "fakta": "Media teknologi melaporkan pelaku yang mengaku petugas PLN mengirim APK berkedok tagihan listrik untuk mengambil data korban; saran umumnya memeriksa pengirim dan memverifikasi ke call center resmi. Catatan: sumber ini hanya media, bukan pernyataan PLN, jadi verifikasi lewat kanal resmi PLN.",
+      "fakta": "Komdigi mencatat pesan WhatsApp yang mengatasnamakan PLN dan meminta pelanggan mengunduh serta membuka aplikasi untuk penagihan biaya listrik sebagai hoaks, dan PLN menegaskan layanannya terpusat lewat PLN Mobile serta bukan lewat berkas atau aplikasi dari pesan.",
       "sederhana": "Tagihan listrik tidak datang berupa file APK. Cek tagihan hanya lewat aplikasi atau layanan resmi PLN.",
       "sumber": [
         {
           "nama": "VIVA: Hindari jebakan penipu, begini cara aman dari serangan file APK",
           "url": "https://techno.viva.co.id/lifestyle/2775-hindari-jebakan-penipu-begini-cara-aman-dari-serangan-file-apk?page=1",
           "jenis": "media"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp tagihan listrik mengatasnamakan PLN",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-tagihan-listrik-mengatasnamakan-pln",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp penagihan biaya listrik mengatasnamakan PT PLN (Persero)",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-penagihan-biaya-listrik-mengatasnamakan-pt-pln-persero",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "PLN: Waspada penipuan, semua layanan PLN terpusat hanya lewat PLN Mobile",
+          "url": "https://web.pln.co.id/media/siaran-pers/2023/08/waspada-penipuan-semua-layanan-pln-terpusat-hanya-lewat-pln-mobile",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -620,6 +685,16 @@
           "nama": "Bisnis.com: Waspada modus penipuan undangan PPS Pemilu di WA, lakukan ini jika telanjur klik",
           "url": "https://finansial.bisnis.com/read/20240115/90/1732310/waspada-modus-penipuan-undangan-pps-pemilu-di-wa-lakukan-ini-jika-telanjur-klik",
           "jenis": "media"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp aplikasi PPS Pemilu 2024",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-aplikasi-pps-pemilu-2024",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] File APK data TPS Pemilu 2024",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-file-apk-data-tps-pemilu-2024",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -784,6 +859,16 @@
           "nama": "Tirto: Hoaks lowongan kerja mengatasnamakan BNN",
           "url": "https://tirto.id/hoaks-lowongan-kerja-mengatasnamakan-bnn-g497",
           "jenis": "cek_fakta"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Tautan rekrutmen pegawai BUMN",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-tautan-rekrutmen-pegawai-bumn",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pendaftaran rekrutmen pegawai BUMN 2024",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pendaftaran-rekrutmen-pegawai-bumn-2024",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -931,6 +1016,11 @@
           "nama": "RRI Cek Fakta: Hoaks tautan pendaftaran lowongan kerja untuk program MBG 2026",
           "url": "https://rri.co.id/banjarmasin/cek-fakta/2177548/hoaks-tautan-pendaftaran-lowongan-kerja-untuk-program-mbg-2026",
           "jenis": "cek_fakta"
+        },
+        {
+          "nama": "TurnBackHoax: [PENIPUAN] Tautan pendaftaran lowongan kerja program MBG",
+          "url": "https://turnbackhoax.id/articles/35161-penipuan-tautan-pendaftaran-lowongan-kerja-program-mbg",
+          "jenis": "cek_fakta"
         }
       ],
       "syarat": [
@@ -1054,6 +1144,16 @@
           "nama": "Tirto: Penipuan berkedok bantuan BPJS Kesehatan senilai puluhan juta",
           "url": "https://tirto.id/penipuan-berkedok-bantuan-bpjs-kesehatan-senilai-puluhan-juta-gYfk",
           "jenis": "cek_fakta"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Pesan WhatsApp bantuan BPJS Kesehatan sebesar Rp75 juta",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-bantuan-bpjs-kesehatan-sebesar-rp75-juta",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Dana bantuan dari BPJS Kesehatan",
+          "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-dana-bantuan-dari-bpjs-kesehatan",
+          "jenis": "resmi"
         }
       ],
       "syarat": [
@@ -1071,7 +1171,7 @@
         "obat cacing dari puskesmas membawa virus baru",
         "program imunisasi dan obat cacing sengaja menularkan virus"
       ],
-      "fakta": "Cek fakta Tirto menyimpulkan klaim bahwa obat cacing dan imunisasi menyebarkan virus baru tidak benar. Catatan: ringkasan ini hanya mengikuti judul cek fakta tersebut; buka artikelnya untuk rinciannya.",
+      "fakta": "Komdigi dan Kemenkes menyatakan klaim bahwa pembagian obat cacing ke anak sekolah menyebarkan virus baru adalah hoaks lama yang kembali beredar; obat dan vaksin untuk masyarakat dipastikan keamanan, mutu, dan khasiatnya. Cek fakta Tirto juga menyimpulkan klaim obat cacing dan imunisasi menyebarkan virus baru tidak benar.",
       "sederhana": "Tidak benar. Obat cacing dan imunisasi tidak menyebarkan virus baru.",
       "sumber": [
         {
@@ -1082,6 +1182,11 @@
         {
           "nama": "Kemenkes: Kemenkes serius perangi hoax kesehatan",
           "url": "https://www.kemkes.go.id/id/kemenkes-serius-perangi-hoax-kesehatan",
+          "jenis": "resmi"
+        },
+        {
+          "nama": "Komdigi: [HOAKS] Virus baru disebarkan ke anak sekolah lewat pembagian obat cacing",
+          "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-virus-baru-disebarkan-ke-anak-sekolah-lewat-pembagian-obat-cacing",
           "jenis": "resmi"
         }
       ],

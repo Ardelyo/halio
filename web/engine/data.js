@@ -1,8 +1,8 @@
 // file ini digenerate otomatis lewat scripts/build_engine_data.py dr kode python + data/debunks.json, jgn diedit manual ya
 globalThis.HalioEngineData = {
  "version": "luring-1",
- "corpusSha256": "74b9fda42b31b84413d88d46473fcd79de09edd8251d77d57d1e370dea9d2416",
- "registrySha256": "961b3233e6cf00e3482d37d21d38dd12dad79a4bbe516f1d26c8dcb3808e4a1e",
+ "corpusSha256": "a55d114871506dba4abd9700116ea18a35bc8348867237609cf3b08d5db7d585",
+ "registrySha256": "d44d05e7f640b8add720f25e966d6e93a0de4edf5b344fcb403f4050f9e767f9",
  "thresholds": {
   "match": 0.4,
   "unsure": 0.26
@@ -471,14 +471,14 @@ globalThis.HalioEngineData = {
   {
    "id": "akun-palsu-pejabat-militer",
    "kategori": "penipuan_catut_tni",
-   "klaim": "Akun atau nomor WhatsApp yang mengaku Pangdam, perwira, atau pejabat satuan meminta uang atau bantuan",
+   "klaim": "Akun atau nomor WhatsApp yang mengaku pejabat (termasuk pimpinan satuan TNI) meminta uang, pulsa, atau bantuan dana",
    "varian": [
     "ini nomor baru Pangdam, tolong transfer dulu untuk keperluan dinas mendesak",
     "saya Kolonel komandan satuan, pinjam uang dulu nanti diganti, kirim ke rekening ini",
     "akun facebook atas nama Pangdam minta bantuan dana",
     "nomor wa baru Kasatker, mohon bantu transfer pulsa dan dana"
    ],
-   "fakta": "Kodam III/Siliwangi pernah menemukan akun palsu yang mencatut nama Pangdam dan melaporkannya ke Puspen TNI dan Dispen TNI AD. Pola yang sama dipakai pada pejabat sipil: akun memakai foto dinas lalu meminta uang atau bantuan, dan instansi menegaskan itu penipuan.",
+   "fakta": "Kodam III/Siliwangi pernah menemukan akun palsu yang mencatut nama Pangdam dan melaporkannya ke Puspen TNI dan Dispen TNI AD. Komdigi juga mencatat akun WhatsApp yang mengaku direktur atau pegawai instansi dan meminta transfer uang sebagai hoaks. Catatan: belum ada klarifikasi resmi TNI AD yang bisa dibuka untuk entri ini; bagian TNI hanya berdasar pemberitaan 2017.",
    "sederhana": "Pejabat tidak meminta uang lewat nomor atau akun baru. Hubungi satuannya lewat nomor resmi sebelum mentransfer apa pun.",
    "sumber": [
     {
@@ -489,6 +489,16 @@ globalThis.HalioEngineData = {
     {
      "nama": "Kemenkeu: Info waspada penipuan melalui WhatsApp",
      "url": "https://hai.kemenkeu.go.id/id/news/posts/pdf/info-waspada-penipuan-melalui-whatsapp",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Akun WhatsApp mengatasnamakan Direktur Pengolahan Hasil KKP",
+     "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-akun-whatsapp-mengatasnamakan-direktur-pengolahan-hasil-kementerian-kelautan-dan-perikanan",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Akun WhatsApp mengatasnamakan pegawai Dinas Pertanian Kabupaten Ciamis",
+     "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-akun-whatsapp-mengatasnamakan-pegawai-dinas-pertanian-kabupaten-ciamis",
      "jenis": "resmi"
     }
    ],
@@ -580,6 +590,11 @@ globalThis.HalioEngineData = {
      "nama": "NU Online: Waspada modus penipuan undangan pernikahan bisa kuras rekening",
      "url": "https://nu.or.id/nasional/waspada-modus-penipuan-undangan-pernikahan-bisa-kuras-rekening-korban-wCg6H",
      "jenis": "media"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Aplikasi undangan pernikahan digital",
+     "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-aplikasi-undangan-pernikahan-digital",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -621,6 +636,16 @@ globalThis.HalioEngineData = {
      "nama": "Bisnis.com: Viral penipuan mengaku jadi kurir paket, begini kata OJK",
      "url": "https://finansial.bisnis.com/read/20221211/90/1607375/viral-penipuan-mengaku-jadi-kurir-paket-begini-kata-ojk",
      "jenis": "media"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp mengatasnamakan kurir pengiriman paket",
+     "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-pesan-whatsapp-mengatasnamakan-kurir-pengiriman-paket",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp pengiriman paket mengatasnamakan J&T Express",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-pengiriman-paket-mengatasnamakan-j-t-express",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -657,6 +682,21 @@ globalThis.HalioEngineData = {
      "nama": "Bisnis.com: Waspada WA atas nama BPJS Kesehatan yang bisa retas m-banking",
      "url": "https://finansial.bisnis.com/read/20230130/215/1622823/waspada-wa-atas-nama-bpjs-kesehatan-yang-bisa-retas-m-banking",
      "jenis": "media"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Akun media sosial mengatasnamakan Chika Bot BPJS Kesehatan (file .apk)",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-akun-media-sosial-mengatasnamakan-chika-bot-bpjs-kesehatan",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Tagihan mengatasnamakan BPJS Kesehatan",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-tagihan-mengatasnamakan-bpjs-kesehatan",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp cek tagihan BPJS Kesehatan",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-cek-tagihan-bpjs-kesehatan-oleh-puskesmas-pacet-mojokerto",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -693,6 +733,16 @@ globalThis.HalioEngineData = {
      "nama": "Bisnis.com: Awas ada penipuan di musim lapor pajak berupa file APK",
      "url": "https://ekonomi.bisnis.com/read/20240124/259/1735083/waspada-awas-ada-penipuan-di-musim-lapor-pajak-berupa-file-apk",
      "jenis": "media"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp mengatasnamakan Direktorat Jenderal Pajak",
+     "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-pesan-whatsapp-mengatasnamakan-direktorat-jenderal-pajak",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "DJP: Waspada penipuan mengatasnamakan Direktorat Jenderal Pajak",
+     "url": "https://www.pajak.go.id/en/node/111162",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -716,13 +766,28 @@ globalThis.HalioEngineData = {
     "petugas PLN kirim lampiran tagihan.apk",
     "listrik akan diputus hari ini, unduh aplikasi pembayaran dari tautan"
    ],
-   "fakta": "Media teknologi melaporkan pelaku yang mengaku petugas PLN mengirim APK berkedok tagihan listrik untuk mengambil data korban; saran umumnya memeriksa pengirim dan memverifikasi ke call center resmi. Catatan: sumber ini hanya media, bukan pernyataan PLN, jadi verifikasi lewat kanal resmi PLN.",
+   "fakta": "Komdigi mencatat pesan WhatsApp yang mengatasnamakan PLN dan meminta pelanggan mengunduh serta membuka aplikasi untuk penagihan biaya listrik sebagai hoaks, dan PLN menegaskan layanannya terpusat lewat PLN Mobile serta bukan lewat berkas atau aplikasi dari pesan.",
    "sederhana": "Tagihan listrik tidak datang berupa file APK. Cek tagihan hanya lewat aplikasi atau layanan resmi PLN.",
    "sumber": [
     {
      "nama": "VIVA: Hindari jebakan penipu, begini cara aman dari serangan file APK",
      "url": "https://techno.viva.co.id/lifestyle/2775-hindari-jebakan-penipu-begini-cara-aman-dari-serangan-file-apk?page=1",
      "jenis": "media"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp tagihan listrik mengatasnamakan PLN",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-tagihan-listrik-mengatasnamakan-pln",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp penagihan biaya listrik mengatasnamakan PT PLN (Persero)",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-penagihan-biaya-listrik-mengatasnamakan-pt-pln-persero",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "PLN: Waspada penipuan, semua layanan PLN terpusat hanya lewat PLN Mobile",
+     "url": "https://web.pln.co.id/media/siaran-pers/2023/08/waspada-penipuan-semua-layanan-pln-terpusat-hanya-lewat-pln-mobile",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -753,6 +818,16 @@ globalThis.HalioEngineData = {
      "nama": "Bisnis.com: Waspada modus penipuan undangan PPS Pemilu di WA, lakukan ini jika telanjur klik",
      "url": "https://finansial.bisnis.com/read/20240115/90/1732310/waspada-modus-penipuan-undangan-pps-pemilu-di-wa-lakukan-ini-jika-telanjur-klik",
      "jenis": "media"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp aplikasi PPS Pemilu 2024",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-aplikasi-pps-pemilu-2024",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] File APK data TPS Pemilu 2024",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-file-apk-data-tps-pemilu-2024",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -952,6 +1027,16 @@ globalThis.HalioEngineData = {
      "nama": "Tirto: Hoaks lowongan kerja mengatasnamakan BNN",
      "url": "https://tirto.id/hoaks-lowongan-kerja-mengatasnamakan-bnn-g497",
      "jenis": "cek_fakta"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Tautan rekrutmen pegawai BUMN",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-tautan-rekrutmen-pegawai-bumn",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pendaftaran rekrutmen pegawai BUMN 2024",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pendaftaran-rekrutmen-pegawai-bumn-2024",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -1134,6 +1219,11 @@ globalThis.HalioEngineData = {
      "nama": "RRI Cek Fakta: Hoaks tautan pendaftaran lowongan kerja untuk program MBG 2026",
      "url": "https://rri.co.id/banjarmasin/cek-fakta/2177548/hoaks-tautan-pendaftaran-lowongan-kerja-untuk-program-mbg-2026",
      "jenis": "cek_fakta"
+    },
+    {
+     "nama": "TurnBackHoax: [PENIPUAN] Tautan pendaftaran lowongan kerja program MBG",
+     "url": "https://turnbackhoax.id/articles/35161-penipuan-tautan-pendaftaran-lowongan-kerja-program-mbg",
+     "jenis": "cek_fakta"
     }
    ],
    "syarat": [
@@ -1285,6 +1375,16 @@ globalThis.HalioEngineData = {
      "nama": "Tirto: Penipuan berkedok bantuan BPJS Kesehatan senilai puluhan juta",
      "url": "https://tirto.id/penipuan-berkedok-bantuan-bpjs-kesehatan-senilai-puluhan-juta-gYfk",
      "jenis": "cek_fakta"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Pesan WhatsApp bantuan BPJS Kesehatan sebesar Rp75 juta",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-pesan-whatsapp-bantuan-bpjs-kesehatan-sebesar-rp75-juta",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Dana bantuan dari BPJS Kesehatan",
+     "url": "https://www.komdigi.go.id/berita/pengumuman/detail/hoaks-dana-bantuan-dari-bpjs-kesehatan",
+     "jenis": "resmi"
     }
    ],
    "syarat": [
@@ -1309,7 +1409,7 @@ globalThis.HalioEngineData = {
     "obat cacing dari puskesmas membawa virus baru",
     "program imunisasi dan obat cacing sengaja menularkan virus"
    ],
-   "fakta": "Cek fakta Tirto menyimpulkan klaim bahwa obat cacing dan imunisasi menyebarkan virus baru tidak benar. Catatan: ringkasan ini hanya mengikuti judul cek fakta tersebut; buka artikelnya untuk rinciannya.",
+   "fakta": "Komdigi dan Kemenkes menyatakan klaim bahwa pembagian obat cacing ke anak sekolah menyebarkan virus baru adalah hoaks lama yang kembali beredar; obat dan vaksin untuk masyarakat dipastikan keamanan, mutu, dan khasiatnya. Cek fakta Tirto juga menyimpulkan klaim obat cacing dan imunisasi menyebarkan virus baru tidak benar.",
    "sederhana": "Tidak benar. Obat cacing dan imunisasi tidak menyebarkan virus baru.",
    "sumber": [
     {
@@ -1320,6 +1420,11 @@ globalThis.HalioEngineData = {
     {
      "nama": "Kemenkes: Kemenkes serius perangi hoax kesehatan",
      "url": "https://www.kemkes.go.id/id/kemenkes-serius-perangi-hoax-kesehatan",
+     "jenis": "resmi"
+    },
+    {
+     "nama": "Komdigi: [HOAKS] Virus baru disebarkan ke anak sekolah lewat pembagian obat cacing",
+     "url": "https://www.komdigi.go.id/berita/berita-hoaks/detail/hoaks-virus-baru-disebarkan-ke-anak-sekolah-lewat-pembagian-obat-cacing",
      "jenis": "resmi"
     }
    ],
@@ -1432,6 +1537,72 @@ globalThis.HalioEngineData = {
    "wilayah": "Nasional",
    "tolak": [
     "\\b(bayar|membayar|transfer|setor|calo|pelicin|orang dalam|ordal|titip|titipan|dp|uang muka|cicil|biaya)\\b",
+    "\\b(rp ?\\d|\\d+ ?(juta|jt|ribu|rb|miliar))\\b"
+   ],
+   "signed": true
+  },
+  {
+   "id": "resmi-ppid-akmil-tidak-dipungut-biaya",
+   "kategori": "buletin_resmi",
+   "klaim": "Seleksi Calon Taruna Akademi Militer (Akmil) sama sekali tidak dipungut biaya",
+   "varian": [
+    "seleksi taruna Akmil tidak dipungut biaya",
+    "masuk Akademi Militer gratis tanpa biaya",
+    "pendaftaran catar Akmil gratis"
+   ],
+   "fakta": "Halaman resmi PPID TNI AD menyatakan: \"Proses seleksi Calon Taruna Akademi Militer (Catar Akmil) sama sekali tidak dipungut biaya (GRATIS).\"",
+   "sederhana": "Seleksi taruna Akmil gratis. Tidak ada tarif dan tidak ada jalur bayar.",
+   "sumber": [
+    {
+     "nama": "PPID TNI AD: TNI AD Tegaskan Seleksi Taruna Akmil Tidak Dipungut Biaya",
+     "url": "https://ppid.tniad.mil.id/index.php/i/17096/tni%20-ad%20-tegaskan%20-seleksi%20-taruna%20-akmil%20-tidak%20-dipungut%20-biaya",
+     "jenis": "resmi"
+    }
+   ],
+   "syarat": [
+    "\\b(akmil|akademi militer|taruna|catar)\\b",
+    "\\b(gratis|tidak dipungut biaya|tanpa biaya|bebas biaya)\\b"
+   ],
+   "jenis": "verifikasi_positif",
+   "kutipan_sumber": "Proses seleksi Calon Taruna Akademi Militer (Catar Akmil) sama sekali tidak dipungut biaya (GRATIS).",
+   "valid_from": "2026-11-20",
+   "valid_until": "2027-06-30",
+   "wilayah": "Nasional",
+   "tolak": [
+    "\\b(bayar|membayar|transfer|setor|calo|pelicin|orang dalam|ordal|titip|titipan|dp|uang muka|cicil)\\b",
+    "\\b(rp ?\\d|\\d+ ?(juta|jt|ribu|rb|miliar))\\b"
+   ],
+   "signed": true
+  },
+  {
+   "id": "resmi-danrem-161-casis-gratis",
+   "kategori": "buletin_resmi",
+   "klaim": "Rekrutmen calon prajurit TNI AD di NTT dibuka umum dan 100% gratis tanpa pungutan biaya apa pun",
+   "varian": [
+    "rekrutmen prajurit TNI AD di NTT 100% gratis",
+    "pendaftaran casis TNI AD Nusa Tenggara Timur tanpa pungutan biaya",
+    "rekrutmen tentara di NTT dibuka umum gratis"
+   ],
+   "fakta": "Halaman resmi PPID TNI AD menyatakan: \"proses rekrutmen ini dibuka secara umum dan 100% GRATIS untuk seluruh warga negara Indonesia, khususnya putra Nusa Tenggara Timur (NTT), tanpa ada pungutan biaya apapun\"",
+   "sederhana": "Rekrutmen calon prajurit TNI AD di NTT dibuka untuk umum dan 100% gratis.",
+   "sumber": [
+    {
+     "nama": "PPID TNI AD: Klarifikasi Danrem 161/Wira Sakti soal pengumuman casis di medsos",
+     "url": "https://ppid.tniad.mil.id/i/26649/terkait%20-pengumuman%20-casis%20-yang%20-beredar%20-di%20-medsos%20-ini%20-klarifikasi%20-danrem%20-161wira%20-sakti.",
+     "jenis": "resmi"
+    }
+   ],
+   "syarat": [
+    "\\b(rekrutmen|pendaftaran|casis|prajurit|tamtama|bintara|tni)\\b",
+    "\\b(gratis|tidak dipungut biaya|tanpa biaya|bebas biaya|tanpa ada pungutan)\\b"
+   ],
+   "jenis": "verifikasi_positif",
+   "kutipan_sumber": "proses rekrutmen ini dibuka secara umum dan 100% GRATIS untuk seluruh warga negara Indonesia, khususnya putra Nusa Tenggara Timur (NTT), tanpa ada pungutan biaya apapun",
+   "valid_from": "2026-11-20",
+   "valid_until": "2027-06-30",
+   "wilayah": "NTT",
+   "tolak": [
+    "\\b(bayar|membayar|transfer|setor|calo|pelicin|orang dalam|ordal|titip|titipan|dp|uang muka|cicil)\\b",
     "\\b(rp ?\\d|\\d+ ?(juta|jt|ribu|rb|miliar))\\b"
    ],
    "signed": true
