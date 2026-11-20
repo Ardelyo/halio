@@ -56,6 +56,10 @@ class Debunk:
     valid_from: str | None = None
     valid_until: str | None = None
     wilayah: str = ""
+    # pola yang bila ada membatalkan konfirmasi positif (mis. "bayar", "calo" di pesan yang mengaku "gratis")
+    tolak: list[str] = field(default_factory=list)
+    # True hanya utk entri dari registri buletin resmi yang tanda tangannya terverifikasi (tidak bisa diisi dari debunks.json)
+    signed: bool = False
 
     def __post_init__(self) -> None:
         if self.jenis not in {"bantahan", "verifikasi_positif"}:
@@ -80,6 +84,11 @@ class Debunk:
     @property
     def texts(self) -> list[str]:
         return [self.klaim, *self.varian]
+
+    def blocked(self, text: str) -> bool:
+        """True kalau ada pola 'tolak' di teks: pesan menambahkan unsur yang tidak ada di buletin."""
+        low = fold(text)
+        return any(re.search(p, low) for p in self.tolak)
 
     def core_present(self, text: str) -> bool:
         """True if every 'syarat' group appears in the text, not negated and not defused."""
@@ -154,10 +163,57 @@ class Index:
 
 def load_debunks(path: Path) -> list[Debunk]:
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    return [Debunk(**{k: d[k] for k in Debunk.__dataclass_fields__ if k in d}) for d in raw["debunks"]]
+    # "signed" tidak boleh diisi dari debunks.json: cuma loader registri bertanda tangan yang boleh menyalakannya
+    return [Debunk(**{k: d[k] for k in Debunk.__dataclass_fields__ if k in d and k != "signed"}) for d in raw["debunks"]]
+
+
+REGISTRY_FILE = "official_bulletins.json"
+REGISTRY_PUBKEY = "registry_pubkey.pem"
+_OFFICIAL_HOST = (".go.id", ".mil.id")
+
+
+def registry_payload(bulletins: list[dict]) -> dict:
+    """Isi yang ditandatangani: hash kanonik seluruh daftar buletin. Mengubah satu huruf = tanda tangan batal."""
+    from . import crypto_sign
+
+    return {"kind": "buletin_resmi_tni", "count": len(bulletins), "bulletins_sha256": crypto_sign.sha256_hex(crypto_sign.canonical(bulletins))}
+
+
+def load_registry(data_dir: Path) -> list[Debunk]:
+    """Registri buletin resmi bertanda tangan Ed25519. Tanda tangan salah / berkas rusak = registri DIABAIKAN seluruhnya (tidak ada
+    buletin yang dipercaya setengah-setengah). Kunci publik di data/registry_pubkey.pem adalah jangkar kepercayaan satuan."""
+    from . import crypto_sign
+
+    reg, key = Path(data_dir) / REGISTRY_FILE, Path(data_dir) / REGISTRY_PUBKEY
+    if not (reg.exists() and key.exists()):
+        return []
+    try:
+        raw = json.loads(reg.read_text(encoding="utf-8"))
+        ok, _ = crypto_sign.verify_payload(raw.get("signature"), key.read_text(encoding="ascii"))
+        bulletins = raw["bulletins"]
+        if not ok or raw["signature"]["payload"] != registry_payload(bulletins):
+            return []
+        out = []
+        for b in bulletins:
+            src = b["sumber"][0]
+            host = src["url"].split("//", 1)[-1].split("/", 1)[0].lower()
+            # tiap buletin wajib: jenis positif, sumber resmi https di .go.id/.mil.id, kutipan persis ada di fakta, ada masa berlaku
+            if (b.get("jenis") != "verifikasi_positif" or src.get("jenis") != "resmi" or not src["url"].startswith("https://")
+                    or not host.endswith(_OFFICIAL_HOST) or not b.get("kutipan_sumber") or b["kutipan_sumber"] not in b["fakta"]
+                    or not b.get("valid_from")):
+                return []
+            out.append(Debunk(**{k: b[k] for k in Debunk.__dataclass_fields__ if k in b and k != "signed"}, signed=True))
+        return out
+    except (OSError, ValueError, KeyError, TypeError, IndexError):
+        return []
+
+
+def load_corpus(path: Path) -> list[Debunk]:
+    """Korpus kurasi + registri buletin resmi (kalau ada di folder yang sama dan tanda tangannya sah)."""
+    return load_debunks(path) + load_registry(Path(path).parent)
 
 
 # simpen index korpus di cache biar enteng ga ngitung ulang TF-IDF tiap request
 @lru_cache(maxsize=4)
 def get_index(path: Path) -> Index:
-    return Index(load_debunks(path))
+    return Index(load_corpus(path))

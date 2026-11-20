@@ -18,7 +18,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 
-from . import archive, attribution, claims, evidence, factcheck_api, google_agent, link_check, llm_verdict, manipulation
+from . import archive, attribution, claims, evidence, factcheck_api, forensics, google_agent, link_check, llm_verdict, manipulation
 from .config import Settings
 from .dates import human_date
 from .pii import extract_domains
@@ -125,6 +125,7 @@ def _check_many(text: str, units: list[str], cfg: Settings, sapaan: str, manip: 
         "reason": "beberapa_klaim",
         "manipulation": manip,
         "links": {"domains": domains, "warnings": [], "checked": []},
+        "forensics": forensics.analyze_text(text, domains),
         "claims": [{k: r.get(k) for k in ("claim", "status", "status_label", "reason", "match", "evidence", "kind", "info")} for r in subs],
         "voice_script": f"{sapaan}, pesan ini berisi {n} klaim yang berbeda. {parts.capitalize()}. Halio menjawab satu per satu di bawah.",
         "offer_human_review": any(r["offer_human_review"] for r in subs),
@@ -282,6 +283,12 @@ def _voice(status: str, reason: str, sapaan: str, match: Match | None, manip: di
     )
 
 
+def _signed_bulletin_ok(d, text: str, domains: list[str], today: date) -> bool:
+    """Gerbang konfirmasi luring dari registri buletin resmi. Semua harus lolos; satu saja gagal = jatuh ke 'perlu verifikasi AI'."""
+    return (d.signed and d.is_current(today) and d.core_present(text) and not d.blocked(text)
+            and all(h.endswith(OFFICIAL_SUFFIXES) for h in domains))
+
+
 def _search_sentences(index, claim_text: str, k: int = 3, min_tokens: int = 5) -> list:
     """Score the claim as a whole AND each of its sentences, keeping each debunk's best score.
 
@@ -333,11 +340,15 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
             return _check_many(text, units, cfg, sapaan, manip, domains)
     correction = is_correction(text)
     # jgn disentuh kl blm ngopi, urutan prioritas penentuan vonis di bawah ini krusial bgt biar ga salah tuduh
-    if best and best.score >= cfg.unsure_threshold and correction and not best.debunk.is_positive:
+    if best and best.score >= cfg.unsure_threshold and correction and (not best.debunk.is_positive or best.debunk.signed):
         # pesannya lagi ngingetin/ngelurusin hoaks ("awas itu hoaks", "BMKG membantah"), jangan malah dicap hoaks!
         status, reason = "tidak_yakin", "tampak_meluruskan"
     elif not claim.is_factual and (not best or best.score < cfg.match_threshold):
         status, reason = "tidak_yakin", "bukan_klaim_faktual"
+    elif best and best.score >= cfg.match_threshold and best.debunk.signed and _signed_bulletin_ok(best.debunk, text, domains, datetime.now(WIB).date()):
+        # buletin resmi bertanda tangan, masih berlaku, inti klaim ada dan tidak ada unsur tambahan/tautan non-resmi: boleh luring
+        status, reason = "sejalan_dengan_sumber", "cocok_dengan_buletin_resmi"
+        method.append("buletin_resmi")
     elif best and best.score >= cfg.match_threshold and best.debunk.is_positive:
         status, reason = "tidak_yakin", "memerlukan_verifikasi_ai"
     elif best and best.score >= cfg.match_threshold and not best.debunk.core_present(text):
@@ -456,6 +467,7 @@ def check(text: str, cfg: Settings, sapaan: str = "Bapak, Ibu", _depth: int = 0)
         "attribution": attrib,
         "manipulation": manip,
         "links": {"domains": domains, "warnings": _all_link_warnings(domains, checked_links), "checked": checked_links},
+        "forensics": forensics.analyze_text(text, domains),
         "kind": kind,
         "info": info,
         "voice_script": _voice(status, reason, sapaan, shown, manip, info, (evidence_out or {}).get("alasan", "")),

@@ -33,9 +33,12 @@ def build() -> dict:
     return {
         "version": "luring-1",
         "corpusSha256": hashlib.sha256(raw).hexdigest(),
+        "registrySha256": hashlib.sha256((CORPUS.parent / retrieval.REGISTRY_FILE).read_bytes()).hexdigest() if (CORPUS.parent / retrieval.REGISTRY_FILE).exists() else None,
         "thresholds": {"match": cfg.match_threshold, "unsure": cfg.unsure_threshold},
-        "corpus": [{k: d[k] for k in keep if k in d} for d in corpus["debunks"]],
+        # korpus kurasi + registri buletin resmi yang tanda tangannya SAH (diverifikasi di sini, saat build; peramban mempercayai hasilnya)
+        "corpus": [{k: getattr(d, k) for k in keep} for d in retrieval.load_corpus(CORPUS)],
         "slang": textnorm.SLANG,
+        "phrases": [list(p) for p in textnorm.PHRASES],
         "stopwords": sorted(textnorm.STOPWORDS),
         "claimCues": sorted(claims.CLAIM_CUES),
         "opinionCues": list(claims.OPINION_CUES),

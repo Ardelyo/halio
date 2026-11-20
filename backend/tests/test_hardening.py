@@ -333,5 +333,7 @@ def test_genuinely_different_claims_are_still_split():
 def test_true_message_on_a_hoax_topic_is_not_told_to_be_held_back():
     text = "Pendaftaran Tamtama TNI AD 2026 dilakukan secara online melalui situs resmi penerimaan TNI AD dan seluruh tahapannya tidak dipungut biaya."
     r = pipeline.check(text, CFG)
-    assert r["status"] == "tidak_yakin" and r["reason"] == "inti_klaim_tidak_ada"
-    assert "tidak memuat bagian yang bohong" in r["voice_script"] and "ditahan" not in r["voice_script"]
+    # sebelum registri buletin resmi: tidak_yakin/inti_klaim_tidak_ada. Sekarang pernyataan benar ini cocok dgn buletin resmi
+    # bertanda tangan (gratis, tanpa unsur bayar/calo) jadi boleh dikonfirmasi luring. Intinya tetap: TIDAK dicap hoaks dan TIDAK disuruh ditahan.
+    assert r["status"] == "sejalan_dengan_sumber" and r["reason"] == "cocok_dengan_buletin_resmi"
+    assert "ditahan" not in r["voice_script"] and "jangan diteruskan" not in r["voice_script"].lower()
