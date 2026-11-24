@@ -5,4 +5,4 @@ httpx==0.28.1
 # buat render kartu hasil cek PNG sm gambar thumbnail
 pillow==13.0.0
 pydantic==2.14.2
-cryptography==46.0.3
+cryptography==50.0.2
